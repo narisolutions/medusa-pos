@@ -6,11 +6,13 @@ import { Toaster } from "sonner";
 import Backdrop from "./components/base/backdrop";
 import useAppInit from "./hooks/auth/useAppInit";
 import useApplyStoreTheme from "./hooks/ui/useApplyStoreTheme";
+import useUpdateCheck from "./hooks/useUpdateCheck";
 import { useUser } from "./context/user";
 
 // Rendered inside QueryClientProvider so hooks like useQueryStore are available
 function AppContent() {
   useApplyStoreTheme();
+  useUpdateCheck();
   return (
     <>
       <RouterProvider router={router} />

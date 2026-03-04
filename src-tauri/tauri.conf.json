@@ -28,6 +28,14 @@
     },
     "withGlobalTauri": true
   },
+  "plugins": {
+    "updater": {
+      "endpoints": [
+        "https://github.com/narisolutions/medusa-pos/releases/latest/download/latest.json"
+      ],
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IEJERDhBRUM1N0Y4NzkyOUIKUldTYmtvZC94YTdZdldyeG5uaWlOUDF1MHN3eXRNZ2xhVFNqREh5MjFzL2FEY2pGdndsRmtEa0IK"
+    }
+  },
   "bundle": {
     "active": true,
     "targets": ["appimage", "dmg", "msi"],

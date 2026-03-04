@@ -21,6 +21,8 @@
     "fs:scope-download",
     "fs:scope-home",
     "dialog:allow-open",
+    "process:allow-restart",
+    "updater:default",
     {
       "allow": [
         {

@@ -34,4 +34,6 @@ tauri-plugin-fs = "2.4"
 tauri-plugin-dialog = "2.6"
 log = "0.4.27"
 tauri-plugin-log = "2.8"
+tauri-plugin-process = "2"
+tauri-plugin-updater = "2"
 
