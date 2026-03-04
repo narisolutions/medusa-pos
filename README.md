@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="public/logo.png" alt="Medusa POS Logo" width="220" />
+</p>
+
 # Medusa POS
 
 A cross-platform Point of Sale application built on [Medusa](https://medusajs.com/) and [Tauri 2](https://tauri.app/). Runs as a native desktop application on Linux, macOS, and Windows, with Android APK support via Tauri Mobile.
