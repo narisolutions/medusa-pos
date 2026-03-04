@@ -1,0 +1,39 @@
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "description": "Capability for the main window",
+  "identifier": "default",
+  "permissions": [
+    "core:default",
+    "opener:default",
+    "store:default",
+    "core:app:default",
+    "core:event:default",
+    "http:allow-fetch",
+    "http:allow-fetch-send",
+    "http:allow-fetch-read-body",
+    "http:allow-fetch-cancel",
+    "log:default",
+    "fs:default",
+    "fs:allow-read-dir",
+    "fs:allow-read-file",
+    "fs:allow-write-file",
+    "fs:allow-exists",
+    "fs:scope-download",
+    "fs:scope-home",
+    "dialog:allow-open",
+    {
+      "allow": [
+        {
+          "url": "https://commerce-api.qnarigroup.com/**"
+        },
+        {
+          "url": "https://commerce-api-staging.qnarigroup.com/**"
+        }
+      ],
+      "identifier": "http:allow-fetch"
+    }
+  ],
+  "windows": [
+    "main"
+  ]
+}

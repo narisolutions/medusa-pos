@@ -1,0 +1,365 @@
+import React from "react";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Numpad } from "@/components/ui/numpad";
+import { Skeleton } from "@/components/ui/skeleton";
+import { formatPrice } from "@/utils/helpers";
+import { usePaymentModal } from "./hooks";
+import ConfirmationDialog from "./confirmation-dialog";
+import { CreditCard } from "lucide-react";
+
+interface PaymentModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  draftOrderId?: string | null;
+}
+
+const PaymentModal: React.FC<PaymentModalProps> = ({
+  isOpen,
+  onClose,
+  draftOrderId,
+}) => {
+  const {
+    customerPaid,
+    isProcessing,
+    tax,
+    total,
+    change,
+    canProcessPayment,
+    quickAmounts,
+    showConfirmation,
+    handleCashValueChange,
+    handleClose,
+    handleQuickAmount,
+    handleExactAmount,
+    handleCompleteClick,
+    handleConfirmPayment,
+    setShowConfirmation,
+    items,
+    paymentMethodInfo,
+    isCashPayment,
+    draftOrder,
+    billCounts,
+  } = usePaymentModal(draftOrderId, onClose, isOpen);
+
+  const isLoading = !draftOrder;
+
+  const handleDialogChange = (open: boolean) => {
+    if (!open) {
+      handleClose();
+    }
+  };
+
+  const PaymentIcon = paymentMethodInfo.icon;
+
+  return (
+    <Dialog open={isOpen} onOpenChange={handleDialogChange}>
+      <DialogContent
+        className="max-w-6xl h-[85vh] p-0 flex flex-col overflow-hidden gap-0"
+        preventOutsideClose={true}
+      >
+        {/* Simple Header */}
+        <div className="bg-white border-b px-6 py-4 flex items-center justify-between shrink-0">
+          <div>
+            <DialogTitle className="text-xl font-bold text-gray-900">
+              Payment
+            </DialogTitle>
+            <div className="flex items-center gap-2 mt-1">
+              <PaymentIcon className="w-4 h-4 text-gray-500" />
+              <span className="text-sm text-gray-600">
+                {paymentMethodInfo.label}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <div className="flex-1 flex min-h-0 overflow-hidden">
+          {/* Left: Items Summary */}
+          <div className="w-80 bg-gray-50 border-r overflow-y-auto">
+            <div className="p-4">
+              <div className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">
+                Order Summary · {items.length} items
+              </div>
+              <div className="space-y-2">
+                {items.map((item) => {
+                  const itemTitle = item.title || "-";
+                  const unitPrice = item.unit_price || 0;
+                  const quantity = item.quantity || 0;
+                  const lineTotal = unitPrice * quantity;
+
+                  return (
+                    <div
+                      key={item.variant_id}
+                      className="bg-white rounded p-3 text-sm"
+                    >
+                      <div className="font-medium text-gray-900 mb-1">
+                        {itemTitle}
+                      </div>
+                      <div className="flex justify-between text-xs text-gray-600">
+                        <span>
+                          {quantity} × {formatPrice(unitPrice)}
+                        </span>
+                        <span className="font-semibold">
+                          {formatPrice(lineTotal)}
+                        </span>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+
+          {/* Right: Payment Interface */}
+          <div className="flex-1 flex flex-col">
+            {isCashPayment ? (
+              <div className="flex-1 p-8">
+                <div className="h-full flex flex-col">
+                  {/* Top: Total & Cash Tendered */}
+                  <div className="grid grid-cols-2 gap-8 mb-6">
+                    <div className="flex flex-col">
+                      <div className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
+                        Total Due
+                      </div>
+                      {isLoading ? (
+                        <>
+                          <Skeleton className="h-[60px] w-full mb-1 bg-gray-200" />
+                          <Skeleton className="h-5 w-48 bg-gray-200" />
+                        </>
+                      ) : (
+                        <>
+                          <div className="text-6xl font-bold text-gray-900">
+                            {formatPrice(total)}
+                          </div>
+                          {tax > 0 && (
+                            <div className="text-sm text-gray-500 mt-2">
+                              Including VAT {formatPrice(tax)}
+                            </div>
+                          )}
+                        </>
+                      )}
+                    </div>
+
+                    <div className="flex flex-col">
+                      <div className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
+                        Cash Tendered
+                      </div>
+                      <div className="relative">
+                        <Input
+                          type="number"
+                          value={customerPaid}
+                          onChange={(e) =>
+                            handleCashValueChange(e.target.value)
+                          }
+                          placeholder="0.00"
+                          className="text-5xl h-24 text-right font-bold border-2 pr-16 rounded-lg"
+                          step="0.01"
+                          min="0"
+                          inputMode="decimal"
+                        />
+                        <span className="absolute right-5 top-1/2 -translate-y-1/2 text-4xl text-gray-400">
+                          ₾
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Quick Amounts & Numpad*/}
+                  <div className="grid grid-cols-2 gap-8 mb-6">
+                    <div className="flex flex-col">
+                      <div className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
+                        Quick Amounts
+                      </div>
+                      <div className="grid grid-cols-2 gap-3">
+                        {quickAmounts.map((amount) => {
+                          const count = billCounts[amount] || 0;
+                          return (
+                            <div key={amount} className="relative">
+                              <button
+                                onClick={() => handleQuickAmount(amount, false)}
+                                onContextMenu={(e) => {
+                                  e.preventDefault();
+                                  handleQuickAmount(amount, true);
+                                }}
+                                className="relative w-full h-16 bg-white border-2 border-gray-300 rounded-lg hover:border-gray-400 hover:bg-gray-50 transition-all flex items-center justify-center cursor-pointer active:scale-[0.98] touch-manipulation"
+                              >
+                                <div className="absolute top-1.5 left-1.5 w-2 h-2 border-t border-l border-gray-400"></div>
+                                <div className="absolute top-1.5 right-1.5 w-2 h-2 border-t border-r border-gray-400"></div>
+                                <div className="absolute bottom-1.5 left-1.5 w-2 h-2 border-b border-l border-gray-400"></div>
+                                <div className="absolute bottom-1.5 right-1.5 w-2 h-2 border-b border-r border-gray-400"></div>
+                                
+                                <span className="text-xl font-semibold text-gray-800">
+                                  {amount}
+                                </span>
+                                
+                                {count > 0 && (
+                                  <div className="absolute -top-1.5 -right-1.5 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs font-semibold border border-white">
+                                    {count}
+                                  </div>
+                                )}
+                              </button>
+                            </div>
+                          );
+                        })}
+                        {/* Exact Amount Button */}
+                        <div className="relative col-span-2">
+                          <button
+                            onClick={handleExactAmount}
+                            className="relative w-full h-16 bg-blue-50 border-2 border-blue-300 rounded-lg hover:border-blue-400 hover:bg-blue-100 transition-all flex items-center justify-center cursor-pointer active:scale-[0.98] touch-manipulation"
+                          >
+                            <span className="text-base font-semibold text-blue-800">
+                              Exact Amount
+                            </span>
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex flex-col">
+                      <div className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
+                        Numpad
+                      </div>
+                      <div className="flex items-center justify-center">
+                        <Numpad
+                          value={customerPaid}
+                          onChange={handleCashValueChange}
+                          onEnter={
+                            canProcessPayment
+                              ? handleCompleteClick
+                              : undefined
+                          }
+                          allowDecimal={true}
+                          hideActions={true}
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Bottom: Actions */}
+                  <div className="mt-auto space-y-4">
+                    <div className="h-20 flex items-center">
+                      {customerPaid && parseFloat(customerPaid) > 0 && (
+                        <div
+                          className={`w-full p-4 rounded-lg flex items-center justify-between ${
+                            change >= 0
+                              ? "bg-emerald-100 border-2 border-emerald-400"
+                              : "bg-rose-100 border-2 border-rose-400"
+                          }`}
+                        >
+                          <span
+                            className={`text-sm font-bold uppercase tracking-wider ${
+                              change >= 0
+                                ? "text-emerald-800"
+                                : "text-rose-800"
+                            }`}
+                          >
+                            {change >= 0 ? "Change Due" : "Amount Short"}
+                          </span>
+                          <span
+                            className={`text-3xl font-bold ${
+                              change >= 0
+                                ? "text-emerald-800"
+                                : "text-rose-800"
+                            }`}
+                          >
+                            {formatPrice(Math.abs(change))}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4">
+                      <Button
+                        variant="outline"
+                        onClick={handleClose}
+                        disabled={isProcessing}
+                        className="h-16 text-lg font-semibold"
+                      >
+                        Cancel
+                      </Button>
+                      <Button
+                        onClick={handleCompleteClick}
+                        disabled={!canProcessPayment || isProcessing}
+                        className="h-16 text-xl font-bold bg-primary hover:bg-primary/90 disabled:opacity-40 text-white"
+                      >
+                        {isProcessing ? "Processing..." : "Complete Payment"}
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              /* CARD PAYMENT  */
+              <div className="flex-1 flex items-center justify-center p-8">
+                <div className="max-w-lg w-full text-center space-y-8">
+                  <div>
+                    <div className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">
+                      Amount
+                    </div>
+                    {isLoading ? (
+                      <>
+                        <Skeleton className="h-[96px] w-full mb-2 mx-auto bg-gray-200" />
+                        <Skeleton className="h-5 w-48 mx-auto bg-gray-200" />
+                      </>
+                    ) : (
+                      <>
+                        <div className="text-8xl font-bold text-gray-900">
+                          {formatPrice(total)}
+                        </div>
+                        {tax > 0 && (
+                          <div className="text-sm text-gray-500 mt-2">
+                            Including VAT {formatPrice(tax)}
+                          </div>
+                        )}
+                      </>
+                    )}
+                  </div>
+
+                  <div className="flex justify-center py-6">
+                    <div className="w-32 h-32 rounded-2xl bg-gray-100 flex items-center justify-center">
+                      <CreditCard className="w-16 h-16 text-gray-400" />
+                    </div>
+                  </div>
+
+                  <p className="text-lg text-gray-600">
+                    Please present card to the payment terminal
+                  </p>
+
+                  <div className="flex gap-4 pt-8">
+                    <Button
+                      variant="outline"
+                      onClick={handleClose}
+                      disabled={isProcessing}
+                      className="flex-1 h-16 text-lg font-semibold"
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      onClick={handleCompleteClick}
+                      disabled={!canProcessPayment || isProcessing}
+                      className="flex-2 h-16 text-xl font-bold bg-primary hover:bg-primary/90 disabled:opacity-40 text-white"
+                    >
+                      {isProcessing ? "Processing..." : "Confirm Payment"}
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      </DialogContent>
+
+      {/* Confirmation Dialog */}
+      <ConfirmationDialog
+        isOpen={showConfirmation}
+        onCancel={() => setShowConfirmation(false)}
+        onConfirm={handleConfirmPayment}
+        isProcessing={isProcessing}
+        total={total}
+      />
+    </Dialog>
+  );
+};
+
+export default PaymentModal;
