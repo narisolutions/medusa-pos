@@ -7,6 +7,8 @@ import { execSync } from "child_process";
 const host = process.env.TAURI_DEV_HOST;
 
 function getGitVersion(): string {
+  // CI sets APP_VERSION to the release version
+  if (process.env.APP_VERSION) return process.env.APP_VERSION;
   try {
     execSync('git fetch --tags --quiet', { encoding: 'utf-8', stdio: 'ignore' });
   } catch {

@@ -1,0 +1,174 @@
+# Release workflow — builds a Windows MSI installer, signs updater artifacts,
+# and publishes a GitHub Release.
+#
+# Triggers:
+#   - Push a tag:  git tag v1.0.5 && git push origin v1.0.5
+#   - Manual:      Actions > Release > Run workflow (enter version e.g. "1.0.5")
+#
+# Required secrets (repo Settings > Secrets > Actions):
+#   TAURI_SIGNING_PRIVATE_KEY          — private key for signing updater artifacts
+#   TAURI_SIGNING_PRIVATE_KEY_PASSWORD — password for the key (empty string if none)
+#
+# Generate the keypair with:
+#   npx @tauri-apps/cli signer generate -w ~/.tauri/medusa-pos.key
+#
+# The updater endpoint the app should use (once tauri-plugin-updater is added):
+#   https://github.com/OWNER/REPO/releases/latest/download/latest.json
+#
+# To add macOS / Linux builds later, uncomment the matrix entries below and add
+# the corresponding runner (macos-latest, ubuntu-22.04).
+
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Release version (e.g. 1.0.5, without 'v' prefix)"
+        required: true
+        type: string
+      prerelease:
+        description: "Mark as pre-release"
+        required: false
+        default: false
+        type: boolean
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: windows-latest
+            target: x86_64-pc-windows-msvc
+          # Uncomment to add macOS builds:
+          # - platform: macos-latest
+          #   target: aarch64-apple-darwin
+          # - platform: macos-latest
+          #   target: x86_64-apple-darwin
+          # Uncomment to add Linux builds:
+          # - platform: ubuntu-22.04
+          #   target: x86_64-unknown-linux-gnu
+
+    runs-on: ${{ matrix.platform }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # --------------- Resolve & validate version ---------------
+
+      - name: Resolve version
+        id: version
+        shell: bash
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            VERSION="${{ inputs.version }}"
+          else
+            # Strip 'v' prefix from tag (refs/tags/v1.0.5 → 1.0.5)
+            VERSION="${GITHUB_REF_NAME#v}"
+          fi
+          echo "value=$VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Validate version format
+        shell: bash
+        run: |
+          if ! echo "${{ steps.version.outputs.value }}" | grep -qE '^[0-9]+\.[0-9]+\.[0-9]+'; then
+            echo "::error::Invalid version format '${{ steps.version.outputs.value }}'. Expected X.Y.Z"
+            exit 1
+          fi
+
+      - name: Update package.json version
+        shell: bash
+        run: |
+          VERSION="${{ steps.version.outputs.value }}"
+          # Use node to update version in-place (cross-platform, no jq dependency)
+          node -e "
+            const fs = require('fs');
+            const pkg = JSON.parse(fs.readFileSync('package.json', 'utf8'));
+            pkg.version = '$VERSION';
+            fs.writeFileSync('package.json', JSON.stringify(pkg, null, 2) + '\n');
+          "
+          echo "Updated package.json version to $VERSION"
+
+      # --------------- Detect package manager ---------------
+
+      - name: Detect package manager
+        id: pm
+        shell: bash
+        run: |
+          if [ -f "pnpm-lock.yaml" ]; then
+            echo "manager=pnpm" >> "$GITHUB_OUTPUT"
+            echo "install=pnpm install --frozen-lockfile" >> "$GITHUB_OUTPUT"
+          elif [ -f "yarn.lock" ]; then
+            echo "manager=yarn" >> "$GITHUB_OUTPUT"
+            echo "install=yarn install --frozen-lockfile" >> "$GITHUB_OUTPUT"
+          else
+            echo "manager=npm" >> "$GITHUB_OUTPUT"
+            echo "install=npm ci" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Install pnpm
+        if: steps.pm.outputs.manager == 'pnpm'
+        uses: pnpm/action-setup@v4
+
+      # --------------- Toolchains ---------------
+
+      - name: Setup Node 22 LTS
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: ${{ steps.pm.outputs.manager }}
+
+      - name: Install Rust stable
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.target }}
+
+      - name: Cache Rust build artifacts
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: src-tauri -> target
+
+      # --------------- Dependencies ---------------
+
+      - name: Install frontend dependencies
+        run: ${{ steps.pm.outputs.install }}
+
+      # --------------- Signing key guard ---------------
+
+      - name: Validate signing key
+        shell: bash
+        env:
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+        run: |
+          if [ -z "$TAURI_SIGNING_PRIVATE_KEY" ]; then
+            echo "::error::TAURI_SIGNING_PRIVATE_KEY secret is not set. See workflow comments for setup instructions."
+            exit 1
+          fi
+
+      # --------------- Build & Release ---------------
+
+      - name: Build Tauri app and publish release
+        uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
+          APP_VERSION: ${{ steps.version.outputs.value }}
+        with:
+          tagName: v${{ steps.version.outputs.value }}
+          releaseName: "v${{ steps.version.outputs.value }}"
+          releaseBody: |
+            Release v${{ steps.version.outputs.value }}
+
+            Built from commit ${{ github.sha }}
+          releaseDraft: false
+          prerelease: ${{ inputs.prerelease || false }}
+          includeUpdaterJson: true
