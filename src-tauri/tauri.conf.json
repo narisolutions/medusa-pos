@@ -33,7 +33,7 @@
       "endpoints": [
         "https://github.com/narisolutions/medusa-pos/releases/latest/download/latest.json"
       ],
-      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IEJERDhBRUM1N0Y4NzkyOUIKUldTYmtvZC94YTdZdldyeG5uaWlOUDF1MHN3eXRNZ2xhVFNqREh5MjFzL2FEY2pGdndsRmtEa0IK"
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDMwMDc4QjY1NjI0NTE5NzcKUldSM0dVVmlaWXNITUNvZ0J0bWhBTGxVTFNjMHFyREpPSWMxTW9CU2FBTGRkWVdSODdqcHJsK08K"
     }
   },
   "bundle": {
