@@ -1,8 +1,8 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "medusa-pos",
+  "productName": "Medusa POS",
   "version": "../package.json",
-  "identifier": "io.medusa.pos",
+  "identifier": "ge.nari.medusa-pos",
   "build": {
     "beforeDevCommand": "yarn dev",
     "devUrl": "http://localhost:3000",
@@ -38,6 +38,8 @@
   },
   "bundle": {
     "active": true,
+    "publisher": "Nari Solutions",
+    "copyright": "Copyright 2026 Nari Solutions",
     "createUpdaterArtifacts": true,
     "targets": ["appimage", "dmg", "msi"],
     "icon": [
