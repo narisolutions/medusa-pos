@@ -1,0 +1,8 @@
+# Default owners for everything in the repo
+* @narisolutions
+
+# Rust backend
+/src-tauri/ @narisolutions
+
+# CI/CD
+/.github/workflows/ @narisolutions
