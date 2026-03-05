@@ -166,11 +166,13 @@ export default async function seed({ container }: ExecArgs) {
           description: "Ceramic mug, 350ml",
           status: ProductStatus.PUBLISHED,
           sales_channels: [{ id: salesChannelId }],
+          options: [{ title: "Type", values: ["Default"] }],
           variants: [
             {
               title: "Default",
               sku: "MUG-WHT-350",
               barcode: "4006381333931",
+              options: { Type: "Default" },
               prices: [
                 { amount: 12.99, currency_code: "usd" },
                 { amount: 11.49, currency_code: "eur" },
@@ -184,11 +186,13 @@ export default async function seed({ container }: ExecArgs) {
           description: "Ergonomic wireless mouse with USB receiver",
           status: ProductStatus.PUBLISHED,
           sales_channels: [{ id: salesChannelId }],
+          options: [{ title: "Type", values: ["Default"] }],
           variants: [
             {
               title: "Default",
               sku: "MOUSE-WL-BLK",
               barcode: "0012345678905",
+              options: { Type: "Default" },
               prices: [
                 { amount: 34.99, currency_code: "usd" },
                 { amount: 31.99, currency_code: "eur" },
