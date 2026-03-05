@@ -4,6 +4,13 @@
 
 # Medusa POS
 
+[![CI](https://github.com/narisolutions/medusa-pos/actions/workflows/release.yml/badge.svg)](https://github.com/narisolutions/medusa-pos/actions/workflows/release.yml)
+[![GitHub Release](https://img.shields.io/github/v/release/narisolutions/medusa-pos)](https://github.com/narisolutions/medusa-pos/releases/latest)
+[![License](https://img.shields.io/github/license/narisolutions/medusa-pos)](LICENSE)
+[![GitHub Discussions](https://img.shields.io/github/discussions/narisolutions/medusa-pos)](https://github.com/narisolutions/medusa-pos/discussions)
+[![GitHub Issues](https://img.shields.io/github/issues/narisolutions/medusa-pos)](https://github.com/narisolutions/medusa-pos/issues)
+[![GitHub Stars](https://img.shields.io/github/stars/narisolutions/medusa-pos)](https://github.com/narisolutions/medusa-pos/stargazers)
+
 A cross-platform Point of Sale application built on [Medusa](https://medusajs.com/) and [Tauri 2](https://tauri.app/). Runs as a native desktop application on Linux, macOS, and Windows, with Android APK support via Tauri Mobile.
 
 Designed for retail environments that already use Medusa as their e-commerce backend. The app connects directly to your Medusa instance, draws product and inventory data from it, and pushes completed orders back as draft orders — keeping your storefront and physical register in sync without any middleware.
@@ -381,6 +388,14 @@ ESLint is configured with TypeScript, React Hooks, and React Refresh plugins. Al
 
 ---
 
+## Community
+
+- [Discussions](https://github.com/narisolutions/medusa-pos/discussions) -- Questions, ideas, and general chat
+- [Issues](https://github.com/narisolutions/medusa-pos/issues) -- Bug reports and feature requests
+- [Contributing](CONTRIBUTING.md) -- How to contribute
+- [Code of Conduct](CODE_OF_CONDUCT.md) -- Community standards
+- [Security](SECURITY.md) -- Reporting vulnerabilities
+
 ## License
 
-See [LICENSE](./LICENSE) for details.
+Licensed under the [Apache License 2.0](LICENSE).
