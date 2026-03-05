@@ -128,7 +128,7 @@ Printer communication runs entirely in the Rust layer (`src-tauri/src/lib.rs`):
 
 ### Versioning
 
-The app version in `package.json` (referenced by `tauri.conf.json`) is the single source of truth. `vite.config.ts` additionally reads git tags matching `release-*` and injects the latest semver into `import.meta.env.VITE_APP_VERSION` for display in the UI.
+The app version in `package.json` (referenced by `tauri.conf.json`) is the single source of truth. `vite.config.ts` additionally reads git tags matching `v*.*.*` and injects the latest semver into `import.meta.env.VITE_APP_VERSION` for display in the UI.
 
 ---
 
@@ -229,7 +229,7 @@ The project supports three Vite modes:
 VITE_BACKEND_URL=https://your-medusa-instance.example.com/
 ```
 
-`VITE_APP_VERSION` is automatically injected by `vite.config.ts` from git tags matching `release-*`. Do not set it manually.
+`VITE_APP_VERSION` is automatically injected by `vite.config.ts` from git tags matching `v*.*.*`. Do not set it manually.
 
 ### Runtime backend configuration
 
