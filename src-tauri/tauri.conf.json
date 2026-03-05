@@ -1,8 +1,8 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "medusa-pos",
+  "productName": "Medusa POS",
   "version": "../package.json",
-  "identifier": "io.medusa.pos",
+  "identifier": "ge.nari.medusa-pos",
   "build": {
     "beforeDevCommand": "yarn dev",
     "devUrl": "http://localhost:3000",
@@ -33,11 +33,13 @@
       "endpoints": [
         "https://github.com/narisolutions/medusa-pos/releases/latest/download/latest.json"
       ],
-      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IEJERDhBRUM1N0Y4NzkyOUIKUldTYmtvZC94YTdZdldyeG5uaWlOUDF1MHN3eXRNZ2xhVFNqREh5MjFzL2FEY2pGdndsRmtEa0IK"
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IEQzMUNERjIyQjM3OUMyOTkKUldTWndubXpJdDhjMC9nTkMwbGJ4cHZNNXR2S05qcnBpd1liaytjSEVkUGVZV09Zek0zWnVGSUgK"
     }
   },
   "bundle": {
     "active": true,
+    "publisher": "Nari Solutions",
+    "copyright": "Copyright 2026 Nari Solutions",
     "createUpdaterArtifacts": true,
     "targets": ["appimage", "dmg", "msi"],
     "icon": [

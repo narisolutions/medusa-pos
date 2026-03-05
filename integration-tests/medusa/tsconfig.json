@@ -1,0 +1,21 @@
+{
+  "compilerOptions": {
+    "lib": ["es2021"],
+    "target": "es2021",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "esModuleInterop": true,
+    "declaration": true,
+    "outDir": ".medusa/server",
+    "rootDir": "src",
+    "sourceMap": true,
+    "skipLibCheck": true,
+    "strict": true
+  },
+  "ts-node": {
+    "swc": true,
+    "transpileOnly": true
+  },
+  "include": ["src", "medusa-config.ts"],
+  "exclude": ["node_modules", ".medusa"]
+}
