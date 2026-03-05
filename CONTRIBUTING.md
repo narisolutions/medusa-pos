@@ -55,7 +55,7 @@ Thank you for your interest in contributing to Medusa POS! This guide will help 
 | --- | --- |
 | `develop` | Integration branch, default PR target |
 | `staging` | Triggers a staging build and deployment |
-| `release-*` tags | Trigger production builds |
+| `v*.*.*` tags | Trigger production builds (e.g. `v1.0.5`) |
 
 ## Pull Requests
 

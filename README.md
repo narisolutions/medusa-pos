@@ -307,84 +307,29 @@ The boot sequence:
 
 ## Update Pipeline
 
-The app supports over-the-air updates via the [Tauri updater plugin](https://tauri.app/plugin/updater/). The CI/CD pipeline (Bitbucket Pipelines) builds and publishes update artifacts automatically:
+The app supports over-the-air updates via the [Tauri updater plugin](https://tauri.app/plugin/updater/). The CI/CD pipeline (GitHub Actions) builds and publishes update artifacts automatically:
 
-- **Staging**: pushing to the `staging` branch builds a Linux AppImage and uploads it alongside an `update.json` manifest to a GCS bucket.
-- **Production**: pushing a git tag matching `release-*` (e.g. `release-1.0.4`) triggers the same process to the production bucket.
+- **Production**: pushing a git tag matching `v*.*.*` (e.g. `v1.0.5`) triggers a build and publishes a GitHub Release with signed updater artifacts and a `latest.json` manifest.
+- **Manual**: the workflow can also be triggered manually via Actions > Release > Run workflow.
 
-The `update.json` manifest format:
+The app checks for updates on launch by fetching:
 
-```json
-{
-  "version": "1.0.4",
-  "notes": "Release notes",
-  "pub_date": "2024-01-01T00:00:00Z",
-  "platforms": {
-    "linux-x86_64": {
-      "signature": "...",
-      "url": "https://storage.example.com/path/to/app.AppImage.tar.gz"
-    }
-  }
-}
 ```
-
-The pipeline uses the `ivangabriele/tauri:debian-bookworm-22` Docker image with Cargo dependency caching.
+https://github.com/narisolutions/medusa-pos/releases/latest/download/latest.json
+```
 
 **Required CI secrets:**
 
 | Variable | Description |
 |---|---|
-| `GCP_KEY_FILE_AUTH` | Base64-encoded GCP service account JSON with Storage write access |
-| `GCP_PROJECT_ID` | Google Cloud project ID |
+| `TAURI_SIGNING_PRIVATE_KEY` | Private key for signing updater artifacts |
+| `TAURI_SIGNING_PRIVATE_KEY_PASSWORD` | Password for the signing key |
 
 ---
 
 ## Contributing
 
-### Running locally
-
-```bash
-yarn install
-yarn tauri dev      # Desktop app with hot reload
-```
-
-### Code conventions
-
-**File and directory structure:**
-- Every component lives in a `kebab-case/` directory containing an `index.tsx`
-- Co-located hooks go in a `hooks.ts` file in the same directory
-- `index.tsx` uses `export default`. `hooks.ts` uses named exports.
-- Import component directories with a default import; import hooks with named imports.
-
-**Types and schemas:**
-- Infer types from Zod schemas where possible; add them to `src/types/`
-- Do not define schemas inline in components — they belong in `src/utils/schemas/`
-
-**HTTP and storage:**
-- Never use `fetch` directly — all requests must go through the patched Medusa SDK
-- Never call Tauri Store directly — use the typed wrapper in `src/utils/storage/`
-- Never access `localStorage` directly — the storage wrapper handles fallback behavior
-
-**Styling:**
-- Use CSS variables (`primary`, `secondary`) — never hardcode color values
-- Tailwind CSS 4 syntax only
-
-### Linting
-
-```bash
-yarn lint
-yarn typecheck
-```
-
-ESLint is configured with TypeScript, React Hooks, and React Refresh plugins. All lint errors must be resolved before submitting a pull request.
-
-### Branch strategy
-
-| Branch / pattern | Purpose |
-|---|---|
-| `develop` | Integration branch, default PR target |
-| `staging` | Triggers a staging build and deployment |
-| `release-*` tags | Trigger production builds (e.g. `release-1.0.4`) |
+See [CONTRIBUTING.md](CONTRIBUTING.md) for setup instructions, code conventions, and branch strategy.
 
 ---
 
