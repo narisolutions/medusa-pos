@@ -16,6 +16,8 @@
   },
   "devDependencies": {
     "@medusajs/types": "^2.13.3",
+    "@swc/core": "^1.7.28",
+    "ts-node": "^10.9.2",
     "typescript": "^5.6.2"
   }
 }
