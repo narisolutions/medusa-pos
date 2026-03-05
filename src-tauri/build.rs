@@ -6,8 +6,12 @@ fn main() {
     // Read the TAURI_HTTP_ALLOWLIST environment variable
     let allowlist = env::var("TAURI_HTTP_ALLOWLIST")
         .unwrap_or_else(|_| {
-            // Default allowed domains for production
-            "https://commerce-api.qnarigroup.com/**,https://commerce-api-staging.qnarigroup.com/**".to_string()
+            // Default allowed domains for open-source template:
+            // allow any HTTPS URL so users can point the app at
+            // arbitrary Medusa backends. For production, override
+            // this via TAURI_HTTP_ALLOWLIST or by editing the
+            // generated capabilities file.
+            "https://**".to_string()
         });
 
     // Parse the allowlist (comma-separated URLs)

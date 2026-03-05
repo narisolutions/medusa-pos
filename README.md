@@ -86,6 +86,10 @@ All HTTP requests are routed through Tauri's HTTP plugin — the browser `fetch`
 
 The SDK is a singleton — `initializeSdk()` runs exactly once per session. Calling `resetSdk()` followed by re-initialization handles backend URL changes.
 
+### Backend URL scope (Tauri HTTP)
+
+By default, the Tauri HTTP capability is configured to allow requests to any `https://` URL so that this open-source app can be used with arbitrary Medusa backends. For production deployments, you should tighten this by editing `src-tauri/capabilities/default.json` and replacing the broad `https://**` pattern under the `http:allow-fetch` permission with the specific domains of your own backend(s).
+
 ### Authentication Flow
 
 1. On app boot, `useAppInit` checks whether a backend config exists (via Tauri command `check_config_exists`)

@@ -26,10 +26,7 @@
     {
       "allow": [
         {
-          "url": "https://commerce-api.qnarigroup.com/**"
-        },
-        {
-          "url": "https://commerce-api-staging.qnarigroup.com/**"
+          "url": "https://**"
         }
       ],
       "identifier": "http:allow-fetch"
