@@ -1,0 +1,22 @@
+{
+  "name": "medusa-pos-test-backend",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "start": "medusa start",
+    "dev": "medusa develop",
+    "build": "medusa build",
+    "seed": "medusa exec src/scripts/seed.ts",
+    "db:migrate": "medusa db:migrate"
+  },
+  "dependencies": {
+    "@medusajs/framework": "^2.6.1",
+    "@medusajs/medusa": "^2.6.1",
+    "@medusajs/medusa-cli": "^2.0.0",
+    "awilix": "^8.0.1"
+  },
+  "devDependencies": {
+    "@medusajs/types": "^2.6.1",
+    "typescript": "^5.6.2"
+  }
+}
