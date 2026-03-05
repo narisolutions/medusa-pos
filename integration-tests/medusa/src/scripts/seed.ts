@@ -3,7 +3,6 @@ import {
   ContainerRegistrationKeys,
   Modules,
   ProductStatus,
-  remoteQueryObjectFromString,
 } from "@medusajs/framework/utils"
 import {
   createRegionsWorkflow,
@@ -17,16 +16,15 @@ import {
 
 export default async function seed({ container }: ExecArgs) {
   const logger = container.resolve(ContainerRegistrationKeys.LOGGER)
-  const remoteQuery = container.resolve(
-    ContainerRegistrationKeys.REMOTE_QUERY
-  )
+  const query = container.resolve(ContainerRegistrationKeys.QUERY)
 
   logger.info("Seeding POS test data...")
 
   // ── Store ──────────────────────────────────────────────────────────
-  const stores = await remoteQuery(
-    remoteQueryObjectFromString({ entryPoint: "store", fields: ["id"] })
-  )
+  const { data: stores } = await query.graph({
+    entity: "store",
+    fields: ["id"],
+  })
   const store = stores[0]
 
   await updateStoresWorkflow(container).run({
@@ -101,6 +99,7 @@ export default async function seed({ container }: ExecArgs) {
     input: {
       id: stockLocationId,
       add: [salesChannelId],
+      remove: [],
     },
   })
   logger.info("Sales channel linked to stock location")
@@ -271,12 +270,10 @@ export default async function seed({ container }: ExecArgs) {
 
   // ── Inventory Levels ───────────────────────────────────────────────
   // Collect all inventory items created with the product variants
-  const inventoryItems = await remoteQuery(
-    remoteQueryObjectFromString({
-      entryPoint: "inventory_item",
-      fields: ["id", "sku"],
-    })
-  )
+  const { data: inventoryItems } = await query.graph({
+    entity: "inventory_item",
+    fields: ["id", "sku"],
+  })
 
   if (inventoryItems.length > 0) {
     await createInventoryLevelsWorkflow(container).run({
