@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/select";
 import { useDateTimeSettings } from "./hooks";
 import { previewDateTime } from "@/utils/datetime";
-import type { DateTimePreferences } from "@/utils/storage";
+import type { DateTimePreferences } from "@/types/preferences";
 
 const DateTimeSettings: React.FC = () => {
   const { form, isDirty, isSubmitting, handleSubmit, onSubmit } =
@@ -31,13 +31,7 @@ const DateTimeSettings: React.FC = () => {
   });
 
   return (
-    <div className="flex flex-col h-full space-y-8">
-      <div className="border-b border-gray-200 pb-6">
-        <p className="text-lg leading-relaxed text-gray-600 font-medium">
-          Configure how dates and times are displayed throughout the app
-        </p>
-      </div>
-
+    <div className="flex flex-col space-y-6">
       <Form {...form}>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 max-w-2xl">
           <FormField

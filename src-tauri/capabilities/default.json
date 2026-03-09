@@ -23,6 +23,8 @@
     "dialog:allow-open",
     "process:allow-restart",
     "updater:default",
+    "core:window:allow-set-fullscreen",
+    "core:window:allow-is-fullscreen",
     {
       "allow": [
         {

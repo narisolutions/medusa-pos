@@ -3,12 +3,12 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import { Forms } from "@/types/form";
-import storage from "@/utils/storage";
 import schemas from "@/utils/schemas";
 import { initDateTimePrefs } from "@/utils/datetime";
-import type { DateTimePreferences } from "@/utils/storage";
+import { DEFAULT_PREFERENCES } from "@/utils/preferences/defaults";
+import { loadPreferences, updatePreferences } from "@/utils/preferences";
 
-const defaults: DateTimePreferences = { dateFormat: "DD.MM.YYYY", timeFormat: "24h" };
+const defaults = DEFAULT_PREFERENCES.dateTime;
 
 export const useDateTimeSettings = () => {
   const form = useForm<Forms["DateTimeSettings"]>({
@@ -26,8 +26,8 @@ export const useDateTimeSettings = () => {
 
   useEffect(() => {
     const load = async () => {
-      const stored = await storage.getItem<DateTimePreferences>("date_time_preferences");
-      reset(stored ?? defaults);
+      const prefs = await loadPreferences();
+      reset(prefs.dateTime);
     };
     load();
   }, [reset]);
@@ -36,7 +36,7 @@ export const useDateTimeSettings = () => {
     async (data: Forms["DateTimeSettings"]) => {
       setIsSubmitting(true);
       try {
-        await storage.setItem("date_time_preferences", data);
+        await updatePreferences({ dateTime: data });
         initDateTimePrefs(data);
         reset(data);
         toast.success("Date & Time settings saved");

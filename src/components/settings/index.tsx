@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 import PrinterSettings from "./printer";
-import ApiSettings from "./preferences";
+import ConnectionSettings from "./connection";
 import StoreSettings from "./store";
-import DateTimeSettings from "./date-time";
+import PreferencesSettings from "./preferences";
 import storage from "@/utils/storage";
 
-type SettingsTabs = "printer" | "preferences" | "store" | "date-time";
+type SettingsTabs = "printer" | "connection" | "store" | "preferences";
 
 const Settings: React.FC = () => {
   const [settingsTab, setSettingsTab] = useState<SettingsTabs>("printer");
@@ -45,10 +45,10 @@ const Settings: React.FC = () => {
             Printer
           </TabsTrigger>
           <TabsTrigger
-            value="preferences"
+            value="connection"
             className="text-lg px-6 py-4 border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:text-primary text-gray-600 bg-transparent rounded-none min-h-[48px]"
           >
-            Preferences
+            Connection
           </TabsTrigger>
           <TabsTrigger
             value="store"
@@ -57,10 +57,10 @@ const Settings: React.FC = () => {
             Store
           </TabsTrigger>
           <TabsTrigger
-            value="date-time"
+            value="preferences"
             className="text-lg px-6 py-4 border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:text-primary text-gray-600 bg-transparent rounded-none min-h-[48px]"
           >
-            Date & Time
+            Preferences
           </TabsTrigger>
         </TabsList>
 
@@ -68,16 +68,16 @@ const Settings: React.FC = () => {
           <PrinterSettings />
         </TabsContent>
 
-        <TabsContent value="preferences" className="flex flex-col">
-          <ApiSettings />
+        <TabsContent value="connection" className="flex flex-col">
+          <ConnectionSettings />
         </TabsContent>
 
         <TabsContent value="store" className="flex flex-col">
           <StoreSettings />
         </TabsContent>
 
-        <TabsContent value="date-time" className="flex flex-col">
-          <DateTimeSettings />
+        <TabsContent value="preferences" className="flex flex-col">
+          <PreferencesSettings />
         </TabsContent>
       </Tabs>
     </div>

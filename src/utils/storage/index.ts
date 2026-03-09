@@ -13,12 +13,7 @@ export type StoreThemeCache = {
   brandName?: string;
 };
 
-export type DateTimePreferences = {
-  dateFormat: "system" | "DD.MM.YYYY" | "YYYY-MM-DD" | "MM/DD/YYYY";
-  timeFormat: "system" | "24h" | "12h";
-};
-
-type ObjectKeys = "printers" | "cart" | "orders_filters" | "store_theme" | "stores" | "date_time_preferences";
+type ObjectKeys = "printers" | "cart" | "orders_filters" | "store_theme" | "stores" | "user_preferences" | "date_time_preferences";
 
 type Keys = StringKeys | NumberKeys | BooleanKeys | ObjectKeys;
 
@@ -68,7 +63,7 @@ async function clear(): Promise<void> {
     const store = await Store.load("pos-storage.json");
 
     // Preserve ObjectKeys and specific StringKeys during logout
-    const objectKeysToPreserve: ObjectKeys[] = ["printers", "cart", "store_theme", "stores", "date_time_preferences"];
+    const objectKeysToPreserve: ObjectKeys[] = ["printers", "cart", "store_theme", "stores", "user_preferences"];
     const stringKeysToPreserve: StringKeys[] = [
       "draft_order_id",
       "sales_channel_id",
@@ -107,7 +102,7 @@ async function clearOnBackendChange(): Promise<void> {
   try {
     const store = await Store.load("pos-storage.json");
 
-    const objectKeysToPreserve: ObjectKeys[] = ["printers", "stores", "date_time_preferences"];
+    const objectKeysToPreserve: ObjectKeys[] = ["printers", "stores", "user_preferences"];
     const stringKeysToPreserve: StringKeys[] = ["settings_tab", "active_store_id"];
     const booleanKeysToPreserve: BooleanKeys[] = ["sound_enabled"];
     const allKeysToPreserve = [

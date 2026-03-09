@@ -19,7 +19,7 @@ interface Props {
   form: ReturnType<typeof useForm<Forms["ApiSettings"]>>;
 }
 
-export const useApiSettings = ({ form }: Props) => {
+export const useConnectionSettings = ({ form }: Props) => {
   const [isLoading, setIsLoading] = useState(false);
   const [initialValues, setInitialValues] = useState<Preferences>({});
   const admin = useUser((state) => state.admin);
