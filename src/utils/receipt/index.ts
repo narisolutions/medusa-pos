@@ -56,6 +56,10 @@ const buildReceipt = (data: ReceiptData): string => {
   ${centerText(data.storeName)}
   ${centerText(data.storeAddress)}`;
 
+  if (data.storeAddress2) {
+    receipt += `\n${centerText(data.storeAddress2)}`;
+  }
+
   if (data.storePhone) {
     receipt += `\n${centerText(`Tel: ${data.storePhone}`)}`;
   }
@@ -253,6 +257,9 @@ const buildReceiptPDF = (data: ReceiptData): Uint8Array => {
   addText(data.companyName, "center", 13, true, 5);
   addText(data.storeName, "center", 11, true, 4);
   addText(data.storeAddress, "center", 9, false, 4);
+  if (data.storeAddress2) {
+    addText(data.storeAddress2, "center", 9, false, 4);
+  }
   if (data.storePhone) {
     addText(`Tel: ${data.storePhone}`, "center", 9, false, 5);
   }

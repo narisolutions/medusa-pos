@@ -6,7 +6,7 @@ import storage from "@/utils/storage";
 import { Printer } from "@/components/settings/printer/hooks";
 import { handleErrorToast, openDownloadsFolder } from "@/utils/helpers";
 import { useQueryStore } from "@/hooks/queries/useQueryStore";
-import { getBrandName, getStoreAddress, getStorePhone } from "@/utils/store/metadata";
+import { getBrandName, getStoreAddress, getStoreAddress2, getStorePhone } from "@/utils/store/metadata";
 
 const usePrinterService = () => {
   const [printers, setPrinters] = useState<Printer[]>([]);
@@ -161,6 +161,7 @@ const usePrinterService = () => {
       storeName: store?.name ?? "POS",
       companyName: getBrandName(store) || "POS",
       storeAddress: getStoreAddress(store) ?? "",
+      storeAddress2: getStoreAddress2(store) ?? undefined,
       storePhone: getStorePhone(store) ?? "",
       orderDisplayId: order.display_id?.toString() || "N/A",
       customerEmail: order.email || order.customer?.email || undefined,

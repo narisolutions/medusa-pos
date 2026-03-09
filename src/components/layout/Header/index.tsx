@@ -1,4 +1,4 @@
-import { Calendar, Store } from "lucide-react";
+import { Calendar } from "lucide-react";
 import { SidebarTrigger, useSidebar } from "@/components/ui/sidebar";
 import { useEffect, useState } from "react";
 import { useHeader } from "./hooks";
@@ -38,7 +38,9 @@ const Header: React.FC = () => {
             }}
           />
         ) : (
-          <Store className="h-8 w-8 text-gray-500" />
+          <span className="text-lg font-semibold text-foreground">
+            {getBrandName(store) || "POS"}
+          </span>
         )}
       </div>
       <div className="flex gap-1.5 items-center">

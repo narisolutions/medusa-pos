@@ -397,12 +397,14 @@ const resetOnBackendChange = async (): Promise<void> => {
 };
 
 const checkBackendHealth = async (
-  baseUrl: string
+  baseUrl: string,
+  options?: { timeoutMs?: number },
 ): Promise<{ success: boolean; error?: string }> => {
   try {
     const { fetch } = await import("@tauri-apps/plugin-http");
     const url = baseUrl.replace(/\/$/, "");
-    const response = await fetch(`${url}/health`, { method: "GET" });
+    const signal = options?.timeoutMs ? AbortSignal.timeout(options.timeoutMs) : undefined;
+    const response = await fetch(`${url}/health`, { method: "GET", signal });
     if (!response.ok) {
       return {
         success: false,

@@ -80,6 +80,7 @@ const useStoreSettings = ({ form }: Props): UseStoreSettingsReturn => {
       secondaryColor: meta.secondary_color ?? "",
       fontSize: meta.font_size ?? "16",
       storeAddress: meta.store_address ?? "",
+      storeAddress2: meta.store_address_2 ?? "",
       storePhone: meta.store_phone ?? "",
       paymentMethods:
         meta.payment_methods?.length ? meta.payment_methods : DEFAULT_PAYMENT_METHODS,
@@ -97,6 +98,7 @@ const useStoreSettings = ({ form }: Props): UseStoreSettingsReturn => {
         secondary_color: data.secondaryColor,
         font_size: data.fontSize,
         store_address: data.storeAddress,
+        store_address_2: data.storeAddress2 ?? undefined,
         store_phone: data.storePhone,
         payment_methods: data.paymentMethods ?? undefined,
       };
