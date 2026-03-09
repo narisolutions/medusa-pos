@@ -9,4 +9,5 @@ export type Forms = {
   ApiSettings: zodInfer<typeof schemas.apiSettings>;
   StoreSettings: zodInfer<typeof schemas.storeSettings>;
   StoreConfig: zodInfer<typeof schemas.storeConfig>;
+  DateTimeSettings: zodInfer<typeof schemas.dateTimeSettings>;
 };

@@ -3,9 +3,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 import PrinterSettings from "./printer";
 import ApiSettings from "./preferences";
 import StoreSettings from "./store";
+import DateTimeSettings from "./date-time";
 import storage from "@/utils/storage";
 
-type SettingsTabs = "printer" | "preferences" | "store";
+type SettingsTabs = "printer" | "preferences" | "store" | "date-time";
 
 const Settings: React.FC = () => {
   const [settingsTab, setSettingsTab] = useState<SettingsTabs>("printer");
@@ -55,6 +56,12 @@ const Settings: React.FC = () => {
           >
             Store
           </TabsTrigger>
+          <TabsTrigger
+            value="date-time"
+            className="text-lg px-6 py-4 border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:text-primary text-gray-600 bg-transparent rounded-none min-h-[48px]"
+          >
+            Date & Time
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="printer" className="flex flex-col">
@@ -67,6 +74,10 @@ const Settings: React.FC = () => {
 
         <TabsContent value="store" className="flex flex-col">
           <StoreSettings />
+        </TabsContent>
+
+        <TabsContent value="date-time" className="flex flex-col">
+          <DateTimeSettings />
         </TabsContent>
       </Tabs>
     </div>

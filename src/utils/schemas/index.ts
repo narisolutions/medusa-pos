@@ -49,6 +49,11 @@ export default {
       .transform((url) => (url.endsWith("/") ? url.slice(0, -1) : url)),
   }),
 
+  dateTimeSettings: z.object({
+    dateFormat: z.enum(["system", "DD.MM.YYYY", "YYYY-MM-DD", "MM/DD/YYYY"]),
+    timeFormat: z.enum(["system", "24h", "12h"]),
+  }),
+
   storeSettings: z.object({
     storeName: z.string().min(1, { message: "Store name is required" }),
     brandName: z.string().min(1, { message: "Brand name is required" }),

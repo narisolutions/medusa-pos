@@ -1,4 +1,5 @@
 import { toast } from "sonner";
+import { formatDateTime } from "@/utils/datetime";
 import router from "@/router/router";
 import constants from "@/utils/constants";
 import { Store } from "@tauri-apps/plugin-store";
@@ -88,63 +89,9 @@ const formatPrice = (
   }
 };
 
-const formatDate = (date: Date | string) => {
-  if (!date || typeof date !== "string" || date.trim() === "") {
-    return "Invalid Date";
-  }
+const formatDate = (date: Date | string): string => formatDateTime(date);
 
-  const parsedDate = new Date(date);
-
-  if (isNaN(parsedDate.getTime()) || parsedDate.getTime() < 0) {
-    return "Invalid Date";
-  }
-
-  const dateStr = date.trim();
-  if (
-    dateStr === "0000-00-00" ||
-    dateStr === "0000-00-00 00:00:00" ||
-    dateStr === "null" ||
-    dateStr === "undefined"
-  ) {
-    return "Invalid Date";
-  }
-
-  return new Intl.DateTimeFormat("en-GB", {
-    timeZone: "Asia/Tbilisi",
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit",
-    hour12: false,
-  })
-    .format(parsedDate)
-    .replace(/\//g, ".");
-};
-
-const formatExactTime = (date: Date | string): string => {
-  if (!date || typeof date !== "string" || date.trim() === "") {
-    return "Invalid Date";
-  }
-
-  const parsedDate = new Date(date);
-
-  if (isNaN(parsedDate.getTime()) || parsedDate.getTime() < 0) {
-    return "Invalid Date";
-  }
-
-  return new Intl.DateTimeFormat("en-GB", {
-    timeZone: "Asia/Tbilisi",
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit",
-    hour12: false,
-  })
-    .format(parsedDate)
-    .replace(/\//g, ".");
-};
+const formatExactTime = (date: Date | string): string => formatDateTime(date);
 
 const formatTimeAgo = (date: Date | string): string => {
   if (!date || typeof date !== "string" || date.trim() === "") {

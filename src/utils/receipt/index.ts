@@ -1,13 +1,14 @@
 import { ReceiptData } from "@/types/utils";
 import { jsPDF } from "jspdf";
 import constants from "@/utils/constants";
+import { formatDateOnly, formatTimeOnly } from "@/utils/datetime";
 
 export type { ReceiptData };
 
 const buildReceipt = (data: ReceiptData): string => {
   const currentDate = new Date();
-  const dateStr = currentDate.toLocaleDateString("en-GB");
-  const timeStr = currentDate.toLocaleTimeString("en-GB", { hour12: false });
+  const dateStr = formatDateOnly(currentDate);
+  const timeStr = formatTimeOnly(currentDate);
 
   const padLine = (
     left: string,
@@ -272,8 +273,8 @@ const buildReceiptPDF = (data: ReceiptData): Uint8Array => {
 
   // Order Information
   const currentDate = new Date();
-  const dateStr = currentDate.toLocaleDateString("en-GB");
-  const timeStr = currentDate.toLocaleTimeString("en-GB", { hour12: false });
+  const dateStr = formatDateOnly(currentDate);
+  const timeStr = formatTimeOnly(currentDate);
   
   addTwoColumn("Date:", dateStr, false, 5);
   addTwoColumn("Time:", timeStr, false, 5);

@@ -8,6 +8,8 @@ import { useSalesChannel } from "@/context/sales-channel";
 import { useStoreManager } from "@/context/store-manager";
 import storage from "@/utils/storage";
 import { handleErrorToast, checkBackendHealth } from "@/utils/helpers";
+import { initDateTimePrefs } from "@/utils/datetime";
+import type { DateTimePreferences } from "@/utils/storage";
 import { queryClient } from "@/config/query";
 import { STORE_QUERY_KEY } from "@/hooks/queries/useQueryStore";
 import {
@@ -126,7 +128,11 @@ const useAppInit = () => {
         console.error("Store settings init failed:", storeErr);
       }
 
-      // 6. Load sales channel config
+      // 6. Load date/time preferences
+      const dateTimePrefs = await storage.getItem<DateTimePreferences>("date_time_preferences");
+      initDateTimePrefs(dateTimePrefs ?? { dateFormat: "DD.MM.YYYY", timeFormat: "24h" });
+
+      // 7. Load sales channel config
       const salesChannelId = await storage.getItem("sales_channel_id");
       setSalesChannelId(salesChannelId);
       setNeedsSalesChannelWarning(!salesChannelId);
