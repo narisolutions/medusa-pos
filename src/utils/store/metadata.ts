@@ -15,6 +15,7 @@ export type PosMetadata = {
   secondary_color?: string;
   font_size?: string;
   store_address?: string;
+  store_address_2?: string;
   store_phone?: string;
   payment_methods?: PaymentMethodConfig[];
 };
@@ -28,6 +29,7 @@ type RawStoreMetadata = Record<string, unknown> & {
   secondary_color?: string;
   font_size?: string;
   store_address?: string;
+  store_address_2?: string;
   store_phone?: string;
   payment_methods?: PaymentMethodConfig[];
 };
@@ -61,6 +63,7 @@ export function getStoreMetadata(
     secondary_color: pos.secondary_color ?? raw.secondary_color,
     font_size: pos.font_size ?? raw.font_size,
     store_address: pos.store_address ?? raw.store_address,
+    store_address_2: pos.store_address_2 ?? raw.store_address_2,
     store_phone: pos.store_phone ?? raw.store_phone,
     payment_methods: pos.payment_methods ?? raw.payment_methods,
   };
@@ -69,7 +72,7 @@ export function getStoreMetadata(
 export function getBrandName(
   store: AdminStore | null | undefined
 ): string {
-  return getStoreMetadata(store).brand_name ?? "";
+  return getStoreMetadata(store).brand_name ?? store?.name ?? "";
 }
 
 export function getLogoUrl(
@@ -100,6 +103,12 @@ export function getStoreAddress(
   store: AdminStore | null | undefined
 ): string | undefined {
   return getStoreMetadata(store).store_address;
+}
+
+export function getStoreAddress2(
+  store: AdminStore | null | undefined
+): string | undefined {
+  return getStoreMetadata(store).store_address_2;
 }
 
 export function getStorePhone(
@@ -133,6 +142,7 @@ const POS_METADATA_KEYS = new Set([
   "secondary_color",
   "font_size",
   "store_address",
+  "store_address_2",
   "store_phone",
   "payment_methods",
   "pos",

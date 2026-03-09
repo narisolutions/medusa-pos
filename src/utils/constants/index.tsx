@@ -1,6 +1,10 @@
 export default {
   PROD: import.meta.env.MODE === "production",
 
+  // Boot timeout
+  BOOT_TIMEOUT_MS: 10_000 as const,
+
+
   CHECKOUT_CONFIG: {
     // Validation rules
     MAX_QUANTITY_PER_ITEM: 99,

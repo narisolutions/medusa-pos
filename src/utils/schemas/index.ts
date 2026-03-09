@@ -57,6 +57,7 @@ export default {
     secondaryColor: z.string().min(1, { message: "Secondary color is required" }),
     fontSize: z.string().min(1, { message: "Font size is required" }),
     storeAddress: z.string().min(1, { message: "Store address is required" }),
+    storeAddress2: z.string().optional(),
     storePhone: z.string().min(1, { message: "Store phone is required" }),
     paymentMethods: z
       .array(

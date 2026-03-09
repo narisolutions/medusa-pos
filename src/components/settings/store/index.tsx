@@ -34,6 +34,7 @@ const StoreSettings: React.FC = () => {
       secondaryColor: "",
       fontSize: "16",
       storeAddress: "",
+      storeAddress2: "",
       storePhone: "",
       paymentMethods: DEFAULT_PAYMENT_METHODS,
     },
@@ -166,6 +167,26 @@ const StoreSettings: React.FC = () => {
                   <FormControl>
                     <Input
                       placeholder="123 Main St, City, Country"
+                      className="h-12 text-lg px-4"
+                      disabled={isLoading}
+                      {...field}
+                    />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={control}
+              name="storeAddress2"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-lg font-medium">
+                    Store Address Line 2
+                  </FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder="Suite 100, Floor 2, etc."
                       className="h-12 text-lg px-4"
                       disabled={isLoading}
                       {...field}

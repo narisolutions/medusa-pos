@@ -7,7 +7,7 @@ import { useStore } from "@/context/store";
 import { useSalesChannel } from "@/context/sales-channel";
 import { useStoreManager } from "@/context/store-manager";
 import storage from "@/utils/storage";
-import { handleErrorToast } from "@/utils/helpers";
+import { handleErrorToast, checkBackendHealth } from "@/utils/helpers";
 import { queryClient } from "@/config/query";
 import { STORE_QUERY_KEY } from "@/hooks/queries/useQueryStore";
 import {
@@ -62,7 +62,15 @@ const useAppInit = () => {
         document.title = cachedTheme.brandName ? `${cachedTheme.brandName} POS` : "POS";
       }
 
-      // 3. Hydrate user session
+      // 3. Verify backend is reachable before making API calls
+      const health = await checkBackendHealth(activeStore.backendUrl, { timeoutMs: 5000 });
+      if (!health.success) {
+        handleErrorToast("Backend unreachable — please check your connection or switch stores.");
+        update(null);
+        return;
+      }
+
+      // 4. Hydrate user session
       const lastLogin = await storage.getItem("last_login");
       if (!lastLogin) return;
 
@@ -81,7 +89,7 @@ const useAppInit = () => {
         }
       }
 
-      // 4. Load Medusa store — prime cache, apply theme, determine setup state
+      // 5. Load Medusa store — prime cache, apply theme, determine setup state
       try {
         const sdk = getSdk();
         const { stores } = await sdk.admin.store.list();
@@ -118,7 +126,7 @@ const useAppInit = () => {
         console.error("Store settings init failed:", storeErr);
       }
 
-      // 5. Load sales channel config
+      // 6. Load sales channel config
       const salesChannelId = await storage.getItem("sales_channel_id");
       setSalesChannelId(salesChannelId);
       setNeedsSalesChannelWarning(!salesChannelId);
@@ -141,7 +149,11 @@ const useAppInit = () => {
 
   const isReady = useMemo(() => !!config && !bootLoading, [config, bootLoading]);
 
-  return { config, bootLoading, isReady };
+  const retry = useCallback(() => {
+    initApp();
+  }, [initApp]);
+
+  return { config, bootLoading, isReady, retry };
 };
 
 export default useAppInit;

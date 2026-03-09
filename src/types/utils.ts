@@ -74,6 +74,7 @@ interface ReceiptData {
   storeName: string;
   companyName: string;
   storeAddress: string;
+  storeAddress2?: string;
   storePhone?: string;
   orderDisplayId: string;
   customerEmail?: string;
