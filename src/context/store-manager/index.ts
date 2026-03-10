@@ -40,8 +40,8 @@ const useStoreManager = create<StoreManagerState>((set, get) => ({
         }
       }
       const rawActive = raw.find((s) => s.id === activeStoreId);
-      if (rawActive?.backendUrl) {
-        await invoke("save_config", { backendUrl: rawActive.backendUrl });
+      if (rawActive) {
+        await invoke("set_active_backend", { storeId: rawActive.id });
       }
       await storage.setItem<StoredStore[]>(
         "stores",
@@ -77,7 +77,7 @@ const useStoreManager = create<StoreManagerState>((set, get) => ({
     ];
 
     await invoke("save_store_url", { storeId: id, backendUrl: data.backendUrl });
-    await invoke("save_config", { backendUrl: data.backendUrl });
+    await invoke("set_active_backend", { storeId: id });
     await storage.setItem<StoredStore[]>("stores", storedStores);
     await storage.setItem("active_store_id", id);
 
@@ -106,7 +106,7 @@ const useStoreManager = create<StoreManagerState>((set, get) => ({
     await invoke("save_store_url", { storeId: id, backendUrl: data.backendUrl });
 
     if (isActive && urlChanged) {
-      await invoke("save_config", { backendUrl: data.backendUrl });
+      await invoke("set_active_backend", { storeId: id });
       await resetOnBackendChange();
       await initializeSdk();
     }
@@ -136,12 +136,11 @@ const useStoreManager = create<StoreManagerState>((set, get) => ({
 
       if (next && nextId) {
         await storage.setItem("active_store_id", nextId);
-        await invoke("save_config", { backendUrl: next.backendUrl });
+        await invoke("set_active_backend", { storeId: nextId });
         await initializeSdk();
       } else {
         await storage.removeItem("active_store_id");
-        // Clear backend_url from config when no stores remain to avoid stale configuration
-        await invoke("save_config", { backendUrl: "" });
+        await invoke("clear_active_backend");
       }
 
       set({ stores, activeStoreId: nextId, activeStore: next });
@@ -186,7 +185,7 @@ const useStoreManager = create<StoreManagerState>((set, get) => ({
 
     const current = get().activeStore;
     if (current?.backendUrl !== store.backendUrl) {
-      await invoke("save_config", { backendUrl: store.backendUrl });
+      await invoke("set_active_backend", { storeId: id });
       await resetOnBackendChange();
       await initializeSdk();
     }

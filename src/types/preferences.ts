@@ -7,7 +7,13 @@ export type DisplayPreferences = {
   startFullscreen: boolean;
 };
 
+export type CurrencyPreferences = {
+  symbolPosition: "before" | "after";
+  decimalSeparator: "dot" | "comma";
+};
+
 export type UserPreferences = {
   dateTime: DateTimePreferences;
   display: DisplayPreferences;
+  currency: CurrencyPreferences;
 };

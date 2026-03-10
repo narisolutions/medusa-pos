@@ -285,7 +285,7 @@ yarn typecheck          # tsc --noEmit
 1. The app boots and runs the `check_config_exists` Tauri command.
 2. If no config is found, a **Store Setup** dialog is shown.
 3. The user enters a Medusa backend URL. The app hits `<url>/health` to validate.
-4. On success, the URL is written to disk via `save_config` and the SDK is initialized.
+4. On success, the URL is written to disk via `save_store_url` + `set_active_backend` and the SDK is initialized.
 
 ### Login
 

@@ -1,5 +1,5 @@
 import { toast } from "sonner";
-import { formatDateTime } from "@/utils/datetime";
+import { formatDateTime, formatPrice } from "@/utils/preferences";
 import router from "@/router/router";
 import constants from "@/utils/constants";
 import { Store } from "@tauri-apps/plugin-store";
@@ -68,24 +68,6 @@ const handleErrorToast = (
     toast.error(error);
   } else {
     toast.error("An unknown error occurred.");
-  }
-};
-const formatPrice = (
-  price: number,
-  currency: string = constants.CHECKOUT_CONFIG.CURRENCY
-) => {
-  const roundedPrice = Math.round(price * 100) / 100;
-  const locale = currency.toUpperCase() === "GEL" ? "ka-GE" : "en-US";
-
-  try {
-    return new Intl.NumberFormat(locale, {
-      style: "currency",
-      currency: currency,
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    }).format(roundedPrice);
-  } catch {
-    return `${roundedPrice.toFixed(2)} ${currency.toUpperCase()}`;
   }
 };
 

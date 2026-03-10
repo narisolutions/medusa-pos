@@ -1,0 +1,87 @@
+import { useState, useEffect, useCallback } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { toast } from "sonner";
+import { Forms } from "@/types/form";
+import schemas from "@/utils/schemas";
+import {
+  initDateTimePrefs,
+  initCurrencyPrefs,
+  DEFAULT_PREFERENCES,
+  loadPreferences,
+  updatePreferences,
+} from "@/utils/preferences";
+
+const isTauri = "__TAURI_INTERNALS__" in window;
+
+async function setFullscreen(enabled: boolean): Promise<void> {
+  const { getCurrentWindow } = await import("@tauri-apps/api/window");
+  await getCurrentWindow().setFullscreen(enabled);
+}
+
+const defaults: Forms["PreferencesSettings"] = {
+  dateFormat: DEFAULT_PREFERENCES.dateTime.dateFormat,
+  timeFormat: DEFAULT_PREFERENCES.dateTime.timeFormat,
+  symbolPosition: DEFAULT_PREFERENCES.currency.symbolPosition,
+  decimalSeparator: DEFAULT_PREFERENCES.currency.decimalSeparator,
+  startFullscreen: DEFAULT_PREFERENCES.display.startFullscreen,
+};
+
+export const usePreferencesSettings = () => {
+  const form = useForm<Forms["PreferencesSettings"]>({
+    resolver: zodResolver(schemas.preferencesSettings),
+    defaultValues: defaults,
+  });
+
+  const {
+    reset,
+    handleSubmit,
+    formState: { isDirty },
+  } = form;
+
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  useEffect(() => {
+    const load = async () => {
+      const prefs = await loadPreferences();
+      reset({
+        dateFormat: prefs.dateTime.dateFormat,
+        timeFormat: prefs.dateTime.timeFormat,
+        symbolPosition: prefs.currency.symbolPosition,
+        decimalSeparator: prefs.currency.decimalSeparator,
+        startFullscreen: prefs.display.startFullscreen,
+      });
+    };
+    load();
+  }, [reset]);
+
+  const onSubmit = useCallback(
+    async (data: Forms["PreferencesSettings"]) => {
+      setIsSubmitting(true);
+      try {
+        const dateTime = { dateFormat: data.dateFormat, timeFormat: data.timeFormat } as const;
+        const currency = { symbolPosition: data.symbolPosition, decimalSeparator: data.decimalSeparator } as const;
+        const display = { startFullscreen: data.startFullscreen };
+
+        await updatePreferences({ dateTime, currency, display });
+
+        initDateTimePrefs(dateTime);
+        initCurrencyPrefs(currency);
+
+        if (isTauri) {
+          await setFullscreen(data.startFullscreen);
+        }
+
+        reset(data);
+        toast.success("Preferences saved");
+      } catch {
+        toast.error("Failed to save preferences");
+      } finally {
+        setIsSubmitting(false);
+      }
+    },
+    [reset],
+  );
+
+  return { form, isDirty, isSubmitting, handleSubmit, onSubmit, isTauri };
+};

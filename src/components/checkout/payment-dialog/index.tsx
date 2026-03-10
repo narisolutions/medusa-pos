@@ -5,6 +5,8 @@ import { Input } from "@/components/ui/input";
 import { Numpad } from "@/components/ui/numpad";
 import { Skeleton } from "@/components/ui/skeleton";
 import { formatPrice } from "@/utils/helpers";
+import { getCurrencySymbol } from "@/utils/preferences";
+import constants from "@/utils/constants";
 import { usePaymentModal } from "./hooks";
 import ConfirmationDialog from "./confirmation-dialog";
 import { CreditCard } from "lucide-react";
@@ -159,7 +161,7 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
                           inputMode="decimal"
                         />
                         <span className="absolute right-5 top-1/2 -translate-y-1/2 text-4xl text-gray-400">
-                          ₾
+                          {getCurrencySymbol(constants.CHECKOUT_CONFIG.CURRENCY)}
                         </span>
                       </div>
                     </div>

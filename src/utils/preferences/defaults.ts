@@ -8,4 +8,8 @@ export const DEFAULT_PREFERENCES: UserPreferences = {
   display: {
     startFullscreen: true,
   },
+  currency: {
+    symbolPosition: "before",
+    decimalSeparator: "dot",
+  },
 };

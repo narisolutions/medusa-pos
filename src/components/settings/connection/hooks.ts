@@ -14,6 +14,7 @@ import {
   handleErrorToast,
   checkBackendHealth,
 } from "@/utils/helpers";
+import { useStoreManager } from "@/context/store-manager";
 
 interface Props {
   form: ReturnType<typeof useForm<Forms["ApiSettings"]>>;
@@ -128,34 +129,13 @@ export const useConnectionSettings = ({ form }: Props) => {
             return;
           }
 
-          const configUpdate: Record<string, string> = {};
-
-          if (changes.hasBackendChanges && data.backend_url) {
-            configUpdate.backendUrl = data.backend_url.trim();
+          const activeStoreId = useStoreManager.getState().activeStoreId;
+          if (!activeStoreId) {
+            throw new Error("No active store to update");
           }
 
-          if (Object.keys(configUpdate).length > 0) {
-            try {
-              const existingConfig = await invoke<{
-                backend_url?: string;
-              }>("load_config");
-
-              const configToSave = {
-                backendUrl: (changes.hasBackendChanges
-                  ? data.backend_url || ""
-                  : existingConfig?.backend_url || ""
-                ).trim(),
-              };
-
-              if (!configToSave.backendUrl) {
-                throw new Error("Backend URL is required");
-              }
-
-              await invoke("save_config", configToSave);
-            } catch {
-              await invoke("save_config", configUpdate);
-            }
-          }
+          await invoke("save_store_url", { storeId: activeStoreId, backendUrl: url });
+          await invoke("set_active_backend", { storeId: activeStoreId });
         }
 
         // Update sales channel if changed

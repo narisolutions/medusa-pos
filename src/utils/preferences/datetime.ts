@@ -1,5 +1,5 @@
 import type { DateTimePreferences } from "@/types/preferences";
-import { DEFAULT_PREFERENCES } from "@/utils/preferences/defaults";
+import { DEFAULT_PREFERENCES } from "./defaults";
 
 export type { DateTimePreferences };
 
@@ -90,7 +90,6 @@ export const formatTimeOnly = (date: Date | string): string => {
   return formatTimeStr(toDate(date));
 };
 
-// Preview helper — formats using provided prefs without touching the singleton
 export const previewDateTime = (prefs: DateTimePreferences): string => {
   const now = new Date();
   return `${formatDateStr(now, prefs)} ${formatTimeStr(now, prefs)}`;

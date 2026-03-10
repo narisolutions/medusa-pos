@@ -2,10 +2,29 @@ import type { UserPreferences } from "@/types/preferences";
 import storage from "@/utils/storage";
 import { DEFAULT_PREFERENCES } from "./defaults";
 
+export { DEFAULT_PREFERENCES } from "./defaults";
+export { applyBootPreferences } from "./boot";
+
+export {
+  initDateTimePrefs,
+  formatDateTime,
+  formatDateOnly,
+  formatTimeOnly,
+  previewDateTime,
+} from "./datetime";
+
+export {
+  initCurrencyPrefs,
+  formatPrice,
+  formatCurrencyRaw,
+  getCurrencySymbol,
+} from "./currency";
+
 function deepMerge(defaults: UserPreferences, partial: Partial<UserPreferences>): UserPreferences {
   return {
     dateTime: { ...defaults.dateTime, ...partial.dateTime },
     display: { ...defaults.display, ...partial.display },
+    currency: { ...defaults.currency, ...partial.currency },
   };
 }
 

@@ -1,7 +1,7 @@
 import { ReceiptData } from "@/types/utils";
 import { jsPDF } from "jspdf";
 import constants from "@/utils/constants";
-import { formatDateOnly, formatTimeOnly } from "@/utils/datetime";
+import { formatDateOnly, formatTimeOnly, formatCurrencyRaw } from "@/utils/preferences";
 
 export type { ReceiptData };
 
@@ -24,9 +24,8 @@ const buildReceipt = (data: ReceiptData): string => {
     return " ".repeat(Math.max(0, padding)) + text;
   };
 
-  const formatCurrency = (amount: number): string => {
-    return `${amount.toFixed(2)} ${data.currency}`;
-  };
+  const fmtCurrency = (amount: number): string =>
+    formatCurrencyRaw(amount, data.currency);
 
   /**
    * Sanitizes item title to only contain English alphabet letters and spaces.
@@ -126,15 +125,15 @@ const buildReceipt = (data: ReceiptData): string => {
         : sanitizedTitle;
 
     // Item name and total on first line
-    receipt += `\n${padLine(itemName, formatCurrency(itemTotal))}`;
+    receipt += `\n${padLine(itemName, fmtCurrency(itemTotal))}`;
 
     // Quantity and unit price on line (indented)
-    const qtyLine = `  ${toNumber(item.quantity)} x ${formatCurrency(toNumber(item.unit_price))}`;
+    const qtyLine = `  ${toNumber(item.quantity)} x ${fmtCurrency(toNumber(item.unit_price))}`;
     receipt += `\n${qtyLine}`;
 
     // Item discount if any
     if (item.discount_total && toNumber(item.discount_total) > 0) {
-      receipt += `\n  Discount: -${formatCurrency(toNumber(item.discount_total))}`;
+      receipt += `\n  Discount: -${fmtCurrency(toNumber(item.discount_total))}`;
     }
   });
 
@@ -158,21 +157,21 @@ const buildReceipt = (data: ReceiptData): string => {
   if (hasDiscount) {
     // Subtotal before discount is applied (includes VAT and discount amount)
     const subtotalBeforeDiscount = data.subtotal + data.tax + discountAmount;
-    receipt += `\n${padLine("Subtotal:", formatCurrency(subtotalBeforeDiscount))}`;
-    receipt += `\n${padLine("Discount:", formatCurrency(discountAmount))}`;
+    receipt += `\n${padLine("Subtotal:", fmtCurrency(subtotalBeforeDiscount))}`;
+    receipt += `\n${padLine("Discount:", fmtCurrency(discountAmount))}`;
   }
 
-  receipt += `\n${padLine("VAT:", formatCurrency(data.tax))}`;
-  receipt += `\n${padLine("Total:", formatCurrency(data.total))}`;
+  receipt += `\n${padLine("VAT:", fmtCurrency(data.tax))}`;
+  receipt += `\n${padLine("Total:", fmtCurrency(data.total))}`;
 
   receipt += `\n\nPayment Method: ${data.paymentMethod}`;
 
   if (data.amountPaid) {
-    receipt += `\n${padLine("Amount Paid:", formatCurrency(data.amountPaid))}`;
+    receipt += `\n${padLine("Amount Paid:", fmtCurrency(data.amountPaid))}`;
   }
 
   if (data.change && data.change > 0) {
-    receipt += `\n${padLine("Change:", formatCurrency(data.change))}`;
+    receipt += `\n${padLine("Change:", fmtCurrency(data.change))}`;
   }
 
   receipt += `\n\n${centerText(data.footer || "Thank you for your visit!")}`;
@@ -307,13 +306,13 @@ const buildReceiptPDF = (data: ReceiptData): Uint8Array => {
       : toNumber(item.unit_price) * toNumber(item.quantity);
 
     const itemTitle = String(item.title || "").substring(0, 25);
-    const totalStr = `${itemTotal.toFixed(2)} ${data.currency}`;
+    const totalStr = formatCurrencyRaw(itemTotal, data.currency);
     
     // Item name and total
     addTwoColumn(itemTitle, totalStr, true, 4);
     
     // Quantity and unit price
-    const qtyPrice = `${toNumber(item.quantity)} × ${toNumber(item.unit_price).toFixed(2)} ${data.currency}`;
+    const qtyPrice = `${toNumber(item.quantity)} × ${formatCurrencyRaw(toNumber(item.unit_price), data.currency)}`;
     doc.setFontSize(8);
     doc.setFont("helvetica", "normal");
     doc.text(`  ${qtyPrice}`, margin + 2, yPosition);
@@ -321,7 +320,7 @@ const buildReceiptPDF = (data: ReceiptData): Uint8Array => {
 
     // Item discount if any
     if (item.discount_total && toNumber(item.discount_total) > 0) {
-      const discountStr = `-${toNumber(item.discount_total).toFixed(2)} ${data.currency}`;
+      const discountStr = `-${formatCurrencyRaw(toNumber(item.discount_total), data.currency)}`;
       doc.setFontSize(8);
       doc.setFont("helvetica", "italic");
       doc.text(`  Discount: ${discountStr}`, margin + 2, yPosition);
@@ -342,25 +341,25 @@ const buildReceiptPDF = (data: ReceiptData): Uint8Array => {
 
   if (hasDiscount) {
     const subtotalBeforeDiscount = data.subtotal + data.tax + discountAmount;
-    addTwoColumn("Subtotal:", `${subtotalBeforeDiscount.toFixed(2)} ${data.currency}`, false, 5);
-    addTwoColumn("Discount:", `-${discountAmount.toFixed(2)} ${data.currency}`, false, 5);
+    addTwoColumn("Subtotal:", formatCurrencyRaw(subtotalBeforeDiscount, data.currency), false, 5);
+    addTwoColumn("Discount:", `-${formatCurrencyRaw(discountAmount, data.currency)}`, false, 5);
   }
 
-  addTwoColumn("VAT:", `${data.tax.toFixed(2)} ${data.currency}`, false, 5);
+  addTwoColumn("VAT:", formatCurrencyRaw(data.tax, data.currency), false, 5);
   
   addSeparator("thin", 2, 4);
-  addTwoColumn("TOTAL:", `${data.total.toFixed(2)} ${data.currency}`, true, 5);
+  addTwoColumn("TOTAL:", formatCurrencyRaw(data.total, data.currency), true, 5);
   addSeparator("thin", 2, 4);
 
   // Payment Information
   addTwoColumn("Payment Method:", data.paymentMethod, false, 5);
 
   if (data.amountPaid) {
-    addTwoColumn("Amount Paid:", `${data.amountPaid.toFixed(2)} ${data.currency}`, false, 5);
+    addTwoColumn("Amount Paid:", formatCurrencyRaw(data.amountPaid, data.currency), false, 5);
   }
 
   if (data.change && data.change > 0) {
-    addTwoColumn("Change:", `${data.change.toFixed(2)} ${data.currency}`, false, 5);
+    addTwoColumn("Change:", formatCurrencyRaw(data.change, data.currency), false, 5);
   }
 
   // Footer

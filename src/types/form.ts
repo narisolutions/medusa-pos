@@ -10,4 +10,6 @@ export type Forms = {
   StoreSettings: zodInfer<typeof schemas.storeSettings>;
   StoreConfig: zodInfer<typeof schemas.storeConfig>;
   DateTimeSettings: zodInfer<typeof schemas.dateTimeSettings>;
+  CurrencySettings: zodInfer<typeof schemas.currencySettings>;
+  PreferencesSettings: zodInfer<typeof schemas.preferencesSettings>;
 };
