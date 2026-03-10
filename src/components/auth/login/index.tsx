@@ -36,14 +36,14 @@ const Login: React.FC = () => {
 
   return (
     <Fragment>
-      <div className="bg-white/90 p-12 rounded-3xl shadow-2xl w-full border border-gray-100 backdrop-blur-sm transition-all duration-300 relative">
+      <div className="bg-surface/90 p-12 rounded-3xl shadow-2xl w-full border border-theme-border backdrop-blur-sm transition-all duration-300 relative">
 
         <div className="mb-8 flex flex-col gap-4 text-center">
-          <h2 className="text-3xl font-semibold text-gray-800 tracking-tight drop-shadow-sm">
+          <h2 className="text-3xl font-semibold text-fg tracking-tight drop-shadow-sm">
             Sign in
           </h2>
           {isConfigured && (
-            <span className="inline-flex items-center justify-center self-center rounded-full bg-gray-100 px-3 text-xs font-medium text-gray-600">
+            <span className="inline-flex items-center justify-center self-center rounded-full bg-surface-subtle px-3 text-xs font-medium text-fg-muted">
               {isBackendStaging ? "Staging" : "Production"}
             </span>
           )}
@@ -105,7 +105,7 @@ const Login: React.FC = () => {
               type="submit"
               variant="default"
               size="lg"
-              className="bg-gray-800 hover:bg-gray-900 transition-colors shadow text-white mt-4 py-8 text-xl"
+              className="bg-gray-800 hover:bg-gray-900 dark:bg-gray-700 dark:hover:bg-gray-600 transition-colors shadow text-white mt-4 py-8 text-xl"
               disabled={!isConfigured || bootLoading}
             >
               {bootLoading ? "Loading..." : "Sign in"}

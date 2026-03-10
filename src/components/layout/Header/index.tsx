@@ -23,7 +23,7 @@ const Header: React.FC = () => {
   const logoSrc = getLogoUrl(store);
 
   return (
-    <header className="bg-white shadow h-24 px-6 flex items-center justify-between shrink-0">
+    <header className="bg-surface border-b border-theme-border shadow h-24 px-6 flex items-center justify-between shrink-0">
       <div className="flex items-center gap-4">
         {!sidebar.open && <SidebarTrigger />}
       </div>
@@ -43,7 +43,7 @@ const Header: React.FC = () => {
           </span>
         )}
       </div>
-      <div className="flex gap-1.5 items-center">
+      <div className="flex gap-1.5 items-center text-fg-muted">
         <span>{formatDate(now)}</span>
         <Calendar />
       </div>

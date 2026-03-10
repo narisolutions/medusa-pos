@@ -77,12 +77,12 @@ const DiscountModal: React.FC<Props> = ({ open, onClose }) => {
         <div className="space-y-4">
           {selectedItemId ? (
             <Fragment>
-              <label className="text-sm text-gray-700">
+              <label className="text-sm text-fg-muted">
                 Apply discount to: <b>{currentItem?.title}</b>
               </label>
 
               <div className="space-y-2">
-                <label className="text-sm text-gray-700">Discount Type</label>
+                <label className="text-sm text-fg-muted">Discount Type</label>
                 <div className="flex gap-4">
                   <label className="flex items-center gap-2 cursor-pointer">
                     <input
@@ -90,7 +90,7 @@ const DiscountModal: React.FC<Props> = ({ open, onClose }) => {
                       name="item-discount-type"
                       checked={discountType === "amount"}
                       onChange={() => handleTypeChange("amount")}
-                      className="w-4 h-4 border-gray-300 text-primary focus:ring-primary/30"
+                      className="w-4 h-4 border-theme-border-strong text-primary focus:ring-primary/30"
                     />
                     <span className="text-sm">Amount</span>
                   </label>
@@ -100,7 +100,7 @@ const DiscountModal: React.FC<Props> = ({ open, onClose }) => {
                       name="item-discount-type"
                       checked={discountType === "percent"}
                       onChange={() => handleTypeChange("percent")}
-                      className="w-4 h-4 border-gray-300 text-primary focus:ring-primary/30"
+                      className="w-4 h-4 border-theme-border-strong text-primary focus:ring-primary/30"
                     />
                     <span className="text-sm">Percentage</span>
                   </label>
@@ -108,11 +108,11 @@ const DiscountModal: React.FC<Props> = ({ open, onClose }) => {
               </div>
 
               <div className="space-y-2">
-                <label className="text-sm text-gray-700">
+                <label className="text-sm text-fg-muted">
                   Discount Value {discountType === "percent" && "(%)"}
                   {discountType === "amount" && "(Amount)"}
                 </label>
-                <div className="text-2xl font-semibold text-center p-3 border border-gray-300 rounded-md bg-gray-50">
+                <div className="text-2xl font-semibold text-center p-3 border border-theme-border-strong rounded-md bg-surface-muted">
                   {discountValue || "0"}
                 </div>
               </div>
@@ -125,7 +125,7 @@ const DiscountModal: React.FC<Props> = ({ open, onClose }) => {
               />
             </Fragment>
           ) : (
-            <div className="flex h-[400px] w-full items-center justify-center rounded-md border border-gray-300 bg-gray-50 text-base text-gray-500">
+            <div className="flex h-[400px] w-full items-center justify-center rounded-md border border-theme-border-strong bg-surface-muted text-base text-fg-subtle">
               Please select an item to apply a discount.
             </div>
           )}

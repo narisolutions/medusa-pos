@@ -12,8 +12,15 @@ export type CurrencyPreferences = {
   decimalSeparator: "dot" | "comma";
 };
 
+export type ThemeMode = "light" | "dark" | "system";
+
+export type AppearancePreferences = {
+  themeMode: ThemeMode;
+};
+
 export type UserPreferences = {
   dateTime: DateTimePreferences;
   display: DisplayPreferences;
   currency: CurrencyPreferences;
+  appearance: AppearancePreferences;
 };

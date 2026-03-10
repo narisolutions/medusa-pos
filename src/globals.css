@@ -1,9 +1,51 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 @theme {
   /* Neutral fallback when store theme is not configured */
   --color-primary: oklch(55% 0.02 0);
   --color-secondary: oklch(35% 0.02 0);
+
+  /* Fonts */
+  --font-sans: "Firago", sans-serif;
+
+  /* Sidebar token set */
+  --color-sidebar: hsl(0 0% 98%);
+  --color-sidebar-foreground: hsl(240 5.3% 26.1%);
+  --color-sidebar-primary: hsl(240 5.9% 10%);
+  --color-sidebar-primary-foreground: hsl(0 0% 98%);
+  --color-sidebar-accent: hsl(240 4.8% 95.9%);
+  --color-sidebar-accent-foreground: hsl(240 5.9% 10%);
+  --color-sidebar-border: hsl(220 13% 91%);
+  --color-sidebar-ring: hsl(217.2 91.2% 59.8%);
+
+  /* App background + base */
+  --color-app-bg: #fcf7f5;
+  --color-bg-base: #fcf7f5;
+
+  /* Surfaces */
+  --color-surface: #ffffff;
+  --color-surface-muted: #f8fafc;
+  --color-surface-hover: #f1f5f9;
+  --color-surface-subtle: #f1f5f9;
+  --color-surface-elevated: #ffffff;
+
+  /* Text */
+  --color-fg: #0f172a;        /* Primary text — slate-900 */
+  --color-fg-muted: #475569;  /* Secondary text — slate-600 */
+  --color-fg-subtle: #94a3b8; /* Placeholder / tertiary — slate-400 */
+
+  /* Borders */
+  --color-border: #e2e8f0;        /* Default border — slate-200 */
+  --color-border-strong: #cbd5e1; /* Stronger border — slate-300 */
+}
+
+/* Border tokens: reference :root/.dark so light/dark and runtime overrides work.
+   Must be in @theme so Tailwind v4 generates border-theme-border utilities. */
+@theme inline {
+  --color-theme-border: var(--color-border);
+  --color-theme-border-strong: var(--color-border-strong);
 }
 
 /* === Fonts === */
@@ -47,13 +89,14 @@
 :root {
   --font-sans: "Firago", sans-serif;
 
-  /* Neutral fallback when store theme is not configured */
+  /* Brand colors — overridden at runtime from store settings via API */
   --color-primary: oklch(55% 0.02 0);
   --color-secondary: oklch(35% 0.02 0);
 
   /* Base font size (px) from store settings; used by html for rem scaling */
   --font-scale: 16;
 
+  /* --- Sidebar (shadcn) --- */
   --color-sidebar: hsl(0 0% 98%);
   --color-sidebar-foreground: hsl(240 5.3% 26.1%);
   --color-sidebar-primary: hsl(240 5.9% 10%);
@@ -63,19 +106,70 @@
   --color-sidebar-border: hsl(220 13% 91%);
   --color-sidebar-ring: hsl(217.2 91.2% 59.8%);
 
+  /* --- App Background --- */
+  /* bg-app: warm canvas behind all content */
+  --color-app-bg: #fcf7f5;
+  /* bg-base: used for input backgrounds and active nav items */
   --color-bg-base: #fcf7f5;
+
+  /* --- Surfaces --- */
+  /* bg-surface: cards, panels, page-level containers */
+  --color-surface: #ffffff;
+  /* bg-surface-muted: card/table headers, subtle section fills */
+  --color-surface-muted: #f8fafc;
+  /* bg-surface-hover: row/item hover states */
+  --color-surface-hover: #f1f5f9;
+  /* bg-surface-subtle: badges, chips, dashed outlines */
+  --color-surface-subtle: #f1f5f9;
+  /* bg-surface-elevated: modals, dropdowns — sits above surface */
+  --color-surface-elevated: #ffffff;
+
+  /* --- Text --- */
+  --color-fg: #0f172a;        /* Primary text — slate-900 */
+  --color-fg-muted: #475569;  /* Secondary text — slate-600 */
+  --color-fg-subtle: #94a3b8; /* Placeholder / tertiary — slate-400 */
+
+  /* --- Borders --- */
+  --color-border: #e2e8f0;        /* Default border — slate-200 */
+  --color-border-strong: #cbd5e1; /* Stronger border — slate-300 */
 }
 
 /* === Dark Mode Tokens === */
+/*
+ * Palette: cool blue-gray charcoal (hsl 224 base hue)
+ * Elevation layers (darkest → lightest):
+ *   app-bg → surface-muted → surface → surface-subtle → surface-hover → surface-elevated
+ */
 .dark {
-  --color-sidebar: hsl(240 5.9% 10%);
-  --color-sidebar-foreground: hsl(240 4.8% 95.9%);
-  --color-sidebar-primary: hsl(224.3 76.3% 48%);
-  --color-sidebar-primary-foreground: hsl(0 0% 100%);
-  --color-sidebar-accent: hsl(240 3.7% 15.9%);
-  --color-sidebar-accent-foreground: hsl(240 4.8% 95.9%);
-  --color-sidebar-border: hsl(240 3.7% 15.9%);
-  --color-sidebar-ring: hsl(217.2 91.2% 59.8%);
+  /* --- Sidebar --- */
+  --color-sidebar: hsl(224 22% 11%);
+  --color-sidebar-foreground: #94a3b8;
+  --color-sidebar-primary: var(--color-primary);
+  --color-sidebar-primary-foreground: #ffffff;
+  --color-sidebar-accent: hsl(224 16% 19%);
+  --color-sidebar-accent-foreground: #e2e8f0;
+  --color-sidebar-border: hsl(224 14% 19%);
+  --color-sidebar-ring: var(--color-primary);
+
+  /* --- App Background --- */
+  --color-app-bg: hsl(224 20% 9%);   /* Deep charcoal-blue canvas */
+  --color-bg-base: hsl(224 16% 14%); /* Matches surface for input/nav consistency */
+
+  /* --- Surfaces --- */
+  --color-surface: hsl(224 16% 14%);          /* Cards, panels */
+  --color-surface-muted: hsl(224 18% 11%);    /* Card headers — darker than card */
+  --color-surface-hover: hsl(224 16% 20%);    /* Hover state */
+  --color-surface-subtle: hsl(224 14% 18%);   /* Badge / chip backgrounds */
+  --color-surface-elevated: hsl(224 16% 17%); /* Modals, dropdowns */
+
+  /* --- Text --- */
+  --color-fg: #e2e8f0;        /* Soft white — slate-200, no eye strain */
+  --color-fg-muted: #94a3b8;  /* slate-400 */
+  --color-fg-subtle: #64748b; /* slate-500 */
+
+  /* --- Borders --- */
+  --color-border: hsl(224 14% 22%);       /* Subtle divider */
+  --color-border-strong: hsl(224 12% 30%); /* Visible border */
 }
 
 /* === Base Styles === */
@@ -89,7 +183,8 @@
 
   body {
     font-family: var(--font-sans);
-    background-color: #fcf7f5;
+    background-color: var(--color-app-bg);
+    color: var(--color-fg);
     overflow: hidden;
     height: 100%;
     margin: 0;

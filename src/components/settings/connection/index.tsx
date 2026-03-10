@@ -51,13 +51,13 @@ const ConnectionSettings: React.FC = () => {
 
   return (
     <div className="flex flex-col h-full space-y-8">
-      <div className="border-b border-gray-200 pb-6">
-        <p className="text-lg leading-relaxed text-gray-600 font-medium">
+      <div className="border-b border-theme-border pb-6">
+        <p className="text-lg leading-relaxed text-fg-muted font-medium">
           Configure your backend API connection and sales channel
         </p>
       </div>
 
-      <p className="text-sm text-gray-600">
+      <p className="text-sm text-fg-muted">
         Currently logged in:{" "}
         <span className="font-medium">
           {(admin as unknown as { user: { email: string } })?.user?.email}
@@ -106,7 +106,7 @@ const ConnectionSettings: React.FC = () => {
                       {field.value ? (
                         <span>{getSelectedChannelName()}</span>
                       ) : (
-                        <span className="text-gray-500">
+                        <span className="text-fg-muted">
                           {isLoadingSalesChannels
                             ? "Loading sales channels..."
                             : "Select a sales channel"}
@@ -121,7 +121,7 @@ const ConnectionSettings: React.FC = () => {
                       </SelectItem>
                     ))}
                     {(!salesChannels || salesChannels.length === 0) && (
-                      <SelectItem value="" className="text-gray-500">
+                      <SelectItem value="" className="text-fg-muted">
                         {isLoadingSalesChannels
                           ? "Loading sales channels..."
                           : "No sales channels available"}
@@ -153,7 +153,7 @@ const ConnectionSettings: React.FC = () => {
                       {field.value ? (
                         <span>{getSelectedLocationName()}</span>
                       ) : (
-                        <span className="text-gray-500">
+                        <span className="text-fg-muted">
                           {isLoadingStockLocations
                             ? "Loading stock locations..."
                             : "Select a stock location"}
@@ -168,7 +168,7 @@ const ConnectionSettings: React.FC = () => {
                       </SelectItem>
                     ))}
                     {(!stockLocations || stockLocations.length === 0) && (
-                      <SelectItem value="" className="text-gray-500">
+                      <SelectItem value="" className="text-fg-muted">
                         {isLoadingStockLocations
                           ? "Loading stock locations..."
                           : "No stock locations available"}

@@ -39,7 +39,7 @@ const Footer: React.FC<FooterProps> = ({
           <span className="sr-only">Previous</span>
           {"<"}
         </Button>
-        <span className="flex items-center  text-base font-medium px-4">
+        <span className="flex items-center text-base font-medium text-fg px-4">
           Page{" "}
           <strong className="mx-1 inline-block min-w-[2ch] text-center">
             {totalPages > 0 ? pageIndex + 1 : 0}
@@ -79,12 +79,12 @@ const Footer: React.FC<FooterProps> = ({
         </Button>
       </div>
       <div className="flex items-center gap-4">
-        <label htmlFor="page-size" className="text-base text-gray-700">
+        <label htmlFor="page-size" className="text-base text-fg-muted">
           Rows per page:
         </label>
         <select
           id="page-size"
-          className="border rounded-md px-2 text-base h-12 min-w-[80px]"
+          className="border border-theme-border bg-surface text-fg rounded-md px-2 text-base h-12 min-w-[80px]"
           value={pageSize}
           onChange={(e) => {
             handlePageSizeChange(Number(e.target.value));
@@ -97,7 +97,7 @@ const Footer: React.FC<FooterProps> = ({
             </option>
           ))}
         </select>
-        <span className="text-sm text-gray-500 ml-2 min-w-20 flex items-center justify-center">
+        <span className="text-sm text-fg-muted ml-2 min-w-20 flex items-center justify-center">
           {count === 0 ? (
             <LoadingSpinner />
           ) : (

@@ -104,7 +104,7 @@ const PrinterModal: React.FC<PrinterModalProps> = ({
           <DialogTitle className="text-2xl font-semibold">
             {editingPrinter ? "Edit Printer" : "Add New Printer"}
           </DialogTitle>
-          <DialogDescription className="text-lg text-gray-600 mt-2">
+          <DialogDescription className="text-lg text-fg-muted mt-2">
             Configure your printer settings. Click save when you're done.
           </DialogDescription>
         </DialogHeader>
@@ -171,7 +171,7 @@ const PrinterModal: React.FC<PrinterModalProps> = ({
               id="isDefault"
               checked={formData.isDefault}
               onChange={(e) => setFormData({ ...formData, isDefault: e.target.checked })}
-              className="h-5 w-5 rounded border border-gray-300 text-primary focus:ring-2 focus:ring-primary"
+              className="h-5 w-5 rounded border border-theme-border text-primary focus:ring-2 focus:ring-primary"
             />
             <Label htmlFor="isDefault" className="text-lg font-medium">Set as default printer</Label>
           </div>

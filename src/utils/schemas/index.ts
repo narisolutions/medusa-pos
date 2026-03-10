@@ -65,6 +65,7 @@ export default {
     symbolPosition: z.enum(["before", "after"]),
     decimalSeparator: z.enum(["dot", "comma"]),
     startFullscreen: z.boolean(),
+    themeMode: z.enum(["light", "dark", "system"]),
   }),
 
   storeSettings: z.object({

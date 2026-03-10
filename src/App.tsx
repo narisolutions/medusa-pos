@@ -8,11 +8,13 @@ import Backdrop from "./components/base/backdrop";
 import BootEscapeOverlay from "./components/base/boot-escape-overlay";
 import useAppInit from "./hooks/auth/useAppInit";
 import useApplyStoreTheme from "./hooks/ui/useApplyStoreTheme";
+import useApplyTheme from "./hooks/ui/useApplyTheme";
 import useUpdateCheck from "./hooks/useUpdateCheck";
 import { useUser } from "./context/user";
 import constants from "./utils/constants";
 
 function AppContent() {
+  useApplyTheme();
   useApplyStoreTheme();
   useUpdateCheck();
   return (

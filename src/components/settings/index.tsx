@@ -23,7 +23,7 @@ const Settings: React.FC = () => {
   }, []);
 
   return (
-    <div className="bg-white p-12 rounded-lg flex flex-col space-y-8">
+    <div className="bg-surface p-12 rounded-lg flex flex-col space-y-8">
       <Tabs
         value={settingsTab}
         className="flex flex-col space-y-8"
@@ -37,28 +37,28 @@ const Settings: React.FC = () => {
           }
         }}
       >
-        <TabsList className="flex justify-start w-full border-b border-gray-200 bg-transparent p-0 h-auto">
+        <TabsList className="flex justify-start w-full border-b border-theme-border bg-transparent p-0 h-auto">
           <TabsTrigger
             value="printer"
-            className="text-lg px-6 py-4 border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:text-primary text-gray-600 bg-transparent rounded-none min-h-[48px]"
+            className="text-lg px-6 py-4 border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:text-primary text-fg-muted bg-transparent rounded-none min-h-[48px]"
           >
             Printer
           </TabsTrigger>
           <TabsTrigger
             value="connection"
-            className="text-lg px-6 py-4 border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:text-primary text-gray-600 bg-transparent rounded-none min-h-[48px]"
+            className="text-lg px-6 py-4 border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:text-primary text-fg-muted bg-transparent rounded-none min-h-[48px]"
           >
             Connection
           </TabsTrigger>
           <TabsTrigger
             value="store"
-            className="text-lg px-6 py-4 border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:text-primary text-gray-600 bg-transparent rounded-none min-h-[48px]"
+            className="text-lg px-6 py-4 border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:text-primary text-fg-muted bg-transparent rounded-none min-h-[48px]"
           >
             Store
           </TabsTrigger>
           <TabsTrigger
             value="preferences"
-            className="text-lg px-6 py-4 border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:text-primary text-gray-600 bg-transparent rounded-none min-h-[48px]"
+            className="text-lg px-6 py-4 border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:text-primary text-fg-muted bg-transparent rounded-none min-h-[48px]"
           >
             Preferences
           </TabsTrigger>

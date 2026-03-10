@@ -62,7 +62,7 @@ const useOrders = () => {
         id: "display_id",
         header: "Order ID",
         cell: (info) => (
-          <span className="font-semibold text-gray-900 text-base">
+          <span className="font-semibold text-fg text-base">
             #{info.getValue()}
           </span>
         ),
@@ -102,7 +102,7 @@ const useOrders = () => {
         header: "Date",
         cell: (info) => {
           return (
-            <span className="text-base text-gray-600">
+            <span className="text-base text-fg-muted">
               {formatDate(info.getValue())}
             </span>
           );
@@ -196,7 +196,7 @@ const useOrders = () => {
           const value = info.getValue();
 
           return (
-            <span className="font-semibold text-gray-900 text-base">
+            <span className="font-semibold text-fg text-base">
               {formatPrice(value)}
             </span>
           );

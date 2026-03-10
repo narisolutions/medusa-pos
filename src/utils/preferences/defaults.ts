@@ -12,4 +12,7 @@ export const DEFAULT_PREFERENCES: UserPreferences = {
     symbolPosition: "before",
     decimalSeparator: "dot",
   },
+  appearance: {
+    themeMode: "system",
+  },
 };

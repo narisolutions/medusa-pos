@@ -21,12 +21,12 @@ const ConfirmationDialog: React.FC<ConfirmationDialogProps> = ({
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onCancel()}>
       <DialogContent className="max-w-md">
-        <DialogTitle className="text-2xl font-semibold text-gray-900 text-center">
+        <DialogTitle className="text-2xl font-semibold text-fg text-center">
           Confirm Payment
         </DialogTitle>
-        
+
         <div className="space-y-6 py-4">
-          <p className="text-lg text-gray-700 text-center">
+          <p className="text-lg text-fg-muted text-center">
             Please confirm that the payment on the terminal was successful.
           </p>
           

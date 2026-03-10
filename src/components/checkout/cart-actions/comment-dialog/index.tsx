@@ -48,7 +48,7 @@ const CommentModal: React.FC<Props> = ({ open, onClose }) => {
 
           {scope === "order" ? (
             <div className="space-y-3">
-              <label className="text-base font-medium text-gray-800">
+              <label className="text-base font-medium text-fg">
                 Add comment for order
               </label>
               <textarea
@@ -57,14 +57,14 @@ const CommentModal: React.FC<Props> = ({ open, onClose }) => {
                 onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
                   setOrderComment(e.target.value)
                 }
-                className="w-full rounded-lg border border-gray-300 p-4 text-base focus:outline-none focus:ring-2 focus:ring-primary/30"
+                className="w-full rounded-lg border border-theme-border p-4 text-base focus:outline-none focus:ring-2 focus:ring-primary/30"
               />
             </div>
           ) : (
             <div className="space-y-3">
               {selectedItemId ? (
                 <Fragment>
-                  <label className="text-base font-medium text-gray-800">
+                  <label className="text-base font-medium text-fg">
                     Add comment for item: <b>{currentItem?.title}</b>
                   </label>
                   <textarea
@@ -75,11 +75,11 @@ const CommentModal: React.FC<Props> = ({ open, onClose }) => {
                         comment: e.target.value,
                       })
                     }
-                    className="w-full rounded-lg border border-gray-300 p-4 text-base focus:outline-none focus:ring-2 focus:ring-primary/30"
+                    className="w-full rounded-lg border border-theme-border p-4 text-base focus:outline-none focus:ring-2 focus:ring-primary/30"
                   />
                 </Fragment>
               ) : (
-                <div className="flex h-[180px] w-full items-center justify-center rounded-lg border border-gray-300 bg-gray-50 text-base text-gray-500">
+                <div className="flex h-[180px] w-full items-center justify-center rounded-lg border border-theme-border bg-surface-muted text-base text-fg-muted">
                   Please select an item to add a comment.
                 </div>
               )}

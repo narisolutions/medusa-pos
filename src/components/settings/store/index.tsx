@@ -62,8 +62,8 @@ const StoreSettings: React.FC = () => {
 
   return (
     <div className="flex flex-col h-full space-y-8">
-      <div className="border-b border-gray-200 pb-6">
-        <p className="text-lg leading-relaxed text-gray-600 font-medium">
+      <div className="border-b border-theme-border pb-6">
+        <p className="text-lg leading-relaxed text-fg-muted font-medium">
           Configure store branding and display defaults
         </p>
       </div>
@@ -117,7 +117,7 @@ const StoreSettings: React.FC = () => {
             <div className="flex flex-col gap-3">
               <Label className="text-lg font-medium">Store Logo</Label>
               <div className="flex items-center gap-4">
-                <div className="w-24 h-24 border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center bg-gray-50 shrink-0 overflow-hidden">
+                <div className="w-24 h-24 border-2 border-dashed border-theme-border-strong rounded-lg flex items-center justify-center bg-surface-subtle shrink-0 overflow-hidden">
                   {currentLogoUrl ? (
                     <img
                       src={currentLogoUrl}
@@ -125,7 +125,7 @@ const StoreSettings: React.FC = () => {
                       className="max-w-full max-h-full object-contain"
                     />
                   ) : (
-                    <ImageIcon className="w-8 h-8 text-gray-400" />
+                    <ImageIcon className="w-8 h-8 text-fg-subtle" />
                   )}
                 </div>
                 <div className="flex flex-col gap-2">
@@ -143,14 +143,14 @@ const StoreSettings: React.FC = () => {
                       type="button"
                       variant="ghost"
                       onClick={handleRemoveLogo}
-                      className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                      className="text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20"
                     >
                       <X className="w-4 h-4 mr-2" /> Remove Logo
                     </Button>
                   )}
                 </div>
               </div>
-              <p className="text-sm text-gray-500">
+              <p className="text-sm text-fg-muted">
                 PNG, JPG, JPEG, SVG, or WebP (max 256 KB). Displayed in the app
                 header.
               </p>
@@ -218,14 +218,14 @@ const StoreSettings: React.FC = () => {
 
             <div className="space-y-4">
               <Label className="text-lg font-medium">Payment Methods</Label>
-              <p className="text-sm text-gray-500">
+              <p className="text-sm text-fg-muted">
                 Add, remove, or customize payment methods. Provider ID must match your Medusa backend (e.g. pp_cash_pos).
               </p>
-              <div className="space-y-3 rounded-lg border border-gray-200 p-4 bg-gray-50/50">
+              <div className="space-y-3 rounded-lg border border-theme-border p-4 bg-surface-muted">
                 {fields.map((field, index) => (
                   <div
                     key={field.id}
-                    className="flex items-center gap-3 p-3 bg-white rounded-lg border border-gray-200"
+                    className="flex items-center gap-3 p-3 bg-surface rounded-lg border border-theme-border"
                   >
                     <FormField
                       control={control}
@@ -313,7 +313,7 @@ const StoreSettings: React.FC = () => {
                       type="button"
                       variant="ghost"
                       size="icon"
-                      className="shrink-0 text-gray-500 hover:text-destructive hover:bg-destructive/10"
+                      className="shrink-0 text-fg-muted hover:text-destructive hover:bg-destructive/10"
                       onClick={() => remove(index)}
                       disabled={isLoading || fields.length <= 1}
                       aria-label="Remove payment method"

@@ -15,29 +15,102 @@ import {
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { usePreferencesSettings } from "./hooks";
+import type { ThemeMode } from "@/types/preferences";
+
+const THEME_OPTIONS: { value: ThemeMode; label: string }[] = [
+  { value: "light", label: "Light" },
+  { value: "dark", label: "Dark" },
+  { value: "system", label: "System" },
+];
 
 const PreferencesSettings: React.FC = () => {
-  const { form, isDirty, isSubmitting, handleSubmit, onSubmit, isTauri } =
+  const { form, isDirty, isSubmitting, handleSubmit, onSubmit, isTauri, handleThemeModeChange } =
     usePreferencesSettings();
 
-  const { control } = form;
+  const { control, watch } = form;
+  const currentTheme = watch("themeMode");
 
   return (
-    <div className="flex flex-col h-full">
-      <div className="border-b border-gray-200 pb-6 mb-8">
-        <p className="text-lg leading-relaxed text-gray-600 font-medium">
-          Customize how the application looks and behaves
-        </p>
-      </div>
+    <div className="flex flex-col h-full min-h-0">
+      <p className="text-fg-muted text-sm mb-4">
+        Customize how the application looks and behaves
+      </p>
 
       <Form {...form}>
         <form
           onSubmit={handleSubmit(onSubmit)}
-          className="flex flex-col gap-10 max-w-2xl"
+          className="flex flex-col space-y-5 max-w-2xl min-h-0"
         >
+          {/* Appearance (theme + fullscreen) */}
+          <fieldset className="space-y-4">
+            <legend className="text-lg font-semibold text-fg">
+              Appearance
+            </legend>
+
+            <FormField
+              control={control}
+              name="themeMode"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-base font-medium">Theme</FormLabel>
+                  <FormControl>
+                    <div className="flex gap-2">
+                      {THEME_OPTIONS.map(({ value, label }) => (
+                        <button
+                          key={value}
+                          type="button"
+                          onClick={() => {
+                            field.onChange(value);
+                            handleThemeModeChange(value);
+                          }}
+                          className={`h-11 px-5 text-base font-medium rounded-md border transition-colors ${
+                            currentTheme === value
+                              ? "bg-primary text-white border-primary"
+                              : "bg-surface border-theme-border text-fg-muted hover:bg-surface-hover"
+                          }`}
+                        >
+                          {label}
+                        </button>
+                      ))}
+                    </div>
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+
+            {isTauri && (
+              <FormField
+                control={control}
+                name="startFullscreen"
+                render={({ field }) => (
+                  <FormItem>
+                    <div className="flex items-center justify-between">
+                      <div className="space-y-0.5">
+                        <FormLabel className="text-base font-medium">
+                          Start in fullscreen
+                        </FormLabel>
+                        <p className="text-sm text-fg-muted">
+                          Launch the application in fullscreen mode
+                        </p>
+                      </div>
+                      <FormControl>
+                        <Switch
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                        />
+                      </FormControl>
+                    </div>
+                  </FormItem>
+                )}
+              />
+            )}
+          </fieldset>
+
+          <div className="border-t border-theme-border" />
+
           {/* Date & Time */}
-          <fieldset className="space-y-5">
-            <legend className="text-xl font-semibold text-gray-900">
+          <fieldset className="space-y-4">
+            <legend className="text-lg font-semibold text-fg">
               Date & Time
             </legend>
 
@@ -46,12 +119,12 @@ const PreferencesSettings: React.FC = () => {
               name="dateFormat"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-lg font-medium">
+                  <FormLabel className="text-base font-medium">
                     Date Format
                   </FormLabel>
                   <Select onValueChange={field.onChange} value={field.value}>
                     <FormControl>
-                      <SelectTrigger className="h-12 text-lg px-4">
+                      <SelectTrigger className="h-11 text-base px-4">
                         {field.value === "system" && (
                           <span>System default</span>
                         )}
@@ -88,12 +161,12 @@ const PreferencesSettings: React.FC = () => {
               name="timeFormat"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-lg font-medium">
+                  <FormLabel className="text-base font-medium">
                     Time Format
                   </FormLabel>
                   <Select onValueChange={field.onChange} value={field.value}>
                     <FormControl>
-                      <SelectTrigger className="h-12 text-lg px-4">
+                      <SelectTrigger className="h-11 text-base px-4">
                         {field.value === "system" && (
                           <span>System default</span>
                         )}
@@ -116,11 +189,11 @@ const PreferencesSettings: React.FC = () => {
             />
           </fieldset>
 
-          <div className="border-t border-gray-200" />
+          <div className="border-t border-theme-border" />
 
           {/* Currency Format */}
-          <fieldset className="space-y-5">
-            <legend className="text-xl font-semibold text-gray-900">
+          <fieldset className="space-y-4">
+            <legend className="text-lg font-semibold text-fg">
               Currency Format
             </legend>
 
@@ -129,12 +202,12 @@ const PreferencesSettings: React.FC = () => {
               name="symbolPosition"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-lg font-medium">
+                  <FormLabel className="text-base font-medium">
                     Currency Symbol Position
                   </FormLabel>
                   <Select onValueChange={field.onChange} value={field.value}>
                     <FormControl>
-                      <SelectTrigger className="h-12 text-lg px-4">
+                      <SelectTrigger className="h-11 text-base px-4">
                         {field.value === "before" && (
                           <span>Before amount (e.g. $10)</span>
                         )}
@@ -161,12 +234,12 @@ const PreferencesSettings: React.FC = () => {
               name="decimalSeparator"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-lg font-medium">
+                  <FormLabel className="text-base font-medium">
                     Decimal Separator
                   </FormLabel>
                   <Select onValueChange={field.onChange} value={field.value}>
                     <FormControl>
-                      <SelectTrigger className="h-12 text-lg px-4">
+                      <SelectTrigger className="h-11 text-base px-4">
                         {field.value === "dot" && (
                           <span>Dot (e.g. 10.50)</span>
                         )}
@@ -187,49 +260,11 @@ const PreferencesSettings: React.FC = () => {
             />
           </fieldset>
 
-          {/* Display (Tauri only) */}
-          {isTauri && (
-            <>
-              <div className="border-t border-gray-200" />
-
-              <fieldset className="space-y-5">
-                <legend className="text-xl font-semibold text-gray-900">
-                  Display
-                </legend>
-
-                <FormField
-                  control={control}
-                  name="startFullscreen"
-                  render={({ field }) => (
-                    <FormItem>
-                      <div className="flex items-center justify-between">
-                        <div className="space-y-1">
-                          <FormLabel className="text-lg font-medium">
-                            Start in Fullscreen
-                          </FormLabel>
-                          <p className="text-sm text-gray-500">
-                            Launch the application in fullscreen mode
-                          </p>
-                        </div>
-                        <FormControl>
-                          <Switch
-                            checked={field.value}
-                            onCheckedChange={field.onChange}
-                          />
-                        </FormControl>
-                      </div>
-                    </FormItem>
-                  )}
-                />
-              </fieldset>
-            </>
-          )}
-
-          <div className="border-t border-gray-200 pt-6">
+          <div className="border-t border-theme-border pt-4 shrink-0">
             <Button
               type="submit"
               disabled={isSubmitting || !isDirty}
-              className="h-12 px-8 text-white text-lg bg-primary hover:bg-primary/90"
+              className="h-11 px-8 text-base text-white bg-primary hover:bg-primary/90"
             >
               {isSubmitting ? "Saving..." : "Save preferences"}
             </Button>

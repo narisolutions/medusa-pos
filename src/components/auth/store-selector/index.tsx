@@ -16,10 +16,10 @@ const StoreSelectorBox: React.FC = () => {
         type="button"
         variant="ghost"
         onClick={() => setOpen(true)}
-        className="w-full h-auto justify-start gap-4 px-5 py-4 rounded-xl border border-gray-200 bg-gray-50 hover:bg-gray-100 active:bg-gray-200"
+        className="w-full h-auto justify-start gap-4 px-5 py-4 rounded-xl border border-theme-border bg-surface-muted hover:bg-surface-hover active:bg-surface-hover"
         aria-label="Select store"
       >
-        <div className="flex items-center justify-center h-12 w-12 rounded-xl bg-white border border-gray-200 shrink-0">
+        <div className="flex items-center justify-center h-12 w-12 rounded-xl bg-surface border border-theme-border shrink-0">
           {activeStore?.logo ? (
             <img
               src={activeStore.logo}
@@ -33,13 +33,13 @@ const StoreSelectorBox: React.FC = () => {
 
         <div className="flex-1 min-w-0">
           {activeStore ? (
-            <p className="text-lg font-semibold text-gray-800 truncate">{activeStore.name}</p>
+            <p className="text-lg font-semibold text-fg truncate">{activeStore.name}</p>
           ) : (
-            <p className="text-base text-gray-400 italic truncate">No store selected — add one to continue</p>
+            <p className="text-base text-fg-subtle italic truncate">No store selected — add one to continue</p>
           )}
         </div>
 
-        <ChevronDown size={20} className="text-gray-400 shrink-0" />
+        <ChevronDown size={20} className="text-fg-subtle shrink-0" />
       </Button>
 
       <StoreSwitcherDialog open={open} onClose={() => setOpen(false)} />

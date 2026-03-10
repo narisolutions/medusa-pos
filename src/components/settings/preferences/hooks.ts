@@ -11,6 +11,8 @@ import {
   loadPreferences,
   updatePreferences,
 } from "@/utils/preferences";
+import { useTheme } from "@/context/theme";
+import type { ThemeMode } from "@/types/preferences";
 
 const isTauri = "__TAURI_INTERNALS__" in window;
 
@@ -25,6 +27,7 @@ const defaults: Forms["PreferencesSettings"] = {
   symbolPosition: DEFAULT_PREFERENCES.currency.symbolPosition,
   decimalSeparator: DEFAULT_PREFERENCES.currency.decimalSeparator,
   startFullscreen: DEFAULT_PREFERENCES.display.startFullscreen,
+  themeMode: DEFAULT_PREFERENCES.appearance.themeMode,
 };
 
 export const usePreferencesSettings = () => {
@@ -40,6 +43,7 @@ export const usePreferencesSettings = () => {
   } = form;
 
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const setThemeMode = useTheme((s) => s.setThemeMode);
 
   useEffect(() => {
     const load = async () => {
@@ -50,10 +54,19 @@ export const usePreferencesSettings = () => {
         symbolPosition: prefs.currency.symbolPosition,
         decimalSeparator: prefs.currency.decimalSeparator,
         startFullscreen: prefs.display.startFullscreen,
+        themeMode: prefs.appearance.themeMode,
       });
     };
     load();
   }, [reset]);
+
+  const handleThemeModeChange = useCallback(
+    (mode: ThemeMode) => {
+      form.setValue("themeMode", mode, { shouldDirty: true });
+      setThemeMode(mode);
+    },
+    [form, setThemeMode],
+  );
 
   const onSubmit = useCallback(
     async (data: Forms["PreferencesSettings"]) => {
@@ -62,11 +75,13 @@ export const usePreferencesSettings = () => {
         const dateTime = { dateFormat: data.dateFormat, timeFormat: data.timeFormat } as const;
         const currency = { symbolPosition: data.symbolPosition, decimalSeparator: data.decimalSeparator } as const;
         const display = { startFullscreen: data.startFullscreen };
+        const appearance = { themeMode: data.themeMode };
 
-        await updatePreferences({ dateTime, currency, display });
+        await updatePreferences({ dateTime, currency, display, appearance });
 
         initDateTimePrefs(dateTime);
         initCurrencyPrefs(currency);
+        setThemeMode(data.themeMode);
 
         if (isTauri) {
           await setFullscreen(data.startFullscreen);
@@ -80,8 +95,8 @@ export const usePreferencesSettings = () => {
         setIsSubmitting(false);
       }
     },
-    [reset],
+    [reset, setThemeMode],
   );
 
-  return { form, isDirty, isSubmitting, handleSubmit, onSubmit, isTauri };
+  return { form, isDirty, isSubmitting, handleSubmit, onSubmit, isTauri, handleThemeModeChange };
 };
