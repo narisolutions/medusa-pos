@@ -14,12 +14,12 @@ const Customer: React.FC<Props> = ({ order }) => {
   // const hasAccount = customer?.has_account || null;
 
   return (
-    <div className="bg-white rounded-lg border border-gray-200 overflow-hidden shadow-sm flex flex-col h-full">
-      <div className="px-6 py-4 border-b border-gray-200 bg-gray-50/50 shrink-0">
+    <div className="bg-surface rounded-lg border border-theme-border overflow-hidden shadow-sm flex flex-col h-full">
+      <div className="px-6 py-4 border-b border-theme-border bg-surface-muted shrink-0">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <User className="w-5 h-5 text-gray-600" />
-            <h2 className="text-lg font-semibold text-gray-900">
+            <User className="w-5 h-5 text-fg-muted" />
+            <h2 className="text-lg font-semibold text-fg">
               Customer & Address
             </h2>
           </div>
@@ -40,13 +40,13 @@ const Customer: React.FC<Props> = ({ order }) => {
             {(!customer.email || customer.email.trim() === "") &&
             isOrderGuestCustomer(customer.email) ? (
               <div className="text-base">
-                <span className="text-gray-600">Customer: </span>
-                <span className="font-medium text-gray-900">Guest</span>
+                <span className="text-fg-muted">Customer: </span>
+                <span className="font-medium text-fg">Guest</span>
               </div>
             ) : (
               <>
                 <div>
-                  <h3 className="text-base font-medium text-gray-900 mb-2">
+                  <h3 className="text-base font-medium text-fg mb-2">
                     Customer Information
                   </h3>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-base">
@@ -54,8 +54,8 @@ const Customer: React.FC<Props> = ({ order }) => {
                     (billing_address?.first_name &&
                       billing_address?.last_name) ? (
                       <div>
-                        <span className="text-gray-600">Name: </span>
-                        <span className="font-medium text-gray-900">
+                        <span className="text-fg-muted">Name: </span>
+                        <span className="font-medium text-fg">
                           {customer.first_name && customer.last_name
                             ? `${customer.first_name} ${customer.last_name}`
                             : `${billing_address?.first_name} ${billing_address?.last_name}`}
@@ -64,16 +64,16 @@ const Customer: React.FC<Props> = ({ order }) => {
                     ) : null}
                     {customer.email && (
                       <div>
-                        <span className="text-gray-600">Email: </span>
-                        <span className="font-medium text-gray-900">
+                        <span className="text-fg-muted">Email: </span>
+                        <span className="font-medium text-fg">
                           {customer.email}
                         </span>
                       </div>
                     )}
                     {(customer.phone || billing_address?.phone) && (
                       <div className="sm:col-span-2">
-                        <span className="text-gray-600">Phone: </span>
-                        <span className="font-medium text-gray-900">
+                        <span className="text-fg-muted">Phone: </span>
+                        <span className="font-medium text-fg">
                           {customer.phone || billing_address?.phone}
                         </span>
                       </div>
@@ -86,10 +86,10 @@ const Customer: React.FC<Props> = ({ order }) => {
                     !!shipping_address.postal_code ||
                     (!shipping_address.country_code && false)) && (
                     <div>
-                      <h3 className="text-base font-medium text-gray-900 mb-2">
+                      <h3 className="text-base font-medium text-fg mb-2">
                         Shipping Address
                       </h3>
-                      <div className="text-base text-gray-600">
+                      <div className="text-base text-fg-muted">
                         {[
                           shipping_address?.address_1,
                           shipping_address?.city,

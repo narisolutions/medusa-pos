@@ -390,13 +390,27 @@ fn load_config() -> Result<AppConfig, String> {
 }
 
 #[tauri::command]
-#[allow(non_snake_case)]
-fn save_config(backendUrl: String) -> Result<(), String> {
+fn set_active_backend(store_id: String) -> Result<(), String> {
+    let mut config = AppConfig::load().map_err(|e| e.to_string())?;
+    match config.store_urls.get(&store_id) {
+        Some(url) => {
+            config.backend_url = url.clone();
+            config.save().map_err(|e| {
+                log::error!("Failed to save configuration: {}", e);
+                e.to_string()
+            })
+        }
+        None => Err(format!("Store ID {} not found in store_urls", store_id)),
+    }
+}
+
+#[tauri::command]
+fn clear_active_backend() -> Result<(), String> {
     let mut config = AppConfig::load().unwrap_or_else(|_| AppConfig {
-        backend_url: backendUrl.clone(),
+        backend_url: String::new(),
         store_urls: HashMap::new(),
     });
-    config.backend_url = backendUrl;
+    config.backend_url = String::new();
     config.save().map_err(|e| {
         log::error!("Failed to save configuration: {}", e);
         e.to_string()
@@ -620,7 +634,8 @@ pub fn run() {
             print_receipt,
             check_config_exists,
             load_config,
-            save_config,
+            set_active_backend,
+            clear_active_backend,
             save_store_url,
             load_store_urls,
             delete_store_url,

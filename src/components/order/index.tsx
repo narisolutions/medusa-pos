@@ -56,23 +56,23 @@ const Order: React.FC<Props> = ({ order }) => {
     order;
 
   return (
-    <div className="bg-white p-10 rounded-lg space-y-6 h-full flex flex-col">
+    <div className="bg-surface p-10 rounded-lg space-y-6 h-full flex flex-col">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
           <Button
             variant="outline"
             size="lg"
             onClick={handleBackToOrders}
-            className={`text-gray-700 hover:text-gray-900 hover:bg-gray-50 border-gray-300 ${constants.ORDER_BUTTON_LG_CLASSES}`}
+            className={`text-fg-muted hover:text-fg hover:bg-surface-hover border-theme-border ${constants.ORDER_BUTTON_LG_CLASSES}`}
           >
             <ArrowLeft className="w-5 h-5 mr-3" />
             Back to Orders
           </Button>
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">
+            <h1 className="text-2xl font-bold text-fg">
               Order #{display_id}
             </h1>
-            <p className="text-gray-600 text-sm">
+            <p className="text-fg-muted text-sm">
               Created {formatDate(created_at)}
             </p>
           </div>
@@ -108,7 +108,7 @@ const Order: React.FC<Props> = ({ order }) => {
               size="lg"
               onClick={handleDownloadShippingLabel}
               disabled={isDownloading || isNegativeFulfillmentStatus}
-              className={`border-gray-300 text-gray-700 hover:text-gray-900 hover:bg-gray-50 ${constants.ORDER_BUTTON_BASE_CLASSES} min-w-[200px]`}
+              className={`border-theme-border text-fg-muted hover:text-fg hover:bg-surface-hover ${constants.ORDER_BUTTON_BASE_CLASSES} min-w-[200px]`}
             >
               <Download className="w-5 h-5 mr-3" />
               {isDownloading ? "Downloading..." : "Download Shipping Label"}
@@ -120,7 +120,7 @@ const Order: React.FC<Props> = ({ order }) => {
               size="lg"
               onClick={handleReprintReceipt}
               disabled={isPrinting || isDownloadingPDF}
-              className={`border-gray-300 text-gray-700 hover:text-gray-900 hover:bg-gray-50 ${constants.ORDER_BUTTON_BASE_CLASSES} min-w-[200px]`}
+              className={`border-theme-border text-fg-muted hover:text-fg hover:bg-surface-hover ${constants.ORDER_BUTTON_BASE_CLASSES} min-w-[200px]`}
             >
               <Printer className="w-5 h-5 mr-3" />
               {isPrinting ? "Printing..." : "Print Receipt"}
@@ -130,7 +130,7 @@ const Order: React.FC<Props> = ({ order }) => {
               size="lg"
               onClick={handleDownloadReceiptPDF}
               disabled={isDownloadingPDF || isPrinting}
-              className={`border-gray-300 text-gray-700 hover:text-gray-900 hover:bg-gray-50 ${constants.ORDER_BUTTON_BASE_CLASSES} min-w-[200px]`}
+              className={`border-theme-border text-fg-muted hover:text-fg hover:bg-surface-hover ${constants.ORDER_BUTTON_BASE_CLASSES} min-w-[200px]`}
             >
               <FileDown className="w-5 h-5 mr-3" />
               {isDownloadingPDF ? "Downloading..." : "Download PDF"}
@@ -140,7 +140,7 @@ const Order: React.FC<Props> = ({ order }) => {
             <span
               className={`${getStatusColor(status)} w-3 h-3 rounded-full shrink-0`}
             />
-            <span className="text-sm font-medium text-gray-700">
+            <span className="text-sm font-medium text-fg-muted">
               {formatStatusText(status)}
             </span>
           </div>
@@ -148,7 +148,7 @@ const Order: React.FC<Props> = ({ order }) => {
             <span
               className={`${getFulfillmentStatusColor(fulfillment_status)} w-3 h-3 rounded-full shrink-0`}
             />
-            <span className="text-sm font-medium text-gray-700">
+            <span className="text-sm font-medium text-fg-muted">
               {formatStatusText(fulfillment_status)}
             </span>
           </div>
@@ -156,7 +156,7 @@ const Order: React.FC<Props> = ({ order }) => {
             <span
               className={`${getPaymentStatusColor(payment_status)} w-3 h-3 rounded-full shrink-0`}
             />
-            <span className="text-sm font-medium text-gray-700">
+            <span className="text-sm font-medium text-fg-muted">
               {formatStatusText(payment_status)}
             </span>
           </div>

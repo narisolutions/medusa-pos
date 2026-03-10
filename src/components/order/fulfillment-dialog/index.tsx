@@ -37,14 +37,14 @@ const FulfillmentDialog: React.FC<FulfillmentDialogProps> = ({
         className="max-w-4xl max-h-[90vh] p-0 flex flex-col overflow-hidden"
         preventOutsideClose={isProcessing}
       >
-        <div className="bg-white border-b px-6 py-4 flex items-center justify-between shrink-0">
+        <div className="bg-surface border-b border-theme-border px-6 py-4 flex items-center justify-between shrink-0">
           <div className="flex items-center gap-3">
-            <Package className="w-5 h-5 text-gray-600" />
+            <Package className="w-5 h-5 text-fg-muted" />
             <div>
-              <DialogTitle className="text-xl font-bold text-gray-900">
+              <DialogTitle className="text-xl font-bold text-fg">
                 Pack Order Items
               </DialogTitle>
-              <p className="text-sm text-gray-600 mt-1">
+              <p className="text-sm text-fg-muted mt-1">
                 Add items to package as you pack them. Start from 0 and increase quantity for each item added.
               </p>
             </div>
@@ -54,19 +54,19 @@ const FulfillmentDialog: React.FC<FulfillmentDialogProps> = ({
         <div className="flex-1 overflow-y-auto p-6">
           <div className="space-y-4">
             <div className="grid grid-cols-2 gap-4 mb-6">
-              <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+              <div className="bg-surface-subtle rounded-lg p-4 border border-theme-border">
                 <div className="flex items-start gap-3">
                   <div className="shrink-0 mt-0.5">
-                    <MapPin className="w-5 h-5 text-gray-600" />
+                    <MapPin className="w-5 h-5 text-fg-muted" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">
+                    <p className="text-xs font-semibold text-fg-subtle uppercase tracking-wide mb-1">
                       Stock Location
                     </p>
                     {stockLocationsQuery.isLoading ? (
-                      <p className="text-sm text-gray-500">Loading...</p>
+                      <p className="text-sm text-fg-muted">Loading...</p>
                     ) : preferredLocationName ? (
-                      <p className="text-sm font-medium text-gray-900">
+                      <p className="text-sm font-medium text-fg">
                         {preferredLocationName}
                       </p>
                     ) : (
@@ -77,16 +77,16 @@ const FulfillmentDialog: React.FC<FulfillmentDialogProps> = ({
                   </div>
                 </div>
               </div>
-              <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+              <div className="bg-surface-subtle rounded-lg p-4 border border-theme-border">
                 <div className="flex items-start gap-3">
                   <div className="shrink-0 mt-0.5">
-                    <Truck className="w-5 h-5 text-gray-600" />
+                    <Truck className="w-5 h-5 text-fg-muted" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">
+                    <p className="text-xs font-semibold text-fg-subtle uppercase tracking-wide mb-1">
                       Shipping Option
                     </p>
-                    <p className="text-sm font-medium text-gray-900">
+                    <p className="text-sm font-medium text-fg">
                       {order.shipping_methods?.[0]?.name || "Not specified"}
                     </p>
                   </div>
@@ -94,7 +94,7 @@ const FulfillmentDialog: React.FC<FulfillmentDialogProps> = ({
               </div>
             </div>
 
-            <div className="text-sm font-semibold text-gray-700 mb-4">                                                                                                                                                  
+            <div className="text-sm font-semibold text-fg-muted mb-4">                                                                                                                                                  
               Items to fulfill ({totalItemsToFulfill} items)
             </div>
 
@@ -122,7 +122,7 @@ const FulfillmentDialog: React.FC<FulfillmentDialogProps> = ({
               return (
                 <div
                   key={orderItem.id}
-                  className="bg-white rounded-lg p-4 border-2 border-gray-200"
+                  className="bg-surface rounded-lg p-4 border-2 border-theme-border"
                 >
                   <div className="flex gap-4 mb-4">
                     {thumbnail && (
@@ -139,50 +139,50 @@ const FulfillmentDialog: React.FC<FulfillmentDialogProps> = ({
                     )}
                     
                     <div className="flex-1 min-w-0">
-                      <h3 className="font-semibold text-gray-900 mb-1 text-base">
+                      <h3 className="font-semibold text-fg mb-1 text-base">
                         {orderItem.title || orderItem.variant_title}
                       </h3>
                       {subtitle && (
-                        <p className="text-sm text-gray-600 mb-1">{subtitle}</p>
+                        <p className="text-sm text-fg-muted mb-1">{subtitle}</p>
                       )}
                       {productTitle && productTitle !== orderItem.title && productTitle !== orderItem.variant_title && (
-                        <p className="text-sm text-gray-500 mb-2">{productTitle}</p>
+                        <p className="text-sm text-fg-muted mb-2">{productTitle}</p>
                       )}
                       
                       <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-sm">
                         {sku && (
                           <div>
-                            <span className="text-gray-500">SKU:</span>{" "}
-                            <span className="font-medium text-gray-900">{sku}</span>
+                            <span className="text-fg-muted">SKU:</span>{" "}
+                            <span className="font-medium text-fg">{sku}</span>
                           </div>
                         )}
                         {gtin && (
                           <div>
-                            <span className="text-gray-500">GTIN:</span>{" "}
-                            <span className="font-medium text-gray-900">{gtin}</span>
+                            <span className="text-fg-muted">GTIN:</span>{" "}
+                            <span className="font-medium text-fg">{gtin}</span>
                           </div>
                         )}
                         {vintage && (
                           <div>
-                            <span className="text-gray-500">Vintage:</span>{" "}
-                            <span className="font-medium text-gray-900">{vintage}</span>
+                            <span className="text-fg-muted">Vintage:</span>{" "}
+                            <span className="font-medium text-fg">{vintage}</span>
                           </div>
                         )}
                         {volume && (
                           <div>
-                            <span className="text-gray-500">Volume:</span>{" "}
-                            <span className="font-medium text-gray-900">{volume}</span>
+                            <span className="text-fg-muted">Volume:</span>{" "}
+                            <span className="font-medium text-fg">{volume}</span>
                           </div>
                         )}
                         <div>
-                          <span className="text-gray-500">Unit Price:</span>{" "}
-                          <span className="font-medium text-gray-900">
+                          <span className="text-fg-muted">Unit Price:</span>{" "}
+                          <span className="font-medium text-fg">
                             {formatPrice(orderItem.unit_price || 0)}
                           </span>
                         </div>
                       </div>
                       <div className="mt-2">
-                        <span className="text-gray-500">Required:</span>{" "}
+                        <span className="text-fg-muted">Required:</span>{" "}
                         <span className="font-medium text-blue-600">
                           {fulfillmentItem.maxQuantity} qty.
                         </span>
@@ -190,8 +190,8 @@ const FulfillmentDialog: React.FC<FulfillmentDialogProps> = ({
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-3 pt-3 border-t border-gray-200">
-                    <span className="text-sm font-semibold text-gray-700 min-w-[100px]">
+                  <div className="flex items-center gap-3 pt-3 border-t border-theme-border">
+                    <span className="text-sm font-semibold text-fg-muted min-w-[100px]">
                       Packed Quantity:
                     </span>
                     <div className="flex items-center gap-2">
@@ -247,7 +247,7 @@ const FulfillmentDialog: React.FC<FulfillmentDialogProps> = ({
                           ✓ Complete
                         </span>
                       ) : (
-                        <span className="text-sm text-gray-500">
+                        <span className="text-sm text-fg-muted">
                           {fulfillmentItem.maxQuantity - fulfillmentItem.quantity} remaining
                         </span>
                       )}
@@ -259,7 +259,7 @@ const FulfillmentDialog: React.FC<FulfillmentDialogProps> = ({
           </div>
         </div>
 
-        <DialogFooter className="px-6 py-4 border-t bg-gray-50 shrink-0">
+        <DialogFooter className="px-6 py-4 border-t border-theme-border bg-surface-muted shrink-0">
           <div className="flex items-center justify-between w-full">
             <Button
               variant="outline"

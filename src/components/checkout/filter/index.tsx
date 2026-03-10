@@ -69,9 +69,9 @@ const CheckoutFilter: React.FC<Props> = ({ products }) => {
   }, [showDropdown, updateFilterState]);
 
   return (
-    <div className="flex justify-center items-center gap-6 border border-zinc-200 bg-white p-6 rounded-lg">
+    <div className="flex justify-center items-center gap-6 border border-theme-border bg-surface p-6 rounded-lg">
       <div ref={dropdownRef} className="relative flex-1 w-full">
-        <Command className="rounded-lg border border-zinc-200 bg-(--color-bg-base)">
+        <Command className="rounded-lg border border-theme-border bg-(--color-bg-base)">
           <div className="relative">
             <CommandInput
               ref={inputRef}
@@ -87,7 +87,7 @@ const CheckoutFilter: React.FC<Props> = ({ products }) => {
               <Button
                 variant="ghost"
                 size="lg"
-                className="absolute right-2 top-1/2 transform -translate-y-1/2 h-10 w-10 p-0 hover:bg-gray-100 z-10"
+                className="absolute right-2 top-1/2 transform -translate-y-1/2 h-10 w-10 p-0 hover:bg-surface-hover z-10"
                 onClick={handleClear}
                 onMouseDown={handleMouseDown}
               >
@@ -97,7 +97,7 @@ const CheckoutFilter: React.FC<Props> = ({ products }) => {
           </div>
 
           {showDropdown && mode === "search" && filteredVariants.length > 0 && (
-            <CommandList className="absolute top-full left-0 right-0 z-50 max-h-125 overflow-y-auto border border-zinc-200 bg-white rounded-lg shadow-lg mt-2">
+            <CommandList className="absolute top-full left-0 right-0 z-50 max-h-125 overflow-y-auto border border-theme-border bg-surface rounded-lg shadow-lg mt-2">
               <CommandEmpty className="py-6 text-lg">
                 No products found.
               </CommandEmpty>
@@ -144,19 +144,19 @@ const CheckoutFilter: React.FC<Props> = ({ products }) => {
                         }
                         handleAddToCart(variant);
                       }}
-                      className={`flex items-center justify-between p-5  min-h-[80px] border-b border-gray-100 last:border-b-0 ${isOutOfStock ? "opacity-50 bg-red-50 border-l-4 border-l-red-500 cursor-not-allowed" : "cursor-pointer hover:bg-(--color-bg-base)"}`}
+                      className={`flex items-center justify-between p-5  min-h-[80px] border-b border-theme-border last:border-b-0 ${isOutOfStock ? "opacity-50 bg-red-50 dark:bg-red-900/20 border-l-4 border-l-red-500 cursor-not-allowed" : "cursor-pointer hover:bg-(--color-bg-base)"}`}
                     >
                       <div className="flex gap-1 flex-1">
                         <div className="flex-1 pr-4">
                           <div className="font-medium text-base mb-1">
                             {variant.product?.title}
                             {brandTitle && (
-                              <span className="text-sm text-gray-400 ml-2 font-normal">
+                              <span className="text-sm text-fg-subtle ml-2 font-normal">
                                 by {brandTitle}
                               </span>
                             )}
                           </div>
-                          <div className="text-sm text-gray-500 mb-1">
+                          <div className="text-sm text-fg-muted mb-1">
                             {variantTitle}
                             {optionsDisplay && (
                               <span className="ml-2">• {optionsDisplay}</span>
@@ -166,7 +166,7 @@ const CheckoutFilter: React.FC<Props> = ({ products }) => {
                             )}
                           </div>
                           {ean && (
-                            <div className="text-sm text-gray-400">
+                            <div className="text-sm text-fg-subtle">
                               Barcode: {ean}
                             </div>
                           )}
@@ -215,7 +215,7 @@ const CheckoutFilter: React.FC<Props> = ({ products }) => {
                             originalPrice !== calculatedPrice ? (
                             <>
                               <div className="flex items-center gap-1">
-                                <span className="text-sm text-gray-400 line-through">
+                                <span className="text-sm text-fg-subtle line-through">
                                   {formatPrice(originalPrice)}
                                 </span>
                               </div>
@@ -224,7 +224,7 @@ const CheckoutFilter: React.FC<Props> = ({ products }) => {
                               </span>
                             </>
                           ) : (
-                            <span className="font-medium text-base">
+                            <span className="font-medium text-base text-fg">
                               {formatPrice(calculatedPrice || 0)}
                             </span>
                           )}

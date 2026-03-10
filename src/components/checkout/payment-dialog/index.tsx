@@ -5,6 +5,8 @@ import { Input } from "@/components/ui/input";
 import { Numpad } from "@/components/ui/numpad";
 import { Skeleton } from "@/components/ui/skeleton";
 import { formatPrice } from "@/utils/helpers";
+import { getCurrencySymbol } from "@/utils/preferences";
+import constants from "@/utils/constants";
 import { usePaymentModal } from "./hooks";
 import ConfirmationDialog from "./confirmation-dialog";
 import { CreditCard } from "lucide-react";
@@ -60,14 +62,14 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
         preventOutsideClose={true}
       >
         {/* Simple Header */}
-        <div className="bg-white border-b px-6 py-4 flex items-center justify-between shrink-0">
+        <div className="bg-surface border-b border-theme-border px-6 py-4 flex items-center justify-between shrink-0">
           <div>
-            <DialogTitle className="text-xl font-bold text-gray-900">
+            <DialogTitle className="text-xl font-bold text-fg">
               Payment
             </DialogTitle>
             <div className="flex items-center gap-2 mt-1">
-              <PaymentIcon className="w-4 h-4 text-gray-500" />
-              <span className="text-sm text-gray-600">
+              <PaymentIcon className="w-4 h-4 text-fg-subtle" />
+              <span className="text-sm text-fg-muted">
                 {paymentMethodInfo.label}
               </span>
             </div>
@@ -76,9 +78,9 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
 
         <div className="flex-1 flex min-h-0 overflow-hidden">
           {/* Left: Items Summary */}
-          <div className="w-80 bg-gray-50 border-r overflow-y-auto">
+          <div className="w-80 bg-surface-muted border-r border-theme-border overflow-y-auto">
             <div className="p-4">
-              <div className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">
+              <div className="text-xs font-semibold text-fg-subtle uppercase tracking-wider mb-3">
                 Order Summary · {items.length} items
               </div>
               <div className="space-y-2">
@@ -91,12 +93,12 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
                   return (
                     <div
                       key={item.variant_id}
-                      className="bg-white rounded p-3 text-sm"
+                      className="bg-surface rounded p-3 text-sm"
                     >
-                      <div className="font-medium text-gray-900 mb-1">
+                      <div className="font-medium text-fg mb-1">
                         {itemTitle}
                       </div>
-                      <div className="flex justify-between text-xs text-gray-600">
+                      <div className="flex justify-between text-xs text-fg-muted">
                         <span>
                           {quantity} × {formatPrice(unitPrice)}
                         </span>
@@ -119,21 +121,21 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
                   {/* Top: Total & Cash Tendered */}
                   <div className="grid grid-cols-2 gap-8 mb-6">
                     <div className="flex flex-col">
-                      <div className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
+                      <div className="text-xs font-semibold text-fg-subtle uppercase tracking-wider mb-2">
                         Total Due
                       </div>
                       {isLoading ? (
                         <>
-                          <Skeleton className="h-[60px] w-full mb-1 bg-gray-200" />
-                          <Skeleton className="h-5 w-48 bg-gray-200" />
+                          <Skeleton className="h-[60px] w-full mb-1 bg-surface-subtle" />
+                          <Skeleton className="h-5 w-48 bg-surface-subtle" />
                         </>
                       ) : (
                         <>
-                          <div className="text-6xl font-bold text-gray-900">
+                          <div className="text-6xl font-bold text-fg">
                             {formatPrice(total)}
                           </div>
                           {tax > 0 && (
-                            <div className="text-sm text-gray-500 mt-2">
+                            <div className="text-sm text-fg-subtle mt-2">
                               Including VAT {formatPrice(tax)}
                             </div>
                           )}
@@ -142,7 +144,7 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
                     </div>
 
                     <div className="flex flex-col">
-                      <div className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
+                      <div className="text-xs font-semibold text-fg-subtle uppercase tracking-wider mb-2">
                         Cash Tendered
                       </div>
                       <div className="relative">
@@ -158,8 +160,8 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
                           min="0"
                           inputMode="decimal"
                         />
-                        <span className="absolute right-5 top-1/2 -translate-y-1/2 text-4xl text-gray-400">
-                          ₾
+                        <span className="absolute right-5 top-1/2 -translate-y-1/2 text-4xl text-fg-subtle">
+                          {getCurrencySymbol(constants.CHECKOUT_CONFIG.CURRENCY)}
                         </span>
                       </div>
                     </div>
@@ -168,7 +170,7 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
                   {/* Quick Amounts & Numpad*/}
                   <div className="grid grid-cols-2 gap-8 mb-6">
                     <div className="flex flex-col">
-                      <div className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
+                      <div className="text-xs font-semibold text-fg-subtle uppercase tracking-wider mb-2">
                         Quick Amounts
                       </div>
                       <div className="grid grid-cols-2 gap-3">
@@ -182,14 +184,14 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
                                   e.preventDefault();
                                   handleQuickAmount(amount, true);
                                 }}
-                                className="relative w-full h-16 bg-white border-2 border-gray-300 rounded-lg hover:border-gray-400 hover:bg-gray-50 transition-all flex items-center justify-center cursor-pointer active:scale-[0.98] touch-manipulation"
+                                className="relative w-full h-16 bg-surface border-2 border-theme-border-strong rounded-lg hover:border-fg-subtle hover:bg-surface-hover transition-all flex items-center justify-center cursor-pointer active:scale-[0.98] touch-manipulation"
                               >
-                                <div className="absolute top-1.5 left-1.5 w-2 h-2 border-t border-l border-gray-400"></div>
-                                <div className="absolute top-1.5 right-1.5 w-2 h-2 border-t border-r border-gray-400"></div>
-                                <div className="absolute bottom-1.5 left-1.5 w-2 h-2 border-b border-l border-gray-400"></div>
-                                <div className="absolute bottom-1.5 right-1.5 w-2 h-2 border-b border-r border-gray-400"></div>
+                                <div className="absolute top-1.5 left-1.5 w-2 h-2 border-t border-l border-fg-subtle"></div>
+                                <div className="absolute top-1.5 right-1.5 w-2 h-2 border-t border-r border-fg-subtle"></div>
+                                <div className="absolute bottom-1.5 left-1.5 w-2 h-2 border-b border-l border-fg-subtle"></div>
+                                <div className="absolute bottom-1.5 right-1.5 w-2 h-2 border-b border-r border-fg-subtle"></div>
                                 
-                                <span className="text-xl font-semibold text-gray-800">
+                                <span className="text-xl font-semibold text-fg">
                                   {amount}
                                 </span>
                                 
@@ -206,9 +208,9 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
                         <div className="relative col-span-2">
                           <button
                             onClick={handleExactAmount}
-                            className="relative w-full h-16 bg-blue-50 border-2 border-blue-300 rounded-lg hover:border-blue-400 hover:bg-blue-100 transition-all flex items-center justify-center cursor-pointer active:scale-[0.98] touch-manipulation"
+                            className="relative w-full h-16 bg-blue-50 dark:bg-blue-900/30 border-2 border-blue-300 dark:border-blue-700 rounded-lg hover:border-blue-400 dark:hover:border-blue-600 hover:bg-blue-100 dark:hover:bg-blue-900/50 transition-all flex items-center justify-center cursor-pointer active:scale-[0.98] touch-manipulation"
                           >
-                            <span className="text-base font-semibold text-blue-800">
+                            <span className="text-base font-semibold text-blue-800 dark:text-blue-300">
                               Exact Amount
                             </span>
                           </button>
@@ -217,7 +219,7 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
                     </div>
 
                     <div className="flex flex-col">
-                      <div className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
+                      <div className="text-xs font-semibold text-fg-subtle uppercase tracking-wider mb-2">
                         Numpad
                       </div>
                       <div className="flex items-center justify-center">
@@ -294,21 +296,21 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
               <div className="flex-1 flex items-center justify-center p-8">
                 <div className="max-w-lg w-full text-center space-y-8">
                   <div>
-                    <div className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">
+                    <div className="text-xs font-semibold text-fg-subtle uppercase tracking-wider mb-3">
                       Amount
                     </div>
                     {isLoading ? (
                       <>
-                        <Skeleton className="h-[96px] w-full mb-2 mx-auto bg-gray-200" />
-                        <Skeleton className="h-5 w-48 mx-auto bg-gray-200" />
+                        <Skeleton className="h-[96px] w-full mb-2 mx-auto bg-surface-subtle" />
+                        <Skeleton className="h-5 w-48 mx-auto bg-surface-subtle" />
                       </>
                     ) : (
                       <>
-                        <div className="text-8xl font-bold text-gray-900">
+                        <div className="text-8xl font-bold text-fg">
                           {formatPrice(total)}
                         </div>
                         {tax > 0 && (
-                          <div className="text-sm text-gray-500 mt-2">
+                          <div className="text-sm text-fg-subtle mt-2">
                             Including VAT {formatPrice(tax)}
                           </div>
                         )}
@@ -317,12 +319,12 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
                   </div>
 
                   <div className="flex justify-center py-6">
-                    <div className="w-32 h-32 rounded-2xl bg-gray-100 flex items-center justify-center">
-                      <CreditCard className="w-16 h-16 text-gray-400" />
+                    <div className="w-32 h-32 rounded-2xl bg-surface-subtle flex items-center justify-center">
+                      <CreditCard className="w-16 h-16 text-fg-subtle" />
                     </div>
                   </div>
 
-                  <p className="text-lg text-gray-600">
+                  <p className="text-lg text-fg-muted">
                     Please present card to the payment terminal
                   </p>
 

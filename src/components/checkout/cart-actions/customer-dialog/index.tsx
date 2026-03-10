@@ -109,7 +109,7 @@ const CustomerDialog: React.FC<CustomerDialogProps> = ({
         </DialogTitle>
         <div className="space-y-6">
           <div className="space-y-3">
-            <label className="text-base font-medium text-gray-800">
+            <label className="text-base font-medium text-fg">
               Customer Email
             </label>
             <div className="flex gap-3">

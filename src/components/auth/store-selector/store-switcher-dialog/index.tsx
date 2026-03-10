@@ -149,7 +149,7 @@ const StoreSwitcherDialog: React.FC<Props> = ({ open, onClose }) => {
                   className={`flex items-center gap-4 rounded-2xl px-5 py-5 border-2 cursor-pointer transition-colors min-h-[48px] ${
                     isActive
                       ? "border-primary bg-primary/5"
-                      : "border-gray-100 bg-gray-50 hover:border-gray-200 hover:bg-gray-100 active:bg-gray-200"
+                      : "border-theme-border bg-surface-muted hover:border-theme-border-strong hover:bg-surface-hover active:bg-surface-hover"
                   }`}
                   onClick={() => handleSelect(store)}
                 >
@@ -163,7 +163,7 @@ const StoreSwitcherDialog: React.FC<Props> = ({ open, onClose }) => {
                     <MedusaIcon className="size-10 shrink-0" />
                   )}
                   <span
-                    className={`flex-1 min-w-0 text-lg font-semibold truncate ${isActive ? "text-primary" : "text-gray-800"}`}
+                    className={`flex-1 min-w-0 text-lg font-semibold truncate ${isActive ? "text-primary" : "text-fg"}`}
                   >
                     {store.name}
                   </span>
@@ -171,7 +171,7 @@ const StoreSwitcherDialog: React.FC<Props> = ({ open, onClose }) => {
                     type="button"
                     variant="ghost"
                     size="icon"
-                    className="shrink-0 min-h-[48px] min-w-[48px] text-gray-400 hover:text-gray-700"
+                    className="shrink-0 min-h-[48px] min-w-[48px] text-fg-subtle hover:text-fg"
                     onClick={(e) => {
                       e.stopPropagation();
                       openEdit(store);
@@ -187,7 +187,7 @@ const StoreSwitcherDialog: React.FC<Props> = ({ open, onClose }) => {
             <Button
               type="button"
               variant="outline"
-              className="mt-1 w-full justify-start gap-3 min-h-[48px] py-4 text-base text-gray-600 rounded-2xl border-dashed"
+              className="mt-1 w-full justify-start gap-3 min-h-[48px] py-4 text-base text-fg-muted rounded-2xl border-dashed"
               onClick={openAdd}
             >
               <Plus size={22} />
@@ -204,14 +204,14 @@ const StoreSwitcherDialog: React.FC<Props> = ({ open, onClose }) => {
                 control={control}
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-base font-semibold text-gray-700">
+                    <FormLabel className="text-base font-semibold text-fg-muted">
                       API URL
                     </FormLabel>
                     <FormControl>
                       <Input
                         {...field}
                         placeholder="https://api.example.com"
-                        className="py-6 text-base rounded-xl border-gray-200"
+                        className="py-6 text-base rounded-xl border-theme-border"
                       />
                     </FormControl>
                     <FormMessage />

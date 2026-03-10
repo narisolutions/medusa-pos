@@ -40,7 +40,7 @@ const CartItems: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col flex-1 border border-zinc-200 bg-white rounded-lg overflow-hidden h-full">
+    <div className="flex flex-col flex-1 border border-theme-border bg-surface rounded-lg overflow-hidden h-full">
       <div className="flex flex-col flex-1 min-h-0 overflow-hidden">
         <div className="flex-1 overflow-auto" onClick={handleContainerClick}>
           <Table className="table-fixed w-full">
@@ -63,9 +63,9 @@ const CartItems: React.FC = () => {
                 <TableRow>
                   <TableCell colSpan={6} className="w-full">
                     <div className="flex flex-col items-center gap-2 pt-65 justify-center w-full">
-                      <ShoppingCart />
-                      <h3 className="text-lg font-medium">No items scanned</h3>
-                      <p className="text-sm">
+                      <ShoppingCart className="text-fg-subtle" />
+                      <h3 className="text-lg font-medium text-fg">No items scanned</h3>
+                      <p className="text-sm text-fg-muted">
                         Start scanning items to add them to the checkout
                       </p>
                     </div>
@@ -122,10 +122,10 @@ const CartItems: React.FC = () => {
                         </div>
                       </TableCell>
                       <TableCell>
-                        <div className="text-base ">{String(sku || "-")}</div>
+                        <div className="text-base text-fg">{String(sku || "-")}</div>
                       </TableCell>
                       <TableCell>
-                        <div className="text-base">
+                        <div className="text-base text-fg">
                           {options && options.length > 0
                             ? options.map((opt) => opt.value).join("/")
                             : "-"}
@@ -148,7 +148,7 @@ const CartItems: React.FC = () => {
                             <Minus />
                           </Button>
                           <span
-                            className={`w-8 text-base text-center ${isOutOfStock ? "text-gray-400" : ""}`}
+                            className={`w-8 text-base text-center ${isOutOfStock ? "text-fg-muted" : ""}`}
                           >
                             {item.quantity}
                           </span>
@@ -175,7 +175,7 @@ const CartItems: React.FC = () => {
                         <div className="flex flex-col items-end gap-1">
                           {hasManualDiscount ? (
                             <>
-                              <span className="text-sm text-gray-400 line-through">
+                              <span className="text-sm text-fg-muted line-through">
                                 {formatPrice(originalTotal)}
                               </span>
                               <div className="text-orange-600 font-semibold">
@@ -216,8 +216,8 @@ const CartItems: React.FC = () => {
       </div>
 
       {items.length > 0 && (
-        <div className="p-4 border-t border-zinc-200 space-y-2">
-          <div className="flex justify-between text-base text-gray-600">
+        <div className="p-4 border-t border-theme-border space-y-2">
+          <div className="flex justify-between text-base text-fg-muted">
             <span>Subtotal</span>
             <span>{formatPrice(subtotal)}</span>
           </div>

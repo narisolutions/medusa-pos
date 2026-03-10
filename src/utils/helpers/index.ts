@@ -1,4 +1,5 @@
 import { toast } from "sonner";
+import { formatDateTime, formatPrice } from "@/utils/preferences";
 import router from "@/router/router";
 import constants from "@/utils/constants";
 import { Store } from "@tauri-apps/plugin-store";
@@ -69,82 +70,10 @@ const handleErrorToast = (
     toast.error("An unknown error occurred.");
   }
 };
-const formatPrice = (
-  price: number,
-  currency: string = constants.CHECKOUT_CONFIG.CURRENCY
-) => {
-  const roundedPrice = Math.round(price * 100) / 100;
-  const locale = currency.toUpperCase() === "GEL" ? "ka-GE" : "en-US";
 
-  try {
-    return new Intl.NumberFormat(locale, {
-      style: "currency",
-      currency: currency,
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    }).format(roundedPrice);
-  } catch {
-    return `${roundedPrice.toFixed(2)} ${currency.toUpperCase()}`;
-  }
-};
+const formatDate = (date: Date | string): string => formatDateTime(date);
 
-const formatDate = (date: Date | string) => {
-  if (!date || typeof date !== "string" || date.trim() === "") {
-    return "Invalid Date";
-  }
-
-  const parsedDate = new Date(date);
-
-  if (isNaN(parsedDate.getTime()) || parsedDate.getTime() < 0) {
-    return "Invalid Date";
-  }
-
-  const dateStr = date.trim();
-  if (
-    dateStr === "0000-00-00" ||
-    dateStr === "0000-00-00 00:00:00" ||
-    dateStr === "null" ||
-    dateStr === "undefined"
-  ) {
-    return "Invalid Date";
-  }
-
-  return new Intl.DateTimeFormat("en-GB", {
-    timeZone: "Asia/Tbilisi",
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit",
-    hour12: false,
-  })
-    .format(parsedDate)
-    .replace(/\//g, ".");
-};
-
-const formatExactTime = (date: Date | string): string => {
-  if (!date || typeof date !== "string" || date.trim() === "") {
-    return "Invalid Date";
-  }
-
-  const parsedDate = new Date(date);
-
-  if (isNaN(parsedDate.getTime()) || parsedDate.getTime() < 0) {
-    return "Invalid Date";
-  }
-
-  return new Intl.DateTimeFormat("en-GB", {
-    timeZone: "Asia/Tbilisi",
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit",
-    hour12: false,
-  })
-    .format(parsedDate)
-    .replace(/\//g, ".");
-};
+const formatExactTime = (date: Date | string): string => formatDateTime(date);
 
 const formatTimeAgo = (date: Date | string): string => {
   if (!date || typeof date !== "string" || date.trim() === "") {

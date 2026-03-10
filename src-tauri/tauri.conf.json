@@ -16,6 +16,7 @@
         "title": "Medusa POS",
         "width": 1920,
         "height": 1080,
+        "fullscreen": true,
         "additionalBrowserArgs": "--disable-features=VizDisplayCompositor"
       }
     ],

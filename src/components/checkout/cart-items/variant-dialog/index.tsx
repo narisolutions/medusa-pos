@@ -97,25 +97,25 @@ const ItemDialog: React.FC<Props> = ({
             </div>
           ) : (
             <div className="flex justify-center">
-              <Image size={80} className="text-gray-300" />
+              <Image size={80} className="text-fg-subtle" />
             </div>
           )}
 
           <div className="grid grid-cols-1 gap-3">
             <div className="flex justify-between items-start p-3 bg-[--color-bg-base] rounded">
-              <span className="text-gray-600 font-medium">Product:</span>
+              <span className="text-fg-muted font-medium">Product:</span>
               <div className="text-right">
                 <div className="font-medium">{productTitle || "-"}</div>
-                {title && <div className="text-sm text-gray-500">{title}</div>}
+                {title && <div className="text-sm text-fg-subtle">{title}</div>}
               </div>
             </div>
 
             <div className="flex justify-between items-center p-3 bg-[--color-bg-base] rounded">
-              <span className="text-gray-600 font-medium">Price:</span>
+              <span className="text-fg-muted font-medium">Price:</span>
               <div className="text-right">
                 {hasDiscount ? (
                   <>
-                    <span className="text-sm text-gray-400 line-through">
+                    <span className="text-sm text-fg-subtle line-through">
                       {formatPrice(originalPrice || 0)}
                     </span>
                     <div className="text-lg font-medium text-red-600">
@@ -133,13 +133,13 @@ const ItemDialog: React.FC<Props> = ({
                 )}
                 
                 {hasManualDiscount && (
-                  <div className="mt-2 pt-2 border-t border-gray-200">
+                  <div className="mt-2 pt-2 border-t border-theme-border">
                     <div className="flex items-center justify-end gap-2 mb-1">
                       <span className="px-2 py-0.5 text-xs font-medium rounded bg-orange-100 text-orange-700">
                         Manual Discount
                       </span>
                     </div>
-                    <div className="text-sm text-gray-500">
+                    <div className="text-sm text-fg-subtle">
                       {manualDiscount?.type === "percent" 
                         ? `${manualDiscount.value}% off` 
                         : `${formatPrice(manualDiscount?.value || 0)} off`}
@@ -154,26 +154,26 @@ const ItemDialog: React.FC<Props> = ({
 
             {sku && (
               <div className="flex justify-between items-center p-3 bg-[--color-bg-base] rounded">
-                <span className="text-gray-600 font-medium">SKU:</span>
+                <span className="text-fg-muted font-medium">SKU:</span>
                 <span>{sku || "-"}</span>
               </div>
             )}
 
             <div className="flex justify-between items-center p-3 bg-[--color-bg-base] rounded">
-              <span className="text-gray-600 font-medium">Barcode:</span>
+              <span className="text-fg-muted font-medium">Barcode:</span>
               <span>{ean || "-"}</span>
             </div>
 
             {optionsDisplay && (
               <div className="flex justify-between items-center p-3 bg-[--color-bg-base] rounded">
-                <span className="text-gray-600 font-medium">Options:</span>
+                <span className="text-fg-muted font-medium">Options:</span>
                 <span>{optionsDisplay}</span>
               </div>
             )}
 
             {availableQuantity !== null && (
               <div className="flex justify-between items-center p-3 bg-[--color-bg-base] rounded">
-                <span className="text-gray-600 font-medium">
+                <span className="text-fg-muted font-medium">
                   Available Quantity:
                 </span>
                 <span
@@ -198,10 +198,10 @@ const ItemDialog: React.FC<Props> = ({
 
             {itemComment && (
               <div className="p-3 bg-blue-50 rounded border border-blue-200">
-                <span className="text-gray-600 font-medium block mb-2">
+                <span className="text-fg-muted font-medium block mb-2">
                   Comment:
                 </span>
-                <p className="text-sm text-gray-700 whitespace-pre-wrap">
+                <p className="text-sm text-fg-muted whitespace-pre-wrap">
                   {itemComment}
                 </p>
               </div>
@@ -210,12 +210,12 @@ const ItemDialog: React.FC<Props> = ({
 
           {/* Inventory Kit Items Section */}
           {isInventoryKit && (
-            <div className="mt-6 border-t pt-4">
+            <div className="mt-6 border-t border-theme-border pt-4">
               <h3 className="text-md font-semibold mb-3 flex items-center gap-2">
                 <Package size={16} />
                 Kit Contents
                 {inventoryKitItems && inventoryKitItems.length > 0 && (
-                  <span className="text-sm font-normal text-gray-500">
+                  <span className="text-sm font-normal text-fg-subtle">
                     (
                     {inventoryKitItems.reduce(
                       (total, item) => total + (item.required_quantity || 1),
@@ -229,7 +229,7 @@ const ItemDialog: React.FC<Props> = ({
               {isLoadingKitItems ? (
                 <div className="flex items-center justify-center py-4">
                   <LoaderCircle className="animate-spin" size={24} />
-                  <span className="ml-2 text-sm text-gray-600">
+                  <span className="ml-2 text-sm text-fg-muted">
                     Loading kit items...
                   </span>
                 </div>
@@ -243,9 +243,9 @@ const ItemDialog: React.FC<Props> = ({
                     return (
                       <div
                         key={`${kitItem.id}-${index}`}
-                        className="flex items-center gap-3 p-3 bg-gray-50 rounded border"
+                        className="flex items-center gap-3 p-3 bg-surface-muted rounded border border-theme-border"
                       >
-                        <div className="text-sm font-medium text-gray-700 min-w-4">
+                        <div className="text-sm font-medium text-fg-muted min-w-4">
                           {kitItem.required_quantity || 1}x
                         </div>
 
@@ -256,21 +256,21 @@ const ItemDialog: React.FC<Props> = ({
                             className="w-12 h-12 object-contain rounded"
                           />
                         ) : (
-                          <div className="w-12 h-12 bg-gray-200 rounded flex items-center justify-center">
-                            <Image size={16} className="text-gray-400" />
+                          <div className="w-12 h-12 bg-surface-subtle rounded flex items-center justify-center">
+                            <Image size={16} className="text-fg-subtle" />
                           </div>
                         )}
 
                         <div className="flex-1 min-w-0">
-                          <div className="font-medium text-sm text-gray-900 truncate">
+                          <div className="font-medium text-sm text-fg truncate">
                             {kitItem.product?.title || "Unknown Product"}
                           </div>
-                          <div className="text-xs text-gray-500 truncate">
+                          <div className="text-xs text-fg-subtle truncate">
                             {kitItem.title !== kitItem.product?.title &&
                               kitItem.title}
                           </div>
                           {kitItem.sku && (
-                            <div className="text-xs text-gray-400">
+                            <div className="text-xs text-fg-subtle">
                               SKU: {kitItem.sku}
                             </div>
                           )}
@@ -299,7 +299,7 @@ const ItemDialog: React.FC<Props> = ({
                   })}
                 </div>
               ) : (
-                <div className="p-3 bg-gray-50 text-gray-600 rounded text-sm text-center">
+                <div className="p-3 bg-surface-muted text-fg-muted rounded text-sm text-center">
                   No kit items found
                 </div>
               )}

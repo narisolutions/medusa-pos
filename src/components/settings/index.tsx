@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 import PrinterSettings from "./printer";
-import ApiSettings from "./preferences";
+import ConnectionSettings from "./connection";
 import StoreSettings from "./store";
+import PreferencesSettings from "./preferences";
 import storage from "@/utils/storage";
 
-type SettingsTabs = "printer" | "preferences" | "store";
+type SettingsTabs = "printer" | "connection" | "store" | "preferences";
 
 const Settings: React.FC = () => {
   const [settingsTab, setSettingsTab] = useState<SettingsTabs>("printer");
@@ -22,7 +23,7 @@ const Settings: React.FC = () => {
   }, []);
 
   return (
-    <div className="bg-white p-12 rounded-lg flex flex-col space-y-8">
+    <div className="bg-surface p-12 rounded-lg flex flex-col space-y-8">
       <Tabs
         value={settingsTab}
         className="flex flex-col space-y-8"
@@ -36,24 +37,30 @@ const Settings: React.FC = () => {
           }
         }}
       >
-        <TabsList className="flex justify-start w-full border-b border-gray-200 bg-transparent p-0 h-auto">
+        <TabsList className="flex justify-start w-full border-b border-theme-border bg-transparent p-0 h-auto">
           <TabsTrigger
             value="printer"
-            className="text-lg px-6 py-4 border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:text-primary text-gray-600 bg-transparent rounded-none min-h-[48px]"
+            className="text-lg px-6 py-4 border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:text-primary text-fg-muted bg-transparent rounded-none min-h-[48px]"
           >
             Printer
           </TabsTrigger>
           <TabsTrigger
-            value="preferences"
-            className="text-lg px-6 py-4 border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:text-primary text-gray-600 bg-transparent rounded-none min-h-[48px]"
+            value="connection"
+            className="text-lg px-6 py-4 border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:text-primary text-fg-muted bg-transparent rounded-none min-h-[48px]"
           >
-            Preferences
+            Connection
           </TabsTrigger>
           <TabsTrigger
             value="store"
-            className="text-lg px-6 py-4 border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:text-primary text-gray-600 bg-transparent rounded-none min-h-[48px]"
+            className="text-lg px-6 py-4 border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:text-primary text-fg-muted bg-transparent rounded-none min-h-[48px]"
           >
             Store
+          </TabsTrigger>
+          <TabsTrigger
+            value="preferences"
+            className="text-lg px-6 py-4 border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:text-primary text-fg-muted bg-transparent rounded-none min-h-[48px]"
+          >
+            Preferences
           </TabsTrigger>
         </TabsList>
 
@@ -61,12 +68,16 @@ const Settings: React.FC = () => {
           <PrinterSettings />
         </TabsContent>
 
-        <TabsContent value="preferences" className="flex flex-col">
-          <ApiSettings />
+        <TabsContent value="connection" className="flex flex-col">
+          <ConnectionSettings />
         </TabsContent>
 
         <TabsContent value="store" className="flex flex-col">
           <StoreSettings />
+        </TabsContent>
+
+        <TabsContent value="preferences" className="flex flex-col">
+          <PreferencesSettings />
         </TabsContent>
       </Tabs>
     </div>

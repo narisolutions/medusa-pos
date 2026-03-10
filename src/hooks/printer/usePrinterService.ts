@@ -175,7 +175,7 @@ const usePrinterService = () => {
       taxRate: 18,
       discount,
       total,
-      currency: "GEL",
+      currency: order.currency_code || "GEL",
       paymentMethod: paymentMethod?.toUpperCase() || 'PP_CASH_POS',
       amountPaid,
       change,
