@@ -12,6 +12,7 @@
 [![GitHub Stars](https://img.shields.io/github/stars/narisolutions/medusa-pos)](https://github.com/narisolutions/medusa-pos/stargazers)
 
 A cross-platform Point of Sale application built on [Medusa](https://medusajs.com/) and [Tauri 2](https://tauri.app/). Runs as a native desktop application on Linux, macOS, and Windows, with Android APK support via Tauri Mobile.
+Medusa POS is an independent open-source project and is not officially affiliated with or endorsed by Medusa
 
 Designed for retail environments that already use Medusa as their e-commerce backend. The app connects directly to your Medusa instance, draws product and inventory data from it, and pushes completed orders back as draft orders — keeping your storefront and physical register in sync without any middleware.
 

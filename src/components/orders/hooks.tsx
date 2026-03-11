@@ -4,6 +4,7 @@ import { formatDate, formatPrice } from "@/utils/helpers";
 import { AdminOrder } from "@medusajs/types";
 import { useQueryOrders } from "@/hooks/queries/useQueryOrders";
 import storage from "@/utils/storage";
+import constants from "@/utils/constants";
 
 const columnHelper = createColumnHelper<AdminOrder>();
 
@@ -194,10 +195,12 @@ const useOrders = () => {
         header: "Order Total",
         cell: (info) => {
           const value = info.getValue();
+          const order = info.row.original;
+          const currency = order.currency_code || constants.CHECKOUT_CONFIG.CURRENCY;
 
           return (
             <span className="font-semibold text-fg text-base">
-              {formatPrice(value)}
+              {formatPrice(value, currency)}
             </span>
           );
         },

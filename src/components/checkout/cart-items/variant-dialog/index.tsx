@@ -6,6 +6,7 @@ import { AdminProductVariant, AdminProduct } from "@medusajs/types";
 import { formatPrice } from "@/utils/helpers";
 import { Image, Info, Package, LoaderCircle } from "lucide-react";
 import { useItemDialog } from "./hooks";
+import { useCheckout } from "../../hooks";
 
 interface Props {
   item: CartItem | (AdminProductVariant & { product: AdminProduct });
@@ -44,6 +45,8 @@ const ItemDialog: React.FC<Props> = ({
     isLoadingKitItems,
     kitItemsError,
   } = useItemDialog(item, open);
+
+  const { currency } = useCheckout();
 
   // Extract comment from metadata if it exists
   const itemComment = 
@@ -116,19 +119,19 @@ const ItemDialog: React.FC<Props> = ({
                 {hasDiscount ? (
                   <>
                     <span className="text-sm text-fg-subtle line-through">
-                      {formatPrice(originalPrice || 0)}
+                      {formatPrice(originalPrice || 0, currency)}
                     </span>
                     <div className="text-lg font-medium text-red-600">
-                      {formatPrice(unit_price ?? 0)}
+                      {formatPrice(unit_price ?? 0, currency)}
                     </div>
                     <div className="text-xs text-red-500 mt-1">
-                      Save {formatPrice(discountAmount)} ({discountPercentage}%
+                      Save {formatPrice(discountAmount, currency)} ({discountPercentage}%
                       off)
                     </div>
                   </>
                 ) : (
                   <span className="text-lg font-medium">
-                    {formatPrice(unit_price ?? 0)}
+                    {formatPrice(unit_price ?? 0, currency)}
                   </span>
                 )}
                 
@@ -140,12 +143,18 @@ const ItemDialog: React.FC<Props> = ({
                       </span>
                     </div>
                     <div className="text-sm text-fg-subtle">
-                      {manualDiscount?.type === "percent" 
-                        ? `${manualDiscount.value}% off` 
-                        : `${formatPrice(manualDiscount?.value || 0)} off`}
+                      {manualDiscount?.type === "percent"
+                        ? `${manualDiscount.value}% off`
+                        : `${formatPrice(
+                            manualDiscount?.value || 0,
+                            currency
+                          )} off`}
                     </div>
                     <div className="text-lg font-semibold text-orange-600 mt-1">
-                      Final: {formatPrice(priceAfterManualDiscount ?? 0)}
+                      Final: {formatPrice(
+                        priceAfterManualDiscount ?? 0,
+                        currency
+                      )}
                     </div>
                   </div>
                 )}

@@ -3,6 +3,8 @@ import { AdminOrder } from "@medusajs/types";
 import { Button } from "@/components/ui/button";
 import { Package } from "lucide-react";
 import { formatPrice } from "@/utils/helpers";
+import { useQueryStore } from "@/hooks/queries/useQueryStore";
+import { getGuestCustomerEmail } from "@/utils/store/metadata";
 import constants from "@/utils/constants";
 
 interface ItemsProps {
@@ -16,7 +18,12 @@ const Items: React.FC<ItemsProps> = ({
   isNegativeFulfillmentStatus,
   onOpenFulfillmentDialog,
 }) => {
-  const { items } = order;
+  const { items, currency_code } = order;
+  const currency =
+    currency_code || constants.CHECKOUT_CONFIG.CURRENCY;
+
+  const { data: store } = useQueryStore();
+  const guestEmail = getGuestCustomerEmail(store);
 
   return (
     <div className="rounded-lg border border-theme-border overflow-hidden shadow-sm bg-surface flex flex-col h-full">
@@ -28,7 +35,9 @@ const Items: React.FC<ItemsProps> = ({
             <span className="text-base text-fg-subtle">({items?.length || 0} items)</span>
           </div>
           {isNegativeFulfillmentStatus &&
-            order?.customer?.email !== constants.ORDER_GUEST_EMAIL && (
+            order?.customer?.email &&
+            guestEmail &&
+            order.customer.email !== guestEmail && (
               <div>
                 <Button
                   variant="outline"
@@ -95,11 +104,13 @@ const Items: React.FC<ItemsProps> = ({
                   </div>
                 )}
                 <p className="text-base text-fg-muted mb-1">
-                  Qty: {item.quantity} × {formatPrice(item.total)}
+                  Qty: {item.quantity} × {formatPrice(item.total, currency)}
                 </p>
               </div>
               <div className="text-right">
-                <p className="text-lg font-semibold text-fg">{formatPrice(item.total)}</p>
+                <p className="text-lg font-semibold text-fg">
+                  {formatPrice(item.total, currency)}
+                </p>
               </div>
             </div>
           );

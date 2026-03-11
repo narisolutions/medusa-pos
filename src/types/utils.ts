@@ -79,6 +79,7 @@ interface ReceiptData {
   orderDisplayId: string;
   customerEmail?: string;
   customerName?: string;
+  guestEmail?: string;
   items: ReceiptItem[];
   subtotal: number;
   tax: number;

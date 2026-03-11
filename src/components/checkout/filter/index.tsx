@@ -14,6 +14,7 @@ import { AdminProduct } from "@medusajs/types";
 import { formatPrice } from "@/utils/helpers";
 import { ExtendedAdminProduct } from "@/types/utils";
 import ItemDialog from "../cart-items/variant-dialog";
+import { useCheckout } from "../hooks";
 
 interface Props {
   products: AdminProduct[];
@@ -42,6 +43,8 @@ const CheckoutFilter: React.FC<Props> = ({ products }) => {
     updateFilterState,
     getBrandTitle,
   } = useCheckoutFilter({ products, inputRef });
+
+  const { currency } = useCheckout();
 
   // Handle clicking outside to close dropdown
   useEffect(() => {
@@ -216,16 +219,16 @@ const CheckoutFilter: React.FC<Props> = ({ products }) => {
                             <>
                               <div className="flex items-center gap-1">
                                 <span className="text-sm text-fg-subtle line-through">
-                                  {formatPrice(originalPrice)}
+                                  {formatPrice(originalPrice, currency)}
                                 </span>
                               </div>
                               <span className="font-medium text-base text-red-600">
-                                {formatPrice(calculatedPrice)}
+                                {formatPrice(calculatedPrice, currency)}
                               </span>
                             </>
                           ) : (
                             <span className="font-medium text-base text-fg">
-                              {formatPrice(calculatedPrice || 0)}
+                              {formatPrice(calculatedPrice || 0, currency)}
                             </span>
                           )}
                         </div>

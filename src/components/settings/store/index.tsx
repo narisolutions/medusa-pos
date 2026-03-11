@@ -1,6 +1,6 @@
 import React from "react";
 import { useForm, useFieldArray } from "react-hook-form";
-import { ImageIcon, Upload, X, Banknote, CreditCard, Plus, Trash2 } from "lucide-react";
+import { ImageIcon, Upload, X, Banknote, CreditCard, Plus, Trash2, Info } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -20,6 +20,11 @@ import {
   FormItem,
   FormLabel,
 } from "@/components/ui/form";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { Forms } from "@/types/form";
 import { DEFAULT_PAYMENT_METHODS } from "@/utils/store/metadata";
 import { useStoreSettings } from "./hooks";
@@ -37,6 +42,7 @@ const StoreSettings: React.FC = () => {
       storeAddress2: "",
       storePhone: "",
       paymentMethods: DEFAULT_PAYMENT_METHODS,
+      guestCustomerEmail: "",
     },
   });
 
@@ -207,6 +213,46 @@ const StoreSettings: React.FC = () => {
                   <FormControl>
                     <Input
                       placeholder="+1 555 000 0000"
+                      className="h-12 text-lg px-4"
+                      disabled={isLoading}
+                      {...field}
+                    />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={control}
+              name="guestCustomerEmail"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-lg font-medium flex items-center gap-2">
+                    Guest customer email
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <button
+                          type="button"
+                          className="inline-flex items-center justify-center rounded-full p-0.5 hover:bg-surface-subtle"
+                        >
+                          <Info className="w-4 h-4 text-fg-subtle" />
+                        </button>
+                      </TooltipTrigger>
+                      <TooltipContent
+                        side="top"
+                        sideOffset={4}
+                        className="max-w-xs text-left"
+                      >
+                        Used when creating anonymous POS orders with no attached
+                        customer. Required so receipts and orders have a
+                        valid email.
+                      </TooltipContent>
+                    </Tooltip>
+                  </FormLabel>
+                  <FormControl>
+                    <Input
+                      type="email"
+                      placeholder="guest@example.com"
                       className="h-12 text-lg px-4"
                       disabled={isLoading}
                       {...field}

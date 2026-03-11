@@ -17,7 +17,6 @@ const resolveSelectedItemId = (
 };
 
 const buildItemMetadata = (variant: AdminProductVariant) => {
-
   const baseMetadata = {
     product_title: variant.product?.title,
     variant_sku: variant.sku,
@@ -31,7 +30,9 @@ const buildItemMetadata = (variant: AdminProductVariant) => {
 
   return {
     ...baseMetadata,
-    ...(variant.options && variant.options.length > 0 && { options: variant.options }),
+    ...(variant.options && variant.options.length > 0 && {
+      options: variant.options,
+    }),
     ...((variant.inventory_items?.length ?? 0) > 1 && {
       inventory_item_ids: variant.inventory_items!.map(
         (item) => item.inventory_item_id
@@ -47,3 +48,4 @@ const DEFAULT_CART_METADATA: DraftOrderMetadata = {
 };
 
 export { resolveSelectedItemId, buildItemMetadata, DEFAULT_CART_METADATA };
+

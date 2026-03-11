@@ -12,7 +12,8 @@ import {
 } from "@/types/utils";
 import { useQueryShippingOption } from "../queries/useQueryShippingOption";
 import { isEmpty } from "@/utils/helpers";
-import constants from "@/utils/constants";
+import { useQueryStore } from "@/hooks/queries/useQueryStore";
+import { getGuestCustomerEmail } from "@/utils/store/metadata";
 
 const DEFAULT_DRAFT_ORDER_METADATA: DraftOrderMetadata = {
   payment_method: undefined,
@@ -83,13 +84,16 @@ const useDraftOrder = () => {
   } = useCartStore();
 
   const { data: shippingOptions } = useQueryShippingOption();
+  const { data: store } = useQueryStore();
+  const guestEmail = getGuestCustomerEmail(store);
 
   const createDraftOrder = useCallback(
     async (
       regionId: string,
       salesChannelId: string,
       email?: string,
-      customerId?: string | null
+      customerId?: string | null,
+      countryCode?: string
     ): Promise<string> => {
       const sdk = getSdk();
       setIsLoading(true);
@@ -97,7 +101,7 @@ const useDraftOrder = () => {
       const pickUpMethod = shippingOptions?.find((option) =>
         option.name.toLowerCase().includes("pickup")
       );
-
+console.log('test')
       try {
         // Sanitize metadata to remove empty values before creating draft order
         const sanitizedMetadata = sanitizeDraftOrderMetadata(
@@ -111,7 +115,8 @@ const useDraftOrder = () => {
           ((metadata as Record<string, unknown>).customer_email as
             | string
             | undefined) ||
-          constants.ORDER_GUEST_EMAIL;
+          guestEmail ||
+          "";
 
         const draftOrderData: DraftOrderCreatePayload & {
           customer_id?: string | null;
@@ -119,9 +124,11 @@ const useDraftOrder = () => {
           email: customerEmail,
           items: [],
           region_id: regionId,
-          shipping_address: {
-            country_code: "GE",
-          },
+          ...(countryCode && {
+            shipping_address: {
+              country_code: countryCode,
+            },
+          }),
           sales_channel_id: salesChannelId,
           ...(pickUpMethod && {
             shipping_methods: [
@@ -159,7 +166,7 @@ const useDraftOrder = () => {
         setIsLoading(false);
       }
     },
-    [setDraftOrderId, shippingOptions, metadata]
+    [setDraftOrderId, shippingOptions, metadata, guestEmail]
   );
 
   const getDraftOrder =
@@ -430,7 +437,7 @@ const useDraftOrder = () => {
         } else {
           // If removing customer, set to undefined and use default guest email
           updatePayload.customer_id = undefined;
-          updatePayload.email = email || constants.ORDER_GUEST_EMAIL;
+          updatePayload.email = email || guestEmail;
         }
 
         if (email) {
@@ -451,7 +458,7 @@ const useDraftOrder = () => {
         setIsLoading(false);
       }
     },
-    []
+    [guestEmail]
   );
 
   return {

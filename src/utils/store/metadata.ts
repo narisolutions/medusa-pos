@@ -18,6 +18,7 @@ export type PosMetadata = {
   store_address_2?: string;
   store_phone?: string;
   payment_methods?: PaymentMethodConfig[];
+  guest_customer_email?: string;
 };
 
 /** Raw store metadata shape (may have pos object and/or legacy flat keys) */
@@ -32,6 +33,7 @@ type RawStoreMetadata = Record<string, unknown> & {
   store_address_2?: string;
   store_phone?: string;
   payment_methods?: PaymentMethodConfig[];
+  guest_customer_email?: string;
 };
 
 const DEFAULT_PAYMENT_METHODS: PaymentMethodConfig[] = [
@@ -66,6 +68,7 @@ export function getStoreMetadata(
     store_address_2: pos.store_address_2 ?? raw.store_address_2,
     store_phone: pos.store_phone ?? raw.store_phone,
     payment_methods: pos.payment_methods ?? raw.payment_methods,
+    guest_customer_email: pos.guest_customer_email ?? raw.guest_customer_email,
   };
 }
 
@@ -117,6 +120,12 @@ export function getStorePhone(
   return getStoreMetadata(store).store_phone;
 }
 
+export function getGuestCustomerEmail(
+  store: AdminStore | null | undefined
+): string | undefined {
+  return getStoreMetadata(store).guest_customer_email;
+}
+
 /** Returns enabled payment methods for checkout. Falls back to defaults when not configured. */
 export function getPaymentMethods(
   store: AdminStore | null | undefined
@@ -145,6 +154,7 @@ const POS_METADATA_KEYS = new Set([
   "store_address_2",
   "store_phone",
   "payment_methods",
+   "guest_customer_email",
   "pos",
 ]);
 

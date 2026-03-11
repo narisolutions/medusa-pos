@@ -2,13 +2,24 @@ import React from "react";
 import { AdminOrder } from "@medusajs/types";
 import { Receipt } from "lucide-react";
 import { formatPrice } from "@/utils/helpers";
+import constants from "@/utils/constants";
 
 interface SummaryProps {
   order: AdminOrder;
 }
 
 const Summary: React.FC<SummaryProps> = ({ order }) => {
-  const { subtotal, discount_total, shipping_total, tax_total, total } = order;
+  const {
+    subtotal,
+    discount_total,
+    shipping_total,
+    tax_total,
+    total,
+    currency_code,
+  } = order;
+
+  const currency =
+    currency_code || constants.CHECKOUT_CONFIG.CURRENCY;
 
   return (
     <div className="bg-surface rounded-lg border border-theme-border overflow-hidden shadow-sm">
@@ -22,28 +33,38 @@ const Summary: React.FC<SummaryProps> = ({ order }) => {
         <div className="grid grid-cols-2 gap-4">
           <div className="text-center">
             <p className="text-base text-fg-muted">Subtotal</p>
-            <p className="text-lg font-semibold text-fg">{formatPrice(subtotal || 0)}</p>
-          </div>
-          <div className="text-center">
-            <p className="text-base text-fg-muted">Discount</p>
-            <p
-              className={`text-lg font-semibold ${discount_total > 0 ? "text-red-600" : "text-fg"}`}
-            >
-              {discount_total > 0 ? "-" : ""}
-              {formatPrice(discount_total || 0)}
+            <p className="text-lg font-semibold text-fg">
+              {formatPrice(subtotal || 0, currency)}
             </p>
           </div>
           <div className="text-center">
+            <p className="text-base text-fg-muted">Discount</p>
+          <div
+            className={`text-lg font-semibold ${
+              discount_total > 0 ? "text-red-600" : "text-fg"
+            }`}
+          >
+            {discount_total > 0 ? "-" : ""}
+            {formatPrice(discount_total || 0, currency)}
+          </div>
+          </div>
+          <div className="text-center">
             <p className="text-base text-fg-muted">Shipping</p>
-            <p className="text-lg font-semibold text-fg">{formatPrice(shipping_total || 0)}</p>
+            <p className="text-lg font-semibold text-fg">
+              {formatPrice(shipping_total || 0, currency)}
+            </p>
           </div>
           <div className="text-center">
             <p className="text-base text-fg-muted">VAT</p>
-            <p className="text-lg font-semibold text-fg">{formatPrice(tax_total || 0)}</p>
+            <p className="text-lg font-semibold text-fg">
+              {formatPrice(tax_total || 0, currency)}
+            </p>
           </div>
           <div className="text-center col-span-2 border-t border-theme-border pt-4 mt-2">
             <p className="text-base text-fg-muted">Total</p>
-            <p className="text-2xl font-bold text-fg">{formatPrice(total)}</p>
+            <p className="text-2xl font-bold text-fg">
+              {formatPrice(total, currency)}
+            </p>
           </div>
         </div>
       </div>

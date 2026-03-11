@@ -291,9 +291,13 @@ const getOrderPaymentStatusColor = (status: string): string => {
   );
 };
 
-const isOrderGuestCustomer = (email?: string | null): boolean => {
+const isOrderGuestCustomer = (
+  email?: string | null,
+  guestEmail?: string | null
+): boolean => {
   if (!email) return true;
-  return constants.ORDER_GUEST_EMAIL === email;
+  if (!guestEmail) return false;
+  return guestEmail === email;
 };
 
 /**

@@ -1,6 +1,5 @@
 import { ReceiptData } from "@/types/utils";
 import { jsPDF } from "jspdf";
-import constants from "@/utils/constants";
 import { formatDateOnly, formatTimeOnly, formatCurrencyRaw } from "@/utils/preferences";
 
 export type { ReceiptData };
@@ -68,9 +67,11 @@ const buildReceipt = (data: ReceiptData): string => {
 
   receipt += `\nOrder: #${data.orderDisplayId}`;
 
+  const guestEmail = data.guestEmail;
+
   if (data.customerName || data.customerEmail) {
     receipt += `\n${thinSeparator}`;
-    if (data.customerEmail === constants.ORDER_GUEST_EMAIL) {
+    if (guestEmail && data.customerEmail === guestEmail) {
       receipt += `\nCustomer: Guest`;
     } else {
       receipt += `\nCUSTOMER:`;
@@ -279,10 +280,12 @@ const buildReceiptPDF = (data: ReceiptData): Uint8Array => {
   addTwoColumn("Time:", timeStr, false, 5);
   addTwoColumn("Order:", `#${data.orderDisplayId}`, true, 5);
 
+  const guestEmail = data.guestEmail;
+
   // Customer Information
   if (data.customerName || data.customerEmail) {
     addSpacing(2);
-    if (data.customerEmail === constants.ORDER_GUEST_EMAIL) {
+    if (guestEmail && data.customerEmail === guestEmail) {
       addTwoColumn("Customer:", "Guest", false, 5);
     } else {
       addText("CUSTOMER:", "left", 9, true, 4);

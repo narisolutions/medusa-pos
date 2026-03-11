@@ -6,7 +6,8 @@ import storage from "@/utils/storage";
 import { Printer } from "@/components/settings/printer/hooks";
 import { handleErrorToast, openDownloadsFolder } from "@/utils/helpers";
 import { useQueryStore } from "@/hooks/queries/useQueryStore";
-import { getBrandName, getStoreAddress, getStoreAddress2, getStorePhone } from "@/utils/store/metadata";
+import { getBrandName, getStoreAddress, getStoreAddress2, getStorePhone, getGuestCustomerEmail } from "@/utils/store/metadata";
+import constants from "@/utils/constants";
 
 const usePrinterService = () => {
   const [printers, setPrinters] = useState<Printer[]>([]);
@@ -169,13 +170,14 @@ const usePrinterService = () => {
         order.customer?.first_name && order.customer?.last_name
           ? `${order.customer.first_name} ${order.customer.last_name}`.trim()
           : undefined,
+      guestEmail: getGuestCustomerEmail(store),
       items: receiptItems,
       subtotal,
       tax,
       taxRate: 18,
       discount,
       total,
-      currency: order.currency_code || "GEL",
+      currency: order.currency_code || constants.CHECKOUT_CONFIG.CURRENCY,
       paymentMethod: paymentMethod?.toUpperCase() || 'PP_CASH_POS',
       amountPaid,
       change,

@@ -84,6 +84,7 @@ const useStoreSettings = ({ form }: Props): UseStoreSettingsReturn => {
       storePhone: meta.store_phone ?? "",
       paymentMethods:
         meta.payment_methods?.length ? meta.payment_methods : DEFAULT_PAYMENT_METHODS,
+      guestCustomerEmail: meta.guest_customer_email ?? "",
     });
   }, [store, reset]);
 
@@ -101,6 +102,7 @@ const useStoreSettings = ({ form }: Props): UseStoreSettingsReturn => {
         store_address_2: data.storeAddress2 ?? undefined,
         store_phone: data.storePhone,
         payment_methods: data.paymentMethods ?? undefined,
+        guest_customer_email: data.guestCustomerEmail || undefined,
       };
       await updateStore({
         storeId: store.id,

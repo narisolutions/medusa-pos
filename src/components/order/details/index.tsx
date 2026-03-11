@@ -2,6 +2,7 @@ import React from "react";
 import { AdminOrder } from "@medusajs/types";
 import { Calendar } from "lucide-react";
 import { formatPrice, formatDate } from "@/utils/helpers";
+import constants from "@/utils/constants";
 
 interface DetailsProps {
   order: AdminOrder;
@@ -22,6 +23,8 @@ const Details: React.FC<DetailsProps> = ({
     total,
     sales_channel,
   } = order;
+
+  const currency = currency_code || constants.CHECKOUT_CONFIG.CURRENCY;
 
   return (
     <div className="bg-surface rounded-lg border border-theme-border overflow-hidden shadow-sm">
@@ -60,7 +63,12 @@ const Details: React.FC<DetailsProps> = ({
           </div>
           <div className="flex justify-between text-base">
             <span className="text-fg-muted">Payment Amount</span>
-            <span className="font-medium text-fg">{formatPrice(total)}</span>
+            <span className="font-medium text-fg">
+              {formatPrice(
+                total,
+                currency
+              )}
+            </span>
           </div>
           {sales_channel && (
             <div className="flex justify-between text-base">

@@ -78,6 +78,10 @@ export default {
     storeAddress: z.string().min(1, { message: "Store address is required" }),
     storeAddress2: z.string().optional(),
     storePhone: z.string().min(1, { message: "Store phone is required" }),
+    guestCustomerEmail: z
+      .string()
+      .email({ message: "Please enter a valid email address" })
+      .optional(),
     paymentMethods: z
       .array(
         z.object({

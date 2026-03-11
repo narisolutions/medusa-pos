@@ -17,8 +17,8 @@ export default {
     AUTO_CLOSE_PAYMENT_MODAL: false,
 
     // Business rules
-    // TODO: 
-    CURRENCY: "GEL",
+    // Default fallback currency code (most prices should use Medusa order/store/region currency instead of this)
+    CURRENCY: "USD",
     BARCODE_VALIDATION_PATTERN: /^\d{8,18}$/,
 
     // Performance

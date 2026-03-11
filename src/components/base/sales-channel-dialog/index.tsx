@@ -22,7 +22,7 @@ const SalesChannelWarningDialog: React.FC = () => {
 
   const handleGoToSettings = async () => {
     setNeedsWarning(false);
-    await storage.setItem("settings_tab", "preferences");
+    await storage.setItem("settings_tab", "connection");
     navigate("/settings");
   };
 

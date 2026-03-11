@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import { AdminOrder, AdminPaymentCollection, AdminPayment, AdminOrderFulfillment } from "@medusajs/types";
 import { ActivityEvent } from "@/types/utils";
+import constants from "@/utils/constants";
 
 // Helper to normalize timestamps
 const normalizeTimestamp = (timestamp: string | Date | undefined): string | null => {
@@ -49,7 +50,10 @@ export const useActivityEvents = (order: AdminOrder) => {
       "order_placed",
       "Order placed",
       order.created_at,
-      { amount: order.total, currency: order.currency_code || "GEL" }
+      {
+        amount: order.total,
+        currency: order.currency_code || constants.CHECKOUT_CONFIG.CURRENCY,
+      }
     );
     if (orderPlaced) activityEvents.push(orderPlaced);
 
@@ -64,7 +68,8 @@ export const useActivityEvents = (order: AdminOrder) => {
             payment.captured_at,
             {
               amount: payment.amount || collection.amount || order.total,
-              currency: order.currency_code || "GEL",
+              currency:
+                order.currency_code || constants.CHECKOUT_CONFIG.CURRENCY,
             }
           );
           if (event) activityEvents.push(event);
@@ -76,7 +81,8 @@ export const useActivityEvents = (order: AdminOrder) => {
             payment.created_at,
             {
               amount: payment.amount || collection.amount || order.total,
-              currency: order.currency_code || "GEL",
+              currency:
+                order.currency_code || constants.CHECKOUT_CONFIG.CURRENCY,
             }
           );
           if (event) activityEvents.push(event);
@@ -96,7 +102,8 @@ export const useActivityEvents = (order: AdminOrder) => {
             collection.updated_at,
             {
               amount: collection.amount || order.total,
-              currency: order.currency_code || "GEL",
+              currency:
+                order.currency_code || constants.CHECKOUT_CONFIG.CURRENCY,
             }
           );
           if (event) activityEvents.push(event);

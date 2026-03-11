@@ -2,6 +2,7 @@ import React from "react";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { formatPrice } from "@/utils/helpers";
+import { useCheckout } from "../../hooks";
 
 interface ConfirmationDialogProps {
   isOpen: boolean;
@@ -18,6 +19,7 @@ const ConfirmationDialog: React.FC<ConfirmationDialogProps> = ({
   isProcessing,
   total,
 }) => {
+  const { currency } = useCheckout();
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onCancel()}>
       <DialogContent className="max-w-md">
@@ -32,7 +34,10 @@ const ConfirmationDialog: React.FC<ConfirmationDialogProps> = ({
           
           <div className="bg-blue-50 border-2 border-blue-200 rounded-lg p-4">
             <p className="text-center text-blue-800 font-medium">
-              Amount: <span className="text-2xl font-bold">{formatPrice(total)}</span>
+              Amount:{" "}
+              <span className="text-2xl font-bold">
+                {formatPrice(total, currency)}
+              </span>
             </p>
           </div>
         </div>

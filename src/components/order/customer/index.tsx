@@ -2,6 +2,8 @@ import React from "react";
 import { AdminOrder } from "@medusajs/types";
 import { User } from "lucide-react";
 import { isOrderGuestCustomer } from "@/utils/helpers";
+import { useQueryStore } from "@/hooks/queries/useQueryStore";
+import { getGuestCustomerEmail } from "@/utils/store/metadata";
 // import CustomerDialog from "./customer-dialog";
 
 interface Props {
@@ -10,6 +12,8 @@ interface Props {
 
 const Customer: React.FC<Props> = ({ order }) => {
   const { customer, shipping_address, billing_address } = order;
+  const { data: store } = useQueryStore();
+  const guestEmail = getGuestCustomerEmail(store);
   // const [isCustomerDialogOpen, setIsCustomerDialogOpen] = useState(false);
   // const hasAccount = customer?.has_account || null;
 
@@ -38,7 +42,7 @@ const Customer: React.FC<Props> = ({ order }) => {
         {customer && (
           <>
             {(!customer.email || customer.email.trim() === "") &&
-            isOrderGuestCustomer(customer.email) ? (
+            isOrderGuestCustomer(customer.email, guestEmail) ? (
               <div className="text-base">
                 <span className="text-fg-muted">Customer: </span>
                 <span className="font-medium text-fg">Guest</span>

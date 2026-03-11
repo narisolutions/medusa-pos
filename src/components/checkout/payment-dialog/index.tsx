@@ -7,6 +7,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { formatPrice } from "@/utils/helpers";
 import { getCurrencySymbol } from "@/utils/preferences";
 import constants from "@/utils/constants";
+import { useCheckout } from "../hooks";
 import { usePaymentModal } from "./hooks";
 import ConfirmationDialog from "./confirmation-dialog";
 import { CreditCard } from "lucide-react";
@@ -44,6 +45,8 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
     draftOrder,
     billCounts,
   } = usePaymentModal(draftOrderId, onClose, isOpen);
+
+  const { currency } = useCheckout();
 
   const isLoading = !draftOrder;
 
@@ -100,10 +103,10 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
                       </div>
                       <div className="flex justify-between text-xs text-fg-muted">
                         <span>
-                          {quantity} × {formatPrice(unitPrice)}
+                          {quantity} × {formatPrice(unitPrice, currency)}
                         </span>
                         <span className="font-semibold">
-                          {formatPrice(lineTotal)}
+                          {formatPrice(lineTotal, currency)}
                         </span>
                       </div>
                     </div>
@@ -132,11 +135,11 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
                       ) : (
                         <>
                           <div className="text-6xl font-bold text-fg">
-                            {formatPrice(total)}
+                            {formatPrice(total, currency)}
                           </div>
                           {tax > 0 && (
                             <div className="text-sm text-fg-subtle mt-2">
-                              Including VAT {formatPrice(tax)}
+                              Including VAT {formatPrice(tax, currency)}
                             </div>
                           )}
                         </>
@@ -161,7 +164,7 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
                           inputMode="decimal"
                         />
                         <span className="absolute right-5 top-1/2 -translate-y-1/2 text-4xl text-fg-subtle">
-                          {getCurrencySymbol(constants.CHECKOUT_CONFIG.CURRENCY)}
+                          {getCurrencySymbol(currency || constants.CHECKOUT_CONFIG.CURRENCY)}
                         </span>
                       </div>
                     </div>
@@ -265,7 +268,7 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
                                 : "text-rose-800"
                             }`}
                           >
-                            {formatPrice(Math.abs(change))}
+                            {formatPrice(Math.abs(change), currency)}
                           </span>
                         </div>
                       )}
@@ -307,12 +310,12 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
                     ) : (
                       <>
                         <div className="text-8xl font-bold text-fg">
-                          {formatPrice(total)}
+                          {formatPrice(total, currency)}
                         </div>
                         {tax > 0 && (
-                          <div className="text-sm text-fg-subtle mt-2">
-                            Including VAT {formatPrice(tax)}
-                          </div>
+                            <div className="text-sm text-fg-subtle mt-2">
+                              Including VAT {formatPrice(tax, currency)}
+                            </div>
                         )}
                       </>
                     )}

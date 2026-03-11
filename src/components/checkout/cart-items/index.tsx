@@ -13,6 +13,7 @@ import Backdrop from "@/components/base/backdrop";
 import { formatPrice } from "@/utils/helpers";
 import ItemDialog from "./variant-dialog";
 import { useCartItems } from "./hooks";
+import { useCheckout } from "../hooks";
 import { useCartStore } from "@/context/cart";
 
 const CartItems: React.FC = () => {
@@ -26,6 +27,8 @@ const CartItems: React.FC = () => {
     selectedItemId,
     setSelectedItemId,
   } = useCartItems();
+
+  const { currency } = useCheckout();
 
   const subtotal = useCartStore((state) => state.getSubtotal());
   const discountAmount = useCartStore((state) => state.getDiscountAmount());
@@ -176,14 +179,14 @@ const CartItems: React.FC = () => {
                           {hasManualDiscount ? (
                             <>
                               <span className="text-sm text-fg-muted line-through">
-                                {formatPrice(originalTotal)}
+                                {formatPrice(originalTotal, currency)}
                               </span>
                               <div className="text-orange-600 font-semibold">
-                                {formatPrice(itemTotal)}
+                                {formatPrice(itemTotal, currency)}
                               </div>
                             </>
                           ) : (
-                            <span>{formatPrice(itemTotal)}</span>
+                            <span>{formatPrice(itemTotal, currency)}</span>
                           )}
                         </div>
                       </TableCell>
@@ -219,18 +222,18 @@ const CartItems: React.FC = () => {
         <div className="p-4 border-t border-theme-border space-y-2">
           <div className="flex justify-between text-base text-fg-muted">
             <span>Subtotal</span>
-            <span>{formatPrice(subtotal)}</span>
+            <span>{formatPrice(subtotal, currency)}</span>
           </div>
           {discountAmount > 0 && (
             <div className="flex justify-between text-base text-green-600">
               <span>Discount</span>
-              <span>-{formatPrice(discountAmount)}</span>
+              <span>-{formatPrice(discountAmount, currency)}</span>
             </div>
           )}
           <div className="flex justify-between items-center pt-2 border-t">
             <span className="text-xl font-medium">Total</span>
             <span className="text-2xl font-bold text-primary">
-              {formatPrice(totalAfterDiscount)}
+              {formatPrice(totalAfterDiscount, currency)}
             </span>
           </div>
         </div>
