@@ -96,7 +96,7 @@ function SelectContent({
   return (
     <div
       className={cn(
-        "absolute top-full z-50 mt-1 max-h-60 w-full overflow-auto rounded-md border bg-popover text-popover-foreground shadow-md",
+        "absolute top-full z-50 mt-1 max-h-60 w-full overflow-auto rounded-md border bg-surface text-fg shadow-md",
         "data-[state=open]:animate-in data-[state=closed]:animate-out",
         "data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
         "data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95",
@@ -104,7 +104,7 @@ function SelectContent({
       )}
       {...props}
     >
-      <div className="p-1 bg-white">
+      <div className="p-1">
         {children}
       </div>
     </div>

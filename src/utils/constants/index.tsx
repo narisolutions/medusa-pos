@@ -74,7 +74,7 @@ export default {
   } as const,
 
   // Order Guest Email
-  ORDER_GUEST_EMAIL: "guest@wineland.ge" as const,
+  ORDER_GUEST_EMAIL: "guest@pos.local" as const,
 
   // Order Button Styling
   ORDER_BUTTON_BASE_CLASSES: "px-6 py-3 text-base font-medium min-h-[48px] touch-manipulation",
