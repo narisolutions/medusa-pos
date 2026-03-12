@@ -26,19 +26,18 @@ const CartActions: React.FC = () => {
   const [isCustomerOpen, setCustomerOpen] = useState(false);
 
   return (
-    <div className="flex flex-col h-full border border-zinc-200 bg-white rounded-lg overflow-hidden">
+    <div className="flex flex-col h-full border border-theme-border bg-surface rounded-lg overflow-hidden">
       {/* payment methods */}
-      <div className="p-4 border-b bg-gray-50 flex-1 overflow-auto">
+      <div className="p-4 border-b border-theme-border bg-surface-muted flex-1 overflow-auto">
         <div className="grid grid-cols-3 gap-3">
           {paymentMethods.map(({ key, label, Icon }) => (
             <Button
               key={key}
               onClick={() => setPaymentMethod(key)}
-              className={`h-24 rounded-lg text-xl font-semibold transition-all ${
-                selectedPaymentMethod === key
+              className={`h-24 rounded-lg text-xl font-semibold transition-all ${selectedPaymentMethod === key
                   ? "bg-primary text-white shadow"
-                  : "bg-white border border-gray-200 hover:bg-gray-50"
-              }`}
+                  : "bg-surface border border-theme-border hover:bg-surface-hover text-fg"
+                }`}
             >
               <span className="flex flex-col items-center justify-center gap-2">
                 <Icon className="size-8" />
@@ -50,23 +49,23 @@ const CartActions: React.FC = () => {
       </div>
 
       {/* Bottom: button grid */}
-      <div className="p-4 border-t bg-white">
+      <div className="p-4 border-t border-theme-border bg-surface">
         <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
           <Button
             onClick={() => setQtyOpen(true)}
-            className="h-20 text-lg font-semibold bg-white border-2 border-gray-200 hover:bg-gray-50 text-gray-700"
+            className="h-20 text-lg font-semibold bg-surface border-2 border-theme-border hover:bg-surface-hover text-fg"
           >
             <span className="flex items-center gap-3">Quantity</span>
           </Button>
           <Button
             onClick={() => setDiscountOpen(true)}
-            className="h-20 text-lg font-semibold bg-white border-2 border-gray-200 hover:bg-gray-50 text-gray-700"
+            className="h-20 text-lg font-semibold bg-surface border-2 border-theme-border hover:bg-surface-hover text-fg"
           >
             <span className="flex items-center gap-3">Discount</span>
           </Button>
           <Button
             onClick={() => setCommentOpen(true)}
-            className="h-20 text-lg font-semibold bg-white border-2 border-gray-200 hover:bg-gray-50 text-gray-700"
+            className="h-20 text-lg font-semibold bg-surface border-2 border-theme-border hover:bg-surface-hover text-fg"
           >
             <span className="flex items-center gap-3">
               <MessageSquare className="size-5" /> Comment
@@ -74,11 +73,10 @@ const CartActions: React.FC = () => {
           </Button>
           <Button
             onClick={() => setCustomerOpen(true)}
-            className={`h-20 text-lg font-semibold border-2 ${
-              customerEmail
-                ? "bg-blue-50 border-blue-300 hover:bg-blue-100 text-blue-700"
-                : "bg-white border-gray-200 hover:bg-gray-50 text-gray-700"
-            }`}
+            className={`h-20 text-lg font-semibold border-2 ${customerEmail
+                ? "bg-blue-50 dark:bg-blue-900/30 border-blue-300 dark:border-blue-700 hover:bg-blue-100 dark:hover:bg-blue-900/50 text-blue-700 dark:text-blue-300"
+                : "bg-surface border-theme-border hover:bg-surface-hover text-fg"
+              }`}
           >
             <span className="flex items-center gap-3">
               <User className="size-5" /> Customer
@@ -87,7 +85,7 @@ const CartActions: React.FC = () => {
           <Button
             onClick={() => void handleOpenDrawer()}
             disabled={true}
-            className="h-20 text-lg font-semibold bg-white border-2 border-gray-200 hover:bg-gray-50 text-gray-700"
+            className="h-20 text-lg font-semibold bg-surface border-2 border-theme-border hover:bg-surface-hover text-fg"
           >
             <span className="flex items-center gap-3">Cash drawer</span>
           </Button>

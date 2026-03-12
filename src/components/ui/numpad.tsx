@@ -70,9 +70,9 @@ export const Numpad: React.FC<NumpadProps> = ({
         } else if (btn === "Cancel") {
           btnClass += "font-bold bg-red-500 text-white hover:bg-red-600 active:bg-red-700";
         } else if (btn === "Del" || btn === "Clear") {
-          btnClass += "font-medium bg-gray-300 text-gray-800 hover:bg-gray-400 active:bg-gray-500";
+          btnClass += "font-medium bg-surface-subtle text-fg hover:bg-surface-hover active:bg-theme-border";
         } else if (btn) {
-          btnClass += "font-medium bg-gray-800 text-white hover:bg-gray-700 active:bg-gray-900";
+          btnClass += "font-medium bg-fg text-surface hover:bg-fg/90 active:bg-fg/80";
         } else {
           btnClass += "bg-transparent cursor-default";
         }

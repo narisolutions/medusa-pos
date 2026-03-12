@@ -26,15 +26,15 @@ const PickupConfirmationDialog: React.FC<PickupConfirmationDialogProps> = ({
             <Package className="w-8 h-8 text-green-600" />
           </div>
           
-          <DialogTitle className="text-2xl font-bold text-gray-900">
+          <DialogTitle className="text-2xl font-bold text-fg">
             Confirm Pickup
           </DialogTitle>
-          
+
           <div className="space-y-3 py-4">
-            <p className="text-base text-gray-700">
+            <p className="text-base text-fg-muted">
               Are you sure the customer has picked up order <span className="font-semibold">#{orderDisplayId}</span>?
             </p>
-            <p className="text-sm text-gray-500">
+            <p className="text-sm text-fg-muted">
               This action will mark the order as delivered and cannot be undone.
             </p>
           </div>

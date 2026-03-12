@@ -74,10 +74,12 @@ interface ReceiptData {
   storeName: string;
   companyName: string;
   storeAddress: string;
+  storeAddress2?: string;
   storePhone?: string;
   orderDisplayId: string;
   customerEmail?: string;
   customerName?: string;
+  guestEmail?: string;
   items: ReceiptItem[];
   subtotal: number;
   tax: number;

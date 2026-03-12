@@ -12,6 +12,7 @@
 [![GitHub Stars](https://img.shields.io/github/stars/narisolutions/medusa-pos)](https://github.com/narisolutions/medusa-pos/stargazers)
 
 A cross-platform Point of Sale application built on [Medusa](https://medusajs.com/) and [Tauri 2](https://tauri.app/). Runs as a native desktop application on Linux, macOS, and Windows, with Android APK support via Tauri Mobile.
+Medusa POS is an independent open-source project and is not officially affiliated with or endorsed by Medusa
 
 Designed for retail environments that already use Medusa as their e-commerce backend. The app connects directly to your Medusa instance, draws product and inventory data from it, and pushes completed orders back as draft orders — keeping your storefront and physical register in sync without any middleware.
 
@@ -128,7 +129,7 @@ Printer communication runs entirely in the Rust layer (`src-tauri/src/lib.rs`):
 
 ### Versioning
 
-The app version in `package.json` (referenced by `tauri.conf.json`) is the single source of truth. `vite.config.ts` additionally reads git tags matching `release-*` and injects the latest semver into `import.meta.env.VITE_APP_VERSION` for display in the UI.
+The app version in `package.json` (referenced by `tauri.conf.json`) is the single source of truth. `vite.config.ts` additionally reads git tags matching `v*.*.*` and injects the latest semver into `import.meta.env.VITE_APP_VERSION` for display in the UI.
 
 ---
 
@@ -229,7 +230,7 @@ The project supports three Vite modes:
 VITE_BACKEND_URL=https://your-medusa-instance.example.com/
 ```
 
-`VITE_APP_VERSION` is automatically injected by `vite.config.ts` from git tags matching `release-*`. Do not set it manually.
+`VITE_APP_VERSION` is automatically injected by `vite.config.ts` from git tags matching `v*.*.*`. Do not set it manually.
 
 ### Runtime backend configuration
 
@@ -285,7 +286,7 @@ yarn typecheck          # tsc --noEmit
 1. The app boots and runs the `check_config_exists` Tauri command.
 2. If no config is found, a **Store Setup** dialog is shown.
 3. The user enters a Medusa backend URL. The app hits `<url>/health` to validate.
-4. On success, the URL is written to disk via `save_config` and the SDK is initialized.
+4. On success, the URL is written to disk via `save_store_url` + `set_active_backend` and the SDK is initialized.
 
 ### Login
 

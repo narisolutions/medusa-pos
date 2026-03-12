@@ -16,16 +16,16 @@ function getGitVersion(): string {
   }
   
   try {
-    const tags = execSync('git tag -l "release-*"', { encoding: 'utf-8' }).trim();
+    const tags = execSync('git tag -l "v*.*.*"', { encoding: 'utf-8' }).trim();
     if (!tags) return 'dev';
 
     const tagList = tags.split('\n').filter(Boolean);
     if (tagList.length === 0) return 'dev';
 
     const sortedTags = tagList.sort((a, b) => {
-      const vA = a.replace(/^release-/, '').split('.').map(Number);
-      const vB = b.replace(/^release-/, '').split('.').map(Number);
-      
+      const vA = a.replace(/^v/, '').split('.').map(Number);
+      const vB = b.replace(/^v/, '').split('.').map(Number);
+
       for (let i = 0; i < Math.max(vA.length, vB.length); i++) {
         const diff = (vB[i] || 0) - (vA[i] || 0);
         if (diff !== 0) return diff;
@@ -33,7 +33,7 @@ function getGitVersion(): string {
       return 0;
     });
 
-    return sortedTags[0].replace(/^release-/, '');
+    return sortedTags[0].replace(/^v/, '');
   } catch {
     return 'dev';
   }

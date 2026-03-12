@@ -1,4 +1,4 @@
-import { Calendar, Store } from "lucide-react";
+import { Calendar } from "lucide-react";
 import { SidebarTrigger, useSidebar } from "@/components/ui/sidebar";
 import { useEffect, useState } from "react";
 import { useHeader } from "./hooks";
@@ -23,7 +23,7 @@ const Header: React.FC = () => {
   const logoSrc = getLogoUrl(store);
 
   return (
-    <header className="bg-white shadow h-24 px-6 flex items-center justify-between shrink-0">
+    <header className="bg-surface border-b border-theme-border shadow h-24 px-6 flex items-center justify-between shrink-0">
       <div className="flex items-center gap-4">
         {!sidebar.open && <SidebarTrigger />}
       </div>
@@ -38,10 +38,12 @@ const Header: React.FC = () => {
             }}
           />
         ) : (
-          <Store className="h-8 w-8 text-gray-500" />
+          <span className="text-lg font-semibold text-foreground">
+            {getBrandName(store) || "POS"}
+          </span>
         )}
       </div>
-      <div className="flex gap-1.5 items-center">
+      <div className="flex gap-1.5 items-center text-fg-muted">
         <span>{formatDate(now)}</span>
         <Calendar />
       </div>

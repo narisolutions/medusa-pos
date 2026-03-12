@@ -2,6 +2,7 @@ import React from "react";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { formatPrice } from "@/utils/helpers";
+import { useCheckout } from "../../hooks";
 
 interface ConfirmationDialogProps {
   isOpen: boolean;
@@ -18,21 +19,25 @@ const ConfirmationDialog: React.FC<ConfirmationDialogProps> = ({
   isProcessing,
   total,
 }) => {
+  const { currency } = useCheckout();
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onCancel()}>
       <DialogContent className="max-w-md">
-        <DialogTitle className="text-2xl font-semibold text-gray-900 text-center">
+        <DialogTitle className="text-2xl font-semibold text-fg text-center">
           Confirm Payment
         </DialogTitle>
-        
+
         <div className="space-y-6 py-4">
-          <p className="text-lg text-gray-700 text-center">
+          <p className="text-lg text-fg-muted text-center">
             Please confirm that the payment on the terminal was successful.
           </p>
           
           <div className="bg-blue-50 border-2 border-blue-200 rounded-lg p-4">
             <p className="text-center text-blue-800 font-medium">
-              Amount: <span className="text-2xl font-bold">{formatPrice(total)}</span>
+              Amount:{" "}
+              <span className="text-2xl font-bold">
+                {formatPrice(total, currency)}
+              </span>
             </p>
           </div>
         </div>

@@ -75,7 +75,7 @@ const Header: React.FC<Props> = ({
       <div className="flex flex-col sm:flex-row gap-6 items-start sm:items-center justify-between">
         <div className="flex items-center gap-4 flex-1">
           <div className="relative flex-1 max-w-md">
-            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
+            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-fg-subtle h-5 w-5" />
             <Input
               placeholder="Search orders..."
               value={filters.search}
@@ -95,10 +95,10 @@ const Header: React.FC<Props> = ({
           </div>
           {filters.search && (
             <>
-              <div className="h-8 w-px bg-gray-300"></div>
+              <div className="h-8 w-px bg-theme-border-strong"></div>
               <div className="flex items-center gap-2">
-                <span className="text-sm text-gray-600">Active filter:</span>
-                <span className="inline-flex items-center gap-2 bg-blue-100 text-blue-800 text-sm px-3 py-1.5 rounded-md">
+                <span className="text-sm text-fg-muted">Active filter:</span>
+                <span className="inline-flex items-center gap-2 bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 text-sm px-3 py-1.5 rounded-md">
                   Search: "{filters.search}"
                   <X
                     className="h-3 w-3 cursor-pointer hover:bg-blue-200 rounded"
@@ -112,7 +112,7 @@ const Header: React.FC<Props> = ({
         <div className="flex flex-wrap gap-3 items-center justify-end">
           <div className="flex flex-wrap gap-3">
             <div className="flex items-center gap-2">
-              <span className="text-sm text-gray-600">Fulfillment:</span>
+              <span className="text-sm text-fg-muted">Fulfillment:</span>
               <div className="w-52">
                 <Select
                   value={filters.fulfillment_status || ""}
@@ -143,7 +143,7 @@ const Header: React.FC<Props> = ({
             </div>
 
             <div className="flex items-center gap-2">
-              <span className="text-sm text-gray-600">Channel:</span>
+              <span className="text-sm text-fg-muted">Channel:</span>
               <div className="w-44">
                 <Select
                   value={filters.sales_channel || ""}

@@ -121,10 +121,17 @@ export const initializeSdk = async (baseUrl?: string) => {
             }
           }
           
+          const callerSignal = tauriInit?.signal as AbortSignal | undefined;
+          const timeoutSignal = AbortSignal.timeout(15_000);
+          const signal = callerSignal
+            ? AbortSignal.any([callerSignal, timeoutSignal])
+            : timeoutSignal;
+
           tauriInit = {
             ...tauriInit,
             headers,
             body: body !== undefined ? body : tauriInit?.body,
+            signal,
           };
           
           return tauriFetch(fullUrl, tauriInit)

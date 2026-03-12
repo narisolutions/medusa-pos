@@ -1,16 +1,20 @@
+import { useEffect, useState, useCallback } from "react";
 import { RouterProvider } from "react-router-dom";
 import router from "./router/router";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { queryClient } from "./config/query";
 import { Toaster } from "sonner";
 import Backdrop from "./components/base/backdrop";
+import BootEscapeOverlay from "./components/base/boot-escape-overlay";
 import useAppInit from "./hooks/auth/useAppInit";
 import useApplyStoreTheme from "./hooks/ui/useApplyStoreTheme";
+import useApplyTheme from "./hooks/ui/useApplyTheme";
 import useUpdateCheck from "./hooks/useUpdateCheck";
 import { useUser } from "./context/user";
+import constants from "./utils/constants";
 
-// Rendered inside QueryClientProvider so hooks like useQueryStore are available
 function AppContent() {
+  useApplyTheme();
   useApplyStoreTheme();
   useUpdateCheck();
   return (
@@ -22,13 +26,31 @@ function AppContent() {
 }
 
 function App() {
-  const { bootLoading } = useAppInit();
+  const { bootLoading, retry } = useAppInit();
   const globalLoading = useUser((state) => state.globalLoading);
+  const [bootTimedOut, setBootTimedOut] = useState(false);
+
+  useEffect(() => {
+    if (!bootLoading) {
+      setBootTimedOut(false);
+      return;
+    }
+
+    const timer = setTimeout(() => setBootTimedOut(true), constants.BOOT_TIMEOUT_MS);
+    return () => clearTimeout(timer);
+  }, [bootLoading]);
+
+  const handleRetry = useCallback(() => {
+    setBootTimedOut(false);
+    retry();
+  }, [retry]);
 
   return (
     <QueryClientProvider client={queryClient}>
       {!bootLoading && <AppContent />}
-      {(bootLoading || globalLoading) && <Backdrop loading />}
+      {bootLoading && !bootTimedOut && <Backdrop loading showLogo />}
+      {bootLoading && bootTimedOut && <BootEscapeOverlay onRetry={handleRetry} />}
+      {!bootLoading && globalLoading && <Backdrop loading />}
     </QueryClientProvider>
   );
 }

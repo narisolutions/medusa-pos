@@ -4,14 +4,17 @@ use std::path::Path;
 
 fn main() {
     // Read the TAURI_HTTP_ALLOWLIST environment variable
+    // Cargo sets PROFILE to "debug" for dev builds and "release" for production
+    let is_dev = env::var("PROFILE").unwrap_or_default() != "release";
+
     let allowlist = env::var("TAURI_HTTP_ALLOWLIST")
         .unwrap_or_else(|_| {
-            // Default allowed domains for open-source template:
-            // allow any HTTPS URL so users can point the app at
-            // arbitrary Medusa backends. For production, override
-            // this via TAURI_HTTP_ALLOWLIST or by editing the
-            // generated capabilities file.
-            "https://**".to_string()
+            let mut urls = "https://**".to_string();
+            // Allow localhost in dev builds for local Docker Medusa instances
+            if is_dev {
+                urls.push_str(", http://localhost:*");
+            }
+            urls
         });
 
     // Parse the allowlist (comma-separated URLs)

@@ -3,6 +3,8 @@ import { AdminOrder } from "@medusajs/types";
 import { Button } from "@/components/ui/button";
 import { Package } from "lucide-react";
 import { formatPrice } from "@/utils/helpers";
+import { useQueryStore } from "@/hooks/queries/useQueryStore";
+import { getGuestCustomerEmail } from "@/utils/store/metadata";
 import constants from "@/utils/constants";
 
 interface ItemsProps {
@@ -16,19 +18,26 @@ const Items: React.FC<ItemsProps> = ({
   isNegativeFulfillmentStatus,
   onOpenFulfillmentDialog,
 }) => {
-  const { items } = order;
+  const { items, currency_code } = order;
+  const currency =
+    currency_code || constants.CHECKOUT_CONFIG.CURRENCY;
+
+  const { data: store } = useQueryStore();
+  const guestEmail = getGuestCustomerEmail(store);
 
   return (
-    <div className="rounded-lg border border-gray-200 overflow-hidden shadow-sm bg-white flex flex-col h-full">
-      <div className="px-6 py-4 border-b border-gray-200 bg-gray-50/50 shrink-0">
+    <div className="rounded-lg border border-theme-border overflow-hidden shadow-sm bg-surface flex flex-col h-full">
+      <div className="px-6 py-4 border-b border-theme-border bg-surface-muted shrink-0">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Package className="w-5 h-5 text-gray-600" />
-            <h2 className="text-lg font-semibold text-gray-900">Order Items</h2>
-            <span className="text-base text-gray-500">({items?.length || 0} items)</span>
+            <Package className="w-5 h-5 text-fg-muted" />
+            <h2 className="text-lg font-semibold text-fg">Order Items</h2>
+            <span className="text-base text-fg-subtle">({items?.length || 0} items)</span>
           </div>
           {isNegativeFulfillmentStatus &&
-            order?.customer?.email !== constants.ORDER_GUEST_EMAIL && (
+            order?.customer?.email &&
+            guestEmail &&
+            order.customer.email !== guestEmail && (
               <div>
                 <Button
                   variant="outline"
@@ -51,23 +60,23 @@ const Items: React.FC<ItemsProps> = ({
           return (
             <div
               key={item.id || index}
-              className="flex items-start justify-between py-3 border-b border-gray-100 last:border-b-0"
+              className="flex items-start justify-between py-3 border-b border-theme-border last:border-b-0"
             >
               <div className="flex-1">
                 {item.product_title && item.product_title !== item.variant_title ? (
                   <>
-                    <h3 className="text-base font-medium text-gray-900">{item.product_title}</h3>
+                    <h3 className="text-base font-medium text-fg">{item.product_title}</h3>
                     <div className="flex items-center gap-2 mb-1">
-                      <p className="text-sm text-gray-600">{item.variant_title}</p>
+                      <p className="text-sm text-fg-muted">{item.variant_title}</p>
                       {(vintage || volume) && (
                         <div className="flex items-center gap-1.5">
                           {vintage && (
-                            <span className="text-xs px-2 py-0.5 rounded bg-gray-100 text-gray-700 font-medium">
+                            <span className="text-xs px-2 py-0.5 rounded bg-surface-subtle text-fg-muted font-medium">
                               {vintage}
                             </span>
                           )}
                           {volume && (
-                            <span className="text-xs px-2 py-0.5 rounded bg-gray-100 text-gray-700 font-medium">
+                            <span className="text-xs px-2 py-0.5 rounded bg-surface-subtle text-fg-muted font-medium">
                               {volume}ml
                             </span>
                           )}
@@ -77,16 +86,16 @@ const Items: React.FC<ItemsProps> = ({
                   </>
                 ) : (
                   <div className="flex items-center gap-2 mb-1">
-                    <h3 className="text-base font-medium text-gray-900">{item.variant_title}</h3>
+                    <h3 className="text-base font-medium text-fg">{item.variant_title}</h3>
                     {(vintage || volume) && (
                       <div className="flex items-center gap-1.5">
                         {vintage && (
-                          <span className="text-xs px-2 py-0.5 rounded bg-gray-100 text-gray-700 font-medium">
+                          <span className="text-xs px-2 py-0.5 rounded bg-surface-subtle text-fg-muted font-medium">
                             {vintage}
                           </span>
                         )}
                         {volume && (
-                          <span className="text-xs px-2 py-0.5 rounded bg-gray-100 text-gray-700 font-medium">
+                          <span className="text-xs px-2 py-0.5 rounded bg-surface-subtle text-fg-muted font-medium">
                             {volume}ml
                           </span>
                         )}
@@ -94,12 +103,14 @@ const Items: React.FC<ItemsProps> = ({
                     )}
                   </div>
                 )}
-                <p className="text-base text-gray-600 mb-1">
-                  Qty: {item.quantity} × {formatPrice(item.total)}
+                <p className="text-base text-fg-muted mb-1">
+                  Qty: {item.quantity} × {formatPrice(item.total, currency)}
                 </p>
               </div>
               <div className="text-right">
-                <p className="text-lg font-semibold text-gray-900">{formatPrice(item.total)}</p>
+                <p className="text-lg font-semibold text-fg">
+                  {formatPrice(item.total, currency)}
+                </p>
               </div>
             </div>
           );

@@ -12,6 +12,7 @@
     "http:allow-fetch-send",
     "http:allow-fetch-read-body",
     "http:allow-fetch-cancel",
+    "http:allow-fetch-cancel-body",
     "log:default",
     "fs:default",
     "fs:allow-read-dir",
@@ -23,10 +24,15 @@
     "dialog:allow-open",
     "process:allow-restart",
     "updater:default",
+    "core:window:allow-set-fullscreen",
+    "core:window:allow-is-fullscreen",
     {
       "allow": [
         {
           "url": "https://**"
+        },
+        {
+          "url": "http://localhost:*"
         }
       ],
       "identifier": "http:allow-fetch"

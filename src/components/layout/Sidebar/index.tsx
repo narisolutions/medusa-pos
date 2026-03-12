@@ -78,7 +78,7 @@ const AppSidebar = () => {
               <NavLink
                 to={item.to}
                 className={({ isActive }) =>
-                  `flex flex-col h-auto items-center justify-center p-4 w-full text-center rounded-md text-neutral-900/50 relative ${
+                  `flex flex-col h-auto items-center justify-center p-4 w-full text-center rounded-md text-fg-muted relative ${
                     isActive
                       ? "bg-(--color-bg-base) border border-primary text-primary"
                       : ""
@@ -114,8 +114,8 @@ const AppSidebar = () => {
                   variant="ghost"
                   className="flex flex-col h-auto items-center justify-center p-4 w-full text-center rounded-md"
                 >
-                  <item.icon className="size-8 text-neutral-900/50" />
-                  <span className="text-base font-medium text-neutral-900/50">
+                  <item.icon className="size-8 text-fg-muted" />
+                  <span className="text-base font-medium text-fg-muted">
                     {item.label}
                   </span>
                 </Button>
@@ -123,7 +123,7 @@ const AppSidebar = () => {
                 <NavLink
                   to={item.to}
                   className={({ isActive }) =>
-                    `flex flex-col h-auto items-center justify-center p-4 w-full text-center rounded-md text-neutral-900/50 ${
+                    `flex flex-col h-auto items-center justify-center p-4 w-full text-center rounded-md text-fg-muted ${
                       isActive
                         ? "bg-(--color-bg-base) border border-primary text-primary"
                         : ""
@@ -146,7 +146,7 @@ const AppSidebar = () => {
           ))}
         </SidebarMenu>
 
-        <div className="text-xs text-neutral-500 font-mono text-center pb-4">
+        <div className="text-xs text-fg-subtle font-mono text-center pb-4">
           v{import.meta.env.VITE_APP_VERSION || "0.0.0"}
         </div>
       </SidebarContent>

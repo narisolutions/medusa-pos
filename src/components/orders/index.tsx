@@ -103,7 +103,7 @@ const Orders: React.FC = () => {
   };
 
   return (
-    <div className="bg-white p-10 rounded-lg space-y-6 h-full flex flex-col">
+    <div className="bg-surface p-10 rounded-lg space-y-6 h-full flex flex-col">
       <Header
         filters={filters}
         onFiltersChange={handleFiltersChange}
@@ -114,18 +114,18 @@ const Orders: React.FC = () => {
       <div
         className={`${isLoading ? "opacity-60 pointer-events-none" : ""} transition-opacity duration-200 flex-1 min-h-0`}
       >
-        <div className="bg-white rounded-lg border border-gray-200 overflow-hidden shadow-sm h-full flex flex-col">
+        <div className="bg-surface rounded-lg border border-theme-border overflow-hidden shadow-sm h-full flex flex-col">
           <Table className="h-full">
-            <TableHeader className="bg-gray-50/50 shrink-0">
+            <TableHeader className="bg-surface-muted shrink-0">
               {table.getHeaderGroups().map((headerGroup) => (
                 <TableRow
                   key={headerGroup.id}
-                  className="border-b border-gray-200 hover:bg-transparent"
+                  className="border-b border-theme-border hover:bg-transparent"
                 >
                   {headerGroup.headers.map((header) => (
                     <TableHead
                       key={header.id}
-                      className="text-base font-semibold text-gray-700 py-4 px-4 first:pl-6 last:pr-6"
+                      className="text-base font-semibold text-fg-muted py-4 px-4 first:pl-6 last:pr-6"
                     >
                       {header.isPlaceholder
                         ? null
@@ -143,13 +143,13 @@ const Orders: React.FC = () => {
                 table.getRowModel().rows.map((row) => (
                   <Fragment key={row.id}>
                     <TableRow
-                      className="border-b border-gray-100 hover:bg-gray-50/50 transition-colors duration-150 cursor-pointer"
+                      className="border-b border-theme-border hover:bg-surface-hover transition-colors duration-150 cursor-pointer"
                       onClick={() => handleRowClick(row.original.id)}
                     >
                       {row.getVisibleCells().map((cell) => (
                         <TableCell
                           key={cell.id}
-                          className="text-base text-gray-900 py-5 px-4 first:pl-6 last:pr-6"
+                          className="text-base text-fg py-5 px-4 first:pl-6 last:pr-6"
                           style={{
                             width: cell.column.getSize(),
                           }}
@@ -167,11 +167,11 @@ const Orders: React.FC = () => {
                 <TableRow className="border-0 hover:bg-transparent">
                   <TableCell
                     colSpan={columns.length}
-                    className="text-center text-base text-gray-500 h-96 align-middle"
+                    className="text-center text-base text-fg-muted h-96 align-middle"
                   >
                     {isLoading ? (
                       <div className="flex items-center justify-center gap-3">
-                        <div className="w-5 h-5 border-2 border-gray-300 border-t-gray-600 rounded-full animate-spin"></div>
+                        <div className="w-5 h-5 border-2 border-theme-border border-t-theme-border-strong rounded-full animate-spin"></div>
                         <span className="text-base">Loading...</span>
                       </div>
                     ) : (

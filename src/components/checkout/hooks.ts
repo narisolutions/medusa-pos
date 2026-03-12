@@ -10,7 +10,7 @@ import { useDraftOrder } from "@/hooks/draft-order/useDraftOrder";
 import { useCartStore } from "@/context/cart";
 import { useQueryRegion } from "@/hooks/queries/useQueryRegion";
 import { useQueryStore } from "@/hooks/queries/useQueryStore";
-import { getPaymentMethods } from "@/utils/store/metadata";
+import { getPaymentMethods, getGuestCustomerEmail } from "@/utils/store/metadata";
 import storage from "@/utils/storage";
 import { usePrinterService } from "@/hooks/printer/usePrinterService";
 import Payments from "@/assets/icons/payments";
@@ -49,6 +49,7 @@ type CheckoutContextValue = {
   items: CartItem[];
   draftOrderId: string | null;
   loading: boolean;
+  currency: string;
   isPaymentModalOpen: boolean;
   handleOpenModal: () => Promise<void>;
   handleCloseModal: () => void;
@@ -114,6 +115,8 @@ const useProvideCheckout = (): CheckoutContextValue => {
 
   const { data: regionData } = useQueryRegion();
   const defaultRegion = regionData?.defaultRegion;
+  const currency =
+    defaultRegion?.currency_code?.toUpperCase() ?? "USD";
 
   const { openCashDrawer } = usePrinterService();
 
@@ -197,12 +200,26 @@ const useProvideCheckout = (): CheckoutContextValue => {
           .customer_email as string | undefined;
         const customerId = (metadata as Record<string, unknown>)
           .customer_id as string | null | undefined;
+        const countryCode =
+          defaultRegion.countries?.[0]?.iso_2 ??
+          defaultRegion.countries?.[0]?.iso_3 ??
+          undefined;
+
+        const guestEmail = getGuestCustomerEmail(store);
+
+        if (!customerEmail && !customerId && !guestEmail) {
+          handleErrorToast(
+            "Guest customer email is not configured. Set it in Store Settings or attach a customer before checkout."
+          );
+          return;
+        }
 
         const newDraftOrderId = await createDraftOrder(
           defaultRegion.id,
           salesChannelId,
           customerEmail,
-          customerId
+          customerId,
+          countryCode
         );
 
         await syncLocalChangesToDraftOrder(newDraftOrderId);
@@ -219,7 +236,8 @@ const useProvideCheckout = (): CheckoutContextValue => {
     syncLocalChangesToDraftOrder,
     defaultRegion,
     createDraftOrder,
-    metadata
+    metadata,
+    store,
   ]);
 
   const handleCloseModal = useCallback(() => {
@@ -300,6 +318,7 @@ const useProvideCheckout = (): CheckoutContextValue => {
       items,
       draftOrderId,
       loading: isLoading,
+      currency,
       isPaymentModalOpen,
       handleOpenModal,
       handleCloseModal,
@@ -327,6 +346,7 @@ const useProvideCheckout = (): CheckoutContextValue => {
       draftOrderId,
       metadata,
       customerEmail,
+      currency,
       handleClearItems,
       handleCloseModal,
       handleOpenDrawer,

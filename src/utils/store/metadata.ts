@@ -15,8 +15,10 @@ export type PosMetadata = {
   secondary_color?: string;
   font_size?: string;
   store_address?: string;
+  store_address_2?: string;
   store_phone?: string;
   payment_methods?: PaymentMethodConfig[];
+  guest_customer_email?: string;
 };
 
 /** Raw store metadata shape (may have pos object and/or legacy flat keys) */
@@ -28,8 +30,10 @@ type RawStoreMetadata = Record<string, unknown> & {
   secondary_color?: string;
   font_size?: string;
   store_address?: string;
+  store_address_2?: string;
   store_phone?: string;
   payment_methods?: PaymentMethodConfig[];
+  guest_customer_email?: string;
 };
 
 const DEFAULT_PAYMENT_METHODS: PaymentMethodConfig[] = [
@@ -61,15 +65,17 @@ export function getStoreMetadata(
     secondary_color: pos.secondary_color ?? raw.secondary_color,
     font_size: pos.font_size ?? raw.font_size,
     store_address: pos.store_address ?? raw.store_address,
+    store_address_2: pos.store_address_2 ?? raw.store_address_2,
     store_phone: pos.store_phone ?? raw.store_phone,
     payment_methods: pos.payment_methods ?? raw.payment_methods,
+    guest_customer_email: pos.guest_customer_email ?? raw.guest_customer_email,
   };
 }
 
 export function getBrandName(
   store: AdminStore | null | undefined
 ): string {
-  return getStoreMetadata(store).brand_name ?? "";
+  return getStoreMetadata(store).brand_name ?? store?.name ?? "";
 }
 
 export function getLogoUrl(
@@ -102,10 +108,22 @@ export function getStoreAddress(
   return getStoreMetadata(store).store_address;
 }
 
+export function getStoreAddress2(
+  store: AdminStore | null | undefined
+): string | undefined {
+  return getStoreMetadata(store).store_address_2;
+}
+
 export function getStorePhone(
   store: AdminStore | null | undefined
 ): string | undefined {
   return getStoreMetadata(store).store_phone;
+}
+
+export function getGuestCustomerEmail(
+  store: AdminStore | null | undefined
+): string | undefined {
+  return getStoreMetadata(store).guest_customer_email;
 }
 
 /** Returns enabled payment methods for checkout. Falls back to defaults when not configured. */
@@ -133,8 +151,10 @@ const POS_METADATA_KEYS = new Set([
   "secondary_color",
   "font_size",
   "store_address",
+  "store_address_2",
   "store_phone",
   "payment_methods",
+   "guest_customer_email",
   "pos",
 ]);
 

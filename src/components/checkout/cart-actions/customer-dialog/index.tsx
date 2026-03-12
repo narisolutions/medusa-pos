@@ -109,7 +109,7 @@ const CustomerDialog: React.FC<CustomerDialogProps> = ({
         </DialogTitle>
         <div className="space-y-6">
           <div className="space-y-3">
-            <label className="text-base font-medium text-gray-800">
+            <label className="text-base font-medium text-fg">
               Customer Email
             </label>
             <div className="flex gap-3">
@@ -132,7 +132,7 @@ const CustomerDialog: React.FC<CustomerDialogProps> = ({
               <Button
                 onClick={handleSearch}
                 disabled={isLoading || !email.trim()}
-                className="h-12 px-5 text-base"
+                className="h-12 px-5 text-base text-white"
               >
                 {isLoading ? (
                   <Loader2 className="w-5 h-5 animate-spin" />

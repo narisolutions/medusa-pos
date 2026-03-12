@@ -21,10 +21,10 @@ const OrderPage = () => {
     const isSdkError = errorMessage.includes("SDK not initialized");
     
     return (
-      <div className="bg-white p-10 rounded-lg space-y-6 h-full flex flex-col items-center justify-center">
+      <div className="bg-surface p-10 rounded-lg space-y-6 h-full flex flex-col items-center justify-center">
         <div className="text-center max-w-md">
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">Order Not Found</h2>
-          <p className="text-gray-600 mb-6">
+          <h2 className="text-2xl font-bold text-fg mb-2">Order Not Found</h2>
+          <p className="text-fg-muted mb-6">
             {isSdkError 
               ? "The system is initializing. Please try refreshing."
               : "The order you're looking for doesn't exist or has been removed."}

@@ -1,6 +1,10 @@
 export default {
   PROD: import.meta.env.MODE === "production",
 
+  // Boot timeout
+  BOOT_TIMEOUT_MS: 10_000 as const,
+
+
   CHECKOUT_CONFIG: {
     // Validation rules
     MAX_QUANTITY_PER_ITEM: 99,
@@ -13,8 +17,8 @@ export default {
     AUTO_CLOSE_PAYMENT_MODAL: false,
 
     // Business rules
-    // TODO: 
-    CURRENCY: "GEL",
+    // Default fallback currency code (most prices should use Medusa order/store/region currency instead of this)
+    CURRENCY: "USD",
     BARCODE_VALIDATION_PATTERN: /^\d{8,18}$/,
 
     // Performance
@@ -70,7 +74,7 @@ export default {
   } as const,
 
   // Order Guest Email
-  ORDER_GUEST_EMAIL: "guest@wineland.ge" as const,
+  ORDER_GUEST_EMAIL: "guest@pos.local" as const,
 
   // Order Button Styling
   ORDER_BUTTON_BASE_CLASSES: "px-6 py-3 text-base font-medium min-h-[48px] touch-manipulation",
