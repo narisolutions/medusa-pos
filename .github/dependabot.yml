@@ -4,6 +4,10 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
+    # Send all JS dependency PRs to the integration branch, not main
+    target-branch: "develop"
+    commit-message:
+      prefix: "chore(deps)"
     groups:
       medusa:
         patterns:
@@ -14,6 +18,40 @@ updates:
       radix:
         patterns:
           - "@radix-ui/*"
+    # Ignore only major version bumps for core runtime/framework deps; we'll upgrade these manually
+    ignore:
+      - dependency-name: "react"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "react-dom"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "@types/react"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "@types/react-dom"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "react-router-dom"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "@tanstack/react-query"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "@tanstack/react-table"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "@tauri-apps/api"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "@tauri-apps/plugin-dialog"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "@tauri-apps/plugin-fs"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "@tauri-apps/plugin-http"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "@tauri-apps/plugin-log"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "@tauri-apps/plugin-opener"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "@tauri-apps/plugin-process"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "@tauri-apps/plugin-store"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "@tauri-apps/plugin-updater"
+        update-types: ["version-update:semver-major"]
     open-pull-requests-limit: 10
 
   - package-ecosystem: "cargo"
