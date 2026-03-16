@@ -55,6 +55,10 @@ yarn dev
 yarn tauri dev
 ```
 
+Important: full app flow requires Tauri runtime. This project stores backend configuration in
+Tauri storage/config files on first setup, so `yarn dev` is only for limited UI work. Use
+`yarn tauri dev` for real usage and testing.
+
 ### Build / Lint
 
 ```bash
@@ -82,35 +86,14 @@ VITE_BACKEND_URL=https://your-medusa-instance.example.com/
 
 The backend URL can also be configured at runtime via Store Setup.
 
-## Known Medusa API Limitations (Observed)
+## Medusa API Support Notes
 
-### 1) Draft Order discount totals do not reflect Sale Price List reductions
+| Topic | Support in Medusa (current observed behavior) |
+|---|---|
+| Draft order discount totals from Sale Price Lists (`original_amount - calculated_amount`) | ❌ Not automatically reflected in draft-order discount totals unless Promotions are applied separately |
+| Creating admin payment collections with `payments[]`, `provider_id`, `provider_data` in one call | ❌ Not supported by current `AdminCreatePaymentCollection` typing/API shape |
 
-**What happens**
-
-- Variant pricing can be returned with `calculated_amount < original_amount` (sale price list applied).
-- Draft order `discount_total` and line-item discount totals stay `0` unless a Promotion is explicitly applied.
-- There is no documented Admin Draft Order option to treat `original_amount - calculated_amount` as discount totals.
-
-**Expected**
-
-- `line_item.item_discount_total = (original_amount - calculated_amount) * quantity`
-- `order.discount_total = sum(item_discount_totals)`
-- Works without requiring Promotion objects when sale pricing is already applied.
-
-### 2) Admin Payment Collection creation cannot attach payments/provider data
-
-**What happens**
-
-- `sdk.admin.paymentCollection.create(...)` does not accept `payments[]`, `provider_id`, or `provider_data` in `AdminCreatePaymentCollection`.
-- This prevents representing payment provider details (for example POS cash provider metadata) directly at creation time through Admin API flow.
-
-**Expected**
-
-- Admin API should allow creating a payment collection with one or more payments, including:
-  - `provider_id`
-  - `provider_data`
-  - payment amounts and references
+These are tracked as known limitations for now and can affect POS discount/payment reporting workflows.
 
 ## Useful Links
 
