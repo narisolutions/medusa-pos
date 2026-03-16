@@ -260,6 +260,56 @@ const PreferencesSettings: React.FC = () => {
             />
           </fieldset>
 
+          <div className="border-t border-theme-border" />
+
+          {/* Integrations */}
+          <fieldset className="space-y-4">
+            <legend className="text-lg font-semibold text-fg">Integrations</legend>
+
+            <FormField
+              control={control}
+              name="customEndpointsEnabled"
+              render={({ field }) => (
+                <FormItem>
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="space-y-2">
+                      <FormLabel className="text-base font-medium">
+                        Use custom endpoints
+                      </FormLabel>
+                      <div className="text-sm text-fg-muted space-y-2">
+                        <p>
+                          <span className="font-medium text-fg">
+                            Recommended:
+                          </span>{" "}
+                          keep this enabled if your backend provides the <code>/pos</code>{" "}
+                          routes.
+                        </p>
+                        <p>
+                          <span className="font-medium text-fg">
+                            Custom endpoints enabled
+                          </span>{" "}
+                          returns POS-ready product data, including context-aware computed
+                          prices and correctly calculated variant inventory quantities.
+                        </p>
+                        <p>
+                          <span className="font-medium text-fg">
+                            Custom endpoints disabled
+                          </span>{" "}
+                          uses the standard Medusa Admin product list, which may return raw
+                          variant prices (price records without context computation) and may
+                          not provide reliable computed inventory quantity for POS use cases.
+                        </p>
+                      </div>
+                    </div>
+                    <FormControl>
+                      <Switch checked={field.value} onCheckedChange={field.onChange} />
+                    </FormControl>
+                  </div>
+                </FormItem>
+              )}
+            />
+          </fieldset>
+
           <div className="border-t border-theme-border pt-4 shrink-0">
             <Button
               type="submit"

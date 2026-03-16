@@ -10,9 +10,9 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
-import { usePrinterModal } from "./modal/hooks";
+import { usePrinterModal } from "./dialog/hooks";
 import { Printer, usePrinterSettings } from "./hooks";
-import PrinterModal from "./modal";
+import PrinterModal from "./dialog";
 
 const PrinterSettings: React.FC = () => {
   const { isOpen, editingPrinter, openModal, closeModal } = usePrinterModal();

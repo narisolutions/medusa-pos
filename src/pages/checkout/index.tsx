@@ -12,7 +12,7 @@ const CheckoutPageContainer = () => {
   if (salesChannelId && (isLoading || !data)) {
     return <Backdrop loading={true} />;
   }
-
+console.log(data);
   return <Checkout products={data || []} />;
 };
 

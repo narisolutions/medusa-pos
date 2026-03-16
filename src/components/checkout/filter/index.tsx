@@ -15,6 +15,8 @@ import { formatPrice } from "@/utils/helpers";
 import { ExtendedAdminProduct } from "@/types/utils";
 import ItemDialog from "../cart-items/variant-dialog";
 import { useCheckout } from "../hooks";
+import { getVariantAvailableQuantity, getVariantUnitPrice } from "@/utils/cart";
+import { useCustomEndpoints } from "@/hooks/ui/useCustomEndpoints";
 
 interface Props {
   products: AdminProduct[];
@@ -45,6 +47,7 @@ const CheckoutFilter: React.FC<Props> = ({ products }) => {
   } = useCheckoutFilter({ products, inputRef });
 
   const { currency } = useCheckout();
+  const { customEndpointsEnabled } = useCustomEndpoints();
 
   // Handle clicking outside to close dropdown
   useEffect(() => {
@@ -72,9 +75,17 @@ const CheckoutFilter: React.FC<Props> = ({ products }) => {
   }, [showDropdown, updateFilterState]);
 
   return (
-    <div className="flex justify-center items-center gap-6 border border-theme-border bg-surface p-6 rounded-lg">
-      <div ref={dropdownRef} className="relative flex-1 w-full">
-        <Command className="rounded-lg border border-theme-border bg-(--color-bg-base)">
+    <div className="flex flex-col gap-2">
+      {!customEndpointsEnabled && (
+        <div className="rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+          Custom product endpoints are disabled: stock is not checked automatically when
+          adding items to cart, and prices are raw (not context-calculated). Verify stock
+          and price manually.
+        </div>
+      )}
+      <div className="flex justify-center items-center gap-6 border border-theme-border bg-surface p-6 rounded-lg">
+        <div ref={dropdownRef} className="relative flex-1 w-full">
+          <Command className="rounded-lg border border-theme-border bg-(--color-bg-base)">
           <div className="relative">
             <CommandInput
               ref={inputRef}
@@ -108,10 +119,9 @@ const CheckoutFilter: React.FC<Props> = ({ products }) => {
                 {filteredVariants.map((variant) => {
                   const { id, title, sku, ean, product } = variant;
 
+                  const calculatedPrice = getVariantUnitPrice(variant);
                   const originalPrice =
-                    variant.calculated_price?.original_amount;
-                  const calculatedPrice =
-                    variant?.calculated_price?.calculated_amount;
+                    variant.calculated_price?.original_amount ?? calculatedPrice;
                   const brandTitle = getBrandTitle(
                     product as ExtendedAdminProduct
                   );
@@ -119,13 +129,13 @@ const CheckoutFilter: React.FC<Props> = ({ products }) => {
                     variant?.calculated_price?.calculated_price
                       ?.price_list_type === "sale";
 
-                  const isOutOfStock = variant.inventory_quantity === 0;
-                  const isLastOne = variant.inventory_quantity === 1;
+                  const availableQuantity = getVariantAvailableQuantity(variant);
+                  const isOutOfStock = availableQuantity === 0;
+                  const isLastOne = availableQuantity === 1;
                   const isFewLeft =
-                    variant.inventory_quantity &&
-                    variant.inventory_quantity > 0 &&
-                    variant.inventory_quantity <= 5;
-                  const availableQuantity = variant.inventory_quantity;
+                    typeof availableQuantity === "number" &&
+                    availableQuantity > 0 &&
+                    availableQuantity <= 5;
                   const variantTitle =
                     title === "Default variant" ? product?.title : title || "-";
 
@@ -228,7 +238,7 @@ const CheckoutFilter: React.FC<Props> = ({ products }) => {
                             </>
                           ) : (
                             <span className="font-medium text-base text-fg">
-                              {formatPrice(calculatedPrice || 0, currency)}
+                              {formatPrice(calculatedPrice, currency)}
                             </span>
                           )}
                         </div>
@@ -239,23 +249,24 @@ const CheckoutFilter: React.FC<Props> = ({ products }) => {
               </CommandGroup>
             </CommandList>
           )}
-        </Command>
+          </Command>
+        </div>
+        <Button
+          onClick={() => {
+            handleBarcodeSubmit(inputValue);
+          }}
+          onMouseDown={handleMouseDown}
+          disabled={!isButtonEnabled || isProcessing}
+          size="lg"
+          className="bg-primary hover:bg-primary/90 text-white h-14 px-8 text-lg font-medium"
+        >
+          {isProcessing ? (
+            <Loader2 className="h-6 w-6 animate-spin" />
+          ) : (
+            "Add Item"
+          )}
+        </Button>
       </div>
-      <Button
-        onClick={() => {
-          handleBarcodeSubmit(inputValue);
-        }}
-        onMouseDown={handleMouseDown}
-        disabled={!isButtonEnabled || isProcessing}
-        size="lg"
-        className="bg-primary hover:bg-primary/90 text-white h-14 px-8 text-lg font-medium"
-      >
-        {isProcessing ? (
-          <Loader2 className="h-6 w-6 animate-spin" />
-        ) : (
-          "Add Item"
-        )}
-      </Button>
     </div>
   );
 };

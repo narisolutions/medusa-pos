@@ -66,6 +66,7 @@ export default {
     decimalSeparator: z.enum(["dot", "comma"]),
     startFullscreen: z.boolean(),
     themeMode: z.enum(["light", "dark", "system"]),
+    customEndpointsEnabled: z.boolean(),
   }),
 
   storeSettings: z.object({

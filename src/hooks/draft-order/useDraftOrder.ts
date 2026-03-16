@@ -101,7 +101,6 @@ const useDraftOrder = () => {
       const pickUpMethod = shippingOptions?.find((option) =>
         option.name.toLowerCase().includes("pickup")
       );
-console.log('test')
       try {
         // Sanitize metadata to remove empty values before creating draft order
         const sanitizedMetadata = sanitizeDraftOrderMetadata(
@@ -184,7 +183,7 @@ console.log('test')
 
         // Load metadata and customer info
         const metadataUpdates: Record<string, unknown> = {};
-        
+
         if (draft_order?.metadata) {
           const sanitized = sanitizeDraftOrderMetadata(
             draft_order.metadata as Record<string, unknown>
@@ -452,7 +451,7 @@ console.log('test')
         console.error("Failed to update draft order customer:", error);
         throw new Error(
           "Failed to update draft order customer: " +
-            (error instanceof Error ? error.message : String(error))
+          (error instanceof Error ? error.message : String(error))
         );
       } finally {
         setIsLoading(false);

@@ -26,6 +26,7 @@ function deepMerge(defaults: UserPreferences, partial: Partial<UserPreferences>)
     display: { ...defaults.display, ...partial.display },
     currency: { ...defaults.currency, ...partial.currency },
     appearance: { ...defaults.appearance, ...partial.appearance },
+    integration: { ...defaults.integration, ...partial.integration },
   };
 }
 

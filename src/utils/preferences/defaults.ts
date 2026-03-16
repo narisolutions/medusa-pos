@@ -15,4 +15,7 @@ export const DEFAULT_PREFERENCES: UserPreferences = {
   appearance: {
     themeMode: "system",
   },
+  integration: {
+    customEndpointsEnabled: true,
+  },
 };
