@@ -18,9 +18,14 @@ export type AppearancePreferences = {
   themeMode: ThemeMode;
 };
 
+export type IntegrationPreferences = {
+  customEndpointsEnabled: boolean;
+};
+
 export type UserPreferences = {
   dateTime: DateTimePreferences;
   display: DisplayPreferences;
   currency: CurrencyPreferences;
   appearance: AppearancePreferences;
+  integration: IntegrationPreferences;
 };

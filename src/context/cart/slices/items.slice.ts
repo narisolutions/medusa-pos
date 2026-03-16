@@ -1,7 +1,13 @@
 import { StateCreator } from "zustand";
 import { AdminProductVariant } from "@medusajs/types";
 import { CartItem, AddItemResult } from "@/types/utils";
-import { buildItemMetadata, resolveSelectedItemId, DEFAULT_CART_METADATA } from "@/utils/cart";
+import {
+  buildItemMetadata,
+  resolveSelectedItemId,
+  DEFAULT_CART_METADATA,
+  getVariantUnitPrice,
+  getVariantAvailableQuantity,
+} from "@/utils/cart";
 
 export interface CartItemsSlice {
   items: CartItem[];
@@ -63,9 +69,10 @@ export const createCartItemsSlice: StateCreator<
 
   addItem: (variant: AdminProductVariant): AddItemResult => {
     const { items, itemQuantity } = get();
+    const availableQty = getVariantAvailableQuantity(variant);
 
-    // Check if product is out of stock
-    if (variant.inventory_quantity === 0) {
+    // Check if product is out of stock only when inventory quantity is explicitly provided.
+    if (availableQty === 0) {
       return {
         success: false,
         action: 'out_of_stock',
@@ -83,9 +90,8 @@ export const createCartItemsSlice: StateCreator<
     if (existingItemIndex >= 0) {
       const existingItem = items[existingItemIndex];
       const newTotalQty = existingItem.quantity + qtyToAdd;
-      const availableQty = variant.inventory_quantity || 0;
 
-      if (newTotalQty > availableQty) {
+      if (typeof availableQty === "number" && newTotalQty > availableQty) {
         return {
           success: false,
           action: 'insufficient_stock',
@@ -95,8 +101,7 @@ export const createCartItemsSlice: StateCreator<
       }
     } else {
       // New item - check if requested quantity exceeds stock
-      const availableQty = variant.inventory_quantity || 0;
-      if (qtyToAdd > availableQty) {
+      if (typeof availableQty === "number" && qtyToAdd > availableQty) {
         return {
           success: false,
           action: 'insufficient_stock',
@@ -123,7 +128,7 @@ export const createCartItemsSlice: StateCreator<
       const newItem: CartItem = {
         variant_id: variant.id,
         quantity: qtyToAdd,
-        unit_price: variant?.calculated_price?.calculated_amount,
+        unit_price: getVariantUnitPrice(variant),
         title:
           variant.title === "Default variant"
             ? variant.product?.title

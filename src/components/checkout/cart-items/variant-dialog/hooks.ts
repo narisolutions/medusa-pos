@@ -1,6 +1,7 @@
 import { CartItem } from "@/types/utils";
 import { AdminProductVariant, AdminProduct } from "@medusajs/types";
 import { useQueryInventoryKitItems } from "@/hooks/queries/useQueryInventoryKitItems";
+import { getVariantAvailableQuantity, getVariantUnitPrice } from "@/utils/cart";
 
 // Transform AdminProductVariant to standardized format
 const transformVariantToItem = (
@@ -11,14 +12,15 @@ const transformVariantToItem = (
       variant.title === "Default variant"
         ? variant.product?.title
         : variant.title || "-",
-    unit_price: variant?.calculated_price?.calculated_amount,
+    unit_price: getVariantUnitPrice(variant),
     metadata: {
       product_title: variant.product?.title,
       variant_sku: variant.sku,
       barcode: variant.ean,
       thumbnail: variant.product?.thumbnail,
-      available_quantity: variant.inventory_quantity,
-      original_price: variant.calculated_price?.original_amount,
+      available_quantity: getVariantAvailableQuantity(variant),
+      original_price:
+        variant.calculated_price?.original_amount ?? getVariantUnitPrice(variant),
       priceListType:
         variant?.calculated_price?.calculated_price?.price_list_type,
       ...(variant.options && variant.options.length > 0 && { options: variant.options }),

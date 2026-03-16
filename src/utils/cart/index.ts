@@ -17,13 +17,21 @@ const resolveSelectedItemId = (
 };
 
 const buildItemMetadata = (variant: AdminProductVariant) => {
+  const availableQuantity =
+    typeof variant.inventory_quantity === "number"
+      ? variant.inventory_quantity
+      : undefined;
+  const fallbackUnitPrice = variant.prices?.[0]?.amount ?? undefined;
+  const originalPrice =
+    variant.calculated_price?.original_amount ?? fallbackUnitPrice;
+
   const baseMetadata = {
     product_title: variant.product?.title,
     variant_sku: variant.sku,
     barcode: variant.ean,
     thumbnail: variant.product?.thumbnail,
-    available_quantity: variant.inventory_quantity,
-    original_price: variant.calculated_price?.original_amount,
+    available_quantity: availableQuantity,
+    original_price: originalPrice,
     priceListType:
       variant.calculated_price?.calculated_price?.price_list_type,
   };
@@ -41,11 +49,29 @@ const buildItemMetadata = (variant: AdminProductVariant) => {
   };
 };
 
+const getVariantUnitPrice = (variant: AdminProductVariant): number => {
+  return variant.calculated_price?.calculated_amount ?? variant.prices?.[0]?.amount ?? 0;
+};
+
+const getVariantAvailableQuantity = (
+  variant: AdminProductVariant
+): number | undefined => {
+  return typeof variant.inventory_quantity === "number"
+    ? variant.inventory_quantity
+    : undefined;
+};
+
 const DEFAULT_CART_METADATA: DraftOrderMetadata = {
   payment_method: undefined,
   order_discount: null,
   order_comment: "",
 };
 
-export { resolveSelectedItemId, buildItemMetadata, DEFAULT_CART_METADATA };
+export {
+  resolveSelectedItemId,
+  buildItemMetadata,
+  DEFAULT_CART_METADATA,
+  getVariantUnitPrice,
+  getVariantAvailableQuantity,
+};
 

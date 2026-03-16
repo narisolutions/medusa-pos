@@ -4,11 +4,19 @@ import { handleErrorToast } from "@/utils/helpers";
 import { ApiProductResponse } from "@/types/utils";
 import { AdminProductVariant } from "@medusajs/types";
 import storage from "@/utils/storage";
+import { loadPreferences } from "@/utils/preferences";
+import { toast } from "sonner";
 
 const fetchProductByBarcode = async (
   barcode: string
 ): Promise<AdminProductVariant | null> => {
   if (!barcode) {
+    return null;
+  }
+
+  const prefs = await loadPreferences();
+  if (!prefs.integration.customEndpointsEnabled) {
+    toast.error("Barcode lookup requires custom endpoints. Enable them in Settings → Preferences.");
     return null;
   }
 
