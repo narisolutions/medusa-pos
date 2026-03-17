@@ -18,9 +18,28 @@ export default function useUpdateCheck() {
           action: {
             label: "Install & restart",
             onClick: async () => {
-              const installing = toast.loading("Downloading update...");
+              let contentLength = 0;
+              let downloaded = 0;
+              const installing = toast.loading("Downloading update… 0%");
               try {
-                await update.downloadAndInstall();
+                await update.downloadAndInstall((event) => {
+                  if (event.event === "Started" && event.data.contentLength) {
+                    contentLength = event.data.contentLength;
+                  } else if (event.event === "Progress") {
+                    downloaded += event.data.chunkLength;
+                    if (contentLength > 0) {
+                      const pct = Math.min(
+                        100,
+                        Math.round((downloaded / contentLength) * 100),
+                      );
+                      toast.loading(`Downloading update… ${pct}%`, {
+                        id: installing,
+                      });
+                    }
+                  } else if (event.event === "Finished") {
+                    toast.loading("Installing update…", { id: installing });
+                  }
+                });
                 toast.dismiss(installing);
                 await relaunch();
               } catch (err) {
