@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="public/logo.png" alt="Medusa POS Logo" width="220" />
+  <img src="public/logo.svg" alt="Medusa POS Logo" width="220" />
 </p>
 
 # Medusa POS
