@@ -4,12 +4,14 @@ import router from "./router/router";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { queryClient } from "./config/query";
 import { Toaster } from "sonner";
+import { invoke } from "@tauri-apps/api/core";
 import Backdrop from "./components/base/backdrop";
 import BootEscapeOverlay from "./components/base/boot-escape-overlay";
 import useAppInit from "./hooks/auth/useAppInit";
 import useApplyStoreTheme from "./hooks/ui/useApplyStoreTheme";
 import useApplyTheme from "./hooks/ui/useApplyTheme";
 import useUpdateCheck from "./hooks/useUpdateCheck";
+import useFullscreenToggle from "./hooks/ui/useFullscreenToggle";
 import { useUser } from "./context/user";
 import constants from "./utils/constants";
 
@@ -17,6 +19,7 @@ function AppContent() {
   useApplyTheme();
   useApplyStoreTheme();
   useUpdateCheck();
+  useFullscreenToggle();
   return (
     <>
       <RouterProvider router={router} />
@@ -32,6 +35,7 @@ function App() {
 
   useEffect(() => {
     if (!bootLoading) {
+      invoke("close_splash").catch(() => {});
       setBootTimedOut(false);
       return;
     }

@@ -21,20 +21,19 @@ const router = createHashRouter(
       <Route element={<Auth />}>
         <Route path="/sign-in" element={<Login />} />
       </Route>
-      <Route path="/" element={<Layout />}>
+      <Route
+        path="/"
+        element={
+          <ProtectedRoute>
+            <Layout />
+          </ProtectedRoute>
+        }
+      >
         <Route index element={<Navigate to="/checkout" replace />} />
-        <Route
-          element={
-            <ProtectedRoute>
-              <Outlet />
-            </ProtectedRoute>
-          }
-        >
-          <Route path="orders" element={<Orders />} />
-          <Route path="orders/:orderId" element={<Order />} />
-          <Route path="checkout" element={<Checkout />} />
-          <Route path="settings" element={<Settings />} />
-        </Route>
+        <Route path="orders" element={<Orders />} />
+        <Route path="orders/:orderId" element={<Order />} />
+        <Route path="checkout" element={<Checkout />} />
+        <Route path="settings" element={<Settings />} />
       </Route>
 
       <Route path="*" element={<Navigate to="/" replace />} />
