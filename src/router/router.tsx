@@ -3,7 +3,6 @@ import {
   createHashRouter,
   createRoutesFromElements,
   Navigate,
-  Outlet,
   Route,
 } from "react-router-dom";
 import { Layout } from "@/components/layout";
