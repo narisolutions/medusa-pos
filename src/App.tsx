@@ -10,6 +10,7 @@ import useAppInit from "./hooks/auth/useAppInit";
 import useApplyStoreTheme from "./hooks/ui/useApplyStoreTheme";
 import useApplyTheme from "./hooks/ui/useApplyTheme";
 import useUpdateCheck from "./hooks/useUpdateCheck";
+import useFullscreenToggle from "./hooks/ui/useFullscreenToggle";
 import { useUser } from "./context/user";
 import constants from "./utils/constants";
 
@@ -17,6 +18,7 @@ function AppContent() {
   useApplyTheme();
   useApplyStoreTheme();
   useUpdateCheck();
+  useFullscreenToggle();
   return (
     <>
       <RouterProvider router={router} />
