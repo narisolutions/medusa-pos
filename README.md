@@ -95,6 +95,27 @@ The backend URL can also be configured at runtime via Store Setup.
 
 These are tracked as known limitations for now and can affect POS discount/payment reporting workflows.
 
+## Downloads
+
+Prebuilt binaries are available on the [Releases](https://github.com/narisolutions/medusa-pos/releases/latest) page for each tagged version.
+
+| Platform | Architecture | Format |
+|---|---|---|
+| Windows | x86_64 | `.msi` installer |
+| macOS | Apple Silicon (aarch64) | `.dmg` disk image |
+| macOS | Intel (x86_64) | `.dmg` disk image |
+| Linux | x86_64 | `.AppImage` |
+
+All builds include signed updater artifacts so the app can auto-update itself after installation.
+
+### Code signing notice
+
+**Windows** — The MSI installer is **not code-signed** with a trusted certificate. Windows SmartScreen will show an "Unknown Publisher" warning on first install. You can bypass it by clicking *More info* → *Run anyway*.
+
+**macOS** — The DMG is ad-hoc signed but **not notarized** with an Apple Developer ID. macOS Gatekeeper will block it by default. To open it, right-click the app → *Open*, or run `xattr -cr /Applications/Medusa\ POS.app` after dragging it to Applications.
+
+**Linux** — No code signing is required. The AppImage runs directly after making it executable (`chmod +x`).
+
 ## Useful Links
 
 - [Contributing](CONTRIBUTING.md)
