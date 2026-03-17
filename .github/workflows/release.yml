@@ -208,12 +208,19 @@ jobs:
           chmod +x "$APPIMAGE_NAME"
           "./$APPIMAGE_NAME" --appimage-extract
 
-          echo "Removing bundled GPU libraries..."
+          echo "Removing bundled GPU and WebKitGTK libraries..."
+          # GPU/Mesa libs that conflict with host GPU drivers
           rm -f squashfs-root/usr/lib/libEGL*
           rm -f squashfs-root/usr/lib/libGLESv2*
           rm -f squashfs-root/usr/lib/libgbm*
           rm -f squashfs-root/usr/lib/libGLdispatch*
           rm -f squashfs-root/usr/lib/libGLX*
+          # WebKitGTK/JSC — must use the host system's version so it matches
+          # the host GPU stack. WebKitGTK is a system dep for Tauri on Linux.
+          rm -f squashfs-root/usr/lib/libwebkit2gtk-4.1*
+          rm -f squashfs-root/usr/lib/libjavascriptcoregtk-4.1*
+          # GStreamer GL plugin that can also trigger EGL init
+          rm -f squashfs-root/usr/lib/libgstgl-1.0*
 
           # Download appimagetool to repackage
           wget -q "https://github.com/AppImage/appimagetool/releases/download/continuous/appimagetool-x86_64.AppImage" -O appimagetool
