@@ -2,6 +2,7 @@ import React, { Fragment } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { TriangleAlert } from "lucide-react";
+import { getCurrentWindow } from "@tauri-apps/api/window";
 
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -113,6 +114,16 @@ const Login: React.FC = () => {
           </form>
         </Form>
       </div>
+
+      <Button
+        type="button"
+        variant="ghost"
+        size="lg"
+        className="mt-4 text-fg-muted hover:text-fg"
+        onClick={() => getCurrentWindow().close()}
+      >
+        Exit application
+      </Button>
     </Fragment>
   );
 };

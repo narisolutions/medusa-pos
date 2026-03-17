@@ -6,6 +6,7 @@ use escpos::{
     driver::*, errors::PrinterError, printer::Printer, printer_options::PrinterOptions, utils::*,
 };
 use tauri::Manager;
+use tauri::WebviewWindowBuilder;
 use tauri_plugin_log::{Target, TargetKind};
 
 mod config;
@@ -371,6 +372,27 @@ async fn print_receipt(
 }
 
 #[tauri::command]
+fn update_splash(app_handle: tauri::AppHandle, message: String, is_error: bool) {
+    if let Some(splash) = app_handle.get_webview_window("splash") {
+        let escaped = message.replace('\\', "\\\\").replace('\'', "\\'");
+        let _ = splash.eval(&format!(
+            "updateSplash('{}', {})",
+            escaped, is_error
+        ));
+    }
+}
+
+#[tauri::command]
+fn close_splash(app_handle: tauri::AppHandle) {
+    if let Some(splash) = app_handle.get_webview_window("splash") {
+        let _ = splash.close();
+    }
+    if let Some(main) = app_handle.get_webview_window("main") {
+        let _ = main.show();
+    }
+}
+
+#[tauri::command]
 fn check_config_exists() -> bool {
     AppConfig::exists()
 }
@@ -619,6 +641,32 @@ pub fn run() {
     };
 
     tauri::Builder::default()
+        .setup(|app| {
+            let splash_html = include_str!("../splash.html");
+            let encoded: String = splash_html
+                .bytes()
+                .map(|b| match b {
+                    b'A'..=b'Z' | b'a'..=b'z' | b'0'..=b'9'
+                    | b'-' | b'_' | b'.' | b'~' => (b as char).to_string(),
+                    _ => format!("%{:02X}", b),
+                })
+                .collect();
+            let data_url = format!("data:text/html,{}", encoded);
+            WebviewWindowBuilder::new(
+                app,
+                "splash",
+                tauri::WebviewUrl::External(data_url.parse().unwrap()),
+            )
+            .title("Medusa POS")
+            .inner_size(400.0, 300.0)
+            .resizable(false)
+            .decorations(false)
+            .center()
+            .always_on_top(true)
+            .build()?;
+
+            Ok(())
+        })
         .plugin(
             tauri_plugin_log::Builder::new()
                 .targets([
@@ -640,6 +688,8 @@ pub fn run() {
         .plugin(tauri_plugin_process::init())
         .plugin(tauri_plugin_updater::Builder::new().build())
         .invoke_handler(tauri::generate_handler![
+            update_splash,
+            close_splash,
             print_test,
             open_cash_drawer,
             print_receipt,

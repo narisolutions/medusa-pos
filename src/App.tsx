@@ -4,6 +4,7 @@ import router from "./router/router";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { queryClient } from "./config/query";
 import { Toaster } from "sonner";
+import { invoke } from "@tauri-apps/api/core";
 import Backdrop from "./components/base/backdrop";
 import BootEscapeOverlay from "./components/base/boot-escape-overlay";
 import useAppInit from "./hooks/auth/useAppInit";
@@ -34,6 +35,7 @@ function App() {
 
   useEffect(() => {
     if (!bootLoading) {
+      invoke("close_splash").catch(() => {});
       setBootTimedOut(false);
       return;
     }

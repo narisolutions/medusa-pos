@@ -13,10 +13,13 @@
   "app": {
     "windows": [
       {
+        "label": "main",
         "title": "Medusa POS",
         "width": 1920,
         "height": 1080,
         "fullscreen": true,
+        "visible": false,
+        "backgroundColor": "#09090b",
         "additionalBrowserArgs": "--disable-features=VizDisplayCompositor"
       }
     ],
