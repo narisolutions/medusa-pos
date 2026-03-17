@@ -181,3 +181,69 @@ jobs:
           releaseDraft: false
           prerelease: ${{ inputs.prerelease || false }}
           includeUpdaterJson: true
+
+      # --------------- Fix AppImage GPU library conflicts ---------------
+      # The AppImage built on Ubuntu 22.04 bundles Mesa/EGL libraries that
+      # conflict with the host system's GPU stack on distros like Manjaro,
+      # Fedora, and Arch, causing a blank white screen with
+      # "Could not create default EGL display: EGL_BAD_PARAMETER".
+      # We strip these libs so the app uses the host's GPU drivers instead.
+
+      - name: Strip conflicting GPU libraries from AppImage
+        if: matrix.platform == 'ubuntu-22.04'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
+        run: |
+          VERSION="${{ steps.version.outputs.value }}"
+          TAG="v${VERSION}"
+          APPIMAGE_NAME="Medusa.POS_${VERSION}_amd64.AppImage"
+
+          # Download the AppImage from the release
+          gh release download "$TAG" -p "$APPIMAGE_NAME" -D /tmp/appimage-fix
+
+          # Extract, strip GPU libs, repackage
+          cd /tmp/appimage-fix
+          chmod +x "$APPIMAGE_NAME"
+          "./$APPIMAGE_NAME" --appimage-extract
+
+          echo "Removing bundled GPU libraries..."
+          rm -f squashfs-root/usr/lib/libEGL*
+          rm -f squashfs-root/usr/lib/libGLESv2*
+          rm -f squashfs-root/usr/lib/libgbm*
+          rm -f squashfs-root/usr/lib/libGLdispatch*
+          rm -f squashfs-root/usr/lib/libGLX*
+
+          # Download appimagetool to repackage
+          wget -q "https://github.com/AppImage/appimagetool/releases/download/continuous/appimagetool-x86_64.AppImage" -O appimagetool
+          chmod +x appimagetool
+
+          # Repackage (use --appimage-extract-and-run in case FUSE is unavailable in CI)
+          ARCH=x86_64 ./appimagetool --appimage-extract-and-run squashfs-root "$APPIMAGE_NAME"
+
+          # Re-sign for the updater
+          yarn tauri signer sign \
+            -k "$TAURI_SIGNING_PRIVATE_KEY" \
+            -p "$TAURI_SIGNING_PRIVATE_KEY_PASSWORD" \
+            "/tmp/appimage-fix/$APPIMAGE_NAME"
+
+          # Replace the AppImage and its signature in the release
+          gh release upload "$TAG" "$APPIMAGE_NAME" --clobber
+          gh release upload "$TAG" "${APPIMAGE_NAME}.sig" --clobber
+
+          # Update latest.json with the new signature
+          gh release download "$TAG" -p "latest.json" -D /tmp/appimage-fix/json --clobber
+          NEW_SIG=$(cat "${APPIMAGE_NAME}.sig")
+          cd /tmp/appimage-fix/json
+          node -e "
+            const fs = require('fs');
+            const data = JSON.parse(fs.readFileSync('latest.json', 'utf8'));
+            for (const [key, platform] of Object.entries(data.platforms)) {
+              if (key.startsWith('linux')) {
+                platform.signature = process.argv[1];
+              }
+            }
+            fs.writeFileSync('latest.json', JSON.stringify(data, null, 2));
+          " "$NEW_SIG"
+          gh release upload "$TAG" "latest.json" --clobber

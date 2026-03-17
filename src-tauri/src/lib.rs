@@ -598,6 +598,17 @@ fn debug_logo_path(app_handle: tauri::AppHandle<tauri::Wry>) -> Result<String, S
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
+    // Work around WebKitGTK EGL crash in AppImage builds. The bundled Mesa/EGL
+    // libraries from Ubuntu 22.04 conflict with the host system's GPU stack on
+    // distros like Manjaro/Fedora, causing a blank white screen with
+    // "Could not create default EGL display: EGL_BAD_PARAMETER".
+    #[cfg(target_os = "linux")]
+    {
+        if std::env::var("WEBKIT_DISABLE_DMABUF_RENDERER").is_err() {
+            unsafe { std::env::set_var("WEBKIT_DISABLE_DMABUF_RENDERER", "1"); }
+        }
+    }
+
     // Set log level based on build mode
     // Debug mode: show all logs (Debug, Info, Warn, Error)
     // Release mode: only show warnings and errors (more secure, less verbose)
