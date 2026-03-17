@@ -1,5 +1,5 @@
-# Release workflow — builds Windows MSI and Linux AppImage installers,
-# signs updater artifacts, and publishes a GitHub Release.
+# Release workflow — builds Windows MSI, Linux AppImage, and macOS DMG
+# installers, signs updater artifacts, and publishes a GitHub Release.
 #
 # Triggers:
 #   - Push a tag:  git tag v1.0.5 && git push origin v1.0.5
@@ -15,8 +15,6 @@
 # The updater endpoint the app should use (once tauri-plugin-updater is added):
 #   https://github.com/OWNER/REPO/releases/latest/download/latest.json
 #
-# To add macOS / Linux builds later, uncomment the matrix entries below and add
-# the corresponding runner (macos-latest, ubuntu-22.04).
 
 name: Release
 
@@ -47,11 +45,10 @@ jobs:
         include:
           - platform: windows-latest
             target: x86_64-pc-windows-msvc
-          # Uncomment to add macOS builds:
-          # - platform: macos-latest
-          #   target: aarch64-apple-darwin
-          # - platform: macos-latest
-          #   target: x86_64-apple-darwin
+          - platform: macos-latest
+            target: aarch64-apple-darwin
+          - platform: macos-latest
+            target: x86_64-apple-darwin
           - platform: ubuntu-22.04
             target: x86_64-unknown-linux-gnu
 
@@ -181,4 +178,5 @@ jobs:
           releaseDraft: false
           prerelease: ${{ inputs.prerelease || false }}
           includeUpdaterJson: true
+          args: --target ${{ matrix.target }}
 
