@@ -290,7 +290,7 @@ const usePaymentModal = (
   const [isProcessing, setIsProcessing] = useState(false);
   const [showConfirmation, setShowConfirmation] = useState(false);
 
-  const { printOrderReceipt } = usePrinterService();
+  const { printOrderReceipt, openCashDrawer, getDefaultPrinter } = usePrinterService();
   const { clearItems, setDraftOrderId } = useCartStore();
   const { selectedPaymentMethod, setPaymentMethod } = useCheckout();
   const items = useCartStore((state) => state.items);
@@ -320,7 +320,7 @@ const usePaymentModal = (
 
   // Clean up after successful order
   const cleanupAfterOrder = useCallback(
-    async (order: AdminOrder): Promise<void> => {
+    async (order: AdminOrder, paymentMethod: PaymentMethod | undefined): Promise<void> => {
       clearItems();
       setDraftOrderId(null);
       await queryClient.invalidateQueries({ queryKey: ["orders"] });
@@ -336,6 +336,19 @@ const usePaymentModal = (
       } catch (printError) {
         console.warn("Auto-print failed:", printError);
       }
+
+      try {
+        const printer = getDefaultPrinter();
+        if (printer?.openCashDrawer) {
+          const isCash = paymentMethod === "pp_cash_pos";
+          const isCard = !isCash && paymentMethod !== undefined;
+          if ((isCash && printer.openCashDrawerOnCash) || (isCard && printer.openCashDrawerOnCard)) {
+            await openCashDrawer(printer);
+          }
+        }
+      } catch (drawerError) {
+        console.warn("Auto cash drawer failed:", drawerError);
+      }
     },
     [
       clearItems,
@@ -343,6 +356,8 @@ const usePaymentModal = (
       resetCashState,
       setPaymentMethod,
       printOrderReceipt,
+      openCashDrawer,
+      getDefaultPrinter,
     ]
   );
 
@@ -397,7 +412,7 @@ const usePaymentModal = (
         await processFulfillment(order);
 
         // Step 5: Clean up and finalize
-        await cleanupAfterOrder(order);
+        await cleanupAfterOrder(order, selectedPaymentMethod);
 
         return order;
       } catch (error) {

@@ -111,6 +111,10 @@ async fn print_test(
     address: String,
     port: Option<String>,
     company_name: Option<String>,
+    app_version: Option<String>,
+    datetime: Option<String>,
+    store_name: Option<String>,
+    sales_channel_name: Option<String>,
 ) -> Result<(), String> {
     let header = get_company_header(company_name.as_deref());
     log::info!(
@@ -200,9 +204,27 @@ async fn print_test(
             map_printer_error(printer.bold(true))?;
             map_printer_error(printer.underline(UnderlineMode::Single))?;
             map_printer_error(printer.writeln("TEST PRINT"))?;
+            map_printer_error(printer.bold(false))?;
+            map_printer_error(printer.underline(UnderlineMode::None))?;
+
+            // App info block
+            map_printer_error(printer.writeln("Medusa POS"))?;
+            if let Some(v) = app_version.as_deref().filter(|s| !s.is_empty()) {
+                map_printer_error(printer.writeln(&format!("Version {}", v)))?;
+            }
+            if let Some(dt) = datetime.as_deref().filter(|s| !s.is_empty()) {
+                map_printer_error(printer.writeln(dt))?;
+            }
+            if let Some(name) = store_name.as_deref().filter(|s| !s.is_empty()) {
+                map_printer_error(printer.writeln(&format!("Store: {}", name)))?;
+            }
+            if let Some(ch) = sales_channel_name.as_deref().filter(|s| !s.is_empty()) {
+                map_printer_error(printer.writeln(&format!("Sales channel: {}", ch)))?;
+            }
+            map_printer_error(printer.feed())?;
+
             map_printer_error(printer.justify(JustifyMode::CENTER))?;
             map_printer_error(printer.reverse(true))?;
-            map_printer_error(printer.bold(false))?;
             map_printer_error(printer.writeln("Hello world - Test successful!"))?;
             map_printer_error(printer.feed())?;
             map_printer_error(printer.justify(JustifyMode::RIGHT))?;
@@ -226,6 +248,19 @@ async fn print_test(
             map_printer_error(printer.writeln("TEST PRINT - USB MODE"))?;
             map_printer_error(printer.writeln("(Console output for testing)"))?;
             map_printer_error(printer.writeln(&format!("Port: {}", address)))?;
+            map_printer_error(printer.writeln("Medusa POS"))?;
+            if let Some(v) = app_version.as_deref().filter(|s| !s.is_empty()) {
+                map_printer_error(printer.writeln(&format!("Version {}", v)))?;
+            }
+            if let Some(dt) = datetime.as_deref().filter(|s| !s.is_empty()) {
+                map_printer_error(printer.writeln(dt))?;
+            }
+            if let Some(name) = store_name.as_deref().filter(|s| !s.is_empty()) {
+                map_printer_error(printer.writeln(&format!("Store: {}", name)))?;
+            }
+            if let Some(ch) = sales_channel_name.as_deref().filter(|s| !s.is_empty()) {
+                map_printer_error(printer.writeln(&format!("Sales channel: {}", ch)))?;
+            }
             map_printer_error(printer.feed())?;
             map_printer_error(printer.print_cut())?;
 
@@ -243,12 +278,15 @@ async fn open_cash_drawer(
 ) -> Result<(), String> {
     match connection_type.as_str() {
         "network" => {
+            use std::net::{TcpStream, SocketAddr};
+            use std::io::Write;
             let port_num = parse_port(port);
-            let mut printer = map_printer_error(create_network_printer(&address, port_num))?;
-
-            map_printer_error(printer.init())?;
-            map_printer_error(printer.cash_drawer(CashDrawer::Pin2))?;
-
+            let addr = format!("{}:{}", address, port_num);
+            let socket_addr: SocketAddr = addr.parse().map_err(|e: std::net::AddrParseError| e.to_string())?;
+            let mut stream = TcpStream::connect_timeout(&socket_addr, Duration::from_secs(3))
+                .map_err(|e| e.to_string())?;
+            stream.write_all(&[0x1B, 0x70, 0x00, 0x19, 0xFF])
+                .map_err(|e| e.to_string())?;
             Ok(())
         }
         "usb" => {

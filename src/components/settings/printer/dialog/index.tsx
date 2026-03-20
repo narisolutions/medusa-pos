@@ -25,6 +25,7 @@ import {
   SelectTrigger,
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Printer } from "../hooks";
 
 interface Props {
@@ -41,6 +42,9 @@ type PrinterFormValues = {
   address: string;
   port: string;
   isDefault: boolean;
+  openCashDrawer: boolean;
+  openCashDrawerOnCash: boolean;
+  openCashDrawerOnCard: boolean;
 };
 
 const initialFormData: PrinterFormValues = {
@@ -50,6 +54,9 @@ const initialFormData: PrinterFormValues = {
   address: "",
   port: "",
   isDefault: false,
+  openCashDrawer: false,
+  openCashDrawerOnCash: false,
+  openCashDrawerOnCard: false,
 };
 
 const connectionConfig = {
@@ -79,6 +86,9 @@ const PrinterDialog: React.FC<Props> = ({
         address: editingPrinter.address,
         port: editingPrinter.port || "",
         isDefault: editingPrinter.isDefault,
+        openCashDrawer: editingPrinter.openCashDrawer ?? false,
+        openCashDrawerOnCash: editingPrinter.openCashDrawerOnCash ?? false,
+        openCashDrawerOnCard: editingPrinter.openCashDrawerOnCard ?? false,
       });
     } else {
       reset(initialFormData);
@@ -116,6 +126,7 @@ const PrinterDialog: React.FC<Props> = ({
     (watch("connectionType") as PrinterFormValues["connectionType"]) ??
     initialFormData.connectionType;
   const config = connectionConfig[connectionType];
+  const cashDrawerEnabled = watch("openCashDrawer");
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
@@ -247,6 +258,71 @@ const PrinterDialog: React.FC<Props> = ({
                 </FormItem>
               )}
             />
+
+            <FormField
+              control={control}
+              name="openCashDrawer"
+              render={({ field }) => (
+                <FormItem>
+                  <div className="flex items-center justify-between py-2">
+                    <FormLabel className="text-lg font-medium">
+                      Open cash drawer
+                    </FormLabel>
+                    <FormControl>
+                      <Switch
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                      />
+                    </FormControl>
+                  </div>
+                  <FormMessage className="text-base" />
+                </FormItem>
+              )}
+            />
+
+            {cashDrawerEnabled && (
+              <div className="space-y-3 pl-4 border-l-2 border-theme-border">
+                <p className="text-base font-medium text-fg-muted">Open drawer on</p>
+                <FormField
+                  control={control}
+                  name="openCashDrawerOnCash"
+                  render={({ field }) => (
+                    <FormItem>
+                      <div className="flex items-center space-x-3">
+                        <FormControl>
+                          <Checkbox
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                          />
+                        </FormControl>
+                        <FormLabel className="text-lg font-normal cursor-pointer">
+                          Cash payments
+                        </FormLabel>
+                      </div>
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={control}
+                  name="openCashDrawerOnCard"
+                  render={({ field }) => (
+                    <FormItem>
+                      <div className="flex items-center space-x-3">
+                        <FormControl>
+                          <Checkbox
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                          />
+                        </FormControl>
+                        <FormLabel className="text-lg font-normal cursor-pointer">
+                          Card payments
+                        </FormLabel>
+                      </div>
+                    </FormItem>
+                  )}
+                />
+              </div>
+            )}
 
             <div className="flex justify-end space-x-4 pt-6">
               <Button

@@ -3,6 +3,7 @@ import { Forms } from "@/types/form";
 import { Wifi, Usb, Bluetooth } from "lucide-react";
 import storage from "@/utils/storage";
 import { useQueryStore } from "@/hooks/queries/useQueryStore";
+import { useQuerySalesChannel } from "@/hooks/queries/useQuerySalesChannel";
 import { getBrandName } from "@/utils/store/metadata";
 
 export type Printer = Forms["Printer"] & {
@@ -11,10 +12,15 @@ export type Printer = Forms["Printer"] & {
 
 const usePrinterSettings = (editingPrinter: Printer | null) => {
   const { data: store } = useQueryStore();
+  const { data: salesChannels } = useQuerySalesChannel();
   const [printers, setPrinters] = useState<Printer[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [testingPrinter, setTestingPrinter] = useState<string | null>(null);
   const [testResults, setTestResults] = useState<
+    Record<string, { success: boolean; message: string }>
+  >({});
+  const [testingCashDrawer, setTestingCashDrawer] = useState<string | null>(null);
+  const [cashDrawerTestResults, setCashDrawerTestResults] = useState<
     Record<string, { success: boolean; message: string }>
   >({});
 
@@ -74,12 +80,20 @@ const usePrinterSettings = (editingPrinter: Printer | null) => {
   const handleTestPrinter = async (printer: Printer) => {
     setTestingPrinter(printer.id);
     try {
+      const salesChannelId = await storage.getItem("sales_channel_id");
+      const salesChannelName =
+        salesChannels?.find((sc) => sc.id === salesChannelId)?.name ?? null;
+
       const { invoke } = await import("@tauri-apps/api/core");
       await invoke("print_test", {
         connectionType: printer.connectionType,
         address: printer.address,
         port: printer.port || null,
         companyName: getBrandName(store) || "POS",
+        appVersion: import.meta.env.VITE_APP_VERSION ?? null,
+        datetime: new Date().toLocaleString(),
+        storeName: store?.name ?? null,
+        salesChannelName,
       });
 
       setTestResults((prev) => ({
@@ -96,6 +110,32 @@ const usePrinterSettings = (editingPrinter: Printer | null) => {
       }));
     } finally {
       setTestingPrinter(null);
+    }
+  };
+
+  const handleTestCashDrawer = async (printer: Printer) => {
+    setTestingCashDrawer(printer.id);
+    try {
+      const { invoke } = await import("@tauri-apps/api/core");
+      await invoke("open_cash_drawer", {
+        connectionType: printer.connectionType,
+        address: printer.address,
+        port: printer.port || null,
+      });
+      setCashDrawerTestResults((prev) => ({
+        ...prev,
+        [printer.id]: { success: true, message: "Drawer opened" },
+      }));
+    } catch (error) {
+      setCashDrawerTestResults((prev) => ({
+        ...prev,
+        [printer.id]: {
+          success: false,
+          message: error instanceof Error ? error.message : "Failed",
+        },
+      }));
+    } finally {
+      setTestingCashDrawer(null);
     }
   };
 
@@ -125,6 +165,9 @@ const usePrinterSettings = (editingPrinter: Printer | null) => {
     handleTestPrinter,
     testingPrinter,
     testResults,
+    handleTestCashDrawer,
+    testingCashDrawer,
+    cashDrawerTestResults,
     getConnectionIcon,
     getConnectionTypeLabel,
   };
