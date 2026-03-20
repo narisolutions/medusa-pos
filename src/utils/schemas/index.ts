@@ -27,6 +27,9 @@ export default {
     address: z.string().min(1, { message: "Address/IP is required" }),
     port: z.string().optional(),
     isDefault: z.boolean().optional().default(false),
+    openCashDrawer: z.boolean().optional().default(false),
+    openCashDrawerOnCash: z.boolean().optional().default(false),
+    openCashDrawerOnCard: z.boolean().optional().default(false),
   }),
 
   apiSettings: z.object({

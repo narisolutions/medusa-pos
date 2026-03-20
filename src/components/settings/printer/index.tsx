@@ -24,6 +24,8 @@ const PrinterSettings: React.FC = () => {
     handleTestPrinter,
     testingPrinter,
     testResults,
+    handleTestCashDrawer,
+    testingCashDrawer,
     getConnectionIcon,
     getConnectionTypeLabel,
   } = usePrinterSettings(editingPrinter);
@@ -174,6 +176,14 @@ const PrinterSettings: React.FC = () => {
                         className="text-lg h-11 px-4 min-w-[48px]"
                       >
                         Test
+                      </Button>
+                      <Button
+                        variant="outline"
+                        onClick={() => handleTestCashDrawer(printer)}
+                        disabled={testingCashDrawer === printer.id}
+                        className="text-lg h-11 px-4 min-w-[48px]"
+                      >
+                        {testingCashDrawer === printer.id ? "Opening..." : "Test drawer"}
                       </Button>
                       <Button
                         variant="outline"
