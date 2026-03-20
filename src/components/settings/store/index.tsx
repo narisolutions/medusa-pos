@@ -28,6 +28,7 @@ import {
 import { Forms } from "@/types/form";
 import { DEFAULT_PAYMENT_METHODS } from "@/utils/store/metadata";
 import { useStoreSettings } from "./hooks";
+import ColorField from "./color-field";
 
 const StoreSettings: React.FC = () => {
   const form = useForm<Forms["StoreSettings"]>({
@@ -417,20 +418,13 @@ const StoreSettings: React.FC = () => {
                 control={control}
                 name="primaryColor"
                 render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-lg font-medium">
-                      Primary Color
-                    </FormLabel>
-                    <FormControl>
-                      <Input
-                        type="text"
-                        placeholder="#7f1d1d or oklch(...)"
-                        className="h-12 text-lg px-4"
-                        disabled={isLoading}
-                        {...field}
-                      />
-                    </FormControl>
-                  </FormItem>
+                  <ColorField
+                    label="Primary Color"
+                    value={field.value}
+                    placeholder="#7f1d1d"
+                    disabled={isLoading}
+                    onChange={field.onChange}
+                  />
                 )}
               />
 
@@ -438,20 +432,13 @@ const StoreSettings: React.FC = () => {
                 control={control}
                 name="secondaryColor"
                 render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-lg font-medium">
-                      Secondary Color
-                    </FormLabel>
-                    <FormControl>
-                      <Input
-                        type="text"
-                        placeholder="#1f2937 or oklch(...)"
-                        className="h-12 text-lg px-4"
-                        disabled={isLoading}
-                        {...field}
-                      />
-                    </FormControl>
-                  </FormItem>
+                  <ColorField
+                    label="Secondary Color"
+                    value={field.value}
+                    placeholder="#1f2937"
+                    disabled={isLoading}
+                    onChange={field.onChange}
+                  />
                 )}
               />
             </div>
