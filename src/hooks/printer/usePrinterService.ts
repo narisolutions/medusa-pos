@@ -6,7 +6,14 @@ import storage from "@/utils/storage";
 import { Printer } from "@/components/settings/printer/hooks";
 import { handleErrorToast, openDownloadsFolder } from "@/utils/helpers";
 import { useQueryStore } from "@/hooks/queries/useQueryStore";
-import { getBrandName, getStoreAddress, getStoreAddress2, getStorePhone, getGuestCustomerEmail } from "@/utils/store/metadata";
+import {
+  getBrandName,
+  getStoreAddress,
+  getStoreAddress2,
+  getStorePhone,
+  getGuestCustomerEmail,
+  getPaymentMethodsForSettings,
+} from "@/utils/store/metadata";
 import constants from "@/utils/constants";
 
 const usePrinterService = () => {
@@ -143,18 +150,25 @@ const usePrinterService = () => {
       : 0;
     
     const providerId = order.payment_collections?.[0]?.payment_sessions?.[0]?.provider_id;
-    const paymentMethod =
+    const paymentMethodId =
       providerId === "pp_system_default" && order.metadata?.payment_method
         ? String(order.metadata.payment_method).toLowerCase()
         : providerId;
 
+    const configuredMethods = getPaymentMethodsForSettings(store);
+    const paymentMethodLabel =
+      configuredMethods.find(
+        (m) => m.id?.toLowerCase() === paymentMethodId?.toLowerCase()
+      )?.label ?? paymentMethodId ?? "PP_CASH_POS";
+
     const amountPaid: number =
-      paymentMethod === "pp_cash_pos" && cashPaid > 0
+      paymentMethodId === "pp_cash_pos" && cashPaid > 0
         ? cashPaid
         : total;
 
     const change: number =
-      paymentMethod === "pp_cash_pos" && cashPaid > 0
+    
+      paymentMethodId === "pp_cash_pos" && cashPaid > 0
         ? Math.max(0, cashPaid - total)
         : 0;
 
@@ -178,7 +192,7 @@ const usePrinterService = () => {
       discount,
       total,
       currency: order.currency_code || constants.CHECKOUT_CONFIG.CURRENCY,
-      paymentMethod: paymentMethod?.toUpperCase() || 'PP_CASH_POS',
+      paymentMethod: paymentMethodLabel,
       amountPaid,
       change,
       footer: "Thank you for your business!",

@@ -19,6 +19,13 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import schemas from "@/utils/schemas";
 import { Forms } from "@/types/form";
 import { StoreConfig } from "@/types/utils";
@@ -38,6 +45,9 @@ const StoreSwitcherDialog: React.FC<Props> = ({ open, onClose }) => {
     useStoreManager();
   const [view, setView] = useState<View>("list");
   const [editingStore, setEditingStore] = useState<StoreConfig | undefined>(undefined);
+  const [selectedStoreId, setSelectedStoreId] = useState<string | null>(null);
+  const [scheme, setScheme] = useState<"https://" | "http://">("https://");
+  const [host, setHost] = useState("");
 
   const form = useForm<Forms["StoreConfig"]>({
     defaultValues: { backendUrl: "" },
@@ -48,8 +58,21 @@ const StoreSwitcherDialog: React.FC<Props> = ({ open, onClose }) => {
 
   useEffect(() => {
     if (view === "add") {
+      setScheme("https://");
+      setHost("");
       reset({ backendUrl: "" });
     } else if (view === "edit" && editingStore) {
+      const url = editingStore.backendUrl;
+      if (url.startsWith("http://")) {
+        setScheme("http://");
+        setHost(url.slice("http://".length));
+      } else if (url.startsWith("https://")) {
+        setScheme("https://");
+        setHost(url.slice("https://".length));
+      } else {
+        setScheme("https://");
+        setHost(url);
+      }
       reset({ backendUrl: editingStore.backendUrl });
     }
   }, [view, editingStore, reset]);
@@ -58,8 +81,15 @@ const StoreSwitcherDialog: React.FC<Props> = ({ open, onClose }) => {
     if (!open) {
       setView("list");
       setEditingStore(undefined);
+      setSelectedStoreId(null);
     }
   }, [open]);
+
+  useEffect(() => {
+    if (open && view === "list") {
+      setSelectedStoreId(activeStoreId ?? stores[0]?.id ?? null);
+    }
+  }, [open, view, activeStoreId, stores]);
 
   const openAdd = () => {
     setEditingStore(undefined);
@@ -140,59 +170,87 @@ const StoreSwitcherDialog: React.FC<Props> = ({ open, onClose }) => {
         </DialogHeader>
 
         {view === "list" && (
-          <div className="flex flex-col gap-3 mt-2 min-w-0">
-            {stores.map((store) => {
-              const isActive = store.id === activeStoreId;
-              return (
-                <div
-                  key={store.id}
-                  className={`flex items-center gap-4 rounded-2xl px-5 py-5 border-2 cursor-pointer transition-colors min-h-[48px] ${
-                    isActive
-                      ? "border-primary bg-primary/5"
-                      : "border-theme-border bg-surface-muted hover:border-theme-border-strong hover:bg-surface-hover active:bg-surface-hover"
-                  }`}
-                  onClick={() => handleSelect(store)}
-                >
-                  {store.logo ? (
-                    <img
-                      src={store.logo}
-                      alt={store.name}
-                      className="size-10 rounded-full object-cover shrink-0"
-                    />
-                  ) : (
-                    <MedusaIcon className="size-10 shrink-0" />
-                  )}
-                  <span
-                    className={`flex-1 min-w-0 text-lg font-semibold truncate ${isActive ? "text-primary" : "text-fg"}`}
+          <div className="mt-2 min-w-0">
+            <div className="flex flex-col gap-3 max-h-[52vh] overflow-y-auto pr-1">
+              {stores.map((store) => {
+                const isSelected = store.id === selectedStoreId;
+                const isActive = store.id === activeStoreId;
+                return (
+                  <div
+                    key={store.id}
+                    className={`flex items-center gap-4 rounded-2xl px-5 py-5 border-2 cursor-pointer transition-colors min-h-[56px] ${
+                      isSelected
+                        ? "border-primary bg-primary/5"
+                        : "border-theme-border bg-surface-muted hover:border-theme-border-strong hover:bg-surface-hover active:bg-surface-hover"
+                    }`}
+                    onClick={() => setSelectedStoreId(store.id)}
                   >
-                    {store.name}
-                  </span>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon"
-                    className="shrink-0 min-h-[48px] min-w-[48px] text-fg-subtle hover:text-fg"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      openEdit(store);
-                    }}
-                    aria-label={`Edit ${store.name}`}
-                  >
-                    <Pencil size={24} />
-                  </Button>
-                </div>
-              );
-            })}
+                    {store.logo ? (
+                      <img
+                        src={store.logo}
+                        alt={store.name}
+                        className="size-10 rounded-full object-cover shrink-0"
+                      />
+                    ) : (
+                      <MedusaIcon className="size-10 shrink-0" />
+                    )}
+                    <span
+                      className={`flex-1 min-w-0 text-lg font-semibold truncate ${isSelected ? "text-primary" : "text-fg"}`}
+                    >
+                      {store.name}
+                      {isActive ? (
+                        <span className="ml-2 text-sm font-medium text-fg-subtle">(active)</span>
+                      ) : null}
+                    </span>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      className="shrink-0 min-h-[48px] min-w-[48px] text-fg-subtle hover:text-fg"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        openEdit(store);
+                      }}
+                      aria-label={`Edit ${store.name}`}
+                    >
+                      <Pencil size={24} />
+                    </Button>
+                  </div>
+                );
+              })}
 
-            <Button
-              type="button"
-              variant="outline"
-              className="mt-1 w-full justify-start gap-3 min-h-[48px] py-4 text-base text-fg-muted rounded-2xl border-dashed"
-              onClick={openAdd}
-            >
-              <Plus size={22} />
-              Add new store
-            </Button>
+              <Button
+                type="button"
+                variant="outline"
+                className="mt-1 w-full justify-start gap-3 min-h-[56px] py-4 text-base text-fg-muted rounded-2xl border-dashed"
+                onClick={openAdd}
+              >
+                <Plus size={22} />
+                Add new store
+              </Button>
+            </div>
+
+            <div className="mt-4 border-t border-theme-border pt-4 flex justify-end gap-3">
+              <Button
+                type="button"
+                variant="outline"
+                className="min-h-[52px] px-6 text-base rounded-2xl"
+                onClick={onClose}
+              >
+                Cancel
+              </Button>
+              <Button
+                type="button"
+                className="min-h-[52px] px-6 text-base rounded-2xl text-white"
+                disabled={!selectedStoreId}
+                onClick={() => {
+                  const selected = stores.find((s) => s.id === selectedStoreId);
+                  if (selected) void handleSelect(selected);
+                }}
+              >
+                Select
+              </Button>
+            </div>
           </div>
         )}
 
@@ -208,11 +266,39 @@ const StoreSwitcherDialog: React.FC<Props> = ({ open, onClose }) => {
                       API URL
                     </FormLabel>
                     <FormControl>
-                      <Input
-                        {...field}
-                        placeholder="https://api.example.com"
-                        className="py-6 text-base rounded-xl border-theme-border"
-                      />
+                      <div className="flex items-stretch gap-2">
+                        <Select
+                          value={scheme}
+                          onValueChange={(value) => {
+                            const nextScheme = (value === "http" ? "http://" : "https://") as
+                              | "https://"
+                              | "http://";
+                            setScheme(nextScheme);
+                            field.onChange(nextScheme + host.trim());
+                          }}
+                        >
+                          <SelectTrigger className="w-[120px] py-6 text-base rounded-xl border-theme-border">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="https">https://</SelectItem>
+                            <SelectItem value="http">http://</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <Input
+                          placeholder="api.example.com or localhost:9000"
+                          className="flex-1 py-6 text-base rounded-xl border-theme-border"
+                          value={host}
+                          onChange={(e) => {
+                            const value = e.target.value;
+                            setHost(value);
+                            field.onChange(scheme + value.trim());
+                          }}
+                          onBlur={field.onBlur}
+                          name={field.name}
+                          ref={field.ref}
+                        />
+                      </div>
                     </FormControl>
                     <FormMessage />
                   </FormItem>
