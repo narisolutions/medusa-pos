@@ -32,6 +32,7 @@ const Orders: React.FC = () => {
     refetch,
     isFetching,
   } = useOrdersWithData();
+  console.log(orders)
 
   const [globalFilter, setGlobalFilter] = useState("");
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);

@@ -8,7 +8,7 @@ import { useStore } from "@/context/store";
 import { useSalesChannel } from "@/context/sales-channel";
 import { useStoreManager } from "@/context/store-manager";
 import storage from "@/utils/storage";
-import { handleErrorToast, checkBackendHealth } from "@/utils/helpers";
+import { handleErrorToast } from "@/utils/helpers";
 import { initDateTimePrefs, initCurrencyPrefs, loadPreferences } from "@/utils/preferences";
 import { queryClient } from "@/config/query";
 import { STORE_QUERY_KEY } from "@/hooks/queries/useQueryStore";
@@ -69,17 +69,7 @@ const useAppInit = () => {
         document.title = cachedTheme.brandName ? `${cachedTheme.brandName} POS` : "POS";
       }
 
-      // 3. Verify backend is reachable before making API calls
-      await splash("Connecting to backend…");
-      const health = await checkBackendHealth(activeStore.backendUrl, { timeoutMs: 5000 });
-      if (!health.success) {
-        await splash("Backend unreachable", true);
-        handleErrorToast("Backend unreachable — please check your connection or switch stores.");
-        update(null);
-        return;
-      }
-
-      // 4. Hydrate user session
+      // 3. Hydrate user session
       const lastLogin = await storage.getItem("last_login");
       if (!lastLogin) return;
 
