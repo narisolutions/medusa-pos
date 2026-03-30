@@ -62,9 +62,89 @@ fn create_network_printer(
     ))
 }
 
-fn create_console_printer() -> Printer<ConsoleDriver> {
-    let driver = ConsoleDriver::open(true);
-    Printer::new(driver, Protocol::default(), Some(PrinterOptions::default()))
+fn create_usb_printer(vendor_id: u16, product_id: u16) -> Result<Printer<NativeUsbDriver>, PrinterError> {
+    let driver = NativeUsbDriver::open(vendor_id, product_id)?;
+    Ok(Printer::new(
+        driver,
+        Protocol::default(),
+        Some(PrinterOptions::default()),
+    ))
+}
+
+fn parse_usb_ids(vendor_id: Option<u16>, product_id: Option<u16>) -> Result<(u16, u16), String> {
+    match (vendor_id, product_id) {
+        (Some(vid), Some(pid)) => Ok((vid, pid)),
+        _ => Err("USB printer requires both vendor_id and product_id".to_string()),
+    }
+}
+
+#[derive(serde::Serialize, Clone)]
+struct UsbDeviceInfo {
+    vendor_id: u16,
+    product_id: u16,
+    description: String,
+}
+
+#[tauri::command]
+fn list_usb_devices() -> Result<Vec<UsbDeviceInfo>, String> {
+    let devices = rusb::devices().map_err(|e| format!("Failed to enumerate USB devices: {}", e))?;
+    let mut result = Vec::new();
+
+    for device in devices.iter() {
+        let desc = match device.device_descriptor() {
+            Ok(d) => d,
+            Err(_) => continue,
+        };
+
+        // USB class 7 = Printer. Also include composite devices (class 0)
+        // whose interfaces may be printers.
+        let dominated_by_printer_class = desc.class_code() == 7;
+        let is_composite = desc.class_code() == 0;
+
+        let has_printer_interface = if is_composite {
+            if let Ok(config) = device.active_config_descriptor() {
+                config.interfaces().any(|iface| {
+                    iface.descriptors().any(|id| id.class_code() == 7)
+                })
+            } else {
+                false
+            }
+        } else {
+            false
+        };
+
+        if !dominated_by_printer_class && !has_printer_interface {
+            continue;
+        }
+
+        let handle = device.open().ok();
+        let manufacturer = handle
+            .as_ref()
+            .and_then(|h| h.read_manufacturer_string_ascii(&desc).ok())
+            .unwrap_or_default();
+        let product = handle
+            .as_ref()
+            .and_then(|h| h.read_product_string_ascii(&desc).ok())
+            .unwrap_or_default();
+
+        let description = if !manufacturer.is_empty() && !product.is_empty() {
+            format!("{} {}", manufacturer, product)
+        } else if !product.is_empty() {
+            product
+        } else if !manufacturer.is_empty() {
+            manufacturer
+        } else {
+            format!("USB Printer ({:04x}:{:04x})", desc.vendor_id(), desc.product_id())
+        };
+
+        result.push(UsbDeviceInfo {
+            vendor_id: desc.vendor_id(),
+            product_id: desc.product_id(),
+            description,
+        });
+    }
+
+    Ok(result)
 }
 
 fn parse_port(port: Option<String>) -> u16 {
@@ -104,12 +184,196 @@ fn get_company_header(company_name: Option<&str>) -> &str {
         .unwrap_or("POS")
 }
 
+fn print_test_page<T: Driver>(
+    printer: &mut Printer<T>,
+    app_handle: &tauri::AppHandle<tauri::Wry>,
+    header: &str,
+    app_version: Option<&str>,
+    datetime: Option<&str>,
+    store_name: Option<&str>,
+    sales_channel_name: Option<&str>,
+) -> Result<(), String> {
+    map_printer_error(printer.init())?;
+
+    let test_georgian = "ტესტი - Test Print - ქართული";
+    map_printer_error(configure_printer_for_georgian(printer, test_georgian))?;
+
+    map_printer_error(printer.justify(JustifyMode::CENTER))?;
+
+    match get_logo_path(app_handle) {
+        Ok(logo_path) => {
+            log::info!("Test print: Using logo path: {}", logo_path);
+            let image_configs = vec![
+                (Some(384), None, BitImageSize::Normal),
+                (Some(256), None, BitImageSize::Normal),
+                (Some(192), None, BitImageSize::Normal),
+                (None, None, BitImageSize::Normal),
+                (Some(384), None, BitImageSize::DoubleWidth),
+                (Some(384), None, BitImageSize::DoubleHeight),
+            ];
+
+            let mut logo_printed = false;
+            for (width, height, size) in image_configs {
+                match BitImageOption::new(width, height, size) {
+                    Ok(bit_image_option) => {
+                        log::info!("Test print: Trying image config - width: {:?}, height: {:?}, size: {:?}", width, height, size);
+                        match printer.bit_image_option(&logo_path, bit_image_option) {
+                            Ok(_) => {
+                                log::info!("Test print: Logo printed successfully with config - width: {:?}, height: {:?}", width, height);
+                                map_printer_error(printer.feed())?;
+                                logo_printed = true;
+                                break;
+                            }
+                            Err(e) => {
+                                log::warn!("Test print: Failed to print logo with config - width: {:?}, height: {:?}: {}", width, height, e);
+                                continue;
+                            }
+                        }
+                    }
+                    Err(e) => {
+                        log::warn!("Test print: Failed to create bit image option - width: {:?}, height: {:?}: {}", width, height, e);
+                        continue;
+                    }
+                }
+            }
+
+            if !logo_printed {
+                log::warn!("Test print: All logo printing attempts failed. Using text header.");
+                map_printer_error(printer.bold(true))?;
+                map_printer_error(printer.writeln(header))?;
+                map_printer_error(printer.bold(false))?;
+                map_printer_error(printer.feed())?;
+            }
+        }
+        Err(e) => {
+            log::warn!("Test print: Could not locate logo file: {}. Using text header.", e);
+            map_printer_error(printer.bold(true))?;
+            map_printer_error(printer.writeln(header))?;
+            map_printer_error(printer.bold(false))?;
+            map_printer_error(printer.feed())?;
+        }
+    }
+
+    map_printer_error(printer.justify(JustifyMode::LEFT))?;
+    map_printer_error(printer.smoothing(true))?;
+    map_printer_error(printer.bold(true))?;
+    map_printer_error(printer.underline(UnderlineMode::Single))?;
+    map_printer_error(printer.writeln("TEST PRINT"))?;
+    map_printer_error(printer.bold(false))?;
+    map_printer_error(printer.underline(UnderlineMode::None))?;
+
+    map_printer_error(printer.writeln("Medusa POS"))?;
+    if let Some(v) = app_version.filter(|s| !s.is_empty()) {
+        map_printer_error(printer.writeln(&format!("Version {}", v)))?;
+    }
+    if let Some(dt) = datetime.filter(|s| !s.is_empty()) {
+        map_printer_error(printer.writeln(dt))?;
+    }
+    if let Some(name) = store_name.filter(|s| !s.is_empty()) {
+        map_printer_error(printer.writeln(&format!("Store: {}", name)))?;
+    }
+    if let Some(ch) = sales_channel_name.filter(|s| !s.is_empty()) {
+        map_printer_error(printer.writeln(&format!("Sales channel: {}", ch)))?;
+    }
+    map_printer_error(printer.feed())?;
+
+    map_printer_error(printer.justify(JustifyMode::CENTER))?;
+    map_printer_error(printer.reverse(true))?;
+    map_printer_error(printer.writeln("Hello world - Test successful!"))?;
+    map_printer_error(printer.feed())?;
+    map_printer_error(printer.justify(JustifyMode::RIGHT))?;
+    map_printer_error(printer.reverse(false))?;
+    map_printer_error(printer.underline(UnderlineMode::None))?;
+    map_printer_error(printer.size(2, 3))?;
+    map_printer_error(printer.writeln("Thank you"))?;
+    map_printer_error(printer.print_cut())?;
+
+    Ok(())
+}
+
+fn print_receipt_page<T: Driver>(
+    printer: &mut Printer<T>,
+    app_handle: &tauri::AppHandle<tauri::Wry>,
+    header: &str,
+    receipt_data: &str,
+) -> Result<(), String> {
+    map_printer_error(printer.init())?;
+
+    map_printer_error(configure_printer_for_georgian(printer, receipt_data))?;
+
+    map_printer_error(printer.justify(JustifyMode::CENTER))?;
+
+    match get_logo_path(app_handle) {
+        Ok(logo_path) => {
+            log::info!("Receipt print: Using logo path: {}", logo_path);
+            let image_configs = vec![
+                (Some(384), None, BitImageSize::Normal),
+                (Some(256), None, BitImageSize::Normal),
+                (Some(192), None, BitImageSize::Normal),
+                (None, None, BitImageSize::Normal),
+                (Some(384), None, BitImageSize::DoubleWidth),
+                (Some(384), None, BitImageSize::DoubleHeight),
+            ];
+
+            let mut logo_printed = false;
+            for (width, height, size) in image_configs {
+                match BitImageOption::new(width, height, size) {
+                    Ok(bit_image_option) => {
+                        log::info!("Receipt print: Trying image config - width: {:?}, height: {:?}, size: {:?}", width, height, size);
+                        match printer.bit_image_option(&logo_path, bit_image_option) {
+                            Ok(_) => {
+                                log::info!("Receipt print: Logo printed successfully with config - width: {:?}, height: {:?}", width, height);
+                                map_printer_error(printer.feed())?;
+                                logo_printed = true;
+                                break;
+                            }
+                            Err(e) => {
+                                log::warn!("Receipt print: Failed to print logo with config - width: {:?}, height: {:?}: {}", width, height, e);
+                                continue;
+                            }
+                        }
+                    }
+                    Err(e) => {
+                        log::warn!("Receipt print: Failed to create bit image option - width: {:?}, height: {:?}: {}", width, height, e);
+                        continue;
+                    }
+                }
+            }
+
+            if !logo_printed {
+                log::warn!("Receipt print: All logo printing attempts failed. Using text header.");
+                map_printer_error(printer.bold(true))?;
+                map_printer_error(printer.writeln(header))?;
+                map_printer_error(printer.bold(false))?;
+                map_printer_error(printer.feed())?;
+            }
+        }
+        Err(e) => {
+            log::warn!("Receipt print: Could not locate logo file: {}. Using text header.", e);
+            map_printer_error(printer.bold(true))?;
+            map_printer_error(printer.writeln(header))?;
+            map_printer_error(printer.bold(false))?;
+            map_printer_error(printer.feed())?;
+        }
+    }
+
+    map_printer_error(printer.justify(JustifyMode::LEFT))?;
+    map_printer_error(printer.writeln(receipt_data))?;
+    map_printer_error(printer.feed())?;
+    map_printer_error(printer.feed())?;
+    map_printer_error(printer.print_cut())?;
+
+    Ok(())
+}
+
 #[tauri::command]
 async fn print_test(
     app_handle: tauri::AppHandle<tauri::Wry>,
     connection_type: String,
     address: String,
     port: Option<String>,
+    vendor_id: Option<u16>,
+    product_id: Option<u16>,
     company_name: Option<String>,
     app_version: Option<String>,
     datetime: Option<String>,
@@ -126,145 +390,30 @@ async fn print_test(
     match connection_type.as_str() {
         "network" => {
             let port_num = parse_port(port);
-
             let mut printer = map_printer_error(create_network_printer(&address, port_num))?;
-
             printer.debug_mode(Some(DebugMode::Dec));
-            map_printer_error(printer.init())?;
-
-            // Configure for Georgian text (test includes Georgian)
-            let test_georgian = "ტესტი - Test Print - ქართული";
-            map_printer_error(configure_printer_for_georgian(&mut printer, test_georgian))?;
-
-            map_printer_error(printer.justify(JustifyMode::CENTER))?;
-
-            // Try to print logo, but don't fail if it doesn't work
-            match get_logo_path(&app_handle) {
-                Ok(logo_path) => {
-                    log::info!("Test print: Using logo path: {}", logo_path);
-                    // Try different image configurations
-                    let image_configs = vec![
-                        (Some(384), None, BitImageSize::Normal),
-                        (Some(256), None, BitImageSize::Normal),
-                        (Some(192), None, BitImageSize::Normal),
-                        (None, None, BitImageSize::Normal),
-                        (Some(384), None, BitImageSize::DoubleWidth),
-                        (Some(384), None, BitImageSize::DoubleHeight),
-                    ];
-
-                    let mut logo_printed = false;
-                    for (width, height, size) in image_configs {
-                        match BitImageOption::new(width, height, size) {
-                            Ok(bit_image_option) => {
-                                log::info!("Test print: Trying image config - width: {:?}, height: {:?}, size: {:?}", width, height, size);
-                                match printer.bit_image_option(&logo_path, bit_image_option) {
-                                    Ok(_) => {
-                                        log::info!("Test print: Logo printed successfully with config - width: {:?}, height: {:?}", width, height);
-                                        map_printer_error(printer.feed())?;
-                                        logo_printed = true;
-                                        break;
-                                    }
-                                    Err(e) => {
-                                        log::warn!("Test print: Failed to print logo with config - width: {:?}, height: {:?}: {}", width, height, e);
-                                        continue;
-                                    }
-                                }
-                            }
-                            Err(e) => {
-                                log::warn!("Test print: Failed to create bit image option - width: {:?}, height: {:?}: {}", width, height, e);
-                                continue;
-                            }
-                        }
-                    }
-
-                    if !logo_printed {
-                        log::warn!(
-                            "Test print: All logo printing attempts failed. Using text header."
-                        );
-                        map_printer_error(printer.bold(true))?;
-                        map_printer_error(printer.writeln(header))?;
-                        map_printer_error(printer.bold(false))?;
-                        map_printer_error(printer.feed())?;
-                    }
-                }
-                Err(e) => {
-                    log::warn!(
-                        "Test print: Could not locate logo file: {}. Using text header.",
-                        e
-                    );
-                    map_printer_error(printer.bold(true))?;
-                    map_printer_error(printer.writeln(header))?;
-                    map_printer_error(printer.bold(false))?;
-                    map_printer_error(printer.feed())?;
-                }
-            }
-
-            map_printer_error(printer.justify(JustifyMode::LEFT))?;
-            map_printer_error(printer.smoothing(true))?;
-            map_printer_error(printer.bold(true))?;
-            map_printer_error(printer.underline(UnderlineMode::Single))?;
-            map_printer_error(printer.writeln("TEST PRINT"))?;
-            map_printer_error(printer.bold(false))?;
-            map_printer_error(printer.underline(UnderlineMode::None))?;
-
-            // App info block
-            map_printer_error(printer.writeln("Medusa POS"))?;
-            if let Some(v) = app_version.as_deref().filter(|s| !s.is_empty()) {
-                map_printer_error(printer.writeln(&format!("Version {}", v)))?;
-            }
-            if let Some(dt) = datetime.as_deref().filter(|s| !s.is_empty()) {
-                map_printer_error(printer.writeln(dt))?;
-            }
-            if let Some(name) = store_name.as_deref().filter(|s| !s.is_empty()) {
-                map_printer_error(printer.writeln(&format!("Store: {}", name)))?;
-            }
-            if let Some(ch) = sales_channel_name.as_deref().filter(|s| !s.is_empty()) {
-                map_printer_error(printer.writeln(&format!("Sales channel: {}", ch)))?;
-            }
-            map_printer_error(printer.feed())?;
-
-            map_printer_error(printer.justify(JustifyMode::CENTER))?;
-            map_printer_error(printer.reverse(true))?;
-            map_printer_error(printer.writeln("Hello world - Test successful!"))?;
-            map_printer_error(printer.feed())?;
-            map_printer_error(printer.justify(JustifyMode::RIGHT))?;
-            map_printer_error(printer.reverse(false))?;
-            map_printer_error(printer.underline(UnderlineMode::None))?;
-            map_printer_error(printer.size(2, 3))?;
-            map_printer_error(printer.writeln("Thank you"))?;
-            map_printer_error(printer.print_cut())?;
-
-            Ok(())
+            print_test_page(
+                &mut printer,
+                &app_handle,
+                header,
+                app_version.as_deref(),
+                datetime.as_deref(),
+                store_name.as_deref(),
+                sales_channel_name.as_deref(),
+            )
         }
         "usb" => {
-            let mut printer = create_console_printer();
-            map_printer_error(printer.init())?;
-
-            map_printer_error(printer.justify(JustifyMode::CENTER))?;
-            map_printer_error(printer.bold(true))?;
-            map_printer_error(printer.writeln(header))?;
-            map_printer_error(printer.bold(false))?;
-            map_printer_error(printer.feed())?;
-            map_printer_error(printer.writeln("TEST PRINT - USB MODE"))?;
-            map_printer_error(printer.writeln("(Console output for testing)"))?;
-            map_printer_error(printer.writeln(&format!("Port: {}", address)))?;
-            map_printer_error(printer.writeln("Medusa POS"))?;
-            if let Some(v) = app_version.as_deref().filter(|s| !s.is_empty()) {
-                map_printer_error(printer.writeln(&format!("Version {}", v)))?;
-            }
-            if let Some(dt) = datetime.as_deref().filter(|s| !s.is_empty()) {
-                map_printer_error(printer.writeln(dt))?;
-            }
-            if let Some(name) = store_name.as_deref().filter(|s| !s.is_empty()) {
-                map_printer_error(printer.writeln(&format!("Store: {}", name)))?;
-            }
-            if let Some(ch) = sales_channel_name.as_deref().filter(|s| !s.is_empty()) {
-                map_printer_error(printer.writeln(&format!("Sales channel: {}", ch)))?;
-            }
-            map_printer_error(printer.feed())?;
-            map_printer_error(printer.print_cut())?;
-
-            Ok(())
+            let (vid, pid) = parse_usb_ids(vendor_id, product_id)?;
+            let mut printer = map_printer_error(create_usb_printer(vid, pid))?;
+            print_test_page(
+                &mut printer,
+                &app_handle,
+                header,
+                app_version.as_deref(),
+                datetime.as_deref(),
+                store_name.as_deref(),
+                sales_channel_name.as_deref(),
+            )
         }
         _ => Err("Unsupported connection type".to_string()),
     }
@@ -275,6 +424,8 @@ async fn open_cash_drawer(
     connection_type: String,
     address: String,
     port: Option<String>,
+    vendor_id: Option<u16>,
+    product_id: Option<u16>,
 ) -> Result<(), String> {
     match connection_type.as_str() {
         "network" => {
@@ -290,10 +441,10 @@ async fn open_cash_drawer(
             Ok(())
         }
         "usb" => {
-            let mut printer = create_console_printer();
+            let (vid, pid) = parse_usb_ids(vendor_id, product_id)?;
+            let mut printer = map_printer_error(create_usb_printer(vid, pid))?;
             map_printer_error(printer.init())?;
             map_printer_error(printer.cash_drawer(CashDrawer::Pin2))?;
-
             Ok(())
         }
         _ => Err("Unsupported connection type".to_string()),
@@ -306,6 +457,8 @@ async fn print_receipt(
     connection_type: String,
     address: String,
     port: Option<String>,
+    vendor_id: Option<u16>,
+    product_id: Option<u16>,
     receipt_data: String,
     company_name: Option<String>,
 ) -> Result<(), String> {
@@ -314,96 +467,12 @@ async fn print_receipt(
         "network" => {
             let port_num = parse_port(port);
             let mut printer = map_printer_error(create_network_printer(&address, port_num))?;
-
-            map_printer_error(printer.init())?;
-
-            // Configure printer for Georgian text support
-            map_printer_error(configure_printer_for_georgian(&mut printer, &receipt_data))?;
-
-            map_printer_error(printer.justify(JustifyMode::CENTER))?;
-
-            // Try to print logo, but don't fail if it doesn't work
-            match get_logo_path(&app_handle) {
-                Ok(logo_path) => {
-                    log::info!("Receipt print: Using logo path: {}", logo_path);
-                    // Try different image configurations
-                    let image_configs = vec![
-                        (Some(384), None, BitImageSize::Normal),
-                        (Some(256), None, BitImageSize::Normal),
-                        (Some(192), None, BitImageSize::Normal),
-                        (None, None, BitImageSize::Normal),
-                        (Some(384), None, BitImageSize::DoubleWidth),
-                        (Some(384), None, BitImageSize::DoubleHeight),
-                    ];
-
-                    let mut logo_printed = false;
-                    for (width, height, size) in image_configs {
-                        match BitImageOption::new(width, height, size) {
-                            Ok(bit_image_option) => {
-                                log::info!("Receipt print: Trying image config - width: {:?}, height: {:?}, size: {:?}", width, height, size);
-                                match printer.bit_image_option(&logo_path, bit_image_option) {
-                                    Ok(_) => {
-                                        log::info!("Receipt print: Logo printed successfully with config - width: {:?}, height: {:?}", width, height);
-                                        map_printer_error(printer.feed())?;
-                                        logo_printed = true;
-                                        break;
-                                    }
-                                    Err(e) => {
-                                        log::warn!("Receipt print: Failed to print logo with config - width: {:?}, height: {:?}: {}", width, height, e);
-                                        continue;
-                                    }
-                                }
-                            }
-                            Err(e) => {
-                                log::warn!("Receipt print: Failed to create bit image option - width: {:?}, height: {:?}: {}", width, height, e);
-                                continue;
-                            }
-                        }
-                    }
-
-                    if !logo_printed {
-                        log::warn!(
-                            "Receipt print: All logo printing attempts failed. Using text header."
-                        );
-                        map_printer_error(printer.bold(true))?;
-                        map_printer_error(printer.writeln(header))?;
-                        map_printer_error(printer.bold(false))?;
-                        map_printer_error(printer.feed())?;
-                    }
-                }
-                Err(e) => {
-                    log::warn!(
-                        "Receipt print: Could not locate logo file: {}. Using text header.",
-                        e
-                    );
-                    map_printer_error(printer.bold(true))?;
-                    map_printer_error(printer.writeln(header))?;
-                    map_printer_error(printer.bold(false))?;
-                    map_printer_error(printer.feed())?;
-                }
-            }
-
-            map_printer_error(printer.justify(JustifyMode::LEFT))?;
-            map_printer_error(printer.writeln(&receipt_data))?;
-            map_printer_error(printer.feed())?;
-            map_printer_error(printer.feed())?;
-            map_printer_error(printer.print_cut())?;
-
-            Ok(())
+            print_receipt_page(&mut printer, &app_handle, header, &receipt_data)
         }
         "usb" => {
-            let mut printer = create_console_printer();
-            map_printer_error(printer.init())?;
-
-            map_printer_error(printer.justify(JustifyMode::CENTER))?;
-            map_printer_error(printer.writeln("RECEIPT (USB MODE)"))?;
-            map_printer_error(printer.justify(JustifyMode::LEFT))?;
-            map_printer_error(printer.writeln(&receipt_data))?;
-            map_printer_error(printer.feed())?;
-            map_printer_error(printer.feed())?;
-            map_printer_error(printer.print_cut())?;
-
-            Ok(())
+            let (vid, pid) = parse_usb_ids(vendor_id, product_id)?;
+            let mut printer = map_printer_error(create_usb_printer(vid, pid))?;
+            print_receipt_page(&mut printer, &app_handle, header, &receipt_data)
         }
         _ => Err("Unsupported connection type".to_string()),
     }
@@ -731,6 +800,7 @@ pub fn run() {
             print_test,
             open_cash_drawer,
             print_receipt,
+            list_usb_devices,
             check_config_exists,
             load_config,
             set_active_backend,
