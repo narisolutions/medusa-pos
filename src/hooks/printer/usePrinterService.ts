@@ -68,6 +68,8 @@ const usePrinterService = () => {
           connectionType: targetPrinter.connectionType,
           address: targetPrinter.address,
           port: targetPrinter.port || null,
+          vendorId: targetPrinter.vendorId ?? null,
+          productId: targetPrinter.productId ?? null,
           receiptData: receiptText,
           companyName: getBrandName(store) || "POS",
         });
@@ -98,6 +100,8 @@ const usePrinterService = () => {
           connectionType: targetPrinter.connectionType,
           address: targetPrinter.address,
           port: targetPrinter.port || null,
+          vendorId: targetPrinter.vendorId ?? null,
+          productId: targetPrinter.productId ?? null,
         });
         toast.success("Cash drawer opened");
         return { success: true };

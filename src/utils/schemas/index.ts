@@ -26,6 +26,8 @@ export default {
     }),
     address: z.string().min(1, { message: "Address/IP is required" }),
     port: z.string().optional(),
+    vendorId: z.number().optional(),
+    productId: z.number().optional(),
     isDefault: z.boolean().optional().default(false),
     openCashDrawer: z.boolean().optional().default(false),
     openCashDrawerOnCash: z.boolean().optional().default(false),

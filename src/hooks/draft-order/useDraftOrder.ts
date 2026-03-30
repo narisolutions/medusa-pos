@@ -101,6 +101,7 @@ const useDraftOrder = () => {
       const pickUpMethod = shippingOptions?.find((option) =>
         option.name.toLowerCase().includes("pickup")
       );
+      
       try {
         // Sanitize metadata to remove empty values before creating draft order
         const sanitizedMetadata = sanitizeDraftOrderMetadata(

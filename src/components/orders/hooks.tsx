@@ -78,6 +78,7 @@ const useOrders = () => {
             | { name?: string }
             | undefined;
           const providerName = shippingMethods?.name?.toLowerCase();
+          console.log(providerName);
 
           if (providerName === "quickshipper shipping") {
             return (
