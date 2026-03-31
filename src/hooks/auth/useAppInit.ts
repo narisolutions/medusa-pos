@@ -1,6 +1,5 @@
 import { useEffect, useState, useMemo, useCallback } from "react";
 import { AdminStore, AdminUser } from "@medusajs/types";
-import { invoke } from "@tauri-apps/api/core";
 import { AppConfig } from "@/types/utils";
 import { getSdk } from "@/config/medusa";
 import { useUser } from "@/context/user";
@@ -21,12 +20,10 @@ import {
   hasPosMetadata,
 } from "@/utils/store/metadata";
 
-const splash = (message: string, isError = false) =>
-  invoke("update_splash", { message, isError }).catch(() => {});
-
 const useAppInit = () => {
   const [config, setConfig] = useState<AppConfig | null>(null);
   const [bootLoading, setBootLoading] = useState(true);
+  const [bootMessage, setBootMessage] = useState("Starting…");
 
   const update = useUser((s) => s.update);
   const logout = useUser((s) => s.logout);
@@ -42,7 +39,7 @@ const useAppInit = () => {
 
     try {
       // 1. Hydrate store manager
-      await splash("Loading store configuration…");
+      setBootMessage("Loading store configuration…");
       await useStoreManager.getState().loadStores();
       const { activeStore } = useStoreManager.getState();
 
@@ -55,7 +52,7 @@ const useAppInit = () => {
       setConfig({ backend_url: activeStore.backendUrl });
 
       // 2. Restore cached theme for the login page before session is confirmed
-      await splash("Applying theme…");
+      setBootMessage("Applying theme…");
       const cachedTheme = await storage.getItem<{
         primaryColor?: string;
         secondaryColor?: string;
@@ -74,7 +71,7 @@ const useAppInit = () => {
       if (!lastLogin) return;
 
       try {
-        await splash("Restoring session…");
+        setBootMessage("Restoring session…");
         const user = await getSdk().client.fetch<AdminUser>("/admin/users/me");
         update(user);
       } catch (error) {
@@ -90,7 +87,7 @@ const useAppInit = () => {
       }
 
       // 5. Load Medusa store — prime cache, apply theme, determine setup state
-      await splash("Loading store settings…");
+      setBootMessage("Loading store settings…");
       try {
         const sdk = getSdk();
         const { stores } = await sdk.admin.store.list();
@@ -128,7 +125,7 @@ const useAppInit = () => {
       }
 
       // 6. Load user preferences (date/time, currency, etc.)
-      await splash("Loading preferences…");
+      setBootMessage("Loading preferences…");
       const prefs = await loadPreferences();
       initDateTimePrefs(prefs.dateTime);
       initCurrencyPrefs(prefs.currency);
@@ -139,7 +136,7 @@ const useAppInit = () => {
       setNeedsSalesChannelWarning(!salesChannelId);
     } catch (err) {
       console.error("App initialization failed:", err);
-      await splash("Initialization failed", true);
+      setBootMessage("Initialization failed");
       setConfig(null);
       update(null);
       await logout();
@@ -161,7 +158,7 @@ const useAppInit = () => {
     initApp();
   }, [initApp]);
 
-  return { config, bootLoading, isReady, retry };
+  return { config, bootLoading, bootMessage, isReady, retry };
 };
 
 export default useAppInit;
