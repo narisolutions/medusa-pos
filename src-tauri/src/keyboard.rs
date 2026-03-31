@@ -75,7 +75,7 @@ pub fn show_virtual_keyboard() {
     use windows::Win32::System::Com::{
         CoCreateInstance, CoInitializeEx, CLSCTX_INPROC_HANDLER, COINIT_APARTMENTTHREADED,
     };
-    use windows::core::{w, GUID};
+    use windows::core::{w, Interface, GUID};
 
     unsafe {
         // The touch keyboard COM object (ITipInvocation) can toggle the keyboard
