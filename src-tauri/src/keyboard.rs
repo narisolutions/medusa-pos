@@ -71,13 +71,49 @@ pub fn has_physical_keyboard() -> bool {
 
 #[cfg(target_os = "windows")]
 pub fn show_virtual_keyboard() {
-    use std::process::Command;
-    let path = r"C:\Program Files\Common Files\microsoft shared\ink\TabTip.exe";
-    if let Err(e) = Command::new(path).spawn() {
-        log::warn!("Failed to launch TabTip.exe: {}", e);
-        // Fallback: try osk.exe
-        if let Err(e2) = Command::new("osk.exe").spawn() {
-            log::warn!("Failed to launch osk.exe: {}", e2);
+    use windows::Win32::UI::WindowsAndMessaging::{FindWindowW, ShowWindow, SW_SHOW};
+    use windows::Win32::System::Com::{
+        CoCreateInstance, CoInitializeEx, CLSCTX_INPROC_HANDLER, COINIT_APARTMENTTHREADED,
+    };
+    use windows::core::{w, GUID};
+
+    unsafe {
+        // The touch keyboard COM object (ITipInvocation) can toggle the keyboard
+        // without elevation — this is the official Windows API for it.
+        let _ = CoInitializeEx(None, COINIT_APARTMENTTHREADED);
+
+        // CLSID_UIHostNoLaunch: {4CE576FA-83DC-4F88-951C-9D0782B4E376}
+        let clsid = GUID::from_values(
+            0x4CE576FA, 0x83DC, 0x4F88, [0x95, 0x1C, 0x9D, 0x07, 0x82, 0xB4, 0xE3, 0x76],
+        );
+        // IID_ITipInvocation: {37c994e7-432b-4834-a2f7-dce1f13b834b}
+        let iid = GUID::from_values(
+            0x37c994e7, 0x432b, 0x4834, [0xa2, 0xf7, 0xdc, 0xe1, 0xf1, 0x3b, 0x83, 0x4b],
+        );
+
+        // Try COM approach first
+        let result: Result<windows::core::IUnknown, _> =
+            CoCreateInstance(&clsid, None, CLSCTX_INPROC_HANDLER);
+
+        if let Ok(tip) = result {
+            // ITipInvocation::Toggle(HWND) is the first method after IUnknown (index 3 in vtable)
+            let vtable = *(tip.as_raw() as *const *const usize);
+            let toggle: unsafe extern "system" fn(*mut core::ffi::c_void, windows::Win32::Foundation::HWND) -> windows::core::HRESULT =
+                std::mem::transmute(*vtable.add(3));
+
+            // Get the desktop window as the parent
+            let desktop = windows::Win32::UI::WindowsAndMessaging::GetDesktopWindow();
+            let hr = toggle(tip.as_raw(), desktop);
+            if hr.is_ok() {
+                return;
+            }
+            log::warn!("ITipInvocation::Toggle failed: {:?}", hr);
+        }
+
+        // Fallback: if the keyboard process is already running, just show the window
+        let hwnd = FindWindowW(w!("IPTip_Main_Window"), None);
+        if let Ok(hwnd) = hwnd {
+            let _ = ShowWindow(hwnd, SW_SHOW);
         }
     }
 }
