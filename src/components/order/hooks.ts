@@ -15,6 +15,7 @@ import {
 import { getSdkBaseUrl, getSdk } from "@/config/medusa";
 import { useQueryClient } from "@tanstack/react-query";
 import { usePrinterService } from "@/hooks/printer/usePrinterService";
+import { classifyFulfillment } from "@/utils/fulfillment";
 
 // Type for fulfillment with extended properties
 type ExtendedFulfillment = Record<string, unknown> & {
@@ -26,6 +27,15 @@ type ExtendedFulfillment = Record<string, unknown> & {
     label_url?: string;
   }>;
 };
+
+/** Email used for checkout / receipts — e.g. fulfill button visibility (includes walk-in guest). */
+export function getOrderContactEmail(order: AdminOrder): string | undefined {
+  const fromCustomer = order.customer?.email;
+  if (fromCustomer && fromCustomer.trim() !== "") return fromCustomer;
+  const fromOrder = order.email;
+  if (fromOrder && fromOrder.trim() !== "") return fromOrder;
+  return undefined;
+}
 
 export const useOrder = (order: AdminOrder) => {
   const navigate = useNavigate();
@@ -222,23 +232,23 @@ export const useOrder = (order: AdminOrder) => {
     }
   };
 
-  const providerId = fulfillment?.provider?.id?.toLowerCase();
+  const firstFulfillment = order.fulfillments?.[0];
+  const fulfillmentClass = firstFulfillment
+    ? classifyFulfillment(firstFulfillment)
+    : null;
+
   const canCreateShipment =
     fulfillmentStatus === "fulfilled" &&
-    !!providerId &&
-    providerId !== "int_internal" &&
+    !!fulfillmentClass?.isShipping &&
     !!fulfillment?.labels?.[0];
 
   const canMarkAsPickedUp =
     fulfillmentStatus === "fulfilled" &&
-    !!providerId &&
-    providerId === "int_internal";
+    !!fulfillmentClass?.isPickup;
 
   const canDownloadShippingLabel = !(
     fulfillmentStatus === "fulfilled" ||
-    (fulfillmentStatus === "delivered" &&
-      !!providerId &&
-      providerId === "int_internal")
+    (fulfillmentStatus === "delivered" && !!fulfillmentClass?.isPickup)
   );
 
   return {

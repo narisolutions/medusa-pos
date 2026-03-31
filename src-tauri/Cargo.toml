@@ -23,12 +23,13 @@ tauri-build = { version = "2", features = [] }
 serde_json = "1"
 
 [dependencies]
-tauri = { version = "2.10", features = ["protocol-asset", "wry", "webview-data-url"], default-features = false }
+tauri = { version = "2.10", features = ["protocol-asset", "wry"], default-features = false }
 tauri-plugin-opener = "2.5"
 tauri-plugin-store = "2.4"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
-escpos = { version = "0.15.2", features = ["graphics"] }
+escpos = { version = "0.15.2", features = ["graphics", "native_usb"] }
+rusb = "0.9"
 tauri-plugin-http = "2.5.7"
 tauri-plugin-fs = "2.4"
 tauri-plugin-dialog = "2.6"

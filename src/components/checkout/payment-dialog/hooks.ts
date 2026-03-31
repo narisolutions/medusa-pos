@@ -385,10 +385,10 @@ const usePaymentModal = (
         // Update draft order metadata with cash_paid if payment method is cash
         if (selectedPaymentMethod === "pp_cash_pos" && customerPaid) {
           const cashPaidAmount = parseFloat(customerPaid) || 0;
-          
+
           const { draft_order } = await sdk.admin.draftOrder.retrieve(draftOrderId!);
           const currentMetadata = (draft_order.metadata || {}) as Record<string, unknown>;
-          
+
           await sdk.admin.draftOrder.update(draftOrderId!, {
             metadata: {
               ...currentMetadata,

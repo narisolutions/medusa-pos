@@ -2,25 +2,13 @@ import { useMemo } from "react";
 import { AdminOrder, AdminPaymentCollection, AdminPayment, AdminOrderFulfillment } from "@medusajs/types";
 import { ActivityEvent } from "@/types/utils";
 import constants from "@/utils/constants";
+import { classifyFulfillment } from "@/utils/fulfillment";
 
-// Helper to normalize timestamps
 const normalizeTimestamp = (timestamp: string | Date | undefined): string | null => {
   if (!timestamp) return null;
   return typeof timestamp === "string" ? timestamp : timestamp.toISOString();
 };
 
-// Helper to get fulfillment provider info
-const getFulfillmentProvider = (fulfillment: AdminOrderFulfillment) => {
-  const record = fulfillment as unknown as Record<string, unknown>;
-  const provider = record.provider as { id?: string } | undefined;
-  const providerId = provider?.id?.toLowerCase();
-  return {
-    isQuickShipper: providerId === "qshpr_quickshipper",
-    isPickup: providerId === "int_internal",
-  };
-};
-
-// Helper to create activity event
 const createEvent = (
   id: string,
   type: ActivityEvent["type"],
@@ -89,7 +77,6 @@ export const useActivityEvents = (order: AdminOrder) => {
         }
       });
 
-      // Fallback: if payment status is captured but no payment event found
       if (order.payment_status === "captured" && collection.updated_at) {
         const hasPaymentCaptured = activityEvents.some(
           (e) => e.type === "payment_captured" && e.id.includes(String(collection.id))
@@ -114,10 +101,10 @@ export const useActivityEvents = (order: AdminOrder) => {
     // Fulfillment events
     order.fulfillments?.forEach((fulfillment: AdminOrderFulfillment) => {
       const record = fulfillment as unknown as Record<string, unknown>;
-      const { isQuickShipper, isPickup } = getFulfillmentProvider(fulfillment);
+      const { isPickup, isShipping } = classifyFulfillment(fulfillment);
       const itemCount = (record.items as Array<unknown> | undefined)?.length || order.items?.length || 0;
 
-      // Items fulfilled
+      // Items fulfilled (generic -- always shown)
       const fulfilledEvent = createEvent(
         `fulfilled_${fulfillment.id || Date.now()}`,
         "fulfilled",
@@ -127,7 +114,7 @@ export const useActivityEvents = (order: AdminOrder) => {
       );
       if (fulfilledEvent) activityEvents.push(fulfilledEvent);
 
-      // Items packed (if different from created_at)
+      // Items packed (generic -- shown if packed_at differs from created_at)
       const packedAt = record.packed_at as string | Date | undefined;
       if (packedAt && packedAt !== fulfillment.created_at) {
         const packedEvent = createEvent(
@@ -140,12 +127,12 @@ export const useActivityEvents = (order: AdminOrder) => {
         if (packedEvent) activityEvents.push(packedEvent);
       }
 
-      // Shipment created (QuickShipper)
+      // Shipped (for shipping providers -- shown when shipped_at exists)
       const shippedAt = record.shipped_at as string | Date | undefined;
-      if (shippedAt && isQuickShipper) {
+      if (shippedAt && isShipping) {
         const shipmentEvent = createEvent(
-          `shipment_created_${fulfillment.id || Date.now()}`,
-          "shipment_created",
+          `shipped_${fulfillment.id || Date.now()}`,
+          "shipped",
           "Shipment created",
           shippedAt,
           { itemCount }
@@ -153,7 +140,7 @@ export const useActivityEvents = (order: AdminOrder) => {
         if (shipmentEvent) activityEvents.push(shipmentEvent);
       }
 
-      // Marked as picked up (Pickup)
+      // Picked up (for pickup orders -- shown when order is delivered)
       if (isPickup && order.fulfillment_status === "delivered") {
         const timestamp = shippedAt || fulfillment.updated_at || order.updated_at;
         const pickedUpEvent = createEvent(
@@ -166,8 +153,8 @@ export const useActivityEvents = (order: AdminOrder) => {
         if (pickedUpEvent) activityEvents.push(pickedUpEvent);
       }
 
-      // Marked as delivered (QuickShipper)
-      if (isQuickShipper && order.fulfillment_status === "delivered") {
+      // Delivered (for shipping orders -- shown when order is delivered)
+      if (isShipping && order.fulfillment_status === "delivered") {
         const shippedTime = shippedAt ? new Date(shippedAt).getTime() : null;
         const updatedTime = fulfillment.updated_at ? new Date(fulfillment.updated_at).getTime() : null;
         const orderUpdatedTime = order.updated_at ? new Date(order.updated_at).getTime() : null;
@@ -218,4 +205,3 @@ export const useActivityEvents = (order: AdminOrder) => {
 
   return events;
 };
-

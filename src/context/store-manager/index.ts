@@ -64,7 +64,7 @@ const useStoreManager = create<StoreManagerState>((set, get) => ({
     set({ stores, activeStoreId, activeStore, isHydrated: true });
 
     if (activeStore) {
-      await initializeSdk();
+      await initializeSdk(activeStore.backendUrl);
     }
   },
 

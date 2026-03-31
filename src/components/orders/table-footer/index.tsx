@@ -2,6 +2,13 @@ import { Button } from "@/components/ui/button";
 import React from "react";
 import { FooterProps } from "./hooks";
 import { LoadingSpinner } from "@/components/ui/loading-spinner";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 const Footer: React.FC<FooterProps> = ({
   count,
@@ -82,21 +89,25 @@ const Footer: React.FC<FooterProps> = ({
         <label htmlFor="page-size" className="text-base text-fg-muted">
           Rows per page:
         </label>
-        <select
-          id="page-size"
-          className="border border-theme-border bg-surface text-fg rounded-md px-2 text-base h-12 min-w-[80px]"
-          value={pageSize}
-          onChange={(e) => {
-            handlePageSizeChange(Number(e.target.value));
-          }}
-          disabled={isLoading}
+        <Select
+          value={pageSize.toString()}
+          onValueChange={(value) => handlePageSizeChange(Number(value))}
         >
-          {[10, 20, 30, 40, 50].map((size) => (
-            <option key={size} value={size}>
-              {size}
-            </option>
-          ))}
-        </select>
+          <SelectTrigger
+            id="page-size"
+            className="h-12 min-w-[80px] text-base"
+            disabled={isLoading}
+          >
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {[10, 20, 30, 40, 50].map((size) => (
+              <SelectItem key={size} value={size.toString()}>
+                {size}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
         <span className="text-sm text-fg-muted ml-2 min-w-20 flex items-center justify-center">
           {count === 0 ? (
             <LoadingSpinner />

@@ -89,6 +89,8 @@ const usePrinterSettings = (editingPrinter: Printer | null) => {
         connectionType: printer.connectionType,
         address: printer.address,
         port: printer.port || null,
+        vendorId: printer.vendorId ?? null,
+        productId: printer.productId ?? null,
         companyName: getBrandName(store) || "POS",
         appVersion: import.meta.env.VITE_APP_VERSION ?? null,
         datetime: new Date().toLocaleString(),
@@ -121,6 +123,8 @@ const usePrinterSettings = (editingPrinter: Printer | null) => {
         connectionType: printer.connectionType,
         address: printer.address,
         port: printer.port || null,
+        vendorId: printer.vendorId ?? null,
+        productId: printer.productId ?? null,
       });
       setCashDrawerTestResults((prev) => ({
         ...prev,

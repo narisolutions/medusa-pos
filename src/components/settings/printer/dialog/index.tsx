@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useForm, type SubmitHandler } from "react-hook-form";
 import schemas from "@/utils/schemas";
 import {
@@ -27,6 +27,13 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Printer } from "../hooks";
+import { Loader2, RefreshCw } from "lucide-react";
+
+interface UsbDeviceInfo {
+  vendor_id: number;
+  product_id: number;
+  description: string;
+}
 
 interface Props {
   isOpen: boolean;
@@ -41,6 +48,8 @@ type PrinterFormValues = {
   connectionType: "usb" | "network" | "bluetooth";
   address: string;
   port: string;
+  vendorId?: number;
+  productId?: number;
   isDefault: boolean;
   openCashDrawer: boolean;
   openCashDrawerOnCash: boolean;
@@ -53,6 +62,8 @@ const initialFormData: PrinterFormValues = {
   connectionType: "network",
   address: "",
   port: "",
+  vendorId: undefined,
+  productId: undefined,
   isDefault: false,
   openCashDrawer: false,
   openCashDrawerOnCash: false,
@@ -61,9 +72,13 @@ const initialFormData: PrinterFormValues = {
 
 const connectionConfig = {
   network: { placeholder: "192.168.1.100", label: "IP Address" },
-  usb: { placeholder: "/dev/usb/lp0", label: "USB Port/Device" },
+  usb: { placeholder: "Select or scan for a USB printer", label: "USB Device" },
   bluetooth: { placeholder: "00:11:22:33:44:55", label: "Bluetooth Address" },
 };
+
+function formatVidPid(vendorId: number, productId: number): string {
+  return `${vendorId.toString(16).padStart(4, "0")}:${productId.toString(16).padStart(4, "0")}`;
+}
 
 const PrinterDialog: React.FC<Props> = ({
   isOpen,
@@ -75,7 +90,11 @@ const PrinterDialog: React.FC<Props> = ({
     defaultValues: initialFormData,
   });
 
-  const { control, handleSubmit, reset, watch, setError, clearErrors } = form;
+  const { control, handleSubmit, reset, watch, setValue, setError, clearErrors } = form;
+
+  const [usbDevices, setUsbDevices] = useState<UsbDeviceInfo[]>([]);
+  const [isScanning, setIsScanning] = useState(false);
+  const [scanError, setScanError] = useState<string | null>(null);
 
   useEffect(() => {
     if (editingPrinter) {
@@ -85,6 +104,8 @@ const PrinterDialog: React.FC<Props> = ({
         connectionType: editingPrinter.connectionType,
         address: editingPrinter.address,
         port: editingPrinter.port || "",
+        vendorId: editingPrinter.vendorId,
+        productId: editingPrinter.productId,
         isDefault: editingPrinter.isDefault,
         openCashDrawer: editingPrinter.openCashDrawer ?? false,
         openCashDrawerOnCash: editingPrinter.openCashDrawerOnCash ?? false,
@@ -94,15 +115,53 @@ const PrinterDialog: React.FC<Props> = ({
       reset(initialFormData);
     }
     clearErrors();
+    setScanError(null);
   }, [editingPrinter, isOpen, reset, clearErrors]);
+
+  const scanUsbDevices = async () => {
+    setIsScanning(true);
+    setScanError(null);
+    try {
+      const { invoke } = await import("@tauri-apps/api/core");
+      const devices = await invoke<UsbDeviceInfo[]>("list_usb_devices");
+      setUsbDevices(devices);
+      if (devices.length === 0) {
+        setScanError("No USB printers found. Make sure your printer is plugged in and powered on.");
+      }
+    } catch (error) {
+      setScanError(
+        error instanceof Error ? error.message : "Failed to scan USB devices"
+      );
+      setUsbDevices([]);
+    } finally {
+      setIsScanning(false);
+    }
+  };
+
+  const handleUsbDeviceSelect = (value: string) => {
+    const device = usbDevices.find(
+      (d) => `${d.vendor_id}:${d.product_id}` === value
+    );
+    if (device) {
+      setValue("vendorId", device.vendor_id);
+      setValue("productId", device.product_id);
+      setValue("address", `${device.description} (${formatVidPid(device.vendor_id, device.product_id)})`);
+    }
+  };
 
   const handleClose = () => {
     reset(initialFormData);
+    setUsbDevices([]);
+    setScanError(null);
     onClose();
   };
 
   const onSubmit: SubmitHandler<PrinterFormValues> = async (values) => {
     try {
+      if (values.connectionType === "usb" && (!values.vendorId || !values.productId)) {
+        setError("address", { type: "manual", message: "Please scan and select a USB printer" });
+        return;
+      }
       schemas.printer.parse(values);
       clearErrors();
       await onSave(values);
@@ -127,6 +186,12 @@ const PrinterDialog: React.FC<Props> = ({
     initialFormData.connectionType;
   const config = connectionConfig[connectionType];
   const cashDrawerEnabled = watch("openCashDrawer");
+  const currentVendorId = watch("vendorId");
+  const currentProductId = watch("productId");
+  const selectedUsbKey =
+    currentVendorId && currentProductId
+      ? `${currentVendorId}:${currentProductId}`
+      : "";
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
@@ -172,7 +237,14 @@ const PrinterDialog: React.FC<Props> = ({
                   </FormLabel>
                   <FormControl>
                     <Select
-                      onValueChange={field.onChange}
+                      onValueChange={(value) => {
+                        field.onChange(value);
+                        if (value === "usb") {
+                          setValue("address", "");
+                          setValue("vendorId", undefined);
+                          setValue("productId", undefined);
+                        }
+                      }}
                       value={field.value}
                     >
                       <SelectTrigger className="h-12 text-lg px-4">
@@ -196,25 +268,104 @@ const PrinterDialog: React.FC<Props> = ({
               )}
             />
 
-            <FormField
-              control={control}
-              name="address"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-lg font-medium">
-                    {config.label}
-                  </FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder={config.placeholder}
-                      className="h-12 text-lg px-4"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage className="text-base" />
-                </FormItem>
-              )}
-            />
+            {connectionType === "usb" ? (
+              <FormField
+                control={control}
+                name="address"
+                render={() => (
+                  <FormItem>
+                    <div className="flex items-center justify-between">
+                      <FormLabel className="text-lg font-medium">
+                        {config.label}
+                      </FormLabel>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={scanUsbDevices}
+                        disabled={isScanning}
+                        className="h-8 text-sm"
+                      >
+                        {isScanning ? (
+                          <Loader2 className="h-4 w-4 animate-spin mr-1.5" />
+                        ) : (
+                          <RefreshCw className="h-4 w-4 mr-1.5" />
+                        )}
+                        {isScanning ? "Scanning..." : "Scan Devices"}
+                      </Button>
+                    </div>
+                    <FormControl>
+                      <Select
+                        onValueChange={handleUsbDeviceSelect}
+                        value={selectedUsbKey}
+                      >
+                        <SelectTrigger className="h-12 text-lg px-4">
+                          {selectedUsbKey ? (
+                            <span className="truncate">
+                              {usbDevices.find(
+                                (d) =>
+                                  `${d.vendor_id}:${d.product_id}` ===
+                                  selectedUsbKey
+                              )?.description ||
+                                watch("address") ||
+                                formatVidPid(currentVendorId!, currentProductId!)}
+                            </span>
+                          ) : (
+                            <span className="text-fg-muted">
+                              {config.placeholder}
+                            </span>
+                          )}
+                        </SelectTrigger>
+                        <SelectContent>
+                          {usbDevices.length === 0 && !isScanning && (
+                            <div className="px-3 py-4 text-base text-fg-muted text-center">
+                              Click &quot;Scan Devices&quot; to detect USB printers
+                            </div>
+                          )}
+                          {usbDevices.map((device) => (
+                            <SelectItem
+                              key={`${device.vendor_id}:${device.product_id}`}
+                              value={`${device.vendor_id}:${device.product_id}`}
+                            >
+                              <div className="flex flex-col">
+                                <span>{device.description}</span>
+                                <span className="text-sm text-fg-muted">
+                                  {formatVidPid(device.vendor_id, device.product_id)}
+                                </span>
+                              </div>
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </FormControl>
+                    {scanError && (
+                      <p className="text-sm text-destructive mt-1">{scanError}</p>
+                    )}
+                    <FormMessage className="text-base" />
+                  </FormItem>
+                )}
+              />
+            ) : (
+              <FormField
+                control={control}
+                name="address"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-lg font-medium">
+                      {config.label}
+                    </FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder={config.placeholder}
+                        className="h-12 text-lg px-4"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage className="text-base" />
+                  </FormItem>
+                )}
+              />
+            )}
 
             {connectionType === "network" && (
               <FormField

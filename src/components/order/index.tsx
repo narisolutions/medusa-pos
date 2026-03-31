@@ -55,7 +55,7 @@ const Order: React.FC<Props> = ({ order }) => {
   const { display_id, created_at, status, payment_status, fulfillment_status } =
     order;
 
-  return (
+    return (
     <div className="bg-surface p-10 rounded-lg space-y-6 h-full flex flex-col">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">

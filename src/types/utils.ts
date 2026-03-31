@@ -200,7 +200,7 @@ interface OrdersResult {
 
 interface ActivityEvent {
   id: string;
-  type: "delivered" | "fulfilled" | "payment_captured" | "awaiting_payment" | "order_placed" | "shipment_created" | "marked_picked_up";
+  type: "delivered" | "fulfilled" | "payment_captured" | "awaiting_payment" | "order_placed" | "shipment_created" | "shipped" | "marked_picked_up";
   title: string;
   timestamp: string;
   amount?: number;

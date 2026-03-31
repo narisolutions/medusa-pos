@@ -3,9 +3,8 @@ import { AdminOrder } from "@medusajs/types";
 import { Button } from "@/components/ui/button";
 import { Package } from "lucide-react";
 import { formatPrice } from "@/utils/helpers";
-import { useQueryStore } from "@/hooks/queries/useQueryStore";
-import { getGuestCustomerEmail } from "@/utils/store/metadata";
 import constants from "@/utils/constants";
+import { getOrderContactEmail } from "../hooks";
 
 interface ItemsProps {
   order: AdminOrder;
@@ -22,8 +21,9 @@ const Items: React.FC<ItemsProps> = ({
   const currency =
     currency_code || constants.CHECKOUT_CONFIG.CURRENCY;
 
-  const { data: store } = useQueryStore();
-  const guestEmail = getGuestCustomerEmail(store);
+  const contactEmail = getOrderContactEmail(order);
+  const showFulfillButton =
+    isNegativeFulfillmentStatus && !!contactEmail;
 
   return (
     <div className="rounded-lg border border-theme-border overflow-hidden shadow-sm bg-surface flex flex-col h-full">
@@ -34,21 +34,18 @@ const Items: React.FC<ItemsProps> = ({
             <h2 className="text-lg font-semibold text-fg">Order Items</h2>
             <span className="text-base text-fg-subtle">({items?.length || 0} items)</span>
           </div>
-          {isNegativeFulfillmentStatus &&
-            order?.customer?.email &&
-            guestEmail &&
-            order.customer.email !== guestEmail && (
-              <div>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={onOpenFulfillmentDialog}
-                  className="bg-primary hover:bg-primary/90 text-white text-sm font-semibold py-2.5 px-5 touch-manipulation whitespace-nowrap"
-                >
-                  Fulfill items
-                </Button>
-              </div>
-            )}
+          {showFulfillButton && (
+            <div>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={onOpenFulfillmentDialog}
+                className="bg-primary hover:bg-primary/90 text-white text-sm font-semibold py-2.5 px-5 touch-manipulation whitespace-nowrap"
+              >
+                Fulfill items
+              </Button>
+            </div>
+          )}
         </div>
       </div>
       <div className="p-6 space-y-3 overflow-y-auto flex-1 min-h-0">
@@ -121,4 +118,3 @@ const Items: React.FC<ItemsProps> = ({
 };
 
 export default Items;
-

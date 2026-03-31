@@ -98,9 +98,14 @@ const useDraftOrder = () => {
       const sdk = getSdk();
       setIsLoading(true);
 
-      const pickUpMethod = shippingOptions?.find((option) =>
-        option.name.toLowerCase().includes("pickup")
-      );
+      // Prefer a pickup-style option; otherwise attach the first available option so the
+      // converted order has `shipping_methods` and admin fulfillments can resolve a provider.
+      // Vanilla Medusa seeds often have "Standard Shipping" but nothing named "pickup".
+      const shippingOptionForDraft =
+        shippingOptions?.find((option) =>
+          option.name.toLowerCase().includes("pickup")
+        ) ?? shippingOptions?.[0];
+
       try {
         // Sanitize metadata to remove empty values before creating draft order
         const sanitizedMetadata = sanitizeDraftOrderMetadata(
@@ -129,11 +134,11 @@ const useDraftOrder = () => {
             },
           }),
           sales_channel_id: salesChannelId,
-          ...(pickUpMethod && {
+          ...(shippingOptionForDraft && {
             shipping_methods: [
               {
-                shipping_option_id: pickUpMethod.id,
-                name: pickUpMethod.name,
+                shipping_option_id: shippingOptionForDraft.id,
+                name: shippingOptionForDraft.name,
                 amount: 0,
               },
             ],

@@ -49,8 +49,11 @@ const useLogin = (isConfigured: boolean) => {
     } catch (e: unknown) {
       console.error("Login error:", e);
 
-      if (e instanceof Error && e.message.includes("HTTP 401")) {
+      const status = (e as { status?: number })?.status;
+      if (status === 401 || (e instanceof Error && e.message.includes("HTTP 401"))) {
         handleErrorToast("Incorrect email or password");
+      } else if (!status) {
+        handleErrorToast("Backend unreachable — please check your connection or switch stores.");
       } else {
         handleErrorToast(e);
       }
