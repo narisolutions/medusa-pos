@@ -72,36 +72,43 @@ pub fn has_physical_keyboard() -> bool {
 #[cfg(target_os = "windows")]
 pub fn show_virtual_keyboard() {
     use std::process::Command;
-    use windows::Win32::UI::WindowsAndMessaging::{
-        FindWindowW, IsWindowVisible, ShowWindow, SW_SHOW,
-    };
-    use windows::core::w;
 
     log::info!("show_virtual_keyboard called");
 
-    unsafe {
-        // Ensure TabTip.exe is running (explorer.exe can launch it without elevation)
-        let already_running = FindWindowW(w!("IPTip_Main_Window"), None).is_ok();
-        if !already_running {
-            log::info!("TabTip not running, launching via explorer");
-            let tabtip = r"C:\Program Files\Common Files\microsoft shared\ink\TabTip.exe";
-            let _ = Command::new("explorer.exe").arg(tabtip).spawn();
-            // Give it a moment to start
-            std::thread::sleep(std::time::Duration::from_millis(500));
-        }
+    // Use PowerShell with .NET COM interop to toggle the touch keyboard.
+    // This is the most reliable approach — .NET handles the ITipInvocation
+    // COM interface correctly without elevation.
+    let script = r#"
+Add-Type -TypeDefinition @"
+using System;
+using System.Runtime.InteropServices;
+public class TouchKeyboard {
+    [ComImport, Guid("4CE576FA-83DC-4F88-951C-9D0782B4E376")]
+    class UIHostNoLaunch {}
+    [ComImport, Guid("37c994e7-432b-4834-a2f7-dce1f13b834b")]
+    [InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
+    interface ITipInvocation {
+        void Toggle(IntPtr hwnd);
+    }
+    [DllImport("user32.dll")]
+    static extern IntPtr GetDesktopWindow();
+    public static void Toggle() {
+        var tip = (ITipInvocation) new UIHostNoLaunch();
+        tip.Toggle(GetDesktopWindow());
+        Marshal.ReleaseComObject(tip);
+    }
+}
+"@
+[TouchKeyboard]::Toggle()
+"#;
 
-        // Now find and show the window
-        match FindWindowW(w!("IPTip_Main_Window"), None) {
-            Ok(hwnd) => {
-                if !IsWindowVisible(hwnd).as_bool() {
-                    let _ = ShowWindow(hwnd, SW_SHOW);
-                }
-                log::info!("Touch keyboard shown");
-            }
-            Err(_) => {
-                log::warn!("Touch keyboard window not found after launch attempt");
-            }
-        }
+    match Command::new("powershell")
+        .args(["-NoProfile", "-NonInteractive", "-Command", script])
+        .creation_flags(0x08000000) // CREATE_NO_WINDOW
+        .spawn()
+    {
+        Ok(_) => log::info!("Touch keyboard toggle initiated"),
+        Err(e) => log::warn!("Failed to toggle touch keyboard: {}", e),
     }
 }
 
