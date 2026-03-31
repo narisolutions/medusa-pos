@@ -5,6 +5,7 @@ import { AdminOrder } from "@medusajs/types";
 import { useQueryOrders } from "@/hooks/queries/useQueryOrders";
 import storage from "@/utils/storage";
 import constants from "@/utils/constants";
+import { classifyOrderShippingMethod, getShippingMethodLabel } from "@/utils/fulfillment";
 
 const columnHelper = createColumnHelper<AdminOrder>();
 
@@ -74,29 +75,24 @@ const useOrders = () => {
         header: "Method",
         cell: (info) => {
           const order = info.row.original;
-          const shippingMethods = order.shipping_methods?.[0] as
-            | { name?: string }
-            | undefined;
-          const providerName = shippingMethods?.name?.toLowerCase();
-          console.log(providerName);
+          const label = getShippingMethodLabel(order);
+          if (!label) return null;
 
-          if (providerName === "quickshipper shipping") {
-            return (
-              <span className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium border bg-blue-100 text-blue-700 border-blue-200">
-                QuickShipper
-              </span>
-            );
-          }
+          const { isPickup } = classifyOrderShippingMethod(order);
 
-          if (providerName === "pickup") {
+          if (isPickup) {
             return (
               <span className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium border bg-purple-100 text-purple-700 border-purple-200">
-                Pickup
+                {label}
               </span>
             );
           }
 
-          return null;
+          return (
+            <span className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium border bg-blue-100 text-blue-700 border-blue-200">
+              {label}
+            </span>
+          );
         },
       }),
       columnHelper.accessor("created_at", {
