@@ -492,10 +492,14 @@ fn update_splash(app_handle: tauri::AppHandle, message: String, is_error: bool) 
 #[tauri::command]
 fn close_splash(app_handle: tauri::AppHandle) {
     if let Some(splash) = app_handle.get_webview_window("splash") {
-        let _ = splash.close();
+        if let Err(e) = splash.close() {
+            log::error!("Failed to close splash window: {}", e);
+        }
     }
     if let Some(main) = app_handle.get_webview_window("main") {
-        let _ = main.show();
+        if let Err(e) = main.show() {
+            log::error!("Failed to show main window: {}", e);
+        }
     }
 }
 
@@ -749,20 +753,10 @@ pub fn run() {
 
     tauri::Builder::default()
         .setup(|app| {
-            let splash_html = include_str!("../splash.html");
-            let encoded: String = splash_html
-                .bytes()
-                .map(|b| match b {
-                    b'A'..=b'Z' | b'a'..=b'z' | b'0'..=b'9'
-                    | b'-' | b'_' | b'.' | b'~' => (b as char).to_string(),
-                    _ => format!("%{:02X}", b),
-                })
-                .collect();
-            let data_url = format!("data:text/html,{}", encoded);
             WebviewWindowBuilder::new(
                 app,
                 "splash",
-                tauri::WebviewUrl::External(data_url.parse().unwrap()),
+                tauri::WebviewUrl::App("splash.html".into()),
             )
             .title("Medusa POS")
             .inner_size(400.0, 300.0)
@@ -771,6 +765,18 @@ pub fn run() {
             .center()
             .always_on_top(true)
             .build()?;
+
+            let handle = app.handle().clone();
+            std::thread::spawn(move || {
+                std::thread::sleep(std::time::Duration::from_secs(30));
+                if let Some(splash) = handle.get_webview_window("splash") {
+                    log::warn!("Splash safety timeout reached - force-closing");
+                    let _ = splash.close();
+                }
+                if let Some(main) = handle.get_webview_window("main") {
+                    let _ = main.show();
+                }
+            });
 
             Ok(())
         })

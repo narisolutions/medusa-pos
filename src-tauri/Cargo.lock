@@ -4718,7 +4718,6 @@ dependencies = [
  "anyhow",
  "bytes",
  "cookie",
- "data-url",
  "dirs",
  "dunce",
  "embed_plist",
