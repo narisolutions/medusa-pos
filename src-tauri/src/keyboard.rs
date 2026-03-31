@@ -29,7 +29,7 @@ pub fn has_physical_keyboard() -> bool {
         }
 
         for dev in &devices {
-            if dev.dwType == RIM_TYPEKEYBOARD.0 {
+            if dev.dwType == RIM_TYPEKEYBOARD {
                 // Get device name to filter out virtual/RDP keyboards
                 let mut name_len: u32 = 0;
                 let _ = GetRawInputDeviceInfoW(
@@ -93,7 +93,7 @@ pub fn hide_virtual_keyboard() {
         let hwnd = FindWindowW(w!("IPTip_Main_Window"), None);
         if let Ok(hwnd) = hwnd {
             let _ = PostMessageW(
-                Some(hwnd),
+                hwnd,
                 WM_SYSCOMMAND,
                 windows::Win32::Foundation::WPARAM(SC_CLOSE as usize),
                 windows::Win32::Foundation::LPARAM(0),
