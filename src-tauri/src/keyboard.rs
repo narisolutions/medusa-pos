@@ -71,58 +71,35 @@ pub fn has_physical_keyboard() -> bool {
 
 #[cfg(target_os = "windows")]
 pub fn show_virtual_keyboard() {
-    use windows::Win32::UI::WindowsAndMessaging::{FindWindowW, ShowWindow, SW_SHOW};
-    use windows::Win32::System::Com::{
-        CoCreateInstance, CoInitializeEx, CLSCTX_LOCAL_SERVER, COINIT_APARTMENTTHREADED,
+    use std::process::Command;
+    use windows::Win32::UI::WindowsAndMessaging::{
+        FindWindowW, IsWindowVisible, ShowWindow, SW_SHOW,
     };
-    use windows::core::{w, Interface, GUID};
+    use windows::core::w;
 
     log::info!("show_virtual_keyboard called");
 
     unsafe {
-        let _ = CoInitializeEx(None, COINIT_APARTMENTTHREADED);
-
-        // CLSID_UIHostNoLaunch: {4CE576FA-83DC-4F88-951C-9D0782B4E376}
-        let clsid = GUID::from_values(
-            0x4CE576FA, 0x83DC, 0x4F88, [0x95, 0x1C, 0x9D, 0x07, 0x82, 0xB4, 0xE3, 0x76],
-        );
-
-        // Try COM ITipInvocation approach
-        let result: Result<windows::core::IUnknown, _> =
-            CoCreateInstance(&clsid, None, CLSCTX_LOCAL_SERVER);
-
-        match result {
-            Ok(tip) => {
-                log::info!("COM ITipInvocation created successfully");
-                // ITipInvocation::Toggle(HWND) is at vtable index 3
-                let vtable = *(tip.as_raw() as *const *const usize);
-                let toggle: unsafe extern "system" fn(
-                    *mut core::ffi::c_void,
-                    windows::Win32::Foundation::HWND,
-                ) -> windows::core::HRESULT =
-                    std::mem::transmute(*vtable.add(3));
-
-                let desktop = windows::Win32::UI::WindowsAndMessaging::GetDesktopWindow();
-                let hr = toggle(tip.as_raw(), desktop);
-                if hr.is_ok() {
-                    log::info!("Touch keyboard toggled via COM");
-                    return;
-                }
-                log::warn!("ITipInvocation::Toggle failed: {:?}", hr);
-            }
-            Err(e) => {
-                log::warn!("CoCreateInstance for touch keyboard failed: {:?}", e);
-            }
+        // Ensure TabTip.exe is running (explorer.exe can launch it without elevation)
+        let already_running = FindWindowW(w!("IPTip_Main_Window"), None).is_ok();
+        if !already_running {
+            log::info!("TabTip not running, launching via explorer");
+            let tabtip = r"C:\Program Files\Common Files\microsoft shared\ink\TabTip.exe";
+            let _ = Command::new("explorer.exe").arg(tabtip).spawn();
+            // Give it a moment to start
+            std::thread::sleep(std::time::Duration::from_millis(500));
         }
 
-        // Fallback: if the keyboard window exists, show it
+        // Now find and show the window
         match FindWindowW(w!("IPTip_Main_Window"), None) {
             Ok(hwnd) => {
-                log::info!("Found touch keyboard window, showing it");
-                let _ = ShowWindow(hwnd, SW_SHOW);
+                if !IsWindowVisible(hwnd).as_bool() {
+                    let _ = ShowWindow(hwnd, SW_SHOW);
+                }
+                log::info!("Touch keyboard shown");
             }
             Err(_) => {
-                log::warn!("Touch keyboard window not found");
+                log::warn!("Touch keyboard window not found after launch attempt");
             }
         }
     }
