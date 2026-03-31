@@ -6,7 +6,6 @@ use escpos::{
     driver::*, errors::PrinterError, printer::Printer, printer_options::PrinterOptions, utils::*,
 };
 use tauri::Manager;
-use tauri::WebviewWindowBuilder;
 use tauri_plugin_log::{Target, TargetKind};
 
 mod config;
@@ -478,37 +477,6 @@ async fn print_receipt(
     }
 }
 
-#[tauri::command]
-fn update_splash(app_handle: tauri::AppHandle, message: String, is_error: bool) {
-    if let Some(splash) = app_handle.get_webview_window("splash") {
-        let escaped = message.replace('\\', "\\\\").replace('\'', "\\'");
-        let _ = splash.eval(&format!(
-            "updateSplash('{}', {})",
-            escaped, is_error
-        ));
-    }
-}
-
-#[tauri::command]
-fn close_splash(app_handle: tauri::AppHandle) {
-    log::info!("close_splash command called");
-    if let Some(splash) = app_handle.get_webview_window("splash") {
-        log::info!("Found splash window, hiding then destroying");
-        let _ = splash.hide();
-        if let Err(e) = splash.destroy() {
-            log::error!("Failed to destroy splash window: {}", e);
-        } else {
-            log::info!("Splash window destroyed successfully");
-        }
-    } else {
-        log::warn!("close_splash called but splash window not found");
-    }
-    if let Some(main) = app_handle.get_webview_window("main") {
-        if let Err(e) = main.show() {
-            log::error!("Failed to show main window: {}", e);
-        }
-    }
-}
 
 #[tauri::command]
 fn check_config_exists() -> bool {
@@ -759,34 +727,7 @@ pub fn run() {
     };
 
     tauri::Builder::default()
-        .setup(|app| {
-            WebviewWindowBuilder::new(
-                app,
-                "splash",
-                tauri::WebviewUrl::App("splash.html".into()),
-            )
-            .title("Medusa POS")
-            .inner_size(400.0, 300.0)
-            .resizable(false)
-            .decorations(false)
-            .center()
-            .always_on_top(true)
-            .background_color(tauri::window::Color(9, 9, 11, 255))
-            .build()?;
-
-            let handle = app.handle().clone();
-            std::thread::spawn(move || {
-                std::thread::sleep(std::time::Duration::from_secs(30));
-                if let Some(splash) = handle.get_webview_window("splash") {
-                    log::warn!("Splash safety timeout reached - force-closing");
-                    let _ = splash.hide();
-                    let _ = splash.destroy();
-                }
-                if let Some(main) = handle.get_webview_window("main") {
-                    let _ = main.show();
-                }
-            });
-
+        .setup(|_app| {
             Ok(())
         })
         .plugin(
@@ -810,8 +751,6 @@ pub fn run() {
         .plugin(tauri_plugin_process::init())
         .plugin(tauri_plugin_updater::Builder::new().build())
         .invoke_handler(tauri::generate_handler![
-            update_splash,
-            close_splash,
             print_test,
             open_cash_drawer,
             print_receipt,
