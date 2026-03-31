@@ -71,6 +71,7 @@ pub fn has_physical_keyboard() -> bool {
 
 #[cfg(target_os = "windows")]
 pub fn show_virtual_keyboard() {
+    use std::os::windows::process::CommandExt;
     use std::process::Command;
 
     log::info!("show_virtual_keyboard called");
