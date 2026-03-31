@@ -492,8 +492,8 @@ fn update_splash(app_handle: tauri::AppHandle, message: String, is_error: bool) 
 #[tauri::command]
 fn close_splash(app_handle: tauri::AppHandle) {
     if let Some(splash) = app_handle.get_webview_window("splash") {
-        if let Err(e) = splash.close() {
-            log::error!("Failed to close splash window: {}", e);
+        if let Err(e) = splash.destroy() {
+            log::error!("Failed to destroy splash window: {}", e);
         }
     }
     if let Some(main) = app_handle.get_webview_window("main") {
@@ -764,6 +764,7 @@ pub fn run() {
             .decorations(false)
             .center()
             .always_on_top(true)
+            .background_color(tauri::window::Color(9, 9, 11, 255))
             .build()?;
 
             let handle = app.handle().clone();
@@ -771,7 +772,7 @@ pub fn run() {
                 std::thread::sleep(std::time::Duration::from_secs(30));
                 if let Some(splash) = handle.get_webview_window("splash") {
                     log::warn!("Splash safety timeout reached - force-closing");
-                    let _ = splash.close();
+                    let _ = splash.destroy();
                 }
                 if let Some(main) = handle.get_webview_window("main") {
                     let _ = main.show();
