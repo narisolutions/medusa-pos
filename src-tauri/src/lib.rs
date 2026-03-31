@@ -491,10 +491,17 @@ fn update_splash(app_handle: tauri::AppHandle, message: String, is_error: bool) 
 
 #[tauri::command]
 fn close_splash(app_handle: tauri::AppHandle) {
+    log::info!("close_splash command called");
     if let Some(splash) = app_handle.get_webview_window("splash") {
+        log::info!("Found splash window, hiding then destroying");
+        let _ = splash.hide();
         if let Err(e) = splash.destroy() {
             log::error!("Failed to destroy splash window: {}", e);
+        } else {
+            log::info!("Splash window destroyed successfully");
         }
+    } else {
+        log::warn!("close_splash called but splash window not found");
     }
     if let Some(main) = app_handle.get_webview_window("main") {
         if let Err(e) = main.show() {
@@ -772,6 +779,7 @@ pub fn run() {
                 std::thread::sleep(std::time::Duration::from_secs(30));
                 if let Some(splash) = handle.get_webview_window("splash") {
                     log::warn!("Splash safety timeout reached - force-closing");
+                    let _ = splash.hide();
                     let _ = splash.destroy();
                 }
                 if let Some(main) = handle.get_webview_window("main") {
