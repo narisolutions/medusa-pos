@@ -12,6 +12,7 @@ import useApplyTheme from "./hooks/ui/useApplyTheme";
 import useUpdateCheck from "./hooks/update/useUpdateCheck";
 import useFullscreenToggle from "./hooks/ui/useFullscreenToggle";
 import { useUser } from "./context/user";
+import { VirtualKeyboardProvider } from "./context/virtual-keyboard";
 import constants from "./utils/constants";
 
 function AppContent() {
@@ -48,12 +49,14 @@ function App() {
   }, [retry]);
 
   return (
-    <QueryClientProvider client={queryClient}>
-      {!bootLoading && <AppContent />}
-      {bootLoading && !bootTimedOut && <Backdrop loading showLogo message={bootMessage} />}
-      {bootLoading && bootTimedOut && <BootEscapeOverlay onRetry={handleRetry} />}
-      {!bootLoading && globalLoading && <Backdrop loading />}
-    </QueryClientProvider>
+    <VirtualKeyboardProvider>
+      <QueryClientProvider client={queryClient}>
+        {!bootLoading && <AppContent />}
+        {bootLoading && !bootTimedOut && <Backdrop loading showLogo message={bootMessage} />}
+        {bootLoading && bootTimedOut && <BootEscapeOverlay onRetry={handleRetry} />}
+        {!bootLoading && globalLoading && <Backdrop loading />}
+      </QueryClientProvider>
+    </VirtualKeyboardProvider>
   );
 }
 

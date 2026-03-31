@@ -61,15 +61,22 @@ const PrinterSettings: React.FC = () => {
     const result = testResults[printer.id];
     if (result) {
       return (
-        <div className="flex items-center space-x-3">
-          <div
-            className={`h-3 w-3 rounded-full ${result.success ? "bg-green-500" : "bg-red-500"}`}
-          />
-          <span
-            className={`text-lg ${result.success ? "text-green-600" : "text-red-600"}`}
-          >
-            {result.success ? "Online" : "Offline"}
-          </span>
+        <div className="flex flex-col gap-1">
+          <div className="flex items-center space-x-3">
+            <div
+              className={`h-3 w-3 rounded-full ${result.success ? "bg-green-500" : "bg-red-500"}`}
+            />
+            <span
+              className={`text-lg ${result.success ? "text-green-600" : "text-red-600"}`}
+            >
+              {result.success ? "Online" : "Offline"}
+            </span>
+          </div>
+          {!result.success && result.message && (
+            <span className="text-sm text-red-500 max-w-[260px] truncate" title={result.message}>
+              {result.message}
+            </span>
+          )}
         </div>
       );
     }
