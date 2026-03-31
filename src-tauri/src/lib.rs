@@ -499,13 +499,8 @@ fn check_physical_keyboard() -> bool {
 }
 
 #[tauri::command]
-fn show_virtual_keyboard() {
-    keyboard::show_virtual_keyboard();
-}
-
-#[tauri::command]
-fn hide_virtual_keyboard() {
-    keyboard::hide_virtual_keyboard();
+fn toggle_virtual_keyboard() {
+    keyboard::toggle_virtual_keyboard();
 }
 
 #[tauri::command]
@@ -796,8 +791,7 @@ pub fn run() {
         .plugin(tauri_plugin_updater::Builder::new().build())
         .invoke_handler(tauri::generate_handler![
             check_physical_keyboard,
-            show_virtual_keyboard,
-            hide_virtual_keyboard,
+            toggle_virtual_keyboard,
             print_test,
             open_cash_drawer,
             print_receipt,

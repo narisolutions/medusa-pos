@@ -9,17 +9,23 @@ const Input = React.forwardRef<
   React.ComponentProps<"input">
 >(({ className, type, onFocus, onBlur, onContextMenu, ...props }, ref) => {
   const hasTextSize = className && /text-(xs|sm|base|lg|xl|\d+xl)/.test(className);
-  const { showKeyboard, hideKeyboard, toggleKeyboard } = useVirtualKeyboard();
+  const { needsVirtualKeyboard, toggleKeyboard } = useVirtualKeyboard();
   const [menuPos, setMenuPos] = useState<{ x: number; y: number } | null>(null);
   const menuRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement | null>(null);
 
   const handleFocus = (e: React.FocusEvent<HTMLInputElement>) => {
-    showKeyboard();
+    if (needsVirtualKeyboard) {
+      toggleKeyboard();
+      // Scroll input into view so the keyboard doesn't hide it
+      setTimeout(() => {
+        e.target.scrollIntoView({ behavior: "smooth", block: "center" });
+      }, 300);
+    }
     onFocus?.(e);
   };
 
   const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
-    hideKeyboard();
     onBlur?.(e);
   };
 
@@ -47,10 +53,17 @@ const Input = React.forwardRef<
     };
   }, [menuPos]);
 
+  // Merge refs
+  const setRefs = (el: HTMLInputElement | null) => {
+    inputRef.current = el;
+    if (typeof ref === "function") ref(el);
+    else if (ref) ref.current = el;
+  };
+
   return (
     <>
       <input
-        ref={ref}
+        ref={setRefs}
         type={type}
         data-slot="input"
         className={cn(
@@ -81,7 +94,7 @@ const Input = React.forwardRef<
               setMenuPos(null);
             }}
           >
-            Show virtual keyboard
+            Toggle virtual keyboard
           </button>
         </div>
       )}
