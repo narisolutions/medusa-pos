@@ -27,6 +27,7 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Printer } from "../hooks";
+import { getTauriInvokeErrorMessage } from "@/utils/helpers";
 import { Loader2, RefreshCw } from "lucide-react";
 
 interface UsbDeviceInfo {
@@ -130,7 +131,7 @@ const PrinterDialog: React.FC<Props> = ({
       }
     } catch (error) {
       setScanError(
-        error instanceof Error ? error.message : "Failed to scan USB devices"
+        getTauriInvokeErrorMessage(error, "Failed to scan USB devices")
       );
       setUsbDevices([]);
     } finally {

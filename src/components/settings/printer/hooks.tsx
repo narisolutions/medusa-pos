@@ -5,6 +5,7 @@ import storage from "@/utils/storage";
 import { useQueryStore } from "@/hooks/queries/useQueryStore";
 import { useQuerySalesChannel } from "@/hooks/queries/useQuerySalesChannel";
 import { getBrandName } from "@/utils/store/metadata";
+import { getTauriInvokeErrorMessage } from "@/utils/helpers";
 
 export type Printer = Forms["Printer"] & {
   id: string;
@@ -107,7 +108,7 @@ const usePrinterSettings = (editingPrinter: Printer | null) => {
         ...prev,
         [printer.id]: {
           success: false,
-          message: error instanceof Error ? error.message : "Test failed",
+          message: getTauriInvokeErrorMessage(error, "Test failed"),
         },
       }));
     } finally {
@@ -135,7 +136,7 @@ const usePrinterSettings = (editingPrinter: Printer | null) => {
         ...prev,
         [printer.id]: {
           success: false,
-          message: error instanceof Error ? error.message : "Failed",
+          message: getTauriInvokeErrorMessage(error, "Failed to open cash drawer"),
         },
       }));
     } finally {

@@ -47,7 +47,11 @@ where
 
 // Helper function for error mapping
 fn map_printer_error<T>(result: Result<T, PrinterError>) -> Result<T, String> {
-    result.map_err(|e| e.to_string())
+    result.map_err(|e| {
+        let s = e.to_string();
+        log::error!("Printer error: {s}");
+        s
+    })
 }
 
 fn create_network_printer(
@@ -63,12 +67,22 @@ fn create_network_printer(
 }
 
 fn create_usb_printer(vendor_id: u16, product_id: u16) -> Result<Printer<NativeUsbDriver>, PrinterError> {
-    let driver = NativeUsbDriver::open(vendor_id, product_id)?;
-    Ok(Printer::new(
-        driver,
-        Protocol::default(),
-        Some(PrinterOptions::default()),
-    ))
+    match NativeUsbDriver::open(vendor_id, product_id) {
+        Ok(driver) => Ok(Printer::new(
+            driver,
+            Protocol::default(),
+            Some(PrinterOptions::default()),
+        )),
+        Err(e) => {
+            log::error!(
+                "USB printer open failed (VID {:04x} PID {:04x}): {}",
+                vendor_id,
+                product_id,
+                e
+            );
+            Err(e)
+        }
+    }
 }
 
 fn parse_usb_ids(vendor_id: Option<u16>, product_id: Option<u16>) -> Result<(u16, u16), String> {

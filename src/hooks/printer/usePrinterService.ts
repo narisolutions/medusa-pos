@@ -4,7 +4,11 @@ import { buildReceipt, buildReceiptPDF, ReceiptData } from "@/utils/receipt";
 import { toast } from "sonner";
 import storage from "@/utils/storage";
 import { Printer } from "@/components/settings/printer/hooks";
-import { handleErrorToast, openDownloadsFolder } from "@/utils/helpers";
+import {
+  getTauriInvokeErrorMessage,
+  handleErrorToast,
+  openDownloadsFolder,
+} from "@/utils/helpers";
 import { useQueryStore } from "@/hooks/queries/useQueryStore";
 import {
   getBrandName,
@@ -75,8 +79,10 @@ const usePrinterService = () => {
         });
         return { success: true, message: "Receipt printed successfully" };
       } catch (error) {
-        const errorMessage =
-          error instanceof Error ? error.message : "Failed to print receipt";
+        const errorMessage = getTauriInvokeErrorMessage(
+          error,
+          "Failed to print receipt"
+        );
         console.error("Print error:", errorMessage);
         throw new Error(errorMessage);
       }
@@ -106,8 +112,10 @@ const usePrinterService = () => {
         toast.success("Cash drawer opened");
         return { success: true };
       } catch (error) {
-        const errorMessage =
-          error instanceof Error ? error.message : "Failed to open cash drawer";
+        const errorMessage = getTauriInvokeErrorMessage(
+          error,
+          "Failed to open cash drawer"
+        );
         console.error("Cash drawer error:", errorMessage);
         handleErrorToast(`Cash drawer failed: ${errorMessage}`);
         throw new Error(errorMessage);
