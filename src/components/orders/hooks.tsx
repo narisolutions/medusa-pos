@@ -76,7 +76,13 @@ const useOrders = () => {
         cell: (info) => {
           const order = info.row.original;
           const label = getShippingMethodLabel(order);
-          if (!label) return null;
+          if (!label) {
+            return (
+              <span className="text-base text-fg-muted" aria-label="No shipping method">
+                —
+              </span>
+            );
+          }
 
           const { isPickup } = classifyOrderShippingMethod(order);
 

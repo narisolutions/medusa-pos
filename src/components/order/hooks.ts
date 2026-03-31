@@ -28,6 +28,15 @@ type ExtendedFulfillment = Record<string, unknown> & {
   }>;
 };
 
+/** Email used for checkout / receipts — e.g. fulfill button visibility (includes walk-in guest). */
+export function getOrderContactEmail(order: AdminOrder): string | undefined {
+  const fromCustomer = order.customer?.email;
+  if (fromCustomer && fromCustomer.trim() !== "") return fromCustomer;
+  const fromOrder = order.email;
+  if (fromOrder && fromOrder.trim() !== "") return fromOrder;
+  return undefined;
+}
+
 export const useOrder = (order: AdminOrder) => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();

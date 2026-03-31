@@ -14,6 +14,19 @@ interface FulfillmentItem {
   maxQuantity: number;
 }
 
+function resolveFulfillmentShippingOptionId(
+  order: AdminOrder,
+  selectedId: string
+): string | undefined {
+  if (selectedId.trim() !== "") return selectedId;
+  const fromOrder = order.shipping_methods?.find(
+    (m) =>
+      m.shipping_option_id != null &&
+      String(m.shipping_option_id).trim() !== ""
+  )?.shipping_option_id;
+  return fromOrder ?? undefined;
+}
+
 export const useFulfillmentDialog = (
   order: AdminOrder,
   onClose?: () => void
@@ -60,24 +73,35 @@ export const useFulfillmentDialog = (
       return;
     }
 
+    // Filter items that have quantity > 0
+    const itemsToFulfill = selectedItems
+      .filter((item) => item.quantity > 0)
+      .map((item) => ({
+        id: item.id,
+        quantity: item.quantity,
+      }));
+
+    if (itemsToFulfill.length === 0) {
+      handleErrorToast("Please select at least one item to fulfill");
+      return;
+    }
+
+    const shippingOptionId = resolveFulfillmentShippingOptionId(
+      order,
+      selectedShippingOptionId
+    );
+
+    if (!shippingOptionId) {
+      toast.error("No shipping on this order", {
+        description: "Add a shipping method in Medusa Admin, then try again.",
+      });
+      return;
+    }
+
     setIsProcessing(true);
 
     try {
       const sdk = getSdk();
-
-      // Filter items that have quantity > 0
-      const itemsToFulfill = selectedItems
-        .filter((item) => item.quantity > 0)
-        .map((item) => ({
-          id: item.id,
-          quantity: item.quantity,
-        }));
-
-      if (itemsToFulfill.length === 0) {
-        handleErrorToast("Please select at least one item to fulfill");
-        setIsProcessing(false);
-        return;
-      }
 
       // Create fulfillment
       const fulfillmentPayload: {
@@ -88,14 +112,11 @@ export const useFulfillmentDialog = (
       } = {
         items: itemsToFulfill,
         no_notification: false,
+        shipping_option_id: shippingOptionId,
       };
 
       if (selectedLocationId) {
         fulfillmentPayload.location_id = selectedLocationId;
-      }
-
-      if (selectedShippingOptionId) {
-        fulfillmentPayload.shipping_option_id = selectedShippingOptionId;
       }
 
       const response = await sdk.admin.order.createFulfillment(
@@ -136,11 +157,11 @@ export const useFulfillmentDialog = (
       setIsProcessing(false);
     }
   }, [
+    order,
     selectedItems,
     hasSelectedItems,
     selectedLocationId,
     selectedShippingOptionId,
-    order.id,
     onClose,
     queryClient,
   ]);
