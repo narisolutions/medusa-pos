@@ -70,15 +70,13 @@ pub fn has_physical_keyboard() -> bool {
 }
 
 #[cfg(target_os = "windows")]
-pub fn show_virtual_keyboard() {
+pub fn toggle_virtual_keyboard() {
     use std::os::windows::process::CommandExt;
     use std::process::Command;
 
-    log::info!("show_virtual_keyboard called");
+    log::info!("toggle_virtual_keyboard called");
 
-    // Use PowerShell with .NET COM interop to toggle the touch keyboard.
-    // This is the most reliable approach — .NET handles the ITipInvocation
-    // COM interface correctly without elevation.
+    // ITipInvocation::Toggle is a true toggle — it shows or hides the keyboard.
     let script = r#"
 Add-Type -TypeDefinition @"
 using System;
@@ -110,26 +108,6 @@ public class TouchKeyboard {
     {
         Ok(_) => log::info!("Touch keyboard toggle initiated"),
         Err(e) => log::warn!("Failed to toggle touch keyboard: {}", e),
-    }
-}
-
-#[cfg(target_os = "windows")]
-pub fn hide_virtual_keyboard() {
-    use windows::Win32::UI::WindowsAndMessaging::{
-        FindWindowW, PostMessageW, SC_CLOSE, WM_SYSCOMMAND,
-    };
-    use windows::core::w;
-
-    unsafe {
-        let hwnd = FindWindowW(w!("IPTip_Main_Window"), None);
-        if let Ok(hwnd) = hwnd {
-            let _ = PostMessageW(
-                hwnd,
-                WM_SYSCOMMAND,
-                windows::Win32::Foundation::WPARAM(SC_CLOSE as usize),
-                windows::Win32::Foundation::LPARAM(0),
-            );
-        }
     }
 }
 
@@ -186,23 +164,23 @@ pub fn has_physical_keyboard() -> bool {
 }
 
 #[cfg(target_os = "linux")]
-pub fn show_virtual_keyboard() {
+pub fn toggle_virtual_keyboard() {
     use std::process::Command;
     // Try common Linux virtual keyboards in order of preference
     for cmd in &["onboard", "squeekboard", "florence", "xvkbd"] {
+        // Check if already running, kill it; otherwise start it
+        let check = Command::new("pgrep").arg(cmd).output();
+        if let Ok(output) = check {
+            if output.status.success() {
+                let _ = Command::new("pkill").arg(cmd).spawn();
+                return;
+            }
+        }
         if Command::new(cmd).spawn().is_ok() {
             return;
         }
     }
     log::warn!("No virtual keyboard found on Linux");
-}
-
-#[cfg(target_os = "linux")]
-pub fn hide_virtual_keyboard() {
-    use std::process::Command;
-    for cmd in &["onboard", "squeekboard", "florence", "xvkbd"] {
-        let _ = Command::new("pkill").arg(cmd).spawn();
-    }
 }
 
 // ─── macOS ─────────────────────────────────────────────────────────────────────
@@ -213,11 +191,6 @@ pub fn has_physical_keyboard() -> bool {
 }
 
 #[cfg(target_os = "macos")]
-pub fn show_virtual_keyboard() {
-    log::info!("macOS virtual keyboard not yet implemented");
-}
-
-#[cfg(target_os = "macos")]
-pub fn hide_virtual_keyboard() {
+pub fn toggle_virtual_keyboard() {
     log::info!("macOS virtual keyboard not yet implemented");
 }
