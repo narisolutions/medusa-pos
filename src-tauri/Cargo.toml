@@ -38,3 +38,11 @@ tauri-plugin-log = "2.8"
 tauri-plugin-process = "2"
 tauri-plugin-updater = "2"
 
+[target.'cfg(target_os = "windows")'.dependencies]
+windows = { version = "0.58", features = [
+    "Win32_Devices_HumanInterfaceDevice",
+    "Win32_UI_Input",
+    "Win32_Foundation",
+    "Win32_UI_WindowsAndMessaging",
+] }
+

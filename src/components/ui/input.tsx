@@ -1,12 +1,24 @@
 import * as React from "react"
 
 import { cn } from "@/lib/utils"
+import { useVirtualKeyboard } from "@/context/virtual-keyboard"
 
 const Input = React.forwardRef<
   HTMLInputElement,
   React.ComponentProps<"input">
->(({ className, type, ...props }, ref) => {
+>(({ className, type, onFocus, onBlur, ...props }, ref) => {
   const hasTextSize = className && /text-(xs|sm|base|lg|xl|\d+xl)/.test(className);
+  const { showKeyboard, hideKeyboard } = useVirtualKeyboard();
+
+  const handleFocus = (e: React.FocusEvent<HTMLInputElement>) => {
+    showKeyboard();
+    onFocus?.(e);
+  };
+
+  const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+    hideKeyboard();
+    onBlur?.(e);
+  };
 
   return (
     <input
@@ -21,6 +33,8 @@ const Input = React.forwardRef<
         "[&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none",
         className
       )}
+      onFocus={handleFocus}
+      onBlur={handleBlur}
       {...props}
     />
   )

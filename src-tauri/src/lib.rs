@@ -5,10 +5,11 @@ use std::time::Duration;
 use escpos::{
     driver::*, errors::PrinterError, printer::Printer, printer_options::PrinterOptions, utils::*,
 };
-use tauri::Manager;
+use tauri::{Emitter, Manager};
 use tauri_plugin_log::{Target, TargetKind};
 
 mod config;
+mod keyboard;
 use config::AppConfig;
 
 // Helper function for Georgian text handling
@@ -479,6 +480,21 @@ async fn print_receipt(
 
 
 #[tauri::command]
+fn check_physical_keyboard() -> bool {
+    keyboard::has_physical_keyboard()
+}
+
+#[tauri::command]
+fn show_virtual_keyboard() {
+    keyboard::show_virtual_keyboard();
+}
+
+#[tauri::command]
+fn hide_virtual_keyboard() {
+    keyboard::hide_virtual_keyboard();
+}
+
+#[tauri::command]
 fn check_config_exists() -> bool {
     AppConfig::exists()
 }
@@ -727,7 +743,21 @@ pub fn run() {
     };
 
     tauri::Builder::default()
-        .setup(|_app| {
+        .setup(|app| {
+            let handle = app.handle().clone();
+            std::thread::spawn(move || {
+                let mut last_state = keyboard::has_physical_keyboard();
+                log::info!("Initial keyboard state: has_physical={}", last_state);
+                loop {
+                    std::thread::sleep(std::time::Duration::from_secs(10));
+                    let current = keyboard::has_physical_keyboard();
+                    if current != last_state {
+                        log::info!("Keyboard state changed: has_physical={}", current);
+                        let _ = handle.emit("keyboard-state-changed", current);
+                        last_state = current;
+                    }
+                }
+            });
             Ok(())
         })
         .plugin(
@@ -751,6 +781,9 @@ pub fn run() {
         .plugin(tauri_plugin_process::init())
         .plugin(tauri_plugin_updater::Builder::new().build())
         .invoke_handler(tauri::generate_handler![
+            check_physical_keyboard,
+            show_virtual_keyboard,
+            hide_virtual_keyboard,
             print_test,
             open_cash_drawer,
             print_receipt,
