@@ -67,6 +67,12 @@ fn create_network_printer(
 }
 
 fn create_usb_printer(vendor_id: u16, product_id: u16) -> Result<Printer<UsbDriver>, PrinterError> {
+    // If logs still show `nusb::`, the app was not rebuilt after switching escpos from `native_usb` to `usb`.
+    log::info!(
+        "USB print path: libusb via escpos::UsbDriver (rusb), VID {:04x} PID {:04x}",
+        vendor_id,
+        product_id
+    );
     match UsbDriver::open(vendor_id, product_id, Some(Duration::from_secs(8))) {
         Ok(driver) => Ok(Printer::new(
             driver,
