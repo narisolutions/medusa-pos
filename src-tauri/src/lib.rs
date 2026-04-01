@@ -66,8 +66,8 @@ fn create_network_printer(
     ))
 }
 
-fn create_usb_printer(vendor_id: u16, product_id: u16) -> Result<Printer<NativeUsbDriver>, PrinterError> {
-    match NativeUsbDriver::open(vendor_id, product_id) {
+fn create_usb_printer(vendor_id: u16, product_id: u16) -> Result<Printer<UsbDriver>, PrinterError> {
+    match UsbDriver::open(vendor_id, product_id, Some(Duration::from_secs(8))) {
         Ok(driver) => Ok(Printer::new(
             driver,
             Protocol::default(),

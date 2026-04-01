@@ -12,6 +12,10 @@ import {
   linkSalesChannelsToStockLocationWorkflow,
   updateStoresWorkflow,
   createInventoryLevelsWorkflow,
+  createLocationFulfillmentSetWorkflow,
+  createServiceZonesWorkflow,
+  createShippingProfilesWorkflow,
+  createShippingOptionsWorkflow,
 } from "@medusajs/medusa/core-flows"
 
 export default async function seed({ container }: ExecArgs) {
@@ -104,6 +108,86 @@ export default async function seed({ container }: ExecArgs) {
   })
   logger.info("Sales channel linked to stock location")
 
+  // ── Fulfillment: set, service zone, profile, pickup shipping option ─
+  // Orders need a shipping method; POS draft order prefers a "pickup" option.
+  await createLocationFulfillmentSetWorkflow(container).run({
+    input: {
+      location_id: stockLocationId,
+      fulfillment_set_data: {
+        name: "POS Fulfillment",
+        type: "shipping",
+      },
+    },
+  })
+  logger.info("Fulfillment set linked to stock location")
+
+  const { data: locationsWithFulfillment } = await query.graph({
+    entity: "stock_location",
+    fields: ["id", "fulfillment_sets.id"],
+  })
+  const stockLoc = locationsWithFulfillment.find(
+    (l: { id: string }) => l.id === stockLocationId
+  ) as { id: string; fulfillment_sets?: { id: string }[] } | undefined
+  const fulfillmentSetId = stockLoc?.fulfillment_sets?.[0]?.id
+  if (!fulfillmentSetId) {
+    throw new Error(
+      "Seed: no fulfillment set on stock location after createLocationFulfillmentSetWorkflow"
+    )
+  }
+
+  const { result: serviceZones } = await createServiceZonesWorkflow(
+    container
+  ).run({
+    input: {
+      data: [
+        {
+          name: "United States",
+          fulfillment_set_id: fulfillmentSetId,
+          geo_zones: [{ type: "country" as const, country_code: "us" }],
+        },
+      ],
+    },
+  })
+  const serviceZoneId = serviceZones[0].id
+  logger.info("Service zone created: %s", serviceZoneId)
+
+  const { result: shippingProfiles } = await createShippingProfilesWorkflow(
+    container
+  ).run({
+    input: {
+      data: [
+        {
+          name: "POS Default",
+          type: "default",
+        },
+      ],
+    },
+  })
+  const shippingProfileId = shippingProfiles[0].id
+  logger.info("Shipping profile created: %s", shippingProfileId)
+
+  await createShippingOptionsWorkflow(container).run({
+    input: [
+      {
+        name: "Store Pickup",
+        service_zone_id: serviceZoneId,
+        shipping_profile_id: shippingProfileId,
+        provider_id: "fp_manual_manual",
+        type: {
+          label: "Pickup",
+          description: "Pick up at store counter",
+          code: "pickup",
+        },
+        price_type: "flat",
+        prices: [
+          { amount: 0, currency_code: "usd" },
+          { amount: 0, currency_code: "eur" },
+        ],
+      },
+    ],
+  })
+  logger.info("Shipping option created: Store Pickup (manual fulfillment)")
+
   // ── Products ───────────────────────────────────────────────────────
   const { result: products } = await createProductsWorkflow(container).run({
     input: {
@@ -112,6 +196,7 @@ export default async function seed({ container }: ExecArgs) {
           title: "Classic T-Shirt",
           description: "A comfortable cotton t-shirt",
           status: ProductStatus.PUBLISHED,
+          shipping_profile_id: shippingProfileId,
           sales_channels: [{ id: salesChannelId }],
           options: [{ title: "Size", values: ["S", "M", "L", "XL"] }],
           variants: [
@@ -165,6 +250,7 @@ export default async function seed({ container }: ExecArgs) {
           title: "Coffee Mug",
           description: "Ceramic mug, 350ml",
           status: ProductStatus.PUBLISHED,
+          shipping_profile_id: shippingProfileId,
           sales_channels: [{ id: salesChannelId }],
           options: [{ title: "Type", values: ["Default"] }],
           variants: [
@@ -185,6 +271,7 @@ export default async function seed({ container }: ExecArgs) {
           title: "Wireless Mouse",
           description: "Ergonomic wireless mouse with USB receiver",
           status: ProductStatus.PUBLISHED,
+          shipping_profile_id: shippingProfileId,
           sales_channels: [{ id: salesChannelId }],
           options: [{ title: "Type", values: ["Default"] }],
           variants: [
@@ -205,6 +292,7 @@ export default async function seed({ container }: ExecArgs) {
           title: "Notebook",
           description: "A5 hardcover notebook, 200 pages",
           status: ProductStatus.PUBLISHED,
+          shipping_profile_id: shippingProfileId,
           sales_channels: [{ id: salesChannelId }],
           options: [
             { title: "Style", values: ["Ruled", "Blank"] },
@@ -238,6 +326,7 @@ export default async function seed({ container }: ExecArgs) {
           title: "Water Bottle",
           description: "Stainless steel insulated water bottle",
           status: ProductStatus.PUBLISHED,
+          shipping_profile_id: shippingProfileId,
           sales_channels: [{ id: salesChannelId }],
           options: [
             { title: "Size", values: ["500ml", "1L"] },
