@@ -43,17 +43,15 @@ pub fn list_system_printers() -> Result<Vec<SystemPrinterInfo>, String> {
 
         let mut buffer: Vec<u8> = vec![0u8; bytes_needed as usize];
 
-        let ok = EnumPrintersW(
+        EnumPrintersW(
             flags,
             PCWSTR::null(),
             2,
             Some(&mut buffer),
             &mut bytes_needed,
             &mut count,
-        );
-        if !ok.as_bool() {
-            return Err("EnumPrintersW failed on second call".to_string());
-        }
+        )
+        .map_err(|e| format!("EnumPrintersW failed: {}", e))?;
 
         let printers_ptr = buffer.as_ptr() as *const PRINTER_INFO_2W;
         let printers = std::slice::from_raw_parts(printers_ptr, count as usize);
@@ -90,8 +88,7 @@ fn get_default_printer_name() -> Option<String> {
         }
         let mut buf: Vec<u16> = vec![0u16; size as usize];
         let pwstr = PWSTR(buf.as_mut_ptr());
-        let ok = GetDefaultPrinterW(pwstr, &mut size);
-        if ok.as_bool() {
+        if GetDefaultPrinterW(pwstr, &mut size).as_bool() {
             pwstr.to_string().ok()
         } else {
             None
