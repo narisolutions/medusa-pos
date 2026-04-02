@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Forms } from "@/types/form";
-import { Wifi, Usb, Bluetooth } from "lucide-react";
+import { Wifi, Usb, Bluetooth, Monitor } from "lucide-react";
 import storage from "@/utils/storage";
 import { useQueryStore } from "@/hooks/queries/useQueryStore";
 import { useQuerySalesChannel } from "@/hooks/queries/useQuerySalesChannel";
@@ -146,6 +146,7 @@ const usePrinterSettings = (editingPrinter: Printer | null) => {
 
   const getConnectionIcon = (connectionType: string) => {
     const icons = {
+      local: <Monitor className="h-4 w-4" />,
       network: <Wifi className="h-4 w-4" />,
       usb: <Usb className="h-4 w-4" />,
       bluetooth: <Bluetooth className="h-4 w-4" />,
@@ -155,6 +156,7 @@ const usePrinterSettings = (editingPrinter: Printer | null) => {
 
   const getConnectionTypeLabel = (connectionType: string) => {
     const labels = {
+      local: "Local",
       network: "Network",
       usb: "USB",
       bluetooth: "Bluetooth",
