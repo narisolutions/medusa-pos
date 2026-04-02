@@ -1,10 +1,13 @@
 #[cfg(target_os = "windows")]
 use windows::{
-    core::{HSTRING, PCWSTR},
-    Win32::Graphics::Printing::{
-        ClosePrinter, EndDocPrinter, EndPagePrinter, EnumPrintersW, OpenPrinterW,
-        StartDocPrinterW, StartPagePrinter, WritePrinter, DOC_INFO_1W, PRINTER_DEFAULTSW,
-        PRINTER_ENUM_LOCAL, PRINTER_INFO_2W,
+    core::{HSTRING, PCWSTR, PWSTR},
+    Win32::{
+        Foundation::HANDLE,
+        Graphics::Printing::{
+            ClosePrinter, EndDocPrinter, EndPagePrinter, EnumPrintersW, GetDefaultPrinterW,
+            OpenPrinterW, StartDocPrinterW, StartPagePrinter, WritePrinter, DOC_INFO_1W,
+            PRINTER_DEFAULTSW, PRINTER_ENUM_LOCAL, PRINTER_INFO_2W,
+        },
     },
 };
 
@@ -23,8 +26,8 @@ pub fn list_system_printers() -> Result<Vec<SystemPrinterInfo>, String> {
         let mut bytes_needed: u32 = 0;
         let mut count: u32 = 0;
 
-        // First call to get required buffer size. EnumPrintersW returns FALSE
-        // when the buffer is too small, which the windows crate surfaces as Err.
+        // First call to get required buffer size — returns FALSE (0) when
+        // buffer is too small, which is expected.
         let _ = EnumPrintersW(
             flags,
             PCWSTR::null(),
@@ -40,20 +43,21 @@ pub fn list_system_printers() -> Result<Vec<SystemPrinterInfo>, String> {
 
         let mut buffer: Vec<u8> = vec![0u8; bytes_needed as usize];
 
-        EnumPrintersW(
+        let ok = EnumPrintersW(
             flags,
             PCWSTR::null(),
             2,
             Some(&mut buffer),
             &mut bytes_needed,
             &mut count,
-        )
-        .map_err(|e| format!("EnumPrintersW failed: {}", e))?;
+        );
+        if !ok.as_bool() {
+            return Err("EnumPrintersW failed on second call".to_string());
+        }
 
         let printers_ptr = buffer.as_ptr() as *const PRINTER_INFO_2W;
         let printers = std::slice::from_raw_parts(printers_ptr, count as usize);
 
-        // Get default printer name
         let default_name = get_default_printer_name().unwrap_or_default();
 
         let result: Vec<SystemPrinterInfo> = printers
@@ -77,18 +81,20 @@ pub fn list_system_printers() -> Result<Vec<SystemPrinterInfo>, String> {
 
 #[cfg(target_os = "windows")]
 fn get_default_printer_name() -> Option<String> {
-    use windows::Win32::Graphics::Printing::GetDefaultPrinterW;
     unsafe {
         let mut size: u32 = 0;
-        let _ = GetDefaultPrinterW(windows::core::PWSTR::null(), &mut size);
+        // First call to get required buffer size.
+        let _ = GetDefaultPrinterW(PWSTR::null(), &mut size);
         if size == 0 {
             return None;
         }
         let mut buf: Vec<u16> = vec![0u16; size as usize];
-        let pwstr = windows::core::PWSTR(buf.as_mut_ptr());
-        match GetDefaultPrinterW(pwstr, &mut size) {
-            Ok(_) => pwstr.to_string().ok(),
-            Err(_) => None,
+        let pwstr = PWSTR(buf.as_mut_ptr());
+        let ok = GetDefaultPrinterW(pwstr, &mut size);
+        if ok.as_bool() {
+            pwstr.to_string().ok()
+        } else {
+            None
         }
     }
 }
@@ -98,11 +104,11 @@ fn get_default_printer_name() -> Option<String> {
 pub fn raw_print(printer_name: &str, data: &[u8]) -> Result<(), String> {
     unsafe {
         let h_printer_name = HSTRING::from(printer_name);
-        let mut handle = windows::Win32::Foundation::HANDLE::default();
+        let mut handle = HANDLE::default();
 
-        let raw_str = HSTRING::from("RAW");
+        let mut raw_str: Vec<u16> = "RAW\0".encode_utf16().collect();
         let defaults = PRINTER_DEFAULTSW {
-            pDatatype: PCWSTR(raw_str.as_ptr()),
+            pDatatype: PWSTR(raw_str.as_mut_ptr()),
             ..Default::default()
         };
 
@@ -113,12 +119,12 @@ pub fn raw_print(printer_name: &str, data: &[u8]) -> Result<(), String> {
         )
         .map_err(|e| format!("OpenPrinterW failed for '{}': {}", printer_name, e))?;
 
-        let doc_name = HSTRING::from("POS Receipt");
-        let raw_type = HSTRING::from("RAW");
+        let mut doc_name_buf: Vec<u16> = "POS Receipt\0".encode_utf16().collect();
+        let mut raw_type_buf: Vec<u16> = "RAW\0".encode_utf16().collect();
         let doc_info = DOC_INFO_1W {
-            pDocName: PCWSTR(doc_name.as_ptr()),
-            pDatatype: PCWSTR(raw_type.as_ptr()),
-            pOutputFile: PCWSTR::null(),
+            pDocName: PWSTR(doc_name_buf.as_mut_ptr()),
+            pDatatype: PWSTR(raw_type_buf.as_mut_ptr()),
+            pOutputFile: PWSTR::null(),
         };
 
         let job_id = StartDocPrinterW(handle, 1, &doc_info as *const _ as *const _);
@@ -130,10 +136,10 @@ pub fn raw_print(printer_name: &str, data: &[u8]) -> Result<(), String> {
             ));
         }
 
-        if let Err(e) = StartPagePrinter(handle) {
+        if !StartPagePrinter(handle).as_bool() {
             let _ = EndDocPrinter(handle);
             let _ = ClosePrinter(handle);
-            return Err(format!("StartPagePrinter failed: {}", e));
+            return Err("StartPagePrinter failed".to_string());
         }
 
         let mut bytes_written: u32 = 0;
@@ -148,10 +154,10 @@ pub fn raw_print(printer_name: &str, data: &[u8]) -> Result<(), String> {
         let _ = EndDocPrinter(handle);
         let _ = ClosePrinter(handle);
 
-        if let Err(e) = write_ok {
+        if !write_ok.as_bool() {
             return Err(format!(
-                "WritePrinter failed for '{}': {}",
-                printer_name, e
+                "WritePrinter failed for '{}'",
+                printer_name
             ));
         }
 
