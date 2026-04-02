@@ -3,6 +3,7 @@ import {
   ContainerRegistrationKeys,
   Modules,
   ProductStatus,
+  ShippingOptionPriceType,
 } from "@medusajs/framework/utils"
 import {
   createRegionsWorkflow,
@@ -15,7 +16,7 @@ import {
   createLocationFulfillmentSetWorkflow,
   createServiceZonesWorkflow,
   createShippingProfilesWorkflow,
-  createShippingOptionsWorkflow,
+  batchLinksWorkflow,
 } from "@medusajs/medusa/core-flows"
 
 export default async function seed({ container }: ExecArgs) {
@@ -121,6 +122,26 @@ export default async function seed({ container }: ExecArgs) {
   })
   logger.info("Fulfillment set linked to stock location")
 
+  // DB id is `{identifier}_{options.id}` (e.g. manual_manual), not the container key fp_manual_manual.
+  const manualFulfillmentProviderId = "manual_manual"
+  await batchLinksWorkflow(container).run({
+    input: {
+      create: [
+        {
+          [Modules.STOCK_LOCATION]: { stock_location_id: stockLocationId },
+          [Modules.FULFILLMENT]: {
+            fulfillment_provider_id: manualFulfillmentProviderId,
+          },
+        },
+      ],
+      delete: [],
+    },
+  })
+  logger.info(
+    "Linked manual fulfillment provider (%s) to stock location",
+    manualFulfillmentProviderId
+  )
+
   const { data: locationsWithFulfillment } = await query.graph({
     entity: "stock_location",
     fields: ["id", "fulfillment_sets.id"],
@@ -166,26 +187,42 @@ export default async function seed({ container }: ExecArgs) {
   const shippingProfileId = shippingProfiles[0].id
   logger.info("Shipping profile created: %s", shippingProfileId)
 
-  await createShippingOptionsWorkflow(container).run({
-    input: [
-      {
-        name: "Store Pickup",
-        service_zone_id: serviceZoneId,
-        shipping_profile_id: shippingProfileId,
-        provider_id: "fp_manual_manual",
-        type: {
-          label: "Pickup",
-          description: "Pick up at store counter",
-          code: "pickup",
-        },
-        price_type: "flat",
-        prices: [
-          { amount: 0, currency_code: "usd" },
-          { amount: 0, currency_code: "eur" },
-        ],
-      },
-    ],
+  // createShippingOptionsWorkflow validates providers via remoteQuery field
+  // `fulfillment_set.locations.*`, but the graph exposes `location` (singular), so
+  // validation always fails. Mirror the workflow after that step: upsert option,
+  // create price set, link option ↔ price set.
+  const fulfillmentService = container.resolve(Modules.FULFILLMENT)
+  const pricingService = container.resolve(Modules.PRICING)
+  const remoteLink = container.resolve(ContainerRegistrationKeys.LINK)
+
+  const shippingOption = await fulfillmentService.upsertShippingOptions({
+    name: "Store Pickup",
+    service_zone_id: serviceZoneId,
+    shipping_profile_id: shippingProfileId,
+    provider_id: manualFulfillmentProviderId,
+    type: {
+      label: "Pickup",
+      description: "Pick up at store counter",
+      code: "pickup",
+    },
+    price_type: ShippingOptionPriceType.FLAT,
   })
+
+  const [priceSet] = await pricingService.createPriceSets([
+    {
+      prices: [
+        { amount: 0, currency_code: "usd" },
+        { amount: 0, currency_code: "eur" },
+      ],
+    },
+  ])
+
+  await remoteLink.create([
+    {
+      [Modules.FULFILLMENT]: { shipping_option_id: shippingOption.id },
+      [Modules.PRICING]: { price_set_id: priceSet.id },
+    },
+  ])
   logger.info("Shipping option created: Store Pickup (manual fulfillment)")
 
   // ── Products ───────────────────────────────────────────────────────

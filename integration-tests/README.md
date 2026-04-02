@@ -99,6 +99,17 @@ Environment variables are in `.env`. Key settings:
 
 ## Troubleshooting
 
+**POS shows “Backend unreachable” on `http://localhost:9000`:**
+
+Usually the **Medusa container has exited** (nothing is listening on 9000). Check:
+
+```bash
+docker ps -a --filter name=integration-tests-medusa
+docker logs integration-tests-medusa-1 2>&1 | tail -80
+```
+
+Fix the error in the log (often a **seed script** failure), then `yarn test:env:up` again (use `--build` if you changed `seed.ts`).
+
 **Medusa container keeps restarting:**
 Check logs with `docker compose logs medusa`. Common causes:
 - Database not ready yet (healthcheck should handle this, but first-time npm install is slow)
