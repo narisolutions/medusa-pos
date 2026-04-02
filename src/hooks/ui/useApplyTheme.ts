@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { useTheme } from "@/context/theme";
-import { loadPreferences } from "@/utils/preferences";
+import { loadPreferences } from "@/utils/settings/preferences";
 
 function applyThemeClass(mode: string, systemPrefersDark: boolean) {
   const html = document.documentElement;

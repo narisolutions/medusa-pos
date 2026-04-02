@@ -3,7 +3,7 @@ import ReactDOM from "react-dom/client";
 import App from "./App";
 import "./globals.css";
 import { initLogger } from "./utils/logger";
-import { applyBootPreferences } from "./utils/preferences/boot";
+import { applyBootPreferences } from "./utils/settings/preferences/boot";
 
 initLogger();
 applyBootPreferences();

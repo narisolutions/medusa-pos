@@ -13,7 +13,7 @@ import {
 import { useQueryShippingOption } from "../queries/useQueryShippingOption";
 import { isEmpty } from "@/utils/helpers";
 import { useQueryStore } from "@/hooks/queries/useQueryStore";
-import { getGuestCustomerEmail } from "@/utils/store/metadata";
+import { getGuestCustomerEmail } from "@/utils/settings/store/metadata";
 
 const DEFAULT_DRAFT_ORDER_METADATA: DraftOrderMetadata = {
   payment_method: undefined,

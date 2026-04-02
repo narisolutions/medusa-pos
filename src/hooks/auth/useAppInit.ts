@@ -8,7 +8,7 @@ import { useSalesChannel } from "@/context/sales-channel";
 import { useStoreManager } from "@/context/store-manager";
 import storage from "@/utils/storage";
 import { handleErrorToast } from "@/utils/helpers";
-import { initDateTimePrefs, initCurrencyPrefs, loadPreferences } from "@/utils/preferences";
+import { initDateTimePrefs, initCurrencyPrefs, loadPreferences } from "@/utils/settings/preferences";
 import { queryClient } from "@/config/query";
 import { STORE_QUERY_KEY } from "@/hooks/queries/useQueryStore";
 import {
@@ -18,7 +18,7 @@ import {
   getBrandName,
   getLogoUrl,
   hasPosMetadata,
-} from "@/utils/store/metadata";
+} from "@/utils/settings/store/metadata";
 
 const useAppInit = () => {
   const [config, setConfig] = useState<AppConfig | null>(null);

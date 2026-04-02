@@ -26,7 +26,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { Forms } from "@/types/form";
-import { DEFAULT_PAYMENT_METHODS } from "@/utils/store/metadata";
+import { DEFAULT_PAYMENT_METHODS } from "@/utils/settings/store/metadata";
 import { useStoreSettings } from "./hooks";
 import ColorField from "./color-field";
 
@@ -227,7 +227,7 @@ const StoreSettings: React.FC = () => {
               control={control}
               name="guestCustomerEmail"
               render={({ field }) => (
-                <FormItem>
+                <FormItem id="guest-customer-email">
                   <FormLabel className="text-lg font-medium flex items-center gap-2">
                     Guest customer email
                     <Tooltip>

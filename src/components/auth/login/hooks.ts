@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { getRoutes, handleErrorToast, syncAuthTokenToStore } from "@/utils/helpers";
 import { AdminStore, AdminUser } from "@medusajs/types";
 import { useStoreManager } from "@/context/store-manager";
-import { getLogoUrl } from "@/utils/store/metadata";
+import { getLogoUrl } from "@/utils/settings/store/metadata";
 
 const useLogin = (isConfigured: boolean) => {
   const setGlobalLoading = useUser((state) => state.setGlobalLoading);

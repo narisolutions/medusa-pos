@@ -11,11 +11,12 @@ import {
   getOrderStatusColor,
   getOrderFulfillmentStatusColor,
   getOrderPaymentStatusColor,
+  printerIssueStaffHintToast,
 } from "@/utils/helpers";
 import { getSdkBaseUrl, getSdk } from "@/config/medusa";
 import { useQueryClient } from "@tanstack/react-query";
 import { usePrinterService } from "@/hooks/printer/usePrinterService";
-import { classifyFulfillment } from "@/utils/fulfillment";
+import { classifyFulfillment } from "@/utils/pos/fulfillment";
 
 // Type for fulfillment with extended properties
 type ExtendedFulfillment = Record<string, unknown> & {
@@ -40,7 +41,8 @@ export function getOrderContactEmail(order: AdminOrder): string | undefined {
 export const useOrder = (order: AdminOrder) => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const { printOrderReceipt, downloadReceiptAsPDF } = usePrinterService();
+  const { printOrderReceipt, downloadReceiptAsPDF, getDefaultPrinter } =
+    usePrinterService();
   const [isPrinting, setIsPrinting] = useState(false);
   const [isDownloading, setIsDownloading] = useState(false);
   const [isDownloadingPDF, setIsDownloadingPDF] = useState(false);
@@ -79,9 +81,19 @@ export const useOrder = (order: AdminOrder) => {
     setIsPrinting(true);
     try {
       await printOrderReceipt(order);
-      toast.success("Receipt printed successfully");
+      toast.success("Receipt sent to printer");
     } catch {
-      handleErrorToast("Failed to print receipt. Please try again.");
+      const printer = getDefaultPrinter();
+      if (printer) {
+        toast.error("The receipt did not print", {
+          description: printerIssueStaffHintToast(printer.name),
+        });
+      } else {
+        toast.error("The receipt did not print", {
+          description:
+            "No default printer is set. Add one under Settings → Printers.",
+        });
+      }
     } finally {
       setIsPrinting(false);
     }

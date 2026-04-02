@@ -3,7 +3,7 @@ import { AdminOrder } from "@medusajs/types";
 import { User } from "lucide-react";
 import { isOrderGuestCustomer } from "@/utils/helpers";
 import { useQueryStore } from "@/hooks/queries/useQueryStore";
-import { getGuestCustomerEmail } from "@/utils/store/metadata";
+import { getGuestCustomerEmail } from "@/utils/settings/store/metadata";
 // import CustomerDialog from "./customer-dialog";
 
 interface Props {

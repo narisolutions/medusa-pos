@@ -9,10 +9,14 @@ import { useCartStore } from "@/context/cart";
 import { PaymentMethod } from "@/types/utils";
 import { useCheckout } from "../hooks";
 import { useQueryStore } from "@/hooks/queries/useQueryStore";
-import { getPaymentMethods } from "@/utils/store/metadata";
+import { getPaymentMethods } from "@/utils/settings/store/metadata";
 import constants from "@/utils/constants";
 import { CreditCard, Banknote } from "lucide-react";
-import { handleErrorToast } from "@/utils/helpers";
+import {
+  cashDrawerIssueStaffHintToast,
+  handleErrorToast,
+  printerIssueStaffHintToast,
+} from "@/utils/helpers";
 
 const iconByType = {
   cash: Banknote,
@@ -331,23 +335,41 @@ const usePaymentModal = (
       toast.success(`Order #${order.display_id} created successfully!`);
       playSuccessSound();
 
+      const defaultPrinter = getDefaultPrinter();
       try {
         await printOrderReceipt(order);
       } catch (printError) {
         console.warn("Auto-print failed:", printError);
+        if (defaultPrinter) {
+          toast.error("The receipt did not print", {
+            description: printerIssueStaffHintToast(defaultPrinter.name),
+          });
+        } else {
+          toast.error("The receipt did not print", {
+            description:
+              "No default printer is set. Add one under Settings → Printers.",
+          });
+        }
       }
 
       try {
-        const printer = getDefaultPrinter();
-        if (printer?.openCashDrawer) {
+        if (defaultPrinter?.openCashDrawer) {
           const isCash = paymentMethod === "pp_cash_pos";
           const isCard = !isCash && paymentMethod !== undefined;
-          if ((isCash && printer.openCashDrawerOnCash) || (isCard && printer.openCashDrawerOnCard)) {
-            await openCashDrawer(printer);
+          if (
+            (isCash && defaultPrinter.openCashDrawerOnCash) ||
+            (isCard && defaultPrinter.openCashDrawerOnCard)
+          ) {
+            await openCashDrawer(defaultPrinter);
           }
         }
       } catch (drawerError) {
         console.warn("Auto cash drawer failed:", drawerError);
+        if (defaultPrinter) {
+          toast.error("The cash drawer did not open", {
+            description: cashDrawerIssueStaffHintToast(defaultPrinter.name),
+          });
+        }
       }
     },
     [

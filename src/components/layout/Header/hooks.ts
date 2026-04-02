@@ -1,4 +1,4 @@
-import { formatDateOnly, formatTimeOnly } from "@/utils/preferences";
+import { formatDateOnly, formatTimeOnly } from "@/utils/settings/preferences";
 
 const useHeader = () => {
   const formatDate = (date: Date) => {

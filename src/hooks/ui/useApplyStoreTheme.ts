@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { useQueryStore } from "@/hooks/queries/useQueryStore";
-import { getPrimaryColor, getSecondaryColor, getFontSize, getBrandName } from "@/utils/store/metadata";
+import { getPrimaryColor, getSecondaryColor, getFontSize, getBrandName } from "@/utils/settings/store/metadata";
 
 const useApplyStoreTheme = () => {
   const { data: store } = useQueryStore();

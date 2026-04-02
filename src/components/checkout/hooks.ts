@@ -5,12 +5,13 @@ import React, {
   useMemo,
   useState,
 } from "react";
+import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { useDraftOrder } from "@/hooks/draft-order/useDraftOrder";
 import { useCartStore } from "@/context/cart";
 import { useQueryRegion } from "@/hooks/queries/useQueryRegion";
 import { useQueryStore } from "@/hooks/queries/useQueryStore";
-import { getPaymentMethods, getGuestCustomerEmail } from "@/utils/store/metadata";
+import { getPaymentMethods, getGuestCustomerEmail } from "@/utils/settings/store/metadata";
 import storage from "@/utils/storage";
 import { usePrinterService } from "@/hooks/printer/usePrinterService";
 import Payments from "@/assets/icons/payments";
@@ -22,7 +23,10 @@ import {
   OrderDiscount,
   PaymentMethod,
 } from "@/types/utils";
-import { handleErrorToast } from "@/utils/helpers";
+import {
+  cashDrawerIssueStaffHintToast,
+  handleErrorToast,
+} from "@/utils/helpers";
 
 type PaymentMethodOption = {
   key: string;
@@ -118,7 +122,8 @@ const useProvideCheckout = (): CheckoutContextValue => {
   const currency =
     defaultRegion?.currency_code?.toUpperCase() ?? "USD";
 
-  const { openCashDrawer } = usePrinterService();
+  const navigate = useNavigate();
+  const { openCashDrawer, getDefaultPrinter } = usePrinterService();
 
   const handleRemoveItem = useCallback(
     (itemId: string) => {
@@ -164,12 +169,29 @@ const useProvideCheckout = (): CheckoutContextValue => {
     [handleRemoveItem, items, updateItemQuantity]
   );
 
+  const goToGuestEmailSetting = useCallback(() => {
+    void storage.setItem("settings_tab", "store");
+    navigate("/settings");
+    setTimeout(() => {
+      const el = document.getElementById("guest-customer-email");
+      if (!el) return;
+      el.scrollIntoView({ behavior: "smooth", block: "center" });
+      el.style.outline = "2px solid var(--color-primary)";
+      el.style.outlineOffset = "4px";
+      el.style.borderRadius = "8px";
+      el.style.transition = "outline-color 0.6s ease, outline-offset 0.3s ease";
+      el.querySelector("input")?.focus();
+      setTimeout(() => {
+        el.style.outline = "";
+        el.style.outlineOffset = "";
+        el.style.borderRadius = "";
+        el.style.transition = "";
+      }, 2500);
+    }, 400);
+  }, [navigate]);
+
   const handleOpenModal = useCallback(async () => {
     try {
-      if (items.length === 0) {
-        handleErrorToast("Please add items to cart first");
-        return;
-      }
 
       if (!metadata.payment_method) {
         handleErrorToast(
@@ -208,8 +230,18 @@ const useProvideCheckout = (): CheckoutContextValue => {
         const guestEmail = getGuestCustomerEmail(store);
 
         if (!customerEmail && !customerId && !guestEmail) {
-          handleErrorToast(
-            "Guest customer email is not configured. Set it in Store Settings or attach a customer before checkout."
+          toast.error(
+            "Guest customer email is not configured. Set it in Store Settings or attach a customer before checkout.",
+            {
+              action: {
+                label: "Go to Store Settings",
+                onClick: goToGuestEmailSetting,
+              },
+              actionButtonStyle: {
+                backgroundColor: "var(--error-text)",
+                color: "var(--error-bg)",
+              },
+            }
           );
           return;
         }
@@ -238,6 +270,7 @@ const useProvideCheckout = (): CheckoutContextValue => {
     createDraftOrder,
     metadata,
     store,
+    goToGuestEmailSetting,
   ]);
 
   const handleCloseModal = useCallback(() => {
@@ -276,8 +309,22 @@ const useProvideCheckout = (): CheckoutContextValue => {
   );
 
   const handleOpenDrawer = useCallback(async () => {
-    await openCashDrawer();
-  }, [openCashDrawer]);
+    const printer = getDefaultPrinter();
+    try {
+      await openCashDrawer();
+    } catch {
+      if (printer) {
+        toast.error("The cash drawer did not open", {
+          description: cashDrawerIssueStaffHintToast(printer.name),
+        });
+      } else {
+        toast.error("The cash drawer did not open", {
+          description:
+            "No default printer is set. Add one under Settings → Printers.",
+        });
+      }
+    }
+  }, [openCashDrawer, getDefaultPrinter]);
 
   const customerEmail = (metadata as Record<string, unknown>)
     .customer_email as string | null | undefined;

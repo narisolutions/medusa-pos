@@ -10,7 +10,7 @@ import {
   DEFAULT_PREFERENCES,
   loadPreferences,
   updatePreferences,
-} from "@/utils/preferences";
+} from "@/utils/settings/preferences";
 import { useTheme } from "@/context/theme";
 import type { ThemeMode } from "@/types/preferences";
 

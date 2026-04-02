@@ -5,7 +5,7 @@ import { AdminOrder } from "@medusajs/types";
 import { useQueryOrders } from "@/hooks/queries/useQueryOrders";
 import storage from "@/utils/storage";
 import constants from "@/utils/constants";
-import { classifyOrderShippingMethod, getShippingMethodLabel } from "@/utils/fulfillment";
+import { classifyOrderShippingMethod, getShippingMethodLabel } from "@/utils/pos/fulfillment";
 
 const columnHelper = createColumnHelper<AdminOrder>();
 
