@@ -25,6 +25,7 @@ dist-ssr
 /.env
 /.env.staging
 /.env.production
+/src-tauri/gen/
 
 CLAUDE.md
 .claude/

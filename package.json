@@ -1,7 +1,14 @@
 {
   "name": "medusa-pos",
-  "version": "0.0.12",
-  "private": true,
+  "version": "0.0.14",
+  "private": false,
+  "author": "Nari Solutions",
+  "license": "Apache-2.0",
+  "homepage": "https://pos.nari.ge",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/narisolutions/medusa-pos.git"
+  },
   "engines": {
     "node": "^20.19.0 || ^22.13.0 || >=24.0.0"
   },
