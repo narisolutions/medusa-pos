@@ -3,9 +3,8 @@ import { getSdk } from "@/config/medusa";
 import { useUser } from "@/context/user";
 import { useNavigate } from "react-router-dom";
 import { getRoutes, handleErrorToast, syncAuthTokenToStore } from "@/utils/helpers";
-import { AdminStore, AdminUser } from "@medusajs/types";
-import { useStoreManager } from "@/context/store-manager";
-import { getLogoUrl } from "@/utils/settings/store/metadata";
+import { AdminUser } from "@medusajs/types";
+import { runPostAuthInit } from "@/hooks/auth/useAppInit";
 
 const useLogin = (isConfigured: boolean) => {
   const setGlobalLoading = useUser((state) => state.setGlobalLoading);
@@ -33,17 +32,7 @@ const useLogin = (isConfigured: boolean) => {
         await sdk.client.fetch<AdminUser>("/admin/users/me");
 
       await login(admin);
-
-      try {
-        const { stores } = await getSdk().admin.store.list();
-        const store = stores[0] as AdminStore | undefined;
-        if (store) {
-          await useStoreManager.getState().updateActiveName(store.name);
-          await useStoreManager.getState().updateActiveLogo(getLogoUrl(store));
-        }
-      } catch {
-        // non-fatal — store metadata not critical for login flow
-      }
+      await runPostAuthInit();
 
       navigate(routes.checkout);
     } catch (e: unknown) {
