@@ -16,7 +16,7 @@ import {
 import { getSdkBaseUrl, getSdk } from "@/config/medusa";
 import { useQueryClient } from "@tanstack/react-query";
 import { usePrinterService } from "@/hooks/printer/usePrinterService";
-import { classifyFulfillment } from "@/utils/pos/fulfillment";
+import { classifyFulfillment, classifyOrderShippingMethod } from "@/utils/pos/fulfillment";
 
 // Type for fulfillment with extended properties
 type ExtendedFulfillment = Record<string, unknown> & {
@@ -249,6 +249,9 @@ export const useOrder = (order: AdminOrder) => {
     ? classifyFulfillment(firstFulfillment)
     : null;
 
+  const orderShippingClass = classifyOrderShippingMethod(order);
+  const isPickupOrder = orderShippingClass.isPickup || !!fulfillmentClass?.isPickup;
+
   const canCreateShipment =
     fulfillmentStatus === "fulfilled" &&
     !!fulfillmentClass?.isShipping &&
@@ -258,10 +261,10 @@ export const useOrder = (order: AdminOrder) => {
     fulfillmentStatus === "fulfilled" &&
     !!fulfillmentClass?.isPickup;
 
-  const canDownloadShippingLabel = !(
-    fulfillmentStatus === "fulfilled" ||
-    (fulfillmentStatus === "delivered" && !!fulfillmentClass?.isPickup)
-  );
+  const canDownloadShippingLabel =
+    !isPickupOrder &&
+    fulfillmentStatus !== "fulfilled" &&
+    fulfillmentStatus !== "delivered";
 
   return {
     getStatusColor,
