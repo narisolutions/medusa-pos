@@ -230,164 +230,169 @@ export default async function seed({ container }: ExecArgs) {
     input: {
       products: [
         {
-          title: "Classic T-Shirt",
-          description: "A comfortable cotton t-shirt",
+          title: "USB-C Charging Cable",
+          description:
+            "USB 2.0 Type-C to Type-C for phones, tablets, and laptops. Black PVC jacket.",
           status: ProductStatus.PUBLISHED,
           shipping_profile_id: shippingProfileId,
           sales_channels: [{ id: salesChannelId }],
-          options: [{ title: "Size", values: ["S", "M", "L", "XL"] }],
-          variants: [
-            {
-              title: "Small",
-              sku: "TSHIRT-BLK-S",
-              barcode: "5901234123457",
-              options: { Size: "S" },
-              prices: [
-                { amount: 19.99, currency_code: "usd" },
-                { amount: 17.99, currency_code: "eur" },
-              ],
-              manage_inventory: true,
-            },
-            {
-              title: "Medium",
-              sku: "TSHIRT-BLK-M",
-              barcode: "5901234123464",
-              options: { Size: "M" },
-              prices: [
-                { amount: 19.99, currency_code: "usd" },
-                { amount: 17.99, currency_code: "eur" },
-              ],
-              manage_inventory: true,
-            },
-            {
-              title: "Large",
-              sku: "TSHIRT-BLK-L",
-              barcode: "5901234123471",
-              options: { Size: "L" },
-              prices: [
-                { amount: 19.99, currency_code: "usd" },
-                { amount: 17.99, currency_code: "eur" },
-              ],
-              manage_inventory: true,
-            },
-            {
-              title: "Extra Large",
-              sku: "TSHIRT-BLK-XL",
-              barcode: "5901234123488",
-              options: { Size: "XL" },
-              prices: [
-                { amount: 22.99, currency_code: "usd" },
-                { amount: 20.99, currency_code: "eur" },
-              ],
-              manage_inventory: true,
-            },
+          options: [
+            { title: "Length", values: ["1m", "1.5m", "2m", "3m"] },
           ],
-        },
-        {
-          title: "Coffee Mug",
-          description: "Ceramic mug, 350ml",
-          status: ProductStatus.PUBLISHED,
-          shipping_profile_id: shippingProfileId,
-          sales_channels: [{ id: salesChannelId }],
-          options: [{ title: "Type", values: ["Default"] }],
           variants: [
             {
-              title: "Default",
-              sku: "MUG-WHT-350",
-              barcode: "4006381333931",
-              options: { Type: "Default" },
+              title: "USB-C Cable 1 m",
+              sku: "USBC-CBL-1M",
+              barcode: "5901234123457",
+              options: { Length: "1m" },
+              prices: [
+                { amount: 9.99, currency_code: "usd" },
+                { amount: 8.99, currency_code: "eur" },
+              ],
+              manage_inventory: true,
+            },
+            {
+              title: "USB-C Cable 1.5 m",
+              sku: "USBC-CBL-1M5",
+              barcode: "5901234123464",
+              options: { Length: "1.5m" },
+              prices: [
+                { amount: 11.99, currency_code: "usd" },
+                { amount: 10.99, currency_code: "eur" },
+              ],
+              manage_inventory: true,
+            },
+            {
+              title: "USB-C Cable 2 m",
+              sku: "USBC-CBL-2M",
+              barcode: "5901234123471",
+              options: { Length: "2m" },
               prices: [
                 { amount: 12.99, currency_code: "usd" },
                 { amount: 11.49, currency_code: "eur" },
               ],
               manage_inventory: true,
             },
+            {
+              title: "USB-C Cable 3 m",
+              sku: "USBC-CBL-3M",
+              barcode: "5901234123488",
+              options: { Length: "3m" },
+              prices: [
+                { amount: 14.99, currency_code: "usd" },
+                { amount: 13.49, currency_code: "eur" },
+              ],
+              manage_inventory: true,
+            },
           ],
         },
         {
-          title: "Wireless Mouse",
-          description: "Ergonomic wireless mouse with USB receiver",
+          title: "USB-C Wall Charger 20W",
+          description:
+            "Single USB-C port, 20 W output. Foldable prongs for travel.",
           status: ProductStatus.PUBLISHED,
           shipping_profile_id: shippingProfileId,
           sales_channels: [{ id: salesChannelId }],
-          options: [{ title: "Type", values: ["Default"] }],
+          options: [{ title: "Color", values: ["White"] }],
           variants: [
             {
-              title: "Default",
+              title: "USB-C Wall Charger 20W White",
+              sku: "CHRG-USBC-20W",
+              barcode: "4006381333931",
+              options: { Color: "White" },
+              prices: [
+                { amount: 18.99, currency_code: "usd" },
+                { amount: 16.99, currency_code: "eur" },
+              ],
+              manage_inventory: true,
+            },
+          ],
+        },
+        {
+          title: "Wireless Optical Mouse",
+          description:
+            "2.4 GHz USB receiver; optical sensor. Works on most surfaces.",
+          status: ProductStatus.PUBLISHED,
+          shipping_profile_id: shippingProfileId,
+          sales_channels: [{ id: salesChannelId }],
+          options: [{ title: "Color", values: ["Black"] }],
+          variants: [
+            {
+              title: "Wireless Mouse Black",
               sku: "MOUSE-WL-BLK",
               barcode: "0012345678905",
-              options: { Type: "Default" },
-              prices: [
-                { amount: 34.99, currency_code: "usd" },
-                { amount: 31.99, currency_code: "eur" },
-              ],
-              manage_inventory: true,
-            },
-          ],
-        },
-        {
-          title: "Notebook",
-          description: "A5 hardcover notebook, 200 pages",
-          status: ProductStatus.PUBLISHED,
-          shipping_profile_id: shippingProfileId,
-          sales_channels: [{ id: salesChannelId }],
-          options: [
-            { title: "Style", values: ["Ruled", "Blank"] },
-          ],
-          variants: [
-            {
-              title: "Ruled",
-              sku: "NOTE-A5-RULED",
-              barcode: "9780201379624",
-              options: { Style: "Ruled" },
-              prices: [
-                { amount: 8.99, currency_code: "usd" },
-                { amount: 7.99, currency_code: "eur" },
-              ],
-              manage_inventory: true,
-            },
-            {
-              title: "Blank",
-              sku: "NOTE-A5-BLANK",
-              barcode: "9780201379631",
-              options: { Style: "Blank" },
-              prices: [
-                { amount: 8.99, currency_code: "usd" },
-                { amount: 7.99, currency_code: "eur" },
-              ],
-              manage_inventory: true,
-            },
-          ],
-        },
-        {
-          title: "Water Bottle",
-          description: "Stainless steel insulated water bottle",
-          status: ProductStatus.PUBLISHED,
-          shipping_profile_id: shippingProfileId,
-          sales_channels: [{ id: salesChannelId }],
-          options: [
-            { title: "Size", values: ["500ml", "1L"] },
-          ],
-          variants: [
-            {
-              title: "500ml",
-              sku: "BOTTLE-SS-500",
-              barcode: "8710398527837",
-              options: { Size: "500ml" },
+              options: { Color: "Black" },
               prices: [
                 { amount: 24.99, currency_code: "usd" },
-                { amount: 22.49, currency_code: "eur" },
+                { amount: 22.99, currency_code: "eur" },
+              ],
+              manage_inventory: true,
+            },
+          ],
+        },
+        {
+          title: "HDMI 4K Cable",
+          description:
+            "High-speed HDMI with Ethernet. 4K / 60 Hz. Gold-plated connectors.",
+          status: ProductStatus.PUBLISHED,
+          shipping_profile_id: shippingProfileId,
+          sales_channels: [{ id: salesChannelId }],
+          options: [{ title: "Length", values: ["1m", "2m"] }],
+          variants: [
+            {
+              title: "HDMI 4K Cable 1 m",
+              sku: "HDMI-4K-1M",
+              barcode: "9780201379624",
+              options: { Length: "1m" },
+              prices: [
+                { amount: 12.99, currency_code: "usd" },
+                { amount: 11.49, currency_code: "eur" },
               ],
               manage_inventory: true,
             },
             {
-              title: "1L",
-              sku: "BOTTLE-SS-1000",
-              barcode: "8710398527844",
-              options: { Size: "1L" },
+              title: "HDMI 4K Cable 2 m",
+              sku: "HDMI-4K-2M",
+              barcode: "9780201379631",
+              options: { Length: "2m" },
               prices: [
-                { amount: 29.99, currency_code: "usd" },
-                { amount: 27.49, currency_code: "eur" },
+                { amount: 15.99, currency_code: "usd" },
+                { amount: 14.49, currency_code: "eur" },
+              ],
+              manage_inventory: true,
+            },
+          ],
+        },
+        {
+          title: "Portable Power Bank",
+          description:
+            "USB-A and USB-C outputs. LED charge indicator. For phones and accessories.",
+          status: ProductStatus.PUBLISHED,
+          shipping_profile_id: shippingProfileId,
+          sales_channels: [{ id: salesChannelId }],
+          options: [
+            { title: "Capacity", values: ["5000mAh", "10000mAh"] },
+          ],
+          variants: [
+            {
+              title: "Power Bank 5000 mAh",
+              sku: "PWRBNK-5K",
+              barcode: "8710398527837",
+              options: { Capacity: "5000mAh" },
+              prices: [
+                { amount: 22.99, currency_code: "usd" },
+                { amount: 20.49, currency_code: "eur" },
+              ],
+              manage_inventory: true,
+            },
+            {
+              title: "Power Bank 10000 mAh",
+              sku: "PWRBNK-10K",
+              barcode: "8710398527844",
+              options: { Capacity: "10000mAh" },
+              prices: [
+                { amount: 32.99, currency_code: "usd" },
+                { amount: 29.49, currency_code: "eur" },
               ],
               manage_inventory: true,
             },

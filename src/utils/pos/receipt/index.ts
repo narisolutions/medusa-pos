@@ -1,6 +1,6 @@
 import { ReceiptData } from "@/types/utils";
 import { jsPDF } from "jspdf";
-import { formatDateOnly, formatTimeOnly, formatCurrencyRaw } from "@/utils/preferences";
+import { formatDateOnly, formatTimeOnly, formatCurrencyRaw } from "@/utils/settings/preferences";
 
 export type { ReceiptData };
 

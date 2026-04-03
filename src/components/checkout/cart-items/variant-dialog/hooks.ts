@@ -1,7 +1,7 @@
 import { CartItem } from "@/types/utils";
 import { AdminProductVariant, AdminProduct } from "@medusajs/types";
 import { useQueryInventoryKitItems } from "@/hooks/queries/useQueryInventoryKitItems";
-import { getVariantAvailableQuantity, getVariantUnitPrice } from "@/utils/cart";
+import { getVariantAvailableQuantity, getVariantUnitPrice } from "@/utils/pos/cart";
 
 // Transform AdminProductVariant to standardized format
 const transformVariantToItem = (

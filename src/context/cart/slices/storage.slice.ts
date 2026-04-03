@@ -1,7 +1,7 @@
 import { StateCreator } from "zustand";
 import storage from "@/utils/storage";
 import { CartItem, DraftOrderMetadata } from "@/types/utils";
-import { resolveSelectedItemId, DEFAULT_CART_METADATA } from "@/utils/cart";
+import { resolveSelectedItemId, DEFAULT_CART_METADATA } from "@/utils/pos/cart";
 
 export interface CartStorageSlice {
   saveToStorage: () => void;

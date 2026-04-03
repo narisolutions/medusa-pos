@@ -4,7 +4,7 @@ import { handleErrorToast } from "@/utils/helpers";
 import { ApiProductResponse } from "@/types/utils";
 import { AdminProductVariant } from "@medusajs/types";
 import storage from "@/utils/storage";
-import { loadPreferences } from "@/utils/preferences";
+import { loadPreferences } from "@/utils/settings/preferences";
 import { toast } from "sonner";
 
 const fetchProductByBarcode = async (

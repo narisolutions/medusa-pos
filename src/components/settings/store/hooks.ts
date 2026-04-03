@@ -8,7 +8,7 @@ import {
   getStoreMetadata,
   DEFAULT_PAYMENT_METHODS,
   buildStoreMetadataPayload,
-} from "@/utils/store/metadata";
+} from "@/utils/settings/store/metadata";
 import storage from "@/utils/storage";
 import constants from "@/utils/constants";
 

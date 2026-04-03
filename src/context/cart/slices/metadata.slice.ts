@@ -1,7 +1,7 @@
 import { StateCreator } from "zustand";
 import { CartItem, DraftOrderMetadata, OrderDiscount} from "@/types/utils";
-import { resolveSelectedItemId }  from "@/utils/cart";
-import {DEFAULT_CART_METADATA } from "@/utils/cart"
+import { resolveSelectedItemId }  from "@/utils/pos/cart";
+import {DEFAULT_CART_METADATA } from "@/utils/pos/cart"
 
 export interface CartMetadataSlice {
   metadata: DraftOrderMetadata;

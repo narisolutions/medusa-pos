@@ -7,7 +7,7 @@ import {
   DEFAULT_CART_METADATA,
   getVariantUnitPrice,
   getVariantAvailableQuantity,
-} from "@/utils/cart";
+} from "@/utils/pos/cart";
 
 export interface CartItemsSlice {
   items: CartItem[];

@@ -2,7 +2,7 @@ import { useMemo } from "react";
 import { AdminOrder, AdminPaymentCollection, AdminPayment, AdminOrderFulfillment } from "@medusajs/types";
 import { ActivityEvent } from "@/types/utils";
 import constants from "@/utils/constants";
-import { classifyFulfillment } from "@/utils/fulfillment";
+import { classifyFulfillment } from "@/utils/pos/fulfillment";
 
 const normalizeTimestamp = (timestamp: string | Date | undefined): string | null => {
   if (!timestamp) return null;
