@@ -1,10 +1,13 @@
 import { useState, useEffect, useCallback } from "react";
 import { AdminOrder } from "@medusajs/types";
-import { buildReceipt, buildReceiptPDF, ReceiptData } from "@/utils/receipt";
+import { buildReceipt, buildReceiptPDF, ReceiptData } from "@/utils/pos/receipt";
 import { toast } from "sonner";
 import storage from "@/utils/storage";
 import { Printer } from "@/components/settings/printer/hooks";
-import { handleErrorToast, openDownloadsFolder } from "@/utils/helpers";
+import {
+  getTauriInvokeErrorMessage,
+  openDownloadsFolder,
+} from "@/utils/helpers";
 import { useQueryStore } from "@/hooks/queries/useQueryStore";
 import {
   getBrandName,
@@ -13,7 +16,7 @@ import {
   getStorePhone,
   getGuestCustomerEmail,
   getPaymentMethodsForSettings,
-} from "@/utils/store/metadata";
+} from "@/utils/settings/store/metadata";
 import constants from "@/utils/constants";
 
 const usePrinterService = () => {
@@ -75,8 +78,10 @@ const usePrinterService = () => {
         });
         return { success: true, message: "Receipt printed successfully" };
       } catch (error) {
-        const errorMessage =
-          error instanceof Error ? error.message : "Failed to print receipt";
+        const errorMessage = getTauriInvokeErrorMessage(
+          error,
+          "Failed to print receipt"
+        );
         console.error("Print error:", errorMessage);
         throw new Error(errorMessage);
       }
@@ -103,13 +108,16 @@ const usePrinterService = () => {
           vendorId: targetPrinter.vendorId ?? null,
           productId: targetPrinter.productId ?? null,
         });
-        toast.success("Cash drawer opened");
         return { success: true };
       } catch (error) {
-        const errorMessage =
-          error instanceof Error ? error.message : "Failed to open cash drawer";
-        console.error("Cash drawer error:", errorMessage);
-        handleErrorToast(`Cash drawer failed: ${errorMessage}`);
+        const errorMessage = getTauriInvokeErrorMessage(
+          error,
+          "Failed to open cash drawer"
+        );
+        console.error(
+          "Cash drawer error:",
+          { printer: targetPrinter.name, detail: errorMessage }
+        );
         throw new Error(errorMessage);
       }
     },
@@ -218,14 +226,15 @@ const usePrinterService = () => {
         const receiptText = buildReceipt(receiptData);
         await printReceiptText(receiptText, printer);
 
-        toast.success("Receipt printed successfully!");
-
         return { success: true, receiptData };
       } catch (error) {
-        console.error("Failed to print receipt:", error);
         const errorMessage =
           error instanceof Error ? error.message : "Failed to print receipt";
-        handleErrorToast(`Print failed: ${errorMessage}`);
+        console.error("Failed to print receipt:", {
+          printer: printer.name,
+          detail: errorMessage,
+          error,
+        });
 
         throw error;
       }
@@ -250,7 +259,7 @@ const usePrinterService = () => {
           baseDir: fs.BaseDirectory.Download,
         });
 
-        toast.success(`Receipt downloaded successfully: ${filename}`, {
+        toast.success(`Receipt saved as ${filename}`, {
           description: "Saved to your Downloads folder",
           action: {
             label: "Open Folder",
@@ -258,10 +267,13 @@ const usePrinterService = () => {
           },
         });
       } catch (error) {
-        console.error("Failed to download receipt as PDF:", error);
         const errorMessage =
           error instanceof Error ? error.message : "Failed to download receipt";
-        handleErrorToast(`Download failed: ${errorMessage}`);
+        console.error("Failed to download receipt as PDF:", errorMessage, error);
+        toast.error("Could not save the receipt PDF", {
+          description:
+            "Check that your device has free storage space and that saving to Downloads is allowed. If this keeps happening, contact support.",
+        });
         throw error;
       }
     },

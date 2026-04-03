@@ -26,6 +26,7 @@ const PrinterSettings: React.FC = () => {
     testResults,
     handleTestCashDrawer,
     testingCashDrawer,
+    cashDrawerTestResults,
     getConnectionIcon,
     getConnectionTypeLabel,
   } = usePrinterSettings(editingPrinter);
@@ -49,42 +50,80 @@ const PrinterSettings: React.FC = () => {
   }
 
   const renderStatus = (printer: Printer) => {
+    const printResult = testResults[printer.id];
+    const drawerResult = cashDrawerTestResults[printer.id];
+
     if (testingPrinter === printer.id) {
       return (
         <div className="flex items-center space-x-3">
           <div className="w-4 h-4 border-2 border-theme-border-strong border-t-fg-muted rounded-full animate-spin"></div>
-          <span className="text-lg text-fg-subtle">Testing...</span>
+          <span className="text-lg text-fg-subtle">Testing print…</span>
         </div>
       );
     }
 
-    const result = testResults[printer.id];
-    if (result) {
+    if (testingCashDrawer === printer.id) {
       return (
-        <div className="flex flex-col gap-1">
-          <div className="flex items-center space-x-3">
-            <div
-              className={`h-3 w-3 rounded-full ${result.success ? "bg-green-500" : "bg-red-500"}`}
-            />
-            <span
-              className={`text-lg ${result.success ? "text-green-600" : "text-red-600"}`}
-            >
-              {result.success ? "Online" : "Offline"}
-            </span>
-          </div>
-          {!result.success && result.message && (
-            <span className="text-sm text-red-500 max-w-[260px] truncate" title={result.message}>
-              {result.message}
-            </span>
-          )}
+        <div className="flex items-center space-x-3">
+          <div className="w-4 h-4 border-2 border-theme-border-strong border-t-fg-muted rounded-full animate-spin"></div>
+          <span className="text-lg text-fg-subtle">Testing drawer…</span>
+        </div>
+      );
+    }
+
+    if (!printResult && !drawerResult) {
+      return (
+        <div className="flex items-center space-x-3">
+          <div className="h-3 w-3 rounded-full bg-surface-subtle" />
+          <span className="text-lg text-fg-subtle">Not tested</span>
         </div>
       );
     }
 
     return (
-      <div className="flex items-center space-x-3">
-        <div className="h-3 w-3 rounded-full bg-surface-subtle" />
-        <span className="text-lg text-fg-subtle">Unknown</span>
+      <div className="flex flex-col gap-3">
+        {printResult && (
+          <div className="flex flex-col gap-1">
+            <div className="flex items-center space-x-3">
+              <div
+                className={`h-3 w-3 rounded-full shrink-0 ${printResult.success ? "bg-green-500" : "bg-red-500"}`}
+              />
+              <span
+                className={`text-lg ${printResult.success ? "text-green-600" : "text-red-600"}`}
+              >
+                {printResult.success ? "Print OK" : "Print issue"}
+              </span>
+            </div>
+            {printResult.message && (
+              <span
+                className={`text-sm max-w-[min(280px,100%)] leading-snug ${printResult.success ? "text-fg-muted" : "text-red-500"}`}
+              >
+                {printResult.message}
+              </span>
+            )}
+          </div>
+        )}
+        {drawerResult && (
+          <div className="flex flex-col gap-1">
+            <div className="flex items-center space-x-3">
+              <div
+                className={`h-3 w-3 rounded-full shrink-0 ${drawerResult.success ? "bg-green-500" : "bg-red-500"}`}
+              />
+              <span
+                className={`text-lg ${drawerResult.success ? "text-green-600" : "text-red-600"}`}
+              >
+                {drawerResult.success ? "Drawer OK" : "Drawer issue"}
+              </span>
+            </div>
+            {drawerResult.message && (
+              <span
+                className={`text-sm max-w-[min(280px,100%)] leading-snug ${drawerResult.success ? "text-fg-muted" : "text-red-500"}`}
+              >
+                {drawerResult.message}
+              </span>
+            )}
+          </div>
+        )}
       </div>
     );
   };

@@ -27,12 +27,20 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Printer } from "../hooks";
+import { getTauriInvokeErrorMessage } from "@/utils/helpers";
 import { Loader2, RefreshCw } from "lucide-react";
 
 interface UsbDeviceInfo {
   vendor_id: number;
   product_id: number;
   description: string;
+}
+
+interface SystemPrinterInfo {
+  name: string;
+  driver_name: string;
+  port_name: string;
+  is_default: boolean;
 }
 
 interface Props {
@@ -45,7 +53,7 @@ interface Props {
 type PrinterFormValues = {
   name: string;
   type: "receipt";
-  connectionType: "usb" | "network" | "bluetooth";
+  connectionType: "local" | "usb" | "network" | "bluetooth";
   address: string;
   port: string;
   vendorId?: number;
@@ -59,7 +67,7 @@ type PrinterFormValues = {
 const initialFormData: PrinterFormValues = {
   name: "",
   type: "receipt",
-  connectionType: "network",
+  connectionType: "local",
   address: "",
   port: "",
   vendorId: undefined,
@@ -71,6 +79,7 @@ const initialFormData: PrinterFormValues = {
 };
 
 const connectionConfig = {
+  local: { placeholder: "Select a system printer", label: "System Printer" },
   network: { placeholder: "192.168.1.100", label: "IP Address" },
   usb: { placeholder: "Select or scan for a USB printer", label: "USB Device" },
   bluetooth: { placeholder: "00:11:22:33:44:55", label: "Bluetooth Address" },
@@ -96,6 +105,10 @@ const PrinterDialog: React.FC<Props> = ({
   const [isScanning, setIsScanning] = useState(false);
   const [scanError, setScanError] = useState<string | null>(null);
 
+  const [systemPrinters, setSystemPrinters] = useState<SystemPrinterInfo[]>([]);
+  const [isLoadingSystemPrinters, setIsLoadingSystemPrinters] = useState(false);
+  const [systemPrinterError, setSystemPrinterError] = useState<string | null>(null);
+
   useEffect(() => {
     if (editingPrinter) {
       reset({
@@ -116,6 +129,14 @@ const PrinterDialog: React.FC<Props> = ({
     }
     clearErrors();
     setScanError(null);
+    setSystemPrinterError(null);
+
+    if (isOpen) {
+      const connType = editingPrinter?.connectionType ?? initialFormData.connectionType;
+      if (connType === "local") {
+        loadSystemPrinters();
+      }
+    }
   }, [editingPrinter, isOpen, reset, clearErrors]);
 
   const scanUsbDevices = async () => {
@@ -130,11 +151,39 @@ const PrinterDialog: React.FC<Props> = ({
       }
     } catch (error) {
       setScanError(
-        error instanceof Error ? error.message : "Failed to scan USB devices"
+        getTauriInvokeErrorMessage(error, "Failed to scan USB devices")
       );
       setUsbDevices([]);
     } finally {
       setIsScanning(false);
+    }
+  };
+
+  const loadSystemPrinters = async () => {
+    setIsLoadingSystemPrinters(true);
+    setSystemPrinterError(null);
+    try {
+      const { invoke } = await import("@tauri-apps/api/core");
+      const printers = await invoke<SystemPrinterInfo[]>("list_system_printers");
+      setSystemPrinters(printers);
+      if (printers.length === 0) {
+        setSystemPrinterError("No printers found. Make sure you have printers installed on this system.");
+      }
+    } catch (error) {
+      setSystemPrinterError(
+        getTauriInvokeErrorMessage(error, "Failed to list system printers")
+      );
+      setSystemPrinters([]);
+    } finally {
+      setIsLoadingSystemPrinters(false);
+    }
+  };
+
+  const handleSystemPrinterSelect = (printerName: string) => {
+    setValue("address", printerName);
+    const printer = systemPrinters.find((p) => p.name === printerName);
+    if (printer && !watch("name")) {
+      setValue("name", printer.name);
     }
   };
 
@@ -153,6 +202,8 @@ const PrinterDialog: React.FC<Props> = ({
     reset(initialFormData);
     setUsbDevices([]);
     setScanError(null);
+    setSystemPrinters([]);
+    setSystemPrinterError(null);
     onClose();
   };
 
@@ -160,6 +211,10 @@ const PrinterDialog: React.FC<Props> = ({
     try {
       if (values.connectionType === "usb" && (!values.vendorId || !values.productId)) {
         setError("address", { type: "manual", message: "Please scan and select a USB printer" });
+        return;
+      }
+      if (values.connectionType === "local" && !values.address) {
+        setError("address", { type: "manual", message: "Please select a system printer" });
         return;
       }
       schemas.printer.parse(values);
@@ -239,15 +294,19 @@ const PrinterDialog: React.FC<Props> = ({
                     <Select
                       onValueChange={(value) => {
                         field.onChange(value);
+                        setValue("address", "");
                         if (value === "usb") {
-                          setValue("address", "");
                           setValue("vendorId", undefined);
                           setValue("productId", undefined);
+                        }
+                        if (value === "local" && systemPrinters.length === 0) {
+                          loadSystemPrinters();
                         }
                       }}
                       value={field.value}
                     >
                       <SelectTrigger className="h-12 text-lg px-4">
+                        {field.value === "local" && <span>Local (System Printer)</span>}
                         {field.value === "network" && (
                           <span>Network (IP)</span>
                         )}
@@ -257,6 +316,7 @@ const PrinterDialog: React.FC<Props> = ({
                         )}
                       </SelectTrigger>
                       <SelectContent>
+                        <SelectItem value="local">Local (System Printer)</SelectItem>
                         <SelectItem value="network">Network (IP)</SelectItem>
                         <SelectItem value="usb">USB</SelectItem>
                         <SelectItem value="bluetooth">Bluetooth</SelectItem>
@@ -268,7 +328,74 @@ const PrinterDialog: React.FC<Props> = ({
               )}
             />
 
-            {connectionType === "usb" ? (
+            {connectionType === "local" ? (
+              <FormField
+                control={control}
+                name="address"
+                render={() => (
+                  <FormItem>
+                    <div className="flex items-center justify-between">
+                      <FormLabel className="text-lg font-medium">
+                        {config.label}
+                      </FormLabel>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={loadSystemPrinters}
+                        disabled={isLoadingSystemPrinters}
+                        className="h-8 text-sm"
+                      >
+                        {isLoadingSystemPrinters ? (
+                          <Loader2 className="h-4 w-4 animate-spin mr-1.5" />
+                        ) : (
+                          <RefreshCw className="h-4 w-4 mr-1.5" />
+                        )}
+                        {isLoadingSystemPrinters ? "Loading..." : "Refresh"}
+                      </Button>
+                    </div>
+                    <FormControl>
+                      <Select
+                        onValueChange={handleSystemPrinterSelect}
+                        value={watch("address") || ""}
+                      >
+                        <SelectTrigger className="h-12 text-lg px-4">
+                          {watch("address") ? (
+                            <span className="truncate">{watch("address")}</span>
+                          ) : (
+                            <span className="text-fg-muted">
+                              {config.placeholder}
+                            </span>
+                          )}
+                        </SelectTrigger>
+                        <SelectContent>
+                          {systemPrinters.length === 0 && !isLoadingSystemPrinters && (
+                            <div className="px-3 py-4 text-base text-fg-muted text-center">
+                              Click &quot;Refresh&quot; to list system printers
+                            </div>
+                          )}
+                          {systemPrinters.map((printer) => (
+                            <SelectItem key={printer.name} value={printer.name}>
+                              <div className="flex flex-col">
+                                <span>{printer.name}</span>
+                                <span className="text-sm text-fg-muted">
+                                  {printer.port_name}
+                                  {printer.is_default && " — Default"}
+                                </span>
+                              </div>
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </FormControl>
+                    {systemPrinterError && (
+                      <p className="text-sm text-destructive mt-1">{systemPrinterError}</p>
+                    )}
+                    <FormMessage className="text-base" />
+                  </FormItem>
+                )}
+              />
+            ) : connectionType === "usb" ? (
               <FormField
                 control={control}
                 name="address"

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { loadPreferences } from "@/utils/preferences";
+import { loadPreferences } from "@/utils/settings/preferences";
 
 export function useCustomEndpoints() {
   const [customEndpointsEnabled, setCustomEndpointsEnabled] = useState(true);

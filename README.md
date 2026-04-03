@@ -14,6 +14,10 @@ Cross-platform POS app for Medusa built with React + Tauri 2.
 
 Medusa POS is an independent open-source project and is not officially affiliated with Medusa.
 
+<p align="center">
+  <img src=".github/assets/dark-checkout.png" alt="Medusa POS Checkout" width="900" />
+</p>
+
 ## Compatibility
 
 | Capability | Vanilla Medusa (`admin.product.list`) | Medusa + POS plugin/custom `/pos` endpoints |

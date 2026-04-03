@@ -21,7 +21,7 @@ export default {
     id: z.string().optional(),
     name: z.string().min(1, { message: "Printer name is required" }),
     type: z.enum(["receipt"], { message: "Please select a printer type" }),
-    connectionType: z.enum(["usb", "network", "bluetooth"], {
+    connectionType: z.enum(["local", "usb", "network", "bluetooth"], {
       message: "Please select a connection type",
     }),
     address: z.string().min(1, { message: "Address/IP is required" }),

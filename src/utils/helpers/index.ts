@@ -1,5 +1,5 @@
 import { toast } from "sonner";
-import { formatDateTime, formatPrice } from "@/utils/preferences";
+import { formatDateTime, formatPrice } from "@/utils/settings/preferences";
 import router from "@/router/router";
 import constants from "@/utils/constants";
 import { Store } from "@tauri-apps/plugin-store";
@@ -28,6 +28,29 @@ const getAuthenticatedPages = () => {
   };
 };
 
+
+/**
+ * Tauri `invoke` rejections are not always `Error` instances; normalize for UI and logging.
+ */
+const getTauriInvokeErrorMessage = (error: unknown, fallback: string): string => {
+  if (typeof error === "string" && error.trim().length > 0) {
+    return error;
+  }
+  if (error instanceof Error && error.message.trim().length > 0) {
+    return error.message;
+  }
+  if (error && typeof error === "object") {
+    const record = error as Record<string, unknown>;
+    if (typeof record.message === "string" && record.message.trim().length > 0) {
+      return record.message;
+    }
+    if (typeof record.error === "string" && record.error.trim().length > 0) {
+      return record.error;
+    }
+  }
+  console.error("Tauri invoke error (unparsed):", error);
+  return fallback;
+};
 
 const handleErrorToast = (
   error: unknown,
@@ -353,9 +376,38 @@ const checkBackendHealth = async (
   }
 };
 
+/** Plain-language hints for staff; technical errors belong in console logs only. */
+const printerIssueStaffHintToast = (printerName: string): string => {
+  return [
+    `Check that "${printerName}" is turned on and connected.`,
+    "Restart the printer if it still does not respond.",
+    "You can review or change the default printer under Settings → Printers.",
+  ].join(" ");
+}
+
+/** Same connection guidance as print errors, plus Test drawer in Settings → Printers. */
+const cashDrawerIssueStaffHintToast = (printerName: string): string => {
+  return [
+    `Open Settings → Printers and tap Test drawer for "${printerName}".`,
+    "If the test does not open the drawer, check that the printer is on, connected, and that the drawer cable is plugged into the printer.",
+    "Restart the printer if it still fails, or open Edit on that printer to verify the connection type and address (on Windows, Local / system printer often works when direct USB does not).",
+  ].join(" ");
+}
+
+/** Used on the Printers settings screen — users are already in Settings. */
+const printerIssueStaffHintSettings = (printerName: string): string => {
+  return [
+    `Check that "${printerName}" is turned on and connected.`,
+    "Restart the printer if it still does not respond.",
+    "Open Edit on this printer to verify the connection type and address. On Windows, Local (system printer) often works when direct USB does not.",
+  ].join(" ");
+}
+
+
 export {
   getRoutes,
   getAuthenticatedPages,
+  getTauriInvokeErrorMessage,
   handleErrorToast,
   formatDate,
   formatExactTime,
@@ -374,4 +426,7 @@ export {
   isOrderGuestCustomer,
   resetOnBackendChange,
   checkBackendHealth,
+  printerIssueStaffHintToast,
+  cashDrawerIssueStaffHintToast,
+  printerIssueStaffHintSettings,
 };

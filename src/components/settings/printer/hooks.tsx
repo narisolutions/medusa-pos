@@ -1,10 +1,12 @@
 import { useState, useEffect } from "react";
 import { Forms } from "@/types/form";
-import { Wifi, Usb, Bluetooth } from "lucide-react";
+import { Wifi, Usb, Bluetooth, Monitor } from "lucide-react";
 import storage from "@/utils/storage";
 import { useQueryStore } from "@/hooks/queries/useQueryStore";
 import { useQuerySalesChannel } from "@/hooks/queries/useQuerySalesChannel";
-import { getBrandName } from "@/utils/store/metadata";
+import { getBrandName } from "@/utils/settings/store/metadata";
+import { getTauriInvokeErrorMessage } from "@/utils/helpers";
+import { printerIssueStaffHintSettings } from "@/utils/helpers";
 
 export type Printer = Forms["Printer"] & {
   id: string;
@@ -100,14 +102,16 @@ const usePrinterSettings = (editingPrinter: Printer | null) => {
 
       setTestResults((prev) => ({
         ...prev,
-        [printer.id]: { success: true, message: "Test successful" },
+        [printer.id]: { success: true, message: "Test page sent to printer" },
       }));
     } catch (error) {
+      const detail = getTauriInvokeErrorMessage(error, "Test failed");
+      console.error("Printer test failed:", { printer: printer.name, detail });
       setTestResults((prev) => ({
         ...prev,
         [printer.id]: {
           success: false,
-          message: error instanceof Error ? error.message : "Test failed",
+          message: printerIssueStaffHintSettings(printer.name),
         },
       }));
     } finally {
@@ -128,14 +132,19 @@ const usePrinterSettings = (editingPrinter: Printer | null) => {
       });
       setCashDrawerTestResults((prev) => ({
         ...prev,
-        [printer.id]: { success: true, message: "Drawer opened" },
+        [printer.id]: { success: true, message: "Cash drawer signal sent" },
       }));
     } catch (error) {
+      const detail = getTauriInvokeErrorMessage(
+        error,
+        "Failed to open cash drawer"
+      );
+      console.error("Cash drawer test failed:", { printer: printer.name, detail });
       setCashDrawerTestResults((prev) => ({
         ...prev,
         [printer.id]: {
           success: false,
-          message: error instanceof Error ? error.message : "Failed",
+          message: printerIssueStaffHintSettings(printer.name),
         },
       }));
     } finally {
@@ -145,6 +154,7 @@ const usePrinterSettings = (editingPrinter: Printer | null) => {
 
   const getConnectionIcon = (connectionType: string) => {
     const icons = {
+      local: <Monitor className="h-4 w-4" />,
       network: <Wifi className="h-4 w-4" />,
       usb: <Usb className="h-4 w-4" />,
       bluetooth: <Bluetooth className="h-4 w-4" />,
@@ -154,6 +164,7 @@ const usePrinterSettings = (editingPrinter: Printer | null) => {
 
   const getConnectionTypeLabel = (connectionType: string) => {
     const labels = {
+      local: "Local",
       network: "Network",
       usb: "USB",
       bluetooth: "Bluetooth",

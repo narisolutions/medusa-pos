@@ -3,7 +3,7 @@ import { SidebarTrigger, useSidebar } from "@/components/ui/sidebar";
 import { useEffect, useState } from "react";
 import { useHeader } from "./hooks";
 import { useQueryStore } from "@/hooks/queries/useQueryStore";
-import { getBrandName, getLogoUrl } from "@/utils/store/metadata";
+import { getBrandName, getLogoUrl } from "@/utils/settings/store/metadata";
 
 const Header: React.FC = () => {
   const [now, setNow] = useState(new Date());

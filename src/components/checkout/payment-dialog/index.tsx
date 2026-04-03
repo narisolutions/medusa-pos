@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Numpad } from "@/components/ui/numpad";
 import { Skeleton } from "@/components/ui/skeleton";
 import { formatPrice } from "@/utils/helpers";
-import { getCurrencySymbol } from "@/utils/preferences";
+import { getCurrencySymbol } from "@/utils/settings/preferences";
 import constants from "@/utils/constants";
 import { useCheckout } from "../hooks";
 import { usePaymentModal } from "./hooks";

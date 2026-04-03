@@ -15,7 +15,7 @@ import { formatPrice } from "@/utils/helpers";
 import { ExtendedAdminProduct } from "@/types/utils";
 import ItemDialog from "../cart-items/variant-dialog";
 import { useCheckout } from "../hooks";
-import { getVariantAvailableQuantity, getVariantUnitPrice } from "@/utils/cart";
+import { getVariantAvailableQuantity, getVariantUnitPrice } from "@/utils/pos/cart";
 import { useCustomEndpoints } from "@/hooks/ui/useCustomEndpoints";
 
 interface Props {

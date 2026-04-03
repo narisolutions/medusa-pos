@@ -10,7 +10,50 @@ use tauri_plugin_log::{Target, TargetKind};
 
 mod config;
 mod keyboard;
+mod winprint;
 use config::AppConfig;
+
+/// Shared byte buffer for capturing ESC/POS output.
+type SharedBuffer = std::sync::Arc<std::sync::Mutex<Vec<u8>>>;
+
+/// In-memory driver that captures ESC/POS bytes for later dispatch
+/// (e.g. via the Windows print spooler).
+#[derive(Clone)]
+struct BufferDriver {
+    buf: SharedBuffer,
+}
+
+impl BufferDriver {
+    fn new(buf: SharedBuffer) -> Self {
+        Self { buf }
+    }
+}
+
+impl Driver for BufferDriver {
+    fn name(&self) -> String {
+        "BufferDriver".into()
+    }
+
+    fn write(&self, data: &[u8]) -> Result<(), PrinterError> {
+        self.buf.lock().unwrap().extend_from_slice(data);
+        Ok(())
+    }
+
+    fn read(&self, _buf: &mut [u8]) -> Result<usize, PrinterError> {
+        Ok(0)
+    }
+
+    fn flush(&self) -> Result<(), PrinterError> {
+        Ok(())
+    }
+}
+
+fn create_buffer_printer() -> (Printer<BufferDriver>, SharedBuffer) {
+    let buf: SharedBuffer = std::sync::Arc::new(std::sync::Mutex::new(Vec::with_capacity(4096)));
+    let driver = BufferDriver::new(buf.clone());
+    let printer = Printer::new(driver, Protocol::default(), Some(PrinterOptions::default()));
+    (printer, buf)
+}
 
 // Helper function for Georgian text handling
 fn configure_printer_for_georgian<T>(
@@ -47,7 +90,11 @@ where
 
 // Helper function for error mapping
 fn map_printer_error<T>(result: Result<T, PrinterError>) -> Result<T, String> {
-    result.map_err(|e| e.to_string())
+    result.map_err(|e| {
+        let s = e.to_string();
+        log::error!("Printer error: {s}");
+        s
+    })
 }
 
 fn create_network_printer(
@@ -62,13 +109,29 @@ fn create_network_printer(
     ))
 }
 
-fn create_usb_printer(vendor_id: u16, product_id: u16) -> Result<Printer<NativeUsbDriver>, PrinterError> {
-    let driver = NativeUsbDriver::open(vendor_id, product_id)?;
-    Ok(Printer::new(
-        driver,
-        Protocol::default(),
-        Some(PrinterOptions::default()),
-    ))
+fn create_usb_printer(vendor_id: u16, product_id: u16) -> Result<Printer<UsbDriver>, PrinterError> {
+    // If logs still show `nusb::`, the app was not rebuilt after switching escpos from `native_usb` to `usb`.
+    log::info!(
+        "USB print path: libusb via escpos::UsbDriver (rusb), VID {:04x} PID {:04x}",
+        vendor_id,
+        product_id
+    );
+    match UsbDriver::open(vendor_id, product_id, Some(Duration::from_secs(8))) {
+        Ok(driver) => Ok(Printer::new(
+            driver,
+            Protocol::default(),
+            Some(PrinterOptions::default()),
+        )),
+        Err(e) => {
+            log::error!(
+                "USB printer open failed (VID {:04x} PID {:04x}): {}",
+                vendor_id,
+                product_id,
+                e
+            );
+            Err(e)
+        }
+    }
 }
 
 fn parse_usb_ids(vendor_id: Option<u16>, product_id: Option<u16>) -> Result<(u16, u16), String> {
@@ -83,6 +146,11 @@ struct UsbDeviceInfo {
     vendor_id: u16,
     product_id: u16,
     description: String,
+}
+
+#[tauri::command]
+fn list_system_printers() -> Result<Vec<winprint::SystemPrinterInfo>, String> {
+    winprint::list_system_printers()
 }
 
 #[tauri::command]
@@ -415,6 +483,20 @@ async fn print_test(
                 sales_channel_name.as_deref(),
             )
         }
+        "local" => {
+            let (mut printer, buf) = create_buffer_printer();
+            print_test_page(
+                &mut printer,
+                &app_handle,
+                header,
+                app_version.as_deref(),
+                datetime.as_deref(),
+                store_name.as_deref(),
+                sales_channel_name.as_deref(),
+            )?;
+            let bytes = std::mem::take(&mut *buf.lock().unwrap());
+            winprint::raw_print(&address, &bytes)
+        }
         _ => Err("Unsupported connection type".to_string()),
     }
 }
@@ -447,6 +529,13 @@ async fn open_cash_drawer(
             map_printer_error(printer.cash_drawer(CashDrawer::Pin2))?;
             Ok(())
         }
+        "local" => {
+            let (mut printer, buf) = create_buffer_printer();
+            map_printer_error(printer.init())?;
+            map_printer_error(printer.cash_drawer(CashDrawer::Pin2))?;
+            let bytes = std::mem::take(&mut *buf.lock().unwrap());
+            winprint::raw_print(&address, &bytes)
+        }
         _ => Err("Unsupported connection type".to_string()),
     }
 }
@@ -474,6 +563,12 @@ async fn print_receipt(
             let mut printer = map_printer_error(create_usb_printer(vid, pid))?;
             print_receipt_page(&mut printer, &app_handle, header, &receipt_data)
         }
+        "local" => {
+            let (mut printer, buf) = create_buffer_printer();
+            print_receipt_page(&mut printer, &app_handle, header, &receipt_data)?;
+            let bytes = std::mem::take(&mut *buf.lock().unwrap());
+            winprint::raw_print(&address, &bytes)
+        }
         _ => Err("Unsupported connection type".to_string()),
     }
 }
@@ -485,13 +580,8 @@ fn check_physical_keyboard() -> bool {
 }
 
 #[tauri::command]
-fn show_virtual_keyboard() {
-    keyboard::show_virtual_keyboard();
-}
-
-#[tauri::command]
-fn hide_virtual_keyboard() {
-    keyboard::hide_virtual_keyboard();
+fn toggle_virtual_keyboard() {
+    keyboard::toggle_virtual_keyboard();
 }
 
 #[tauri::command]
@@ -782,12 +872,12 @@ pub fn run() {
         .plugin(tauri_plugin_updater::Builder::new().build())
         .invoke_handler(tauri::generate_handler![
             check_physical_keyboard,
-            show_virtual_keyboard,
-            hide_virtual_keyboard,
+            toggle_virtual_keyboard,
             print_test,
             open_cash_drawer,
             print_receipt,
             list_usb_devices,
+            list_system_printers,
             check_config_exists,
             load_config,
             set_active_backend,

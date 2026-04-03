@@ -16,7 +16,6 @@ import {
 import schemas from "@/utils/schemas";
 import { Forms } from "@/types/form";
 import { useLogin } from "./hooks";
-import useAppInit from "@/hooks/auth/useAppInit";
 import { useStoreManager } from "@/context/store-manager";
 import StoreSelectorBox from "@/components/auth/store-selector";
 
@@ -27,7 +26,6 @@ const Login: React.FC = () => {
   });
 
   const { control, handleSubmit } = form;
-  const { bootLoading } = useAppInit();
   const { activeStore } = useStoreManager();
 
   const isConfigured = Boolean(activeStore);
@@ -49,7 +47,7 @@ const Login: React.FC = () => {
             </span>
           )}
           <StoreSelectorBox />
-          {!bootLoading && !isConfigured && (
+          {!isConfigured && (
             <div className="mx-auto w-full max-w-md flex items-center gap-4 px-4 py-3 rounded-lg border border-red-100 bg-red-50 shadow-sm">
               <div className="shrink-0 flex items-center justify-center h-10 w-10 rounded-full bg-red-100 text-yellow-600 text-lg">
                 <TriangleAlert />
@@ -107,9 +105,9 @@ const Login: React.FC = () => {
               variant="default"
               size="lg"
               className="bg-gray-800 hover:bg-gray-900 dark:bg-gray-700 dark:hover:bg-gray-600 transition-colors shadow text-white mt-4 py-8 text-xl"
-              disabled={!isConfigured || bootLoading}
+              disabled={!isConfigured}
             >
-              {bootLoading ? "Loading..." : "Sign in"}
+              Sign in
             </Button>
           </form>
         </Form>

@@ -3,7 +3,7 @@ import { getSdk } from "@/config/medusa";
 import { handleErrorToast } from "@/utils/helpers";
 import { useUser } from "@/context/user";
 import { AdminProduct } from "@medusajs/types";
-import { loadPreferences } from "@/utils/preferences";
+import { loadPreferences } from "@/utils/settings/preferences";
 
 const MEDUSA_PRODUCT_FIELDS = [
   "*variants",

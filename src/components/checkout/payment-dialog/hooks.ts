@@ -9,10 +9,14 @@ import { useCartStore } from "@/context/cart";
 import { PaymentMethod } from "@/types/utils";
 import { useCheckout } from "../hooks";
 import { useQueryStore } from "@/hooks/queries/useQueryStore";
-import { getPaymentMethods } from "@/utils/store/metadata";
+import { getPaymentMethods } from "@/utils/settings/store/metadata";
 import constants from "@/utils/constants";
 import { CreditCard, Banknote } from "lucide-react";
-import { handleErrorToast } from "@/utils/helpers";
+import {
+  cashDrawerIssueStaffHintToast,
+  handleErrorToast,
+  printerIssueStaffHintToast,
+} from "@/utils/helpers";
 
 const iconByType = {
   cash: Banknote,
@@ -318,12 +322,52 @@ const usePaymentModal = (
   } = useCashPayment(calculations.total, selectedPaymentMethod);
   const { processPaymentCollection, processFulfillment } = useOrderProcessing();
 
-  // Clean up after successful order
+  // Fire-and-forget: print receipt + open cash drawer after order succeeds.
+  // Runs independently so it never blocks the modal from closing.
+  const runPostOrderHardware = useCallback(
+    (order: AdminOrder, paymentMethod: PaymentMethod | undefined) => {
+      const defaultPrinter = getDefaultPrinter();
+
+      printOrderReceipt(order).catch((printError) => {
+        console.warn("Auto-print failed:", printError);
+        if (defaultPrinter) {
+          toast.error("The receipt did not print", {
+            description: printerIssueStaffHintToast(defaultPrinter.name),
+          });
+        } else {
+          toast.error("The receipt did not print", {
+            description:
+              "No default printer is set. Add one under Settings → Printers.",
+          });
+        }
+      });
+
+      if (defaultPrinter?.openCashDrawer) {
+        const isCash = paymentMethod === "pp_cash_pos";
+        const isCard = !isCash && paymentMethod !== undefined;
+        if (
+          (isCash && defaultPrinter.openCashDrawerOnCash) ||
+          (isCard && defaultPrinter.openCashDrawerOnCard)
+        ) {
+          openCashDrawer(defaultPrinter).catch((drawerError) => {
+            console.warn("Auto cash drawer failed:", drawerError);
+            toast.error("The cash drawer did not open", {
+              description: cashDrawerIssueStaffHintToast(defaultPrinter.name),
+            });
+          });
+        }
+      }
+    },
+    [printOrderReceipt, openCashDrawer, getDefaultPrinter]
+  );
+
+  // Clean up after successful order — synchronous-ish: clears cart, resets
+  // state, shows success toast. Hardware side effects are fire-and-forget.
   const cleanupAfterOrder = useCallback(
     async (order: AdminOrder, paymentMethod: PaymentMethod | undefined): Promise<void> => {
       clearItems();
       setDraftOrderId(null);
-      await queryClient.invalidateQueries({ queryKey: ["orders"] });
+      void queryClient.invalidateQueries({ queryKey: ["orders"] });
 
       resetCashState();
       setPaymentMethod(undefined);
@@ -331,33 +375,14 @@ const usePaymentModal = (
       toast.success(`Order #${order.display_id} created successfully!`);
       playSuccessSound();
 
-      try {
-        await printOrderReceipt(order);
-      } catch (printError) {
-        console.warn("Auto-print failed:", printError);
-      }
-
-      try {
-        const printer = getDefaultPrinter();
-        if (printer?.openCashDrawer) {
-          const isCash = paymentMethod === "pp_cash_pos";
-          const isCard = !isCash && paymentMethod !== undefined;
-          if ((isCash && printer.openCashDrawerOnCash) || (isCard && printer.openCashDrawerOnCard)) {
-            await openCashDrawer(printer);
-          }
-        }
-      } catch (drawerError) {
-        console.warn("Auto cash drawer failed:", drawerError);
-      }
+      runPostOrderHardware(order, paymentMethod);
     },
     [
       clearItems,
       setDraftOrderId,
       resetCashState,
       setPaymentMethod,
-      printOrderReceipt,
-      openCashDrawer,
-      getDefaultPrinter,
+      runPostOrderHardware,
     ]
   );
 
