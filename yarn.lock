@@ -726,18 +726,18 @@
     "@jridgewell/resolve-uri" "^3.1.0"
     "@jridgewell/sourcemap-codec" "^1.4.14"
 
-"@medusajs/js-sdk@^2.13.5":
-  version "2.13.5"
-  resolved "https://registry.yarnpkg.com/@medusajs/js-sdk/-/js-sdk-2.13.5.tgz#e2d813373bd6b305ee4afbbf105e1f4b8b56d8d4"
-  integrity sha512-7cQqZWyl1vIVl7NpAwiqonXLktnLTixhmsgkAEIGxq7ZbITFYCbrx6S7Nih2ldAMb6VpseTvIeoDkXVxBpcTvw==
+"@medusajs/js-sdk@^2.13.6":
+  version "2.13.6"
+  resolved "https://registry.yarnpkg.com/@medusajs/js-sdk/-/js-sdk-2.13.6.tgz#a522b8d0214ed995728da01ed3ae502c373247a7"
+  integrity sha512-KclFGKmJN0+7QdMbHNQ0g5O6A5h+4Lyi4GI2a1WOKcx14447pEM6OyF+QZRSvi1yoS0cuLk3foYu5vTd1DOk2g==
   dependencies:
     fetch-event-stream "^0.1.5"
     qs "^6.12.1"
 
-"@medusajs/types@^2.13.5":
-  version "2.13.5"
-  resolved "https://registry.yarnpkg.com/@medusajs/types/-/types-2.13.5.tgz#25fb1f63a2a190b6f260b4252e8949c3f2dbbaef"
-  integrity sha512-vHfXGdR2GcQB7tLnX13Tzo0vlzSIPvMxea8y60cEviZhq8+ercXCkMylNzhCeXngEU7pLv8aWHBQqZ7YOT547Q==
+"@medusajs/types@^2.13.6":
+  version "2.13.6"
+  resolved "https://registry.yarnpkg.com/@medusajs/types/-/types-2.13.6.tgz#6f4416f842e1ea925aa7c7f23133c84e05b6436a"
+  integrity sha512-G6VASkY/rKjvDzHDXN/oxthkVz8uOPy8nYUaa/c6GzfeUJkz8diB+9RwnJeRqTgAtybX2eocKKunFRkqmLBUBg==
   dependencies:
     bignumber.js "^9.1.2"
 
@@ -3995,14 +3995,7 @@ punycode@^2.1.0:
   resolved "https://registry.yarnpkg.com/punycode/-/punycode-2.3.1.tgz#027422e2faec0b25e1549c3e1bd8309b9133b6e5"
   integrity sha512-vYt7UD1U9Wg6138shLtLOvdAu+8DsC/ilFtEVHcH+wydcSpNE20AfSOduf6MkRFahL5FY7X1oU7nKVZFtfq8Fg==
 
-qs@^6.12.1, qs@^6.14.0:
-  version "6.14.0"
-  resolved "https://registry.yarnpkg.com/qs/-/qs-6.14.0.tgz#c63fa40680d2c5c941412a0e899c89af60c0a930"
-  integrity sha512-YWWTjgABSKcvs/nWBi9PycY/JiPJqOD4JA6o9Sej2AtvSGarXxKC3OQSk4pAarbdQlKAh5D4FCQkJNkW+GAn3w==
-  dependencies:
-    side-channel "^1.1.0"
-
-qs@^6.14.1:
+qs@^6.12.1, qs@^6.14.0, qs@^6.14.1:
   version "6.15.0"
   resolved "https://registry.yarnpkg.com/qs/-/qs-6.15.0.tgz#db8fd5d1b1d2d6b5b33adaf87429805f1909e7b3"
   integrity sha512-mAZTtNCeetKMH+pSjrb76NAM8V9a05I9aBZOHztWy/UqcJdQYNsf59vrRKWnojAT9Y+GbIvoTBC++CPHqpDBhQ==
