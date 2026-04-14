@@ -861,6 +861,9 @@ pub fn run() {
                     Target::new(TargetKind::Webview),
                 ])
                 .level(log_level)
+                .level_for("reqwest", log::LevelFilter::Warn)
+                .level_for("rustls_platform_verifier", log::LevelFilter::Warn)
+                .level_for("tauri_plugin_updater", log::LevelFilter::Info)
                 .build(),
         )
         .plugin(tauri_plugin_http::init())
