@@ -122,10 +122,11 @@ export const initializeSdk = async (baseUrl?: string) => {
           }
           
           const callerSignal = tauriInit?.signal as AbortSignal | undefined;
-          const timeoutSignal = AbortSignal.timeout(15_000);
+          const timeoutController = new AbortController();
+          const timeoutId = setTimeout(() => timeoutController.abort(), 15_000);
           const signal = callerSignal
-            ? AbortSignal.any([callerSignal, timeoutSignal])
-            : timeoutSignal;
+            ? AbortSignal.any([callerSignal, timeoutController.signal])
+            : timeoutController.signal;
 
           tauriInit = {
             ...tauriInit,
@@ -149,6 +150,7 @@ export const initializeSdk = async (baseUrl?: string) => {
               throw fetchError;
             })
             .then(async (response) => {
+              clearTimeout(timeoutId);
               if (!response.ok) {
                 let errorBody: string | undefined;
                 try {
@@ -214,6 +216,7 @@ export const initializeSdk = async (baseUrl?: string) => {
               return json;
             })
             .catch((error) => {
+              clearTimeout(timeoutId);
               throw error;
             });
         })();
