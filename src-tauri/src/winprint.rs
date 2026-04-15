@@ -1,13 +1,10 @@
 #[cfg(target_os = "windows")]
 use windows::{
     core::{HSTRING, PCWSTR, PWSTR},
-    Win32::{
-        Foundation::HANDLE,
-        Graphics::Printing::{
-            ClosePrinter, EndDocPrinter, EndPagePrinter, EnumPrintersW, GetDefaultPrinterW,
-            OpenPrinterW, StartDocPrinterW, StartPagePrinter, WritePrinter, DOC_INFO_1W,
-            PRINTER_DEFAULTSW, PRINTER_ENUM_LOCAL, PRINTER_INFO_2W,
-        },
+    Win32::Graphics::Printing::{
+        ClosePrinter, EndDocPrinter, EndPagePrinter, EnumPrintersW, GetDefaultPrinterW,
+        OpenPrinterW, StartDocPrinterW, StartPagePrinter, WritePrinter, DOC_INFO_1W,
+        PRINTER_DEFAULTSW, PRINTER_ENUM_LOCAL, PRINTER_HANDLE, PRINTER_INFO_2W,
     },
 };
 
@@ -82,13 +79,13 @@ fn get_default_printer_name() -> Option<String> {
     unsafe {
         let mut size: u32 = 0;
         // First call to get required buffer size.
-        let _ = GetDefaultPrinterW(PWSTR::null(), &mut size);
+        let _ = GetDefaultPrinterW(Some(PWSTR::null()), &mut size);
         if size == 0 {
             return None;
         }
         let mut buf: Vec<u16> = vec![0u16; size as usize];
         let pwstr = PWSTR(buf.as_mut_ptr());
-        if GetDefaultPrinterW(pwstr, &mut size).as_bool() {
+        if GetDefaultPrinterW(Some(pwstr), &mut size).as_bool() {
             pwstr.to_string().ok()
         } else {
             None
@@ -101,7 +98,7 @@ fn get_default_printer_name() -> Option<String> {
 pub fn raw_print(printer_name: &str, data: &[u8]) -> Result<(), String> {
     unsafe {
         let h_printer_name = HSTRING::from(printer_name);
-        let mut handle = HANDLE::default();
+        let mut handle = PRINTER_HANDLE::default();
 
         let mut raw_str: Vec<u16> = "RAW\0".encode_utf16().collect();
         let defaults = PRINTER_DEFAULTSW {
