@@ -33,7 +33,7 @@ pub fn has_physical_keyboard() -> bool {
                 // Get device name to filter out virtual/RDP keyboards
                 let mut name_len: u32 = 0;
                 let _ = GetRawInputDeviceInfoW(
-                    dev.hDevice,
+                    Some(dev.hDevice),
                     RAW_INPUT_DEVICE_INFO_COMMAND(0x20000007), // RIDI_DEVICENAME
                     None,
                     &mut name_len,
@@ -42,7 +42,7 @@ pub fn has_physical_keyboard() -> bool {
                 if name_len > 0 {
                     let mut name_buf = vec![0u16; name_len as usize];
                     let chars = GetRawInputDeviceInfoW(
-                        dev.hDevice,
+                        Some(dev.hDevice),
                         RAW_INPUT_DEVICE_INFO_COMMAND(0x20000007),
                         Some(name_buf.as_mut_ptr() as *mut _),
                         &mut name_len,
