@@ -16,7 +16,35 @@ const Summary: React.FC<SummaryProps> = ({ order }) => {
     tax_total,
     total,
     currency_code,
+    items,
+    metadata,
   } = order;
+
+  const itemDiscountsTotal = (items ?? []).reduce((acc, item) => {
+    const meta = item.metadata as {
+      item_discount?: { type: "amount" | "percent"; value: number };
+      original_unit_price?: number;
+    } | null | undefined;
+    if (!meta?.item_discount) return acc;
+    const { type, value } = meta.item_discount;
+    if (type === "amount") return acc + value * item.quantity;
+    const base = meta.original_unit_price ?? item.unit_price ?? 0;
+    return acc + (base * value / 100) * item.quantity;
+  }, 0);
+
+  const orderMeta = metadata as {
+    order_discount?: { type: "amount" | "percent"; value: number };
+  } | null | undefined;
+  let orderDiscountAmount = 0;
+  if (orderMeta?.order_discount?.value) {
+    const { type, value } = orderMeta.order_discount;
+    const base = (subtotal ?? 0) - itemDiscountsTotal;
+    orderDiscountAmount = type === "percent"
+      ? (base * value) / 100
+      : Math.min(value, base);
+  }
+
+  const displayed_discount = (discount_total ?? 0) + itemDiscountsTotal + orderDiscountAmount;
 
   const currency =
     currency_code || constants.CHECKOUT_CONFIG.CURRENCY;
@@ -41,11 +69,11 @@ const Summary: React.FC<SummaryProps> = ({ order }) => {
             <p className="text-base text-fg-muted">Discount</p>
           <div
             className={`text-lg font-semibold ${
-              discount_total > 0 ? "text-red-600" : "text-fg"
+              displayed_discount > 0 ? "text-red-600" : "text-fg"
             }`}
           >
-            {discount_total > 0 ? "-" : ""}
-            {formatPrice(discount_total || 0, currency)}
+            {displayed_discount > 0 ? "-" : ""}
+            {formatPrice(displayed_discount, currency)}
           </div>
           </div>
           <div className="text-center">

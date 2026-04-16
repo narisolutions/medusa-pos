@@ -50,9 +50,12 @@ const Items: React.FC<ItemsProps> = ({
       </div>
       <div className="p-6 space-y-3 overflow-y-auto flex-1 min-h-0">
         {items?.map((item, index) => {
-          const metadata = item.metadata as { public?: { vintage?: string; volume?: string } };
+          const metadata = item.metadata as { public?: { vintage?: string; volume?: string }; item_discount?: { type: "amount" | "percent"; value: number }; original_unit_price?: number };
           const vintage = metadata?.public?.vintage ? String(metadata?.public?.vintage) : null;
           const volume = metadata?.public?.volume ? String(metadata?.public?.volume) : null;
+          const hasManualDiscount = !!metadata?.item_discount;
+          const originalUnitPrice = metadata?.original_unit_price;
+          const originalTotal = originalUnitPrice != null ? originalUnitPrice * item.quantity : null;
 
           return (
             <div
@@ -105,9 +108,20 @@ const Items: React.FC<ItemsProps> = ({
                 </p>
               </div>
               <div className="text-right">
-                <p className="text-lg font-semibold text-fg">
-                  {formatPrice(item.total, currency)}
-                </p>
+                {hasManualDiscount && originalTotal != null ? (
+                  <>
+                    <p className="text-sm text-fg-muted line-through">
+                      {formatPrice(originalTotal, currency)}
+                    </p>
+                    <p className="text-lg font-semibold text-orange-600">
+                      {formatPrice(item.total, currency)}
+                    </p>
+                  </>
+                ) : (
+                  <p className="text-lg font-semibold text-fg">
+                    {formatPrice(item.total, currency)}
+                  </p>
+                )}
               </div>
             </div>
           );

@@ -77,7 +77,6 @@ export const useOrder = (order: AdminOrder) => {
 
   const handleReprintReceipt = async () => {
     if (isPrinting) return;
-
     setIsPrinting(true);
     try {
       await printOrderReceipt(order);
