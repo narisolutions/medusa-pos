@@ -93,7 +93,7 @@
     "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-react-refresh": "^0.5.2",
     "prettier": "^3.8.1",
-    "shadcn": "^4.2.0",
+    "shadcn": "^4.3.0",
     "tailwindcss": "^4.2.2",
     "typescript": "~6.0.2",
     "typescript-eslint": "^8.58.2",
