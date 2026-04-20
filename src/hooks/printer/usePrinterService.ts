@@ -126,37 +126,55 @@ const usePrinterService = () => {
 
   // Helper function to build receipt data from order
   const buildReceiptDataFromOrder = useCallback((order: AdminOrder): ReceiptData => {
-    const receiptItems = order.items || [];
-
-    // Calculate item discounts from metadata
-    let itemDiscountsTotal = 0;
-    receiptItems.forEach((item) => {
-      const itemMetadata = item.metadata as
+    // Map items, computing discount_total per item from metadata
+    const mappedReceiptItems = (order.items || []).map((item) => {
+      const itemMeta = item.metadata as
         | {
             item_discount?: { type: "amount" | "percent"; value: number };
-            original_price?: number;
+            original_unit_price?: number;
           }
         | undefined;
-
-      if (itemMetadata?.item_discount) {
-        const discount = itemMetadata.item_discount;
-        const quantity = item.quantity || 1;
-
-        if (discount.type === "amount") {
-          itemDiscountsTotal += discount.value * quantity;
-        } else if (discount.type === "percent") {
-          const originalPrice =
-            itemMetadata.original_price || item.unit_price || 0;
-          const discountAmount = (originalPrice * discount.value) / 100;
-          itemDiscountsTotal += discountAmount * quantity;
+      let itemDiscountAmount = 0;
+      if (itemMeta?.item_discount) {
+        const { type, value } = itemMeta.item_discount;
+        const qty = item.quantity || 1;
+        if (type === "amount") {
+          itemDiscountAmount = value * qty;
+        } else {
+          const base = itemMeta.original_unit_price ?? item.unit_price ?? 0;
+          itemDiscountAmount = (base * value / 100) * qty;
         }
       }
+      return {
+        ...item,
+        discount_total: itemDiscountAmount > 0 ? itemDiscountAmount : (item.discount_total || 0),
+      };
     });
+
+    // Sum item-level discounts
+    const itemDiscountsTotal = mappedReceiptItems.reduce(
+      (acc, item) => acc + (item.discount_total || 0),
+      0
+    );
+
+    // Add order-level discount from metadata
+    const orderMeta = order.metadata as
+      | { order_discount?: { type: "amount" | "percent"; value: number } }
+      | null
+      | undefined;
+    let orderDiscountAmount = 0;
+    if (orderMeta?.order_discount?.value) {
+      const { type, value } = orderMeta.order_discount;
+      const base = (order.subtotal || 0) - itemDiscountsTotal;
+      orderDiscountAmount = type === "percent"
+        ? (base * value) / 100
+        : Math.min(value, base);
+    }
 
     const subtotal = order.subtotal || 0;
     const tax = order.tax_total || 0;
     const total = order.total || 0;
-    const discount = (order.discount_total || 0) + itemDiscountsTotal;
+    const discount = (order.discount_total || 0) + itemDiscountsTotal + orderDiscountAmount;
     const cashPaid: number = typeof order.metadata?.cash_paid === "number" 
       ? order.metadata.cash_paid 
       : 0;
@@ -197,7 +215,7 @@ const usePrinterService = () => {
           ? `${order.customer.first_name} ${order.customer.last_name}`.trim()
           : undefined,
       guestEmail: getGuestCustomerEmail(store),
-      items: receiptItems,
+      items: mappedReceiptItems,
       subtotal,
       tax,
       taxRate: 18,
