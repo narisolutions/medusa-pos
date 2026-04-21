@@ -2,12 +2,14 @@ import { useEffect } from "react";
 import { check } from "@tauri-apps/plugin-updater";
 import { relaunch } from "@tauri-apps/plugin-process";
 import { toast } from "sonner";
+import constants from "@/utils/constants";
 
 export default function useUpdateCheck() {
   useEffect(() => {
     let cancelled = false;
 
     async function checkForUpdate() {
+      if (!constants.PROD) return;
       try {
         const update = await check();
         if (cancelled || !update) return;

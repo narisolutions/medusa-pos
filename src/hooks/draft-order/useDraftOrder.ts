@@ -11,7 +11,7 @@ import {
   PaymentMethod,
 } from "@/types/utils";
 import { useQueryShippingOption } from "../queries/useQueryShippingOption";
-import { isEmpty } from "@/utils/helpers";
+import { isEmpty, extractMedusaErrorMessage } from "@/utils/helpers";
 import { useQueryStore } from "@/hooks/queries/useQueryStore";
 import { getGuestCustomerEmail } from "@/utils/settings/store/metadata";
 
@@ -49,6 +49,11 @@ const sanitizeDraftOrderMetadata = (
       sanitized.order_comment = orderComment;
     }
 
+    const promoCodes = metadata?.promo_codes as string[] | undefined;
+    if (promoCodes && promoCodes.length > 0) {
+      sanitized.promo_codes = promoCodes;
+    }
+
     return sanitized as DraftOrderMetadata;
   }
 
@@ -64,6 +69,7 @@ const sanitizeDraftOrderMetadata = (
       typeof orderComment === "string"
         ? orderComment
         : DEFAULT_DRAFT_ORDER_METADATA.order_comment,
+    promo_codes: Array.isArray(metadata?.promo_codes) ? metadata.promo_codes : [],
   };
 
   return normalized as DraftOrderMetadata;
@@ -292,115 +298,209 @@ const useDraftOrder = () => {
       try {
         setIsLoading(true);
 
-        if (!activeDraftOrderId) return;
-
-        try {
-          const { order_changes } =
-            await sdk.admin.order.listChanges(activeDraftOrderId);
-          const isEditPending = order_changes.some(
-            (change) => change.status === "pending"
-          );
-
-          if (!isEditPending) {
-            await sdk.admin.draftOrder.beginEdit(activeDraftOrderId);
-          }
-        } catch (error) {
-          const errorMessage =
-            error instanceof Error ? error.message : String(error);
-          console.error(`beginEditIfNeeded: ${errorMessage}`);
-        }
-
+        // 1. Retrieve current draft order state
         const { draft_order: currDraftOrder } =
           await sdk.admin.draftOrder.retrieve(activeDraftOrderId);
 
-        // Create lookup maps for efficient comparison (O(1) vs O(n) lookups)
-        const draftItemsMap = new Map(
-          (currDraftOrder?.items || []).map((item) => [item.variant_id!, item])
+        // 2. Check whether a pending edit already exists (e.g. left open by
+        //    applyPromoCode / removePromoCode). updateDraftOrder fails while a
+        //    pending edit holds the lock, so we defer metadata writes until after
+        //    confirmEdit when the lock is released.
+        let isEditPending = false;
+        try {
+          const { order_changes } =
+            await sdk.admin.order.listChanges(activeDraftOrderId);
+          isEditPending = order_changes.some((c) => c.status === "pending");
+        } catch {
+          // listChanges may fail on very new orders — treat as no pending edit
+        }
+
+        // 3. Prepare metadata diff (needed in both branches below)
+        const sanitizedMetadata = sanitizeDraftOrderMetadata(
+          metadata as Record<string, unknown>,
+          true
         );
-
-        const localItemsMap = new Map(
-          items.map((item) => [item.variant_id!, item])
-        );
-
-        // 1. Find and add new items (items in local state but not in draft order)
-        const itemsToAdd = items.filter((localItem) => {
-          return !draftItemsMap.has(localItem.variant_id!);
-        });
-
-        if (itemsToAdd.length > 0) {
-          await sdk.admin.draftOrder.addItems(activeDraftOrderId, {
-            items: itemsToAdd,
-          });
-        }
-
-        // 2. Update quantities and prices for existing items
-        for (const [variantId, localItem] of localItemsMap) {
-          const draftItem = draftItemsMap.get(variantId);
-
-          if (draftItem) {
-            const quantityChanged = draftItem.quantity !== localItem.quantity;
-            const priceChanged = draftItem.unit_price !== localItem.unit_price;
-
-            if (quantityChanged || priceChanged) {
-              await sdk.admin.draftOrder.updateItem(
-                activeDraftOrderId,
-                draftItem.id,
-                {
-                  quantity: localItem.quantity,
-                  unit_price: localItem.unit_price,
-                }
-              );
-            }
-          }
-        }
-
-        // 3. Remove items that exist in draft but not in local state
-        for (const [variantId, draftItem] of draftItemsMap) {
-          if (!localItemsMap.has(variantId)) {
-            await sdk.admin.draftOrder.updateItem(
-              activeDraftOrderId,
-              draftItem.id,
-              {
-                quantity: 0,
-              }
-            );
-          }
-        }
-
-        // 4. Update draft order metadata if it has changed
         const currentMetadata = currDraftOrder.metadata as
           | DraftOrderMetadata
           | undefined;
-
-        // Sanitize metadata to remove keys with empty/null/undefined values
-        const sanitizedMetadata = sanitizeDraftOrderMetadata(
-          metadata as Record<string, unknown>,
-          true // removeEmpty = true for writing to API
-        );
-
         const hasMetadataChanged =
           JSON.stringify(currentMetadata) !== JSON.stringify(sanitizedMetadata);
 
-        if (hasMetadataChanged) {
-          const updatePayload: DraftOrderUpdatePayload = {
-            metadata: sanitizedMetadata,
-          };
+        const step = { name: "init" };
+        try {
+          if (!isEditPending) {
+            if (hasMetadataChanged) {
+              step.name = "update-metadata";
+              await sdk.admin.draftOrder.update(activeDraftOrderId, {
+                metadata: sanitizedMetadata,
+              } as DraftOrderUpdatePayload);
+            }
+            step.name = "beginEdit";
+            await sdk.admin.draftOrder.beginEdit(activeDraftOrderId);
+          }
 
-          await sdk.admin.draftOrder.update(activeDraftOrderId, updatePayload);
+          const draftItemsMap = new Map(
+            (currDraftOrder?.items || []).map((item) => [item.variant_id!, item])
+          );
+          const localItemsMap = new Map(
+            items.map((item) => [item.variant_id!, item])
+          );
+
+          const itemsToAdd = items.filter(
+            (localItem) => !draftItemsMap.has(localItem.variant_id!)
+          );
+          if (itemsToAdd.length > 0) {
+            step.name = "addItems";
+            await sdk.admin.draftOrder.addItems(activeDraftOrderId, { items: itemsToAdd });
+          }
+
+          for (const [variantId, localItem] of localItemsMap) {
+            const draftItem = draftItemsMap.get(variantId);
+            if (draftItem) {
+              const quantityChanged = draftItem.quantity !== localItem.quantity;
+              const priceChanged = draftItem.unit_price !== localItem.unit_price;
+              if (quantityChanged || priceChanged) {
+                step.name = `updateItem(${variantId})`;
+                await sdk.admin.draftOrder.updateItem(activeDraftOrderId, draftItem.id, {
+                  quantity: localItem.quantity,
+                  unit_price: localItem.unit_price,
+                });
+              }
+            }
+          }
+          for (const [variantId, draftItem] of draftItemsMap) {
+            if (!localItemsMap.has(variantId)) {
+              step.name = `removeItem(${variantId})`;
+              await sdk.admin.draftOrder.updateItem(activeDraftOrderId, draftItem.id, { quantity: 0 });
+            }
+          }
+
+          step.name = "confirmEdit";
+          await sdk.admin.draftOrder.confirmEdit(activeDraftOrderId);
+
+          if (isEditPending && hasMetadataChanged) {
+            step.name = "deferred-update-metadata";
+            await sdk.admin.draftOrder.update(activeDraftOrderId, {
+              metadata: sanitizedMetadata,
+            } as DraftOrderUpdatePayload);
+          }
+
+          markAsSynced();
+        } catch (innerError) {
+          const reason = extractMedusaErrorMessage(innerError);
+          throw new Error(`[${step.name}] ${reason}`);
         }
-
-        // Confirm edit for the specific draft order
-        await sdk.admin.draftOrder.confirmEdit(activeDraftOrderId);
-
-        // Mark cart as synced after successful sync
-        markAsSynced();
-      } catch (error) {
-        throw new Error("Failed to sync changes to draft order: " + error);
       } finally {
         setIsLoading(false);
       }
     },
     [draftOrderId, items, metadata, markAsSynced]
+  );
+
+  const applyPromoCode = useCallback(
+    async (targetId: string, code: string): Promise<void> => {
+      const sdk = getSdk();
+      setIsLoading(true);
+      try {
+        // Promotions endpoint requires an active order change — ensure one exists.
+        try {
+          const { order_changes } = await sdk.admin.order.listChanges(targetId);
+          const isEditPending = order_changes.some((c) => c.status === "pending");
+          if (!isEditPending) {
+            await sdk.admin.draftOrder.beginEdit(targetId);
+          }
+        } catch {
+          // If listChanges fails (e.g. new order), attempt beginEdit anyway
+          await sdk.admin.draftOrder.beginEdit(targetId);
+        }
+        await (sdk.client.fetch as (path: string, init: Record<string, unknown>) => Promise<unknown>)(
+          `/admin/draft-orders/${targetId}/edit/promotions`,
+          { method: "POST", body: { promo_codes: [code] } }
+        );
+        // Leave the edit pending — syncLocalChangesToDraftOrder will confirmEdit on checkout.
+      } catch (error) {
+        const reason = extractMedusaErrorMessage(error);
+        throw new Error(`Could not apply promo code "${code}": ${reason}`);
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    []
+  );
+
+  const removePromoCode = useCallback(
+    async (targetId: string, code: string): Promise<void> => {
+      const sdk = getSdk();
+      setIsLoading(true);
+      try {
+        // Promotions endpoint requires an active order change — ensure one exists.
+        try {
+          const { order_changes } = await sdk.admin.order.listChanges(targetId);
+          const isEditPending = order_changes.some((c) => c.status === "pending");
+          if (!isEditPending) {
+            await sdk.admin.draftOrder.beginEdit(targetId);
+          }
+        } catch {
+          await sdk.admin.draftOrder.beginEdit(targetId);
+        }
+        await (sdk.client.fetch as (path: string, init: Record<string, unknown>) => Promise<unknown>)(
+          `/admin/draft-orders/${targetId}/edit/promotions`,
+          { method: "DELETE", body: { promo_codes: [code] } }
+        );
+      } catch (error) {
+        const reason = extractMedusaErrorMessage(error);
+        throw new Error(`Could not remove promo code "${code}": ${reason}`);
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    []
+  );
+
+  // Applies all given promo codes to a draft order and confirms the pending order changes.
+  // Use this when creating a new draft order — codes applied mid-session are confirmed
+  // automatically by the next syncLocalChangesToDraftOrder call.
+  const applyPromoCodes = useCallback(
+    async (targetId: string, codes: string[]): Promise<void> => {
+      if (codes.length === 0) return;
+      const sdk = getSdk();
+      setIsLoading(true);
+      try {
+        // Promotions endpoint requires an active order change — ensure one exists.
+        try {
+          const { order_changes } = await sdk.admin.order.listChanges(targetId);
+          const isEditPending = order_changes.some((c) => c.status === "pending");
+          if (!isEditPending) {
+            await sdk.admin.draftOrder.beginEdit(targetId);
+          }
+        } catch {
+          await sdk.admin.draftOrder.beginEdit(targetId);
+        }
+        for (const code of codes) {
+          try {
+            await (sdk.client.fetch as (path: string, init: Record<string, unknown>) => Promise<unknown>)(
+              `/admin/draft-orders/${targetId}/edit/promotions`,
+              { method: "POST", body: { promo_codes: [code] } }
+            );
+          } catch (error) {
+            const reason = extractMedusaErrorMessage(error);
+            throw new Error(`Could not apply promo code "${code}": ${reason}`);
+          }
+        }
+        try {
+          await sdk.admin.draftOrder.confirmEdit(targetId);
+        } catch {
+          // No pending edit — ok
+        }
+      } catch (error) {
+        throw error instanceof Error
+          ? error
+          : new Error("Failed to apply promo code");
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    []
   );
 
   const updateDraftOrderCustomer = useCallback(
@@ -475,6 +575,9 @@ const useDraftOrder = () => {
     deleteDraftOrder,
     syncLocalChangesToDraftOrder,
     updateDraftOrderCustomer,
+    applyPromoCode,
+    removePromoCode,
+    applyPromoCodes,
     draftOrderMetaData: metadata,
     setDraftOrderMetaData: setCartMetadata,
   };

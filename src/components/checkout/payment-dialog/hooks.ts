@@ -51,9 +51,27 @@ const useDraftOrderState = (draftOrderId?: string | null, isOpen?: boolean) => {
         draftOrderId,
         {
           fields:
-            "*items,*summary,*region,*sales_channel,subtotal,discount_total,tax_total,total",
+            "*items,*items.adjustments,+items.adjustments.code,+items.adjustments.promotion_id,+items.discount_total,+items.subtotal,+items.total,*summary,*region,*sales_channel,subtotal,discount_total,tax_total,total",
         }
       );
+
+      // --- PROMO DEBUG ---
+      console.group("[PROMO DEBUG] Draft order adjustments");
+      console.log("discount_total:", draft_order.discount_total);
+      (draft_order.items ?? []).forEach((item) => {
+        const adjs = (item.adjustments ?? []) as unknown as Array<{
+          id: string;
+          code?: string;
+          promotion_id?: string;
+          amount: number;
+        }>;
+        console.log(`  item: ${item.variant_id} | discount_total: ${(item as unknown as Record<string, unknown>).discount_total}`);
+        adjs.forEach((adj) =>
+          console.log(`    adjustment — code: ${adj.code ?? "(none)"} | promotion_id: ${adj.promotion_id ?? "(none)"} | amount: ${adj.amount}`)
+        );
+      });
+      console.groupEnd();
+      // --- END PROMO DEBUG ---
 
       setDraftOrder(draft_order);
       return draft_order;

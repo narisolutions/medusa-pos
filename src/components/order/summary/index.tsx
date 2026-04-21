@@ -1,6 +1,6 @@
 import React from "react";
 import { AdminOrder } from "@medusajs/types";
-import { Receipt } from "lucide-react";
+import { Receipt, Tag } from "lucide-react";
 import { formatPrice } from "@/utils/helpers";
 import constants from "@/utils/constants";
 
@@ -31,6 +31,10 @@ const Summary: React.FC<SummaryProps> = ({ order }) => {
     const base = meta.original_unit_price ?? item.unit_price ?? 0;
     return acc + (base * value / 100) * item.quantity;
   }, 0);
+
+  const promoCodes = Array.isArray((metadata as Record<string, unknown> | null)?.promo_codes)
+    ? (metadata as Record<string, unknown>).promo_codes as string[]
+    : [];
 
   const orderMeta = metadata as {
     order_discount?: { type: "amount" | "percent"; value: number };
@@ -67,14 +71,27 @@ const Summary: React.FC<SummaryProps> = ({ order }) => {
           </div>
           <div className="text-center">
             <p className="text-base text-fg-muted">Discount</p>
-          <div
-            className={`text-lg font-semibold ${
-              displayed_discount > 0 ? "text-red-600" : "text-fg"
-            }`}
-          >
-            {displayed_discount > 0 ? "-" : ""}
-            {formatPrice(displayed_discount, currency)}
-          </div>
+            <div
+              className={`text-lg font-semibold ${
+                displayed_discount > 0 ? "text-red-600" : "text-fg"
+              }`}
+            >
+              {displayed_discount > 0 ? "-" : ""}
+              {formatPrice(displayed_discount, currency)}
+            </div>
+            {promoCodes.length > 0 && (
+              <div className="flex flex-wrap justify-center gap-1 mt-1">
+                {promoCodes.map((code) => (
+                  <span
+                    key={code}
+                    className="inline-flex items-center gap-1 text-xs font-mono font-semibold tracking-wider bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 border border-green-200 dark:border-green-800 rounded px-2 py-0.5"
+                  >
+                    <Tag className="w-3 h-3" />
+                    {code}
+                  </span>
+                ))}
+              </div>
+            )}
           </div>
           <div className="text-center">
             <p className="text-base text-fg-muted">Shipping</p>

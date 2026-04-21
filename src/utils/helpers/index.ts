@@ -52,6 +52,26 @@ const getTauriInvokeErrorMessage = (error: unknown, fallback: string): string =>
   return fallback;
 };
 
+// Extracts the human-readable message from a Medusa HTTP error.
+// The patched SDK fetch attaches the parsed response body to `error.body`,
+// which contains `{ message: string }`. Falls back to `error.message`.
+const extractMedusaErrorMessage = (error: unknown, fallback?: string): string => {
+  if (error && typeof error === "object") {
+    const e = error as Record<string, unknown>;
+    const body = e.body;
+    if (body && typeof body === "object" && "message" in body) {
+      const msg = String((body as { message?: unknown }).message ?? "");
+      if (msg.trim().length > 0) return msg;
+    }
+    if (typeof body === "string" && body.trim().length > 0) return body;
+    if (error instanceof Error && error.message.trim().length > 0) {
+      return error.message;
+    }
+  }
+  if (typeof error === "string" && error.trim().length > 0) return error;
+  return fallback ?? "An unknown error occurred.";
+};
+
 const handleErrorToast = (
   error: unknown,
   options?: { posEndpointError?: boolean }
@@ -86,7 +106,9 @@ const handleErrorToast = (
   }
 
   if (error instanceof Error) {
-    toast.error(error.message);
+    // Surface Medusa body message when available (e.g. HTTP 4xx with a JSON body)
+    const medusaMessage = extractMedusaErrorMessage(error);
+    toast.error(medusaMessage);
   } else if (typeof error === "string") {
     toast.error(error);
   } else {
@@ -408,6 +430,7 @@ export {
   getRoutes,
   getAuthenticatedPages,
   getTauriInvokeErrorMessage,
+  extractMedusaErrorMessage,
   handleErrorToast,
   formatDate,
   formatExactTime,

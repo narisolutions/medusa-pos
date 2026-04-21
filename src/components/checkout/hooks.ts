@@ -82,6 +82,9 @@ type CheckoutContextValue = {
     customerId: string | null,
     email: string | null
   ) => Promise<void>;
+  promoCodes: string[];
+  applyPromoCode: (code: string) => Promise<void>;
+  removePromoCode: (code: string) => Promise<void>;
 };
 
 const CheckoutContext = createContext<CheckoutContextValue | undefined>(
@@ -115,6 +118,9 @@ const useProvideCheckout = (): CheckoutContextValue => {
     createDraftOrder,
     deleteDraftOrder,
     updateDraftOrderCustomer,
+    applyPromoCode: draftApplyPromoCode,
+    removePromoCode: draftRemovePromoCode,
+    applyPromoCodes: draftApplyPromoCodes,
   } = useDraftOrder();
 
   const { data: regionData } = useQueryRegion();
@@ -255,6 +261,20 @@ const useProvideCheckout = (): CheckoutContextValue => {
         );
 
         await syncLocalChangesToDraftOrder(newDraftOrderId);
+
+        const pendingCodes = (metadata.promo_codes ?? []) as string[];
+        if (pendingCodes.length > 0) {
+          try {
+            await draftApplyPromoCodes(newDraftOrderId, pendingCodes);
+          } catch (promoError) {
+            handleErrorToast(
+              promoError instanceof Error
+                ? promoError.message
+                : "Failed to apply promo code. Remove the invalid code and try again."
+            );
+            return;
+          }
+        }
       }
 
       setIsPaymentModalOpen(true);
@@ -271,6 +291,7 @@ const useProvideCheckout = (): CheckoutContextValue => {
     metadata,
     store,
     goToGuestEmailSetting,
+    draftApplyPromoCodes,
   ]);
 
   const handleCloseModal = useCallback(() => {
@@ -360,6 +381,46 @@ const useProvideCheckout = (): CheckoutContextValue => {
     [draftOrderId, updateMetadata, updateDraftOrderCustomer]
   );
 
+  const promoCodes = useMemo(
+    () => (metadata.promo_codes ?? []) as string[],
+    [metadata.promo_codes]
+  );
+
+  const applyPromoCode = useCallback(
+    async (code: string) => {
+      const trimmed = code.trim().toUpperCase();
+      const existing = (metadata.promo_codes ?? []) as string[];
+      if (existing.includes(trimmed)) {
+        toast.info(`Promo code "${trimmed}" is already applied.`);
+        return;
+      }
+      if (draftOrderId) {
+        await draftApplyPromoCode(draftOrderId, trimmed);
+      }
+      updateMetadata({ promo_codes: [...existing, trimmed] } as Partial<DraftOrderMetadata>);
+      if (!draftOrderId) {
+        toast.info("Promo code will be applied at checkout.");
+      }
+    },
+    [draftOrderId, metadata.promo_codes, draftApplyPromoCode, updateMetadata]
+  );
+
+  const removePromoCode = useCallback(
+    async (code: string) => {
+      const existing = (metadata.promo_codes ?? []) as string[];
+      // Always remove from local state first so the UI clears even if the backend call fails
+      updateMetadata({ promo_codes: existing.filter((c) => c !== code) } as Partial<DraftOrderMetadata>);
+      if (draftOrderId) {
+        try {
+          await draftRemovePromoCode(draftOrderId, code);
+        } catch {
+          // Code was stored locally but never confirmed on the backend — that's OK
+        }
+      }
+    },
+    [draftOrderId, metadata.promo_codes, draftRemovePromoCode, updateMetadata]
+  );
+
   return useMemo(
     () => ({
       items,
@@ -388,6 +449,9 @@ const useProvideCheckout = (): CheckoutContextValue => {
       customerEmail: customerEmail || null,
       setCustomerEmail,
       attachCustomerToDraftOrder,
+      promoCodes,
+      applyPromoCode,
+      removePromoCode,
     }),
     [
       draftOrderId,
@@ -413,6 +477,9 @@ const useProvideCheckout = (): CheckoutContextValue => {
       setCustomerEmail,
       attachCustomerToDraftOrder,
       paymentMethodOptions,
+      promoCodes,
+      applyPromoCode,
+      removePromoCode,
     ]
   );
 };

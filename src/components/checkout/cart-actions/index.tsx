@@ -5,6 +5,8 @@ import DiscountModal from "./discount-dialog";
 import CommentModal from "./comment-dialog";
 import QuantityModal from "./quantity-dialog";
 import CustomerModal from "./customer-dialog";
+import PromoDialog from "./promo-dialog";
+import VoucherIcon from "@/assets/icons/voucher";
 import { useCheckout } from "../hooks";
 
 const CartActions: React.FC = () => {
@@ -17,13 +19,15 @@ const CartActions: React.FC = () => {
     paymentMethods,
     setPaymentMethod,
     selectedPaymentMethod,
+    customerEmail,
+    promoCodes,
   } = useCheckout();
 
-  const { customerEmail } = useCheckout();
   const [isDiscountOpen, setDiscountOpen] = useState(false);
   const [isCommentOpen, setCommentOpen] = useState(false);
   const [isQtyOpen, setQtyOpen] = useState(false);
   const [isCustomerOpen, setCustomerOpen] = useState(false);
+  const [isPromoOpen, setPromoOpen] = useState(false);
 
   return (
     <div className="flex flex-col h-full border border-theme-border bg-surface rounded-lg overflow-hidden">
@@ -83,6 +87,17 @@ const CartActions: React.FC = () => {
             </span>
           </Button>
           <Button
+            onClick={() => setPromoOpen(true)}
+            className={`h-20 text-lg font-semibold border-2 ${promoCodes.length > 0
+                ? "bg-green-50 dark:bg-green-900/20 border-green-300 dark:border-green-700 hover:bg-green-100 dark:hover:bg-green-900/40 text-green-700 dark:text-green-400"
+                : "bg-surface border-theme-border hover:bg-surface-hover text-fg"
+              }`}
+          >
+            <span className="flex items-center gap-3">
+              <VoucherIcon className="size-5" /> Promo
+            </span>
+          </Button>
+          <Button
             onClick={() => void handleOpenDrawer()}
             disabled={true}
             className="h-20 text-lg font-semibold bg-surface border-2 border-theme-border hover:bg-surface-hover text-fg"
@@ -122,6 +137,10 @@ const CartActions: React.FC = () => {
       <CustomerModal
         open={isCustomerOpen}
         onClose={() => setCustomerOpen(false)}
+      />
+      <PromoDialog
+        open={isPromoOpen}
+        onClose={() => setPromoOpen(false)}
       />
     </div>
   );

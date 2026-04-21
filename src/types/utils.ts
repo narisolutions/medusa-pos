@@ -126,6 +126,7 @@ interface DraftOrderMetadata extends Record<string, unknown> {
   payment_method?: PaymentMethod;
   order_discount?: OrderDiscount;
   order_comment?: string;
+  promo_codes?: string[];
 }
 
 type AddItemResult = {

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,7 +10,7 @@ import constants from "@/utils/constants";
 import { useCheckout } from "../hooks";
 import { usePaymentModal } from "./hooks";
 import ConfirmationDialog from "./confirmation-dialog";
-import { CreditCard } from "lucide-react";
+import { CreditCard, AlertTriangle } from "lucide-react";
 
 interface PaymentModalProps {
   isOpen: boolean;
@@ -28,6 +28,7 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
     isProcessing,
     tax,
     total,
+    discount,
     change,
     canProcessPayment,
     quickAmounts,
@@ -46,7 +47,18 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
     billCounts,
   } = usePaymentModal(draftOrderId, onClose, isOpen);
 
-  const { currency } = useCheckout();
+  const { currency, promoCodes } = useCheckout();
+
+  const inactiveCodes = useMemo(() => {
+    if (!draftOrder?.items || promoCodes.length === 0) return new Set<string>();
+    const activeCodes = new Set<string>(
+      (draftOrder.items ?? [])
+        .flatMap((item) => item.adjustments ?? [])
+        .map((adj) => (adj as unknown as Record<string, unknown>).code as string | undefined)
+        .filter((c): c is string => Boolean(c))
+    );
+    return new Set(promoCodes.filter((c) => !activeCodes.has(c)));
+  }, [draftOrder, promoCodes]);
 
   const isLoading = !draftOrder;
 
@@ -84,14 +96,33 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
           <div className="w-80 bg-surface-muted border-r border-theme-border overflow-y-auto">
             <div className="p-4">
               <div className="text-xs font-semibold text-fg-subtle uppercase tracking-wider mb-3">
-                Order Summary · {items.length} items
+                Order Summary · {items.length} {items.length === 1 ? "item" : "items"}
               </div>
               <div className="space-y-2">
                 {items.map((item) => {
-                  const itemTitle = item.title || "-";
+                  const itemTitle = item.metadata?.product_title as string | undefined || item.title || "-";
                   const unitPrice = item.unit_price || 0;
                   const quantity = item.quantity || 0;
                   const lineTotal = unitPrice * quantity;
+
+                  // Enrich with server-side data once the draft order loads.
+                  // Use item.discount_total (gross/VAT-inclusive) so per-item
+                  // amounts are consistent with the order-level discount_total.
+                  const draftItem = draftOrder?.items?.find(
+                    (di) => di.variant_id === item.variant_id
+                  );
+                  const adjustmentTotal =
+                    (draftItem as unknown as Record<string, unknown>)?.discount_total as number | undefined
+                    ?? draftItem?.adjustments?.reduce((sum, adj) => sum + (adj.amount ?? 0), 0)
+                    ?? 0;
+                  const discountedTotal = lineTotal - adjustmentTotal;
+                  const adjCodes = [
+                    ...new Set(
+                      (draftItem?.adjustments ?? [])
+                        .map((a) => (a as unknown as Record<string, unknown>).code as string | undefined)
+                        .filter(Boolean)
+                    ),
+                  ] as string[];
 
                   return (
                     <div
@@ -105,14 +136,55 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
                         <span>
                           {quantity} × {formatPrice(unitPrice, currency)}
                         </span>
-                        <span className="font-semibold">
+                        <span className={adjustmentTotal > 0 ? "line-through text-fg-subtle" : "font-semibold"}>
                           {formatPrice(lineTotal, currency)}
                         </span>
                       </div>
+                      {adjustmentTotal > 0 && (
+                        <div className="flex items-center justify-between mt-1">
+                          <span className="text-xs text-green-600 dark:text-green-400 font-mono">
+                            {adjCodes.length > 0 ? adjCodes.join(", ") : promoCodes.join(", ")}
+                            {" "}-{formatPrice(adjustmentTotal, currency)}
+                          </span>
+                          <span className="text-xs font-semibold text-fg">
+                            {formatPrice(discountedTotal, currency)}
+                          </span>
+                        </div>
+                      )}
                     </div>
                   );
                 })}
               </div>
+
+              {discount > 0 && (
+                <div className="mt-3 pt-3 border-t border-theme-border space-y-1">
+                  {promoCodes.length > 0 && (
+                    <div className="flex flex-wrap gap-1 mb-1">
+                      {promoCodes.map((c) => {
+                        const inactive = inactiveCodes.has(c);
+                        return (
+                          <span
+                            key={c}
+                            className={`inline-flex items-center gap-1 text-xs font-mono font-semibold tracking-widest rounded px-2 py-0.5 border ${
+                              inactive
+                                ? "bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 border-amber-200 dark:border-amber-700"
+                                : "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 border-green-200 dark:border-green-800"
+                            }`}
+                            title={inactive ? "Code accepted but no discount applied" : undefined}
+                          >
+                            {inactive && <AlertTriangle className="w-3 h-3 shrink-0" />}
+                            {c}
+                          </span>
+                        );
+                      })}
+                    </div>
+                  )}
+                  <div className="flex justify-between text-sm font-semibold text-green-600 dark:text-green-400">
+                    <span>Discount</span>
+                    <span>-{formatPrice(discount, currency)}</span>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
 
