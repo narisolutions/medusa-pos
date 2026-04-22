@@ -4,7 +4,15 @@ import { formatDateOnly, formatTimeOnly, formatCurrencyRaw } from "@/utils/setti
 
 export type { ReceiptData };
 
-const buildReceipt = (data: ReceiptData): string => {
+export type PaperWidth = "80mm" | "57mm";
+
+const PAPER_CONFIG: Record<PaperWidth, { lineWidth: number; maxItemTitleLen: number; pdfPageWidth: number; pdfMargin: number }> = {
+  "80mm": { lineWidth: 48, maxItemTitleLen: 30, pdfPageWidth: 80, pdfMargin: 5 },
+  "57mm": { lineWidth: 32, maxItemTitleLen: 18, pdfPageWidth: 58, pdfMargin: 3 },
+};
+
+const buildReceipt = (data: ReceiptData, paperWidth: PaperWidth = "80mm"): string => {
+  const { lineWidth, maxItemTitleLen } = PAPER_CONFIG[paperWidth];
   const currentDate = new Date();
   const dateStr = formatDateOnly(currentDate);
   const timeStr = formatTimeOnly(currentDate);
@@ -12,13 +20,13 @@ const buildReceipt = (data: ReceiptData): string => {
   const padLine = (
     left: string,
     right: string,
-    totalWidth: number = 48
+    totalWidth: number = lineWidth
   ): string => {
     const padding = totalWidth - left.length - right.length;
     return left + " ".repeat(Math.max(1, padding)) + right;
   };
 
-  const centerText = (text: string, totalWidth: number = 48): string => {
+  const centerText = (text: string, totalWidth: number = lineWidth): string => {
     const padding = Math.floor((totalWidth - text.length) / 2);
     return " ".repeat(Math.max(0, padding)) + text;
   };
@@ -48,8 +56,8 @@ const buildReceipt = (data: ReceiptData): string => {
     return sanitized;
   };
 
-  const separator = "================================================";
-  const thinSeparator = "------------------------------------------------";
+  const separator = "=".repeat(lineWidth);
+  const thinSeparator = "-".repeat(lineWidth);
 
   let receipt = `${centerText(data.companyName)}
   ${centerText(data.storeName)}
@@ -118,11 +126,11 @@ const buildReceipt = (data: ReceiptData): string => {
         ? toNumber(item.total)
         : toNumber(item.unit_price) * toNumber(item.quantity);
 
-    // Sanitize and truncate item title to 30 characters
+    // Sanitize and truncate item title to fit the paper width
     const sanitizedTitle = sanitizeItemTitle(item.title);
     const itemName =
-      sanitizedTitle.length > 30
-        ? sanitizedTitle.substring(0, 30)
+      sanitizedTitle.length > maxItemTitleLen
+        ? sanitizedTitle.substring(0, maxItemTitleLen)
         : sanitizedTitle;
 
     // Item name and total on first line
@@ -181,15 +189,16 @@ const buildReceipt = (data: ReceiptData): string => {
   return receipt;
 };
 
-const buildReceiptPDF = (data: ReceiptData): Uint8Array => {
+const buildReceiptPDF = (data: ReceiptData, paperWidth: PaperWidth = "80mm"): Uint8Array => {
+  const { pdfPageWidth, pdfMargin, maxItemTitleLen } = PAPER_CONFIG[paperWidth];
   const doc = new jsPDF({
     orientation: "portrait",
     unit: "mm",
-    format: [80, 200],
+    format: [pdfPageWidth, 200],
   });
 
   const pageWidth = doc.internal.pageSize.getWidth();
-  const margin = 5;
+  const margin = pdfMargin;
   let yPosition = 8;
 
   // Helper to add text with alignment
@@ -308,7 +317,7 @@ const buildReceiptPDF = (data: ReceiptData): Uint8Array => {
       ? toNumber(item.total)
       : toNumber(item.unit_price) * toNumber(item.quantity);
 
-    const itemTitle = String(item.title || "").substring(0, 25);
+    const itemTitle = String(item.title || "").substring(0, Math.max(10, maxItemTitleLen - 7));
     const totalStr = formatCurrencyRaw(itemTotal, data.currency);
     
     // Item name and total

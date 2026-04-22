@@ -51,9 +51,16 @@ const ConnectionSettings: React.FC = () => {
 
   return (
     <div className="flex flex-col h-full space-y-8">
-      <div className="border-b border-theme-border pb-6">
+      <div className="border-b border-theme-border pb-6 space-y-2">
         <p className="text-lg leading-relaxed text-fg-muted font-medium">
           Configure your backend API connection and sales channel
+        </p>
+        <p className="text-sm text-fg-subtle leading-relaxed">
+          The sales channel controls which products are shown in the POS and which
+          channel new orders are recorded under. If you share one channel between
+          your POS and online storefront, all orders appear together — create a
+          dedicated POS channel in Medusa to keep them separate. Changes only
+          affect orders placed after saving.
         </p>
       </div>
 

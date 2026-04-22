@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/select";
 import { Table as ReactTable } from "@tanstack/react-table";
 import type { AdminOrder } from "@medusajs/types";
+import { useQuerySalesChannel } from "@/hooks/queries/useQuerySalesChannel";
 
 interface Props {
   filters: {
@@ -32,6 +33,9 @@ const Header: React.FC<Props> = ({
   onRefresh,
   isRefreshing = false,
 }) => {
+  const { data: rawChannels } = useQuerySalesChannel();
+  const salesChannels = (rawChannels ?? []).filter((ch) => !ch.is_disabled);
+
   const onGlobalFilterChange = (value: string) => {
     onFiltersChange({
       ...filters,
@@ -154,8 +158,11 @@ const Header: React.FC<Props> = ({
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="">All</SelectItem>
-                    <SelectItem value="Gamrekeli">Gamrekeli</SelectItem>
-                    <SelectItem value="Online">Online</SelectItem>
+                    {salesChannels.map((ch) => (
+                      <SelectItem key={ch.id} value={ch.name}>
+                        {ch.name}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>

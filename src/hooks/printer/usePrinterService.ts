@@ -241,7 +241,8 @@ const usePrinterService = () => {
 
       try {
         const receiptData = buildReceiptDataFromOrder(order);
-        const receiptText = buildReceipt(receiptData);
+        const paperWidth = printer.paperWidth ?? "80mm";
+        const receiptText = buildReceipt(receiptData, paperWidth);
         await printReceiptText(receiptText, printer);
 
         return { success: true, receiptData };
@@ -264,7 +265,8 @@ const usePrinterService = () => {
     async (order: AdminOrder): Promise<void> => {
       try {
         const receiptData = buildReceiptDataFromOrder(order);
-        const pdfBytes = buildReceiptPDF(receiptData);
+        const defaultPrinter = getDefaultPrinter();
+        const pdfBytes = buildReceiptPDF(receiptData, defaultPrinter?.paperWidth ?? "80mm");
 
         // Generate filename
         const orderId = order.display_id?.toString() || "N/A";
@@ -295,7 +297,7 @@ const usePrinterService = () => {
         throw error;
       }
     },
-    [buildReceiptDataFromOrder]
+    [buildReceiptDataFromOrder, getDefaultPrinter]
   );
 
   return {

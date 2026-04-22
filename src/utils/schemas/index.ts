@@ -32,6 +32,7 @@ export default {
     openCashDrawer: z.boolean().optional().default(false),
     openCashDrawerOnCash: z.boolean().optional().default(false),
     openCashDrawerOnCard: z.boolean().optional().default(false),
+    paperWidth: z.enum(["80mm", "57mm"]).optional().default("80mm"),
   }),
 
   apiSettings: z.object({
