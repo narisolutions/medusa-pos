@@ -1,4 +1,5 @@
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useSalesChannel } from "@/context/sales-channel";
 import { useUser } from "@/context/user";
 import storage from "@/utils/storage";
@@ -14,11 +15,21 @@ import { Button } from "@/components/ui/button";
 
 const SalesChannelWarningDialog: React.FC = () => {
   const navigate = useNavigate();
+  const { pathname } = useLocation();
   const needsWarning = useSalesChannel((s) => s.needsWarning);
   const setNeedsWarning = useSalesChannel((s) => s.setNeedsWarning);
+  const salesChannelId = useSalesChannel((s) => s.salesChannelId);
   const isAuthenticated = useUser((s) => s.isAuthenticated);
 
-  const open = isAuthenticated && needsWarning;
+  const [dismissed, setDismissed] = useState(false);
+
+  // Reset dismissal whenever the user navigates, so each checkout visit re-evaluates
+  useEffect(() => {
+    setDismissed(false);
+  }, [pathname]);
+
+  const isCheckoutPage = pathname.startsWith("/checkout");
+  const open = isAuthenticated && !dismissed && (needsWarning || (!salesChannelId && isCheckoutPage));
 
   const handleGoToSettings = async () => {
     setNeedsWarning(false);
@@ -28,6 +39,7 @@ const SalesChannelWarningDialog: React.FC = () => {
 
   const handleContinueAnyway = () => {
     setNeedsWarning(false);
+    setDismissed(true);
   };
 
   return (

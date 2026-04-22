@@ -23,6 +23,7 @@ import {
   SelectContent,
   SelectItem,
   SelectTrigger,
+  SelectValue,
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -62,6 +63,7 @@ type PrinterFormValues = {
   openCashDrawer: boolean;
   openCashDrawerOnCash: boolean;
   openCashDrawerOnCard: boolean;
+  paperWidth: "80mm" | "57mm";
 };
 
 const initialFormData: PrinterFormValues = {
@@ -76,6 +78,7 @@ const initialFormData: PrinterFormValues = {
   openCashDrawer: false,
   openCashDrawerOnCash: false,
   openCashDrawerOnCard: false,
+  paperWidth: "80mm",
 };
 
 const connectionConfig = {
@@ -123,6 +126,7 @@ const PrinterDialog: React.FC<Props> = ({
         openCashDrawer: editingPrinter.openCashDrawer ?? false,
         openCashDrawerOnCash: editingPrinter.openCashDrawerOnCash ?? false,
         openCashDrawerOnCard: editingPrinter.openCashDrawerOnCard ?? false,
+        paperWidth: editingPrinter.paperWidth ?? "80mm",
       });
     } else {
       reset(initialFormData);
@@ -601,6 +605,28 @@ const PrinterDialog: React.FC<Props> = ({
                 />
               </div>
             )}
+
+            <FormField
+              control={control}
+              name="paperWidth"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-lg font-medium">Paper Width</FormLabel>
+                  <FormControl>
+                    <Select onValueChange={field.onChange} value={field.value ?? "80mm"}>
+                      <SelectTrigger className="h-12 text-lg px-4">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="80mm">80mm (Standard roll)</SelectItem>
+                        <SelectItem value="57mm">57/58mm (Narrow roll)</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </FormControl>
+                  <FormMessage className="text-base" />
+                </FormItem>
+              )}
+            />
 
             <div className="flex justify-end space-x-4 pt-6">
               <Button
