@@ -18,6 +18,7 @@ import { Forms } from "@/types/form";
 import { useLogin } from "./hooks";
 import { useStoreManager } from "@/context/store-manager";
 import StoreSelectorBox from "@/components/auth/store-selector";
+import { useTranslation } from "@/i18n";
 
 const Login: React.FC = () => {
   const form = useForm<Forms["Login"]>({
@@ -27,6 +28,7 @@ const Login: React.FC = () => {
 
   const { control, handleSubmit } = form;
   const { activeStore } = useStoreManager();
+  const { t } = useTranslation();
 
   const isConfigured = Boolean(activeStore);
   const isBackendStaging = activeStore?.backendUrl?.includes("staging");
@@ -39,7 +41,7 @@ const Login: React.FC = () => {
 
         <div className="mb-8 flex flex-col gap-4 text-center">
           <h2 className="text-3xl font-semibold text-fg tracking-tight drop-shadow-sm">
-            Sign in
+            {t("auth.sign_in")}
           </h2>
           {isConfigured && (
             <span className="inline-flex items-center justify-center self-center rounded-full bg-surface-subtle px-3 text-xs font-medium text-fg-muted">
@@ -53,7 +55,7 @@ const Login: React.FC = () => {
                 <TriangleAlert />
               </div>
               <p className="text-red-800 font-semibold leading-5">
-                Add a store above to continue.
+                {t("auth.add_store_hint")}
               </p>
             </div>
           )}
@@ -74,7 +76,7 @@ const Login: React.FC = () => {
                     <Input
                       {...field}
                       type="email"
-                      placeholder="Email"
+                      placeholder={t("auth.email")}
                       className="w-full px-3 py-7 border rounded md:text-xl"
                     />
                   </FormControl>
@@ -91,7 +93,7 @@ const Login: React.FC = () => {
                     <Input
                       {...field}
                       type="password"
-                      placeholder="Password"
+                      placeholder={t("auth.password")}
                       className="w-full px-3 py-7 border rounded md:text-xl"
                     />
                   </FormControl>
@@ -107,7 +109,7 @@ const Login: React.FC = () => {
               className="bg-gray-800 hover:bg-gray-900 dark:bg-gray-700 dark:hover:bg-gray-600 transition-colors shadow text-white mt-4 py-8 text-xl"
               disabled={!isConfigured}
             >
-              Sign in
+              {t("auth.sign_in")}
             </Button>
           </form>
         </Form>
@@ -120,7 +122,7 @@ const Login: React.FC = () => {
         className="mt-4 text-fg-muted hover:text-fg"
         onClick={() => getCurrentWindow().close()}
       >
-        Exit application
+        {t("auth.exit_application")}
       </Button>
     </Fragment>
   );

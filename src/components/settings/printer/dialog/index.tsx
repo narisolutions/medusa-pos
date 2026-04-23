@@ -64,6 +64,7 @@ type PrinterFormValues = {
   openCashDrawerOnCash: boolean;
   openCashDrawerOnCard: boolean;
   paperWidth: "80mm" | "57mm";
+  encoding: "ascii" | "utf8" | "cp852";
 };
 
 const initialFormData: PrinterFormValues = {
@@ -79,6 +80,7 @@ const initialFormData: PrinterFormValues = {
   openCashDrawerOnCash: false,
   openCashDrawerOnCard: false,
   paperWidth: "80mm",
+  encoding: "ascii",
 };
 
 const connectionConfig = {
@@ -127,6 +129,7 @@ const PrinterDialog: React.FC<Props> = ({
         openCashDrawerOnCash: editingPrinter.openCashDrawerOnCash ?? false,
         openCashDrawerOnCard: editingPrinter.openCashDrawerOnCard ?? false,
         paperWidth: editingPrinter.paperWidth ?? "80mm",
+        encoding: (editingPrinter as PrinterFormValues).encoding ?? "ascii",
       });
     } else {
       reset(initialFormData);
@@ -623,6 +626,34 @@ const PrinterDialog: React.FC<Props> = ({
                       </SelectContent>
                     </Select>
                   </FormControl>
+                  <FormMessage className="text-base" />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={control}
+              name="encoding"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-lg font-medium">Character Encoding</FormLabel>
+                  <FormControl>
+                    <Select onValueChange={field.onChange} value={field.value ?? "ascii"}>
+                      <SelectTrigger className="h-12 text-lg px-4">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="ascii">ASCII (Default — strips non-ASCII)</SelectItem>
+                        <SelectItem value="utf8">UTF-8 (Unicode — pass-through)</SelectItem>
+                        <SelectItem value="cp852">CP852 (Central European mapping)</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </FormControl>
+                  <p className="text-sm text-fg-muted mt-1">
+                    {field.value === "ascii" && "Safe for all printers. Non-ASCII characters are removed."}
+                    {field.value === "utf8" && "Requires printer firmware with UTF-8 support. All characters pass through."}
+                    {field.value === "cp852" && "Maps Polish/Central European characters to closest ASCII equivalents."}
+                  </p>
                   <FormMessage className="text-base" />
                 </FormItem>
               )}

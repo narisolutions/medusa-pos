@@ -15,7 +15,8 @@ import {
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { usePreferencesSettings } from "./hooks";
-import type { ThemeMode } from "@/types/preferences";
+import type { ThemeMode, LanguageMode } from "@/types/preferences";
+import { useTranslation } from "@/i18n";
 
 const THEME_OPTIONS: { value: ThemeMode; label: string }[] = [
   { value: "light", label: "Light" },
@@ -23,17 +24,26 @@ const THEME_OPTIONS: { value: ThemeMode; label: string }[] = [
   { value: "system", label: "System" },
 ];
 
+const LANGUAGE_OPTIONS: { value: LanguageMode; label: string }[] = [
+  { value: "system", label: "System" },
+  { value: "en", label: "English" },
+  { value: "ka", label: "ქართული" },
+  { value: "pl", label: "Polski" },
+];
+
 const PreferencesSettings: React.FC = () => {
-  const { form, isDirty, isSubmitting, handleSubmit, onSubmit, isTauri, handleThemeModeChange } =
+  const { form, isDirty, isSubmitting, handleSubmit, onSubmit, isTauri, handleThemeModeChange, handleLanguageChange } =
     usePreferencesSettings();
+  const { t } = useTranslation();
 
   const { control, watch } = form;
   const currentTheme = watch("themeMode");
+  const currentLanguage = watch("language");
 
   return (
     <div className="flex flex-col h-full min-h-0">
       <p className="text-fg-muted text-sm mb-4">
-        Customize how the application looks and behaves
+        {t("settings.preferences.description")}
       </p>
 
       <Form {...form}>
@@ -41,18 +51,49 @@ const PreferencesSettings: React.FC = () => {
           onSubmit={handleSubmit(onSubmit)}
           className="flex flex-col space-y-5 max-w-2xl min-h-0"
         >
-          {/* Appearance (theme + fullscreen) */}
+          {/* Appearance (language + theme + fullscreen) */}
           <fieldset className="space-y-4">
             <legend className="text-lg font-semibold text-fg">
-              Appearance
+              {t("settings.preferences.appearance")}
             </legend>
+
+            <FormField
+              control={control}
+              name="language"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-base font-medium">{t("settings.preferences.language")}</FormLabel>
+                  <FormControl>
+                    <div className="flex gap-2">
+                      {LANGUAGE_OPTIONS.map(({ value, label }) => (
+                        <button
+                          key={value}
+                          type="button"
+                          onClick={() => {
+                            field.onChange(value);
+                            handleLanguageChange(value);
+                          }}
+                          className={`h-11 px-5 text-base font-medium rounded-md border transition-colors ${
+                            currentLanguage === value
+                              ? "bg-primary text-white border-primary"
+                              : "bg-surface border-theme-border text-fg-muted hover:bg-surface-hover"
+                          }`}
+                        >
+                          {label}
+                        </button>
+                      ))}
+                    </div>
+                  </FormControl>
+                </FormItem>
+              )}
+            />
 
             <FormField
               control={control}
               name="themeMode"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-base font-medium">Theme</FormLabel>
+                  <FormLabel className="text-base font-medium">{t("settings.preferences.theme")}</FormLabel>
                   <FormControl>
                     <div className="flex gap-2">
                       {THEME_OPTIONS.map(({ value, label }) => (
@@ -87,10 +128,10 @@ const PreferencesSettings: React.FC = () => {
                     <div className="flex items-center justify-between">
                       <div className="space-y-0.5">
                         <FormLabel className="text-base font-medium">
-                          Start in fullscreen
+                          {t("settings.preferences.fullscreen")}
                         </FormLabel>
                         <p className="text-sm text-fg-muted">
-                          Launch the application in fullscreen mode
+                          {t("settings.preferences.fullscreen_description")}
                         </p>
                       </div>
                       <FormControl>
@@ -111,7 +152,7 @@ const PreferencesSettings: React.FC = () => {
           {/* Date & Time */}
           <fieldset className="space-y-4">
             <legend className="text-lg font-semibold text-fg">
-              Date & Time
+              {t("settings.preferences.date_time")}
             </legend>
 
             <FormField
@@ -120,7 +161,7 @@ const PreferencesSettings: React.FC = () => {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className="text-base font-medium">
-                    Date Format
+                    {t("settings.preferences.date_format")}
                   </FormLabel>
                   <Select onValueChange={field.onChange} value={field.value}>
                     <FormControl>
@@ -162,7 +203,7 @@ const PreferencesSettings: React.FC = () => {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className="text-base font-medium">
-                    Time Format
+                    {t("settings.preferences.time_format")}
                   </FormLabel>
                   <Select onValueChange={field.onChange} value={field.value}>
                     <FormControl>
@@ -194,7 +235,7 @@ const PreferencesSettings: React.FC = () => {
           {/* Currency Format */}
           <fieldset className="space-y-4">
             <legend className="text-lg font-semibold text-fg">
-              Currency Format
+              {t("settings.preferences.currency_format")}
             </legend>
 
             <FormField
@@ -203,7 +244,7 @@ const PreferencesSettings: React.FC = () => {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className="text-base font-medium">
-                    Currency Symbol Position
+                    {t("settings.preferences.currency_symbol_position")}
                   </FormLabel>
                   <Select onValueChange={field.onChange} value={field.value}>
                     <FormControl>
@@ -235,7 +276,7 @@ const PreferencesSettings: React.FC = () => {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className="text-base font-medium">
-                    Decimal Separator
+                    {t("settings.preferences.decimal_separator")}
                   </FormLabel>
                   <Select onValueChange={field.onChange} value={field.value}>
                     <FormControl>
@@ -264,7 +305,7 @@ const PreferencesSettings: React.FC = () => {
 
           {/* Integrations */}
           <fieldset className="space-y-4">
-            <legend className="text-lg font-semibold text-fg">Integrations</legend>
+            <legend className="text-lg font-semibold text-fg">{t("settings.preferences.integrations")}</legend>
 
             <FormField
               control={control}
@@ -274,7 +315,7 @@ const PreferencesSettings: React.FC = () => {
                   <div className="flex items-start justify-between gap-4">
                     <div className="space-y-2">
                       <FormLabel className="text-base font-medium">
-                        Use custom endpoints
+                        {t("settings.preferences.custom_endpoints")}
                       </FormLabel>
                       <div className="text-sm text-fg-muted space-y-2">
                         <p>
@@ -316,7 +357,7 @@ const PreferencesSettings: React.FC = () => {
               disabled={isSubmitting || !isDirty}
               className="h-11 px-8 text-base text-white bg-primary hover:bg-primary/90"
             >
-              {isSubmitting ? "Saving..." : "Save preferences"}
+              {isSubmitting ? t("settings.preferences.saving") : t("settings.preferences.save")}
             </Button>
           </div>
         </form>

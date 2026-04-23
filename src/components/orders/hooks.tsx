@@ -1,5 +1,6 @@
 import { createColumnHelper } from "@tanstack/react-table";
 import { useEffect, useMemo, useState, useCallback } from "react";
+import { useTranslation } from "@/i18n";
 import { formatDate, formatPrice } from "@/utils/helpers";
 import { AdminOrder } from "@medusajs/types";
 import { useQueryOrders } from "@/hooks/queries/useQueryOrders";
@@ -58,11 +59,12 @@ const getFulfillmentStatusColor = (status: string) => {
 };
 
 const useOrders = () => {
+  const { t } = useTranslation();
   const columns = useMemo(
     () => [
       columnHelper.accessor("display_id", {
         id: "display_id",
-        header: "Order ID",
+        header: t("orders.column_order_id"),
         cell: (info) => (
           <span className="font-semibold text-fg text-base">
             #{info.getValue()}
@@ -72,7 +74,7 @@ const useOrders = () => {
       }),
       columnHelper.display({
         id: "provider_name",
-        header: "Method",
+        header: t("orders.column_method"),
         cell: (info) => {
           const order = info.row.original;
           const label = getShippingMethodLabel(order);
@@ -103,7 +105,7 @@ const useOrders = () => {
       }),
       columnHelper.accessor("created_at", {
         id: "created_at",
-        header: "Date",
+        header: t("orders.column_date"),
         cell: (info) => {
           return (
             <span className="text-base text-fg-muted">
@@ -115,7 +117,7 @@ const useOrders = () => {
       }),
       columnHelper.accessor("customer.email", {
         id: "customer_email",
-        header: "Customer",
+        header: t("orders.column_customer"),
         cell: (info) => (
           <span className="text-base">{info.getValue() || "—"}</span>
         ),
@@ -123,7 +125,7 @@ const useOrders = () => {
       }),
       columnHelper.accessor("sales_channel.name", {
         id: "sales_channel",
-        header: "Sales Channel",
+        header: t("orders.column_sales_channel"),
         cell: (info) => (
           <span className="text-base">{info.getValue() || "—"}</span>
         ),
@@ -135,7 +137,7 @@ const useOrders = () => {
       }),
       columnHelper.accessor("status", {
         id: "status",
-        header: "Status",
+        header: t("orders.column_status"),
         cell: (info) => {
           const value = info.getValue();
           const display =
@@ -154,7 +156,7 @@ const useOrders = () => {
       }),
       columnHelper.accessor("payment_status", {
         id: "payment_status",
-        header: "Payment",
+        header: t("orders.column_payment"),
         cell: (info) => {
           const value = info.getValue();
           const display =
@@ -172,7 +174,7 @@ const useOrders = () => {
       }),
       columnHelper.accessor("fulfillment_status", {
         id: "fulfillment_status",
-        header: "Fulfillment",
+        header: t("orders.column_fulfillment"),
         cell: (info) => {
           const value = info.getValue();
           const display =
@@ -195,7 +197,7 @@ const useOrders = () => {
       }),
       columnHelper.accessor("total", {
         id: "total",
-        header: "Order Total",
+        header: t("orders.column_total"),
         cell: (info) => {
           const value = info.getValue();
           const order = info.row.original;
@@ -209,7 +211,7 @@ const useOrders = () => {
         },
       }),
     ],
-    []
+    [t]
   );
 
   return { columns };

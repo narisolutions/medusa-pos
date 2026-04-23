@@ -12,7 +12,8 @@ import {
   updatePreferences,
 } from "@/utils/settings/preferences";
 import { useTheme } from "@/context/theme";
-import type { ThemeMode } from "@/types/preferences";
+import type { ThemeMode, LanguageMode } from "@/types/preferences";
+import { i18next, resolveLocale } from "@/i18n";
 
 const isTauri = "__TAURI_INTERNALS__" in window;
 
@@ -29,6 +30,7 @@ const defaults: Forms["PreferencesSettings"] = {
   startFullscreen: DEFAULT_PREFERENCES.display.startFullscreen,
   themeMode: DEFAULT_PREFERENCES.appearance.themeMode,
   customEndpointsEnabled: DEFAULT_PREFERENCES.integration.customEndpointsEnabled,
+  language: DEFAULT_PREFERENCES.language,
 };
 
 export const usePreferencesSettings = () => {
@@ -57,6 +59,7 @@ export const usePreferencesSettings = () => {
         startFullscreen: prefs.display.startFullscreen,
         themeMode: prefs.appearance.themeMode,
         customEndpointsEnabled: prefs.integration.customEndpointsEnabled,
+        language: prefs.language,
       });
     };
     load();
@@ -70,6 +73,14 @@ export const usePreferencesSettings = () => {
     [form, setThemeMode],
   );
 
+  const handleLanguageChange = useCallback(
+    (mode: LanguageMode) => {
+      form.setValue("language", mode, { shouldDirty: true });
+      i18next.changeLanguage(resolveLocale(mode));
+    },
+    [form],
+  );
+
   const onSubmit = useCallback(
     async (data: Forms["PreferencesSettings"]) => {
       setIsSubmitting(true);
@@ -79,12 +90,14 @@ export const usePreferencesSettings = () => {
         const display = { startFullscreen: data.startFullscreen };
         const appearance = { themeMode: data.themeMode };
         const integration = { customEndpointsEnabled: data.customEndpointsEnabled };
+        const language = data.language;
 
-        await updatePreferences({ dateTime, currency, display, appearance, integration });
+        await updatePreferences({ dateTime, currency, display, appearance, integration, language });
 
         initDateTimePrefs(dateTime);
         initCurrencyPrefs(currency);
         setThemeMode(data.themeMode);
+        i18next.changeLanguage(resolveLocale(language));
 
         if (isTauri) {
           await setFullscreen(data.startFullscreen);
@@ -101,5 +114,5 @@ export const usePreferencesSettings = () => {
     [reset, setThemeMode],
   );
 
-  return { form, isDirty, isSubmitting, handleSubmit, onSubmit, isTauri, handleThemeModeChange };
+  return { form, isDirty, isSubmitting, handleSubmit, onSubmit, isTauri, handleThemeModeChange, handleLanguageChange };
 };

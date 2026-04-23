@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useCheckout } from "../../hooks";
 import { useCartStore } from "@/context/cart";
+import { useTranslation } from "@/i18n";
 
 type Props = {
   open: boolean;
@@ -13,6 +14,7 @@ type Props = {
 const CommentModal: React.FC<Props> = ({ open, onClose }) => {
   const { selectedItemId, setItemMetadata } = useCartStore();
   const { items, orderComment, setOrderComment } = useCheckout();
+  const { t } = useTranslation();
   const [scope, setScope] = useState<"order" | "item">("order");
 
   const currentItem = items.find((i) => i.variant_id === selectedItemId);
@@ -37,19 +39,19 @@ const CommentModal: React.FC<Props> = ({ open, onClose }) => {
   return (
     <Dialog open={open} onOpenChange={handleDialogOpenChange}>
       <DialogContent className="max-w-xl p-6 md:p-8">
-        <DialogTitle className="text-2xl font-semibold">Comment</DialogTitle>
+        <DialogTitle className="text-2xl font-semibold">{t("checkout.comment_dialog_title")}</DialogTitle>
         <div className="space-y-6">
           <Tabs value={scope} onValueChange={handleScopeChange}>
             <TabsList>
-              <TabsTrigger value="order">Order</TabsTrigger>
-              <TabsTrigger value="item">Item</TabsTrigger>
+              <TabsTrigger value="order">{t("checkout.comment_scope_order")}</TabsTrigger>
+              <TabsTrigger value="item">{t("checkout.comment_scope_item")}</TabsTrigger>
             </TabsList>
           </Tabs>
 
           {scope === "order" ? (
             <div className="space-y-3">
               <label className="text-base font-medium text-fg">
-                Add comment for order
+                {t("checkout.comment_for_order_label")}
               </label>
               <textarea
                 rows={6}
@@ -65,7 +67,7 @@ const CommentModal: React.FC<Props> = ({ open, onClose }) => {
               {selectedItemId ? (
                 <Fragment>
                   <label className="text-base font-medium text-fg">
-                    Add comment for item: <b>{currentItem?.title}</b>
+                    {t("checkout.comment_for_item_label")}<b>{currentItem?.title}</b>
                   </label>
                   <textarea
                     rows={6}
@@ -80,7 +82,7 @@ const CommentModal: React.FC<Props> = ({ open, onClose }) => {
                 </Fragment>
               ) : (
                 <div className="flex h-[180px] w-full items-center justify-center rounded-lg border border-theme-border bg-surface-muted text-base text-fg-muted">
-                  Please select an item to add a comment.
+                  {t("checkout.select_item_for_comment")}
                 </div>
               )}
             </div>
@@ -92,13 +94,13 @@ const CommentModal: React.FC<Props> = ({ open, onClose }) => {
               onClick={onClose}
               className="h-12 px-5 text-base"
             >
-              Cancel
+              {t("common.cancel")}
             </Button>
             <Button
               onClick={onApply}
               className="h-12 px-6 text-base bg-primary hover:bg-primary/90 text-white"
             >
-              Apply
+              {t("common.apply")}
             </Button>
           </div>
         </div>

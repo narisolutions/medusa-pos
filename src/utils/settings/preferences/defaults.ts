@@ -18,4 +18,5 @@ export const DEFAULT_PREFERENCES: UserPreferences = {
   integration: {
     customEndpointsEnabled: true,
   },
+  language: "system",
 };

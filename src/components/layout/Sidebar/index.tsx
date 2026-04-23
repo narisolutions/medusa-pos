@@ -13,42 +13,24 @@ import { ChevronLeft, LogOut, Settings } from "lucide-react";
 import Payments from "@/assets/icons/payments";
 import Checkout from "@/assets/icons/checkout";
 import { useUnfulfilledOrdersCount } from "@/hooks/queries/useUnfulfilledOrdersCount";
-
-const mainMenuItems = [
-  {
-    id: "checkout",
-    label: "POS",
-    to: "/checkout",
-    icon: Checkout,
-  },
-  {
-    id: "orders",
-    label: "Orders",
-    to: "/orders",
-    icon: Payments,
-  },
-];
-
-const bottomMenuItems = [
-  {
-    id: "settings",
-    label: "Settings",
-    to: "/settings",
-    icon: Settings,
-  },
-  {
-    id: "logout",
-    label: "Log out",
-    to: "/sign-in",
-    icon: LogOut,
-  },
-];
+import { useTranslation } from "@/i18n";
 
 const AppSidebar = () => {
   const sidebar = useSidebar();
   const logout = useUser((state) => state.logout);
   const navigate = useNavigate();
   const { data: unfulfilledCount = 0 } = useUnfulfilledOrdersCount();
+  const { t } = useTranslation();
+
+  const mainMenuItems = [
+    { id: "checkout", label: t("nav.pos"), to: "/checkout", icon: Checkout },
+    { id: "orders", label: t("nav.orders"), to: "/orders", icon: Payments },
+  ];
+
+  const bottomMenuItems = [
+    { id: "settings", label: t("nav.settings"), to: "/settings", icon: Settings },
+    { id: "logout", label: t("nav.logout"), to: "/sign-in", icon: LogOut },
+  ];
 
   const handleLogout = async () => {
     try {

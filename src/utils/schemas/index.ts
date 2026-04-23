@@ -33,6 +33,7 @@ export default {
     openCashDrawerOnCash: z.boolean().optional().default(false),
     openCashDrawerOnCard: z.boolean().optional().default(false),
     paperWidth: z.enum(["80mm", "57mm"]).optional().default("80mm"),
+    encoding: z.enum(["ascii", "utf8", "cp852"]).optional().default("ascii"),
   }),
 
   apiSettings: z.object({
@@ -73,6 +74,7 @@ export default {
     startFullscreen: z.boolean(),
     themeMode: z.enum(["light", "dark", "system"]),
     customEndpointsEnabled: z.boolean(),
+    language: z.enum(["en", "ka", "pl", "system"]),
   }),
 
   storeSettings: z.object({
