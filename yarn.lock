@@ -609,18 +609,18 @@
     "@jridgewell/resolve-uri" "^3.1.0"
     "@jridgewell/sourcemap-codec" "^1.4.14"
 
-"@medusajs/js-sdk@^2.13.6":
-  version "2.13.6"
-  resolved "https://registry.yarnpkg.com/@medusajs/js-sdk/-/js-sdk-2.13.6.tgz#a522b8d0214ed995728da01ed3ae502c373247a7"
-  integrity sha512-KclFGKmJN0+7QdMbHNQ0g5O6A5h+4Lyi4GI2a1WOKcx14447pEM6OyF+QZRSvi1yoS0cuLk3foYu5vTd1DOk2g==
+"@medusajs/js-sdk@^2.14.0":
+  version "2.14.0"
+  resolved "https://registry.yarnpkg.com/@medusajs/js-sdk/-/js-sdk-2.14.0.tgz#787c3e80477e49cdb96a3bfd3484f73deca97adf"
+  integrity sha512-sbtujmc35w5KqsdTnhpLYR4p7VI6UPum9ETDx3EfM2NZUPjxOdNc/HWYilEj8eoI5iHh2STADjr5S8ibS8vjFA==
   dependencies:
     fetch-event-stream "^0.1.5"
     qs "^6.12.1"
 
-"@medusajs/types@^2.13.6":
-  version "2.13.6"
-  resolved "https://registry.yarnpkg.com/@medusajs/types/-/types-2.13.6.tgz#6f4416f842e1ea925aa7c7f23133c84e05b6436a"
-  integrity sha512-G6VASkY/rKjvDzHDXN/oxthkVz8uOPy8nYUaa/c6GzfeUJkz8diB+9RwnJeRqTgAtybX2eocKKunFRkqmLBUBg==
+"@medusajs/types@^2.14.0":
+  version "2.14.0"
+  resolved "https://registry.yarnpkg.com/@medusajs/types/-/types-2.14.0.tgz#abb60c57b0cff951be522d4b9370ad10f86b3d46"
+  integrity sha512-lEiiudseV8T+5tqXa0xjr8oWstnxds2srU0dTqx2KfyIDjPtqX7BoTOsMCZrDginOe0qEFvSGiORk62Xk8u47Q==
   dependencies:
     bignumber.js "^9.1.2"
 
@@ -4087,10 +4087,10 @@ setprototypeof@1.2.0, setprototypeof@~1.2.0:
   resolved "https://registry.yarnpkg.com/setprototypeof/-/setprototypeof-1.2.0.tgz#66c9a24a73f9fc28cbe66b09fed3d33dcaf1b424"
   integrity sha512-E5LDX7Wrp85Kil5bhZv46j8jOeboKq5JMmYM3gVGdGH8xFpPWXUMsNrlODCrkoxMEeNi/XZIwuRvY4XNwYMJpw==
 
-shadcn@^4.3.0:
-  version "4.3.0"
-  resolved "https://registry.yarnpkg.com/shadcn/-/shadcn-4.3.0.tgz#02742050f4a2d833f9e9e5a2c01b9cfee21d9d8a"
-  integrity sha512-7vhnBh2LVLyxOd1ZQWwXv7OATCnQcxdqc8FbZdNigZriNOwDsHklQmPpvPt1jcrFK5mzMI+cyuAYv8WzERx2Og==
+shadcn@^4.2.0:
+  version "4.4.0"
+  resolved "https://registry.yarnpkg.com/shadcn/-/shadcn-4.4.0.tgz#2930d1612bad92bb5f4320839cf2a7e5b6fc1590"
+  integrity sha512-0V1AjVktKwhK1e0ONXb9SeBoyJePH04iTSJeMjl9eROqjjyb8OoWYtWDI39UdBU3GzpUlFBJFohhB9c6fGOkQA==
   dependencies:
     "@babel/core" "^7.28.0"
     "@babel/parser" "^7.28.0"
