@@ -3327,10 +3327,10 @@ lru-cache@^5.1.1:
   dependencies:
     yallist "^3.0.2"
 
-lucide-react@^1.8.0:
-  version "1.8.0"
-  resolved "https://registry.yarnpkg.com/lucide-react/-/lucide-react-1.8.0.tgz#107f8d8df0914dc5f8d037b948159d6cce86b9f5"
-  integrity sha512-WuvlsjngSk7TnTBJ1hsCy3ql9V9VOdcPkd3PKcSmM34vJD8KG6molxz7m7zbYFgICwsanQWmJ13JlYs4Zp7Arw==
+lucide-react@^1.9.0:
+  version "1.9.0"
+  resolved "https://registry.yarnpkg.com/lucide-react/-/lucide-react-1.9.0.tgz#3c8324e6b574131624c1869cbd38829d9c659627"
+  integrity sha512-6qVAmbgCjcJz7sAGSPSSJ++RAwjlK2XCbRrZKv63Ciko1KT8jX0//CXxgI3jg2HlJu8tADqdYlNDebmYjeoruA==
 
 magic-string@^0.30.21:
   version "0.30.21"
@@ -4087,10 +4087,10 @@ setprototypeof@1.2.0, setprototypeof@~1.2.0:
   resolved "https://registry.yarnpkg.com/setprototypeof/-/setprototypeof-1.2.0.tgz#66c9a24a73f9fc28cbe66b09fed3d33dcaf1b424"
   integrity sha512-E5LDX7Wrp85Kil5bhZv46j8jOeboKq5JMmYM3gVGdGH8xFpPWXUMsNrlODCrkoxMEeNi/XZIwuRvY4XNwYMJpw==
 
-shadcn@^4.3.0:
-  version "4.3.0"
-  resolved "https://registry.yarnpkg.com/shadcn/-/shadcn-4.3.0.tgz#02742050f4a2d833f9e9e5a2c01b9cfee21d9d8a"
-  integrity sha512-7vhnBh2LVLyxOd1ZQWwXv7OATCnQcxdqc8FbZdNigZriNOwDsHklQmPpvPt1jcrFK5mzMI+cyuAYv8WzERx2Og==
+shadcn@^4.2.0:
+  version "4.4.0"
+  resolved "https://registry.yarnpkg.com/shadcn/-/shadcn-4.4.0.tgz#2930d1612bad92bb5f4320839cf2a7e5b6fc1590"
+  integrity sha512-0V1AjVktKwhK1e0ONXb9SeBoyJePH04iTSJeMjl9eROqjjyb8OoWYtWDI39UdBU3GzpUlFBJFohhB9c6fGOkQA==
   dependencies:
     "@babel/core" "^7.28.0"
     "@babel/parser" "^7.28.0"
