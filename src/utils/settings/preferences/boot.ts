@@ -1,6 +1,7 @@
 type StoredPrefs = {
   display?: { startFullscreen?: boolean };
   appearance?: { themeMode?: string };
+  language?: string;
 };
 
 function applyStoredTheme(themeMode: string | undefined) {
@@ -27,7 +28,13 @@ export const applyBootPreferences = async () => {
     }
 
     applyStoredTheme(prefs?.appearance?.themeMode);
+
+    const { i18next, resolveLocale } = await import("@/i18n");
+    const locale = resolveLocale(prefs?.language ?? "system");
+    if (i18next.language !== locale) {
+      await i18next.changeLanguage(locale);
+    }
   } catch {
-    // No preference saved yet — keep native default (fullscreen)
+    // No preference saved yet — keep native defaults
   }
 };

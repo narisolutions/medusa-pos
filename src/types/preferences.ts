@@ -18,6 +18,8 @@ export type AppearancePreferences = {
   themeMode: ThemeMode;
 };
 
+export type LanguageMode = "en" | "ka" | "pl" | "system";
+
 export type IntegrationPreferences = {
   customEndpointsEnabled: boolean;
 };
@@ -28,4 +30,5 @@ export type UserPreferences = {
   currency: CurrencyPreferences;
   appearance: AppearancePreferences;
   integration: IntegrationPreferences;
+  language: LanguageMode;
 };

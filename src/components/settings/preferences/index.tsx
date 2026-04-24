@@ -15,25 +15,35 @@ import {
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { usePreferencesSettings } from "./hooks";
-import type { ThemeMode } from "@/types/preferences";
+import type { ThemeMode, LanguageMode } from "@/types/preferences";
+import { useTranslation } from "@/i18n";
 
-const THEME_OPTIONS: { value: ThemeMode; label: string }[] = [
-  { value: "light", label: "Light" },
-  { value: "dark", label: "Dark" },
-  { value: "system", label: "System" },
+const LANGUAGE_OPTIONS: { value: LanguageMode; label: string }[] = [
+  { value: "system", label: "system" },
+  { value: "en", label: "English" },
+  { value: "ka", label: "ქართული" },
+  { value: "pl", label: "Polski" },
 ];
 
 const PreferencesSettings: React.FC = () => {
-  const { form, isDirty, isSubmitting, handleSubmit, onSubmit, isTauri, handleThemeModeChange } =
+  const { form, isDirty, isSubmitting, handleSubmit, onSubmit, isTauri, handleThemeModeChange, handleLanguageChange } =
     usePreferencesSettings();
+  const { t } = useTranslation();
+
+  const THEME_OPTIONS: { value: ThemeMode; label: string }[] = [
+    { value: "light", label: t("settings.preferences.theme_light") },
+    { value: "dark", label: t("settings.preferences.theme_dark") },
+    { value: "system", label: t("settings.preferences.theme_system") },
+  ];
 
   const { control, watch } = form;
   const currentTheme = watch("themeMode");
+  const currentLanguage = watch("language");
 
   return (
     <div className="flex flex-col h-full min-h-0">
       <p className="text-fg-muted text-sm mb-4">
-        Customize how the application looks and behaves
+        {t("settings.preferences.description")}
       </p>
 
       <Form {...form}>
@@ -41,18 +51,49 @@ const PreferencesSettings: React.FC = () => {
           onSubmit={handleSubmit(onSubmit)}
           className="flex flex-col space-y-5 max-w-2xl min-h-0"
         >
-          {/* Appearance (theme + fullscreen) */}
+          {/* Appearance (language + theme + fullscreen) */}
           <fieldset className="space-y-4">
             <legend className="text-lg font-semibold text-fg">
-              Appearance
+              {t("settings.preferences.appearance")}
             </legend>
+
+            <FormField
+              control={control}
+              name="language"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-base font-medium">{t("settings.preferences.language")}</FormLabel>
+                  <FormControl>
+                    <div className="flex gap-2">
+                      {LANGUAGE_OPTIONS.map(({ value, label }) => (
+                        <button
+                          key={value}
+                          type="button"
+                          onClick={() => {
+                            field.onChange(value);
+                            handleLanguageChange(value);
+                          }}
+                          className={`h-11 px-5 text-base font-medium rounded-md border transition-colors ${
+                            currentLanguage === value
+                              ? "bg-primary text-white border-primary"
+                              : "bg-surface border-theme-border text-fg-muted hover:bg-surface-hover"
+                          }`}
+                        >
+                          {value === "system" ? t("settings.preferences.language_system") : label}
+                        </button>
+                      ))}
+                    </div>
+                  </FormControl>
+                </FormItem>
+              )}
+            />
 
             <FormField
               control={control}
               name="themeMode"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-base font-medium">Theme</FormLabel>
+                  <FormLabel className="text-base font-medium">{t("settings.preferences.theme")}</FormLabel>
                   <FormControl>
                     <div className="flex gap-2">
                       {THEME_OPTIONS.map(({ value, label }) => (
@@ -87,10 +128,10 @@ const PreferencesSettings: React.FC = () => {
                     <div className="flex items-center justify-between">
                       <div className="space-y-0.5">
                         <FormLabel className="text-base font-medium">
-                          Start in fullscreen
+                          {t("settings.preferences.fullscreen")}
                         </FormLabel>
                         <p className="text-sm text-fg-muted">
-                          Launch the application in fullscreen mode
+                          {t("settings.preferences.fullscreen_description")}
                         </p>
                       </div>
                       <FormControl>
@@ -111,7 +152,7 @@ const PreferencesSettings: React.FC = () => {
           {/* Date & Time */}
           <fieldset className="space-y-4">
             <legend className="text-lg font-semibold text-fg">
-              Date & Time
+              {t("settings.preferences.date_time")}
             </legend>
 
             <FormField
@@ -120,35 +161,35 @@ const PreferencesSettings: React.FC = () => {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className="text-base font-medium">
-                    Date Format
+                    {t("settings.preferences.date_format")}
                   </FormLabel>
                   <Select onValueChange={field.onChange} value={field.value}>
                     <FormControl>
                       <SelectTrigger className="h-11 text-base px-4">
                         {field.value === "system" && (
-                          <span>System default</span>
+                          <span>{t("settings.preferences.date_system")}</span>
                         )}
                         {field.value === "DD.MM.YYYY" && (
-                          <span>DD.MM.YYYY (e.g. 09.03.2026)</span>
+                          <span>{t("settings.preferences.date_ddmmyyyy")}</span>
                         )}
                         {field.value === "YYYY-MM-DD" && (
-                          <span>YYYY-MM-DD (e.g. 2026-03-09)</span>
+                          <span>{t("settings.preferences.date_yyyymmdd")}</span>
                         )}
                         {field.value === "MM/DD/YYYY" && (
-                          <span>MM/DD/YYYY (e.g. 03/09/2026)</span>
+                          <span>{t("settings.preferences.date_mmddyyyy")}</span>
                         )}
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="system">System default</SelectItem>
+                      <SelectItem value="system">{t("settings.preferences.date_system")}</SelectItem>
                       <SelectItem value="DD.MM.YYYY">
-                        DD.MM.YYYY (e.g. 09.03.2026)
+                        {t("settings.preferences.date_ddmmyyyy")}
                       </SelectItem>
                       <SelectItem value="YYYY-MM-DD">
-                        YYYY-MM-DD (e.g. 2026-03-09)
+                        {t("settings.preferences.date_yyyymmdd")}
                       </SelectItem>
                       <SelectItem value="MM/DD/YYYY">
-                        MM/DD/YYYY (e.g. 03/09/2026)
+                        {t("settings.preferences.date_mmddyyyy")}
                       </SelectItem>
                     </SelectContent>
                   </Select>
@@ -162,26 +203,26 @@ const PreferencesSettings: React.FC = () => {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className="text-base font-medium">
-                    Time Format
+                    {t("settings.preferences.time_format")}
                   </FormLabel>
                   <Select onValueChange={field.onChange} value={field.value}>
                     <FormControl>
                       <SelectTrigger className="h-11 text-base px-4">
                         {field.value === "system" && (
-                          <span>System default</span>
+                          <span>{t("settings.preferences.time_system")}</span>
                         )}
                         {field.value === "24h" && (
-                          <span>24-hour (14:30)</span>
+                          <span>{t("settings.preferences.time_24h")}</span>
                         )}
                         {field.value === "12h" && (
-                          <span>12-hour (2:30 PM)</span>
+                          <span>{t("settings.preferences.time_12h")}</span>
                         )}
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="system">System default</SelectItem>
-                      <SelectItem value="24h">24-hour (14:30)</SelectItem>
-                      <SelectItem value="12h">12-hour (2:30 PM)</SelectItem>
+                      <SelectItem value="system">{t("settings.preferences.time_system")}</SelectItem>
+                      <SelectItem value="24h">{t("settings.preferences.time_24h")}</SelectItem>
+                      <SelectItem value="12h">{t("settings.preferences.time_12h")}</SelectItem>
                     </SelectContent>
                   </Select>
                 </FormItem>
@@ -194,7 +235,7 @@ const PreferencesSettings: React.FC = () => {
           {/* Currency Format */}
           <fieldset className="space-y-4">
             <legend className="text-lg font-semibold text-fg">
-              Currency Format
+              {t("settings.preferences.currency_format")}
             </legend>
 
             <FormField
@@ -203,25 +244,25 @@ const PreferencesSettings: React.FC = () => {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className="text-base font-medium">
-                    Currency Symbol Position
+                    {t("settings.preferences.currency_symbol_position")}
                   </FormLabel>
                   <Select onValueChange={field.onChange} value={field.value}>
                     <FormControl>
                       <SelectTrigger className="h-11 text-base px-4">
                         {field.value === "before" && (
-                          <span>Before amount (e.g. $10)</span>
+                          <span>{t("settings.preferences.symbol_before")}</span>
                         )}
                         {field.value === "after" && (
-                          <span>After amount (e.g. 10$)</span>
+                          <span>{t("settings.preferences.symbol_after")}</span>
                         )}
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
                       <SelectItem value="before">
-                        Before amount (e.g. $10)
+                        {t("settings.preferences.symbol_before")}
                       </SelectItem>
                       <SelectItem value="after">
-                        After amount (e.g. 10$)
+                        {t("settings.preferences.symbol_after")}
                       </SelectItem>
                     </SelectContent>
                   </Select>
@@ -235,23 +276,23 @@ const PreferencesSettings: React.FC = () => {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className="text-base font-medium">
-                    Decimal Separator
+                    {t("settings.preferences.decimal_separator")}
                   </FormLabel>
                   <Select onValueChange={field.onChange} value={field.value}>
                     <FormControl>
                       <SelectTrigger className="h-11 text-base px-4">
                         {field.value === "dot" && (
-                          <span>Dot (e.g. 10.50)</span>
+                          <span>{t("settings.preferences.decimal_dot")}</span>
                         )}
                         {field.value === "comma" && (
-                          <span>Comma (e.g. 10,50)</span>
+                          <span>{t("settings.preferences.decimal_comma")}</span>
                         )}
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="dot">Dot (e.g. 10.50)</SelectItem>
+                      <SelectItem value="dot">{t("settings.preferences.decimal_dot")}</SelectItem>
                       <SelectItem value="comma">
-                        Comma (e.g. 10,50)
+                        {t("settings.preferences.decimal_comma")}
                       </SelectItem>
                     </SelectContent>
                   </Select>
@@ -264,7 +305,7 @@ const PreferencesSettings: React.FC = () => {
 
           {/* Integrations */}
           <fieldset className="space-y-4">
-            <legend className="text-lg font-semibold text-fg">Integrations</legend>
+            <legend className="text-lg font-semibold text-fg">{t("settings.preferences.integrations")}</legend>
 
             <FormField
               control={control}
@@ -274,30 +315,26 @@ const PreferencesSettings: React.FC = () => {
                   <div className="flex items-start justify-between gap-4">
                     <div className="space-y-2">
                       <FormLabel className="text-base font-medium">
-                        Use custom endpoints
+                        {t("settings.preferences.custom_endpoints")}
                       </FormLabel>
                       <div className="text-sm text-fg-muted space-y-2">
                         <p>
                           <span className="font-medium text-fg">
-                            Recommended:
+                            {t("settings.preferences.endpoints_recommended")}
                           </span>{" "}
-                          keep this enabled if your backend provides the <code>/pos</code>{" "}
-                          routes.
+                          {t("settings.preferences.endpoints_recommended_desc")}
                         </p>
                         <p>
                           <span className="font-medium text-fg">
-                            Custom endpoints enabled
+                            {t("settings.preferences.endpoints_enabled_title")}
                           </span>{" "}
-                          returns POS-ready product data, including context-aware computed
-                          prices and correctly calculated variant inventory quantities.
+                          {t("settings.preferences.endpoints_enabled_desc")}
                         </p>
                         <p>
                           <span className="font-medium text-fg">
-                            Custom endpoints disabled
+                            {t("settings.preferences.endpoints_disabled_title")}
                           </span>{" "}
-                          uses the standard Medusa Admin product list, which may return raw
-                          variant prices (price records without context computation) and may
-                          not provide reliable computed inventory quantity for POS use cases.
+                          {t("settings.preferences.endpoints_disabled_desc")}
                         </p>
                       </div>
                     </div>
@@ -316,7 +353,7 @@ const PreferencesSettings: React.FC = () => {
               disabled={isSubmitting || !isDirty}
               className="h-11 px-8 text-base text-white bg-primary hover:bg-primary/90"
             >
-              {isSubmitting ? "Saving..." : "Save preferences"}
+              {isSubmitting ? t("settings.preferences.saving") : t("settings.preferences.save")}
             </Button>
           </div>
         </form>

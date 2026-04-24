@@ -30,6 +30,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Printer } from "../hooks";
 import { getTauriInvokeErrorMessage } from "@/utils/helpers";
 import { Loader2, RefreshCw } from "lucide-react";
+import { useTranslation } from "@/i18n";
 
 interface UsbDeviceInfo {
   vendor_id: number;
@@ -64,6 +65,7 @@ type PrinterFormValues = {
   openCashDrawerOnCash: boolean;
   openCashDrawerOnCard: boolean;
   paperWidth: "80mm" | "57mm";
+  encoding: "ascii" | "utf8" | "cp852";
 };
 
 const initialFormData: PrinterFormValues = {
@@ -79,13 +81,7 @@ const initialFormData: PrinterFormValues = {
   openCashDrawerOnCash: false,
   openCashDrawerOnCard: false,
   paperWidth: "80mm",
-};
-
-const connectionConfig = {
-  local: { placeholder: "Select a system printer", label: "System Printer" },
-  network: { placeholder: "192.168.1.100", label: "IP Address" },
-  usb: { placeholder: "Select or scan for a USB printer", label: "USB Device" },
-  bluetooth: { placeholder: "00:11:22:33:44:55", label: "Bluetooth Address" },
+  encoding: "ascii",
 };
 
 function formatVidPid(vendorId: number, productId: number): string {
@@ -98,6 +94,13 @@ const PrinterDialog: React.FC<Props> = ({
   onSave,
   editingPrinter,
 }) => {
+  const { t } = useTranslation();
+  const connectionConfig = {
+    local: { placeholder: t("settings.printer.dialog_system_printer_placeholder"), label: t("settings.printer.dialog_system_printer_label") },
+    network: { placeholder: "192.168.1.100", label: t("settings.printer.dialog_ip_label") },
+    usb: { placeholder: t("settings.printer.dialog_usb_placeholder"), label: t("settings.printer.dialog_usb_label") },
+    bluetooth: { placeholder: "00:11:22:33:44:55", label: t("settings.printer.dialog_bluetooth_label") },
+  };
   const form = useForm<PrinterFormValues>({
     defaultValues: initialFormData,
   });
@@ -127,6 +130,7 @@ const PrinterDialog: React.FC<Props> = ({
         openCashDrawerOnCash: editingPrinter.openCashDrawerOnCash ?? false,
         openCashDrawerOnCard: editingPrinter.openCashDrawerOnCard ?? false,
         paperWidth: editingPrinter.paperWidth ?? "80mm",
+        encoding: (editingPrinter as PrinterFormValues).encoding ?? "ascii",
       });
     } else {
       reset(initialFormData);
@@ -151,11 +155,11 @@ const PrinterDialog: React.FC<Props> = ({
       const devices = await invoke<UsbDeviceInfo[]>("list_usb_devices");
       setUsbDevices(devices);
       if (devices.length === 0) {
-        setScanError("No USB printers found. Make sure your printer is plugged in and powered on.");
+        setScanError(t("settings.printer.dialog_no_usb"));
       }
     } catch (error) {
       setScanError(
-        getTauriInvokeErrorMessage(error, "Failed to scan USB devices")
+        getTauriInvokeErrorMessage(error, t("settings.printer.dialog_scan_usb_failed"))
       );
       setUsbDevices([]);
     } finally {
@@ -171,11 +175,11 @@ const PrinterDialog: React.FC<Props> = ({
       const printers = await invoke<SystemPrinterInfo[]>("list_system_printers");
       setSystemPrinters(printers);
       if (printers.length === 0) {
-        setSystemPrinterError("No printers found. Make sure you have printers installed on this system.");
+        setSystemPrinterError(t("settings.printer.dialog_no_system_printers"));
       }
     } catch (error) {
       setSystemPrinterError(
-        getTauriInvokeErrorMessage(error, "Failed to list system printers")
+        getTauriInvokeErrorMessage(error, t("settings.printer.dialog_list_system_printers_failed"))
       );
       setSystemPrinters([]);
     } finally {
@@ -214,11 +218,11 @@ const PrinterDialog: React.FC<Props> = ({
   const onSubmit: SubmitHandler<PrinterFormValues> = async (values) => {
     try {
       if (values.connectionType === "usb" && (!values.vendorId || !values.productId)) {
-        setError("address", { type: "manual", message: "Please scan and select a USB printer" });
+        setError("address", { type: "manual", message: t("settings.printer.dialog_error_select_usb") });
         return;
       }
       if (values.connectionType === "local" && !values.address) {
-        setError("address", { type: "manual", message: "Please select a system printer" });
+        setError("address", { type: "manual", message: t("settings.printer.dialog_error_select_system") });
         return;
       }
       schemas.printer.parse(values);
@@ -254,13 +258,13 @@ const PrinterDialog: React.FC<Props> = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-[500px]">
+      <DialogContent className="sm:max-w-[560px] max-h-[85vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-2xl font-semibold">
-            {editingPrinter ? "Edit Printer" : "Add New Printer"}
+            {editingPrinter ? t("settings.printer.dialog_title_edit") : t("settings.printer.dialog_title_add")}
           </DialogTitle>
           <DialogDescription className="text-lg text-fg-muted mt-2">
-            Configure your printer settings. Click save when you're done.
+            {t("settings.printer.dialog_description")}
           </DialogDescription>
         </DialogHeader>
 
@@ -272,11 +276,11 @@ const PrinterDialog: React.FC<Props> = ({
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className="text-lg font-medium">
-                    Printer Name
+                    {t("settings.printer.dialog_name_label")}
                   </FormLabel>
                   <FormControl>
                     <Input
-                      placeholder="e.g., Receipt Printer 1"
+                      placeholder={t("settings.printer.dialog_name_placeholder")}
                       className="h-12 text-lg px-4"
                       {...field}
                     />
@@ -292,7 +296,7 @@ const PrinterDialog: React.FC<Props> = ({
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className="text-lg font-medium">
-                    Connection Type
+                    {t("settings.printer.dialog_connection_type_label")}
                   </FormLabel>
                   <FormControl>
                     <Select
@@ -310,20 +314,20 @@ const PrinterDialog: React.FC<Props> = ({
                       value={field.value}
                     >
                       <SelectTrigger className="h-12 text-lg px-4">
-                        {field.value === "local" && <span>Local (System Printer)</span>}
+                        {field.value === "local" && <span>{t("settings.printer.dialog_local")}</span>}
                         {field.value === "network" && (
-                          <span>Network (IP)</span>
+                          <span>{t("settings.printer.dialog_network")}</span>
                         )}
-                        {field.value === "usb" && <span>USB</span>}
+                        {field.value === "usb" && <span>{t("settings.printer.dialog_usb_item")}</span>}
                         {field.value === "bluetooth" && (
-                          <span>Bluetooth</span>
+                          <span>{t("settings.printer.dialog_bluetooth_item")}</span>
                         )}
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="local">Local (System Printer)</SelectItem>
-                        <SelectItem value="network">Network (IP)</SelectItem>
-                        <SelectItem value="usb">USB</SelectItem>
-                        <SelectItem value="bluetooth">Bluetooth</SelectItem>
+                        <SelectItem value="local">{t("settings.printer.dialog_local")}</SelectItem>
+                        <SelectItem value="network">{t("settings.printer.dialog_network")}</SelectItem>
+                        <SelectItem value="usb">{t("settings.printer.dialog_usb_item")}</SelectItem>
+                        <SelectItem value="bluetooth">{t("settings.printer.dialog_bluetooth_item")}</SelectItem>
                       </SelectContent>
                     </Select>
                   </FormControl>
@@ -355,7 +359,7 @@ const PrinterDialog: React.FC<Props> = ({
                         ) : (
                           <RefreshCw className="h-4 w-4 mr-1.5" />
                         )}
-                        {isLoadingSystemPrinters ? "Loading..." : "Refresh"}
+                        {isLoadingSystemPrinters ? t("common.loading") : t("common.refresh")}
                       </Button>
                     </div>
                     <FormControl>
@@ -375,7 +379,7 @@ const PrinterDialog: React.FC<Props> = ({
                         <SelectContent>
                           {systemPrinters.length === 0 && !isLoadingSystemPrinters && (
                             <div className="px-3 py-4 text-base text-fg-muted text-center">
-                              Click &quot;Refresh&quot; to list system printers
+                              {t("settings.printer.dialog_click_refresh_hint")}
                             </div>
                           )}
                           {systemPrinters.map((printer) => (
@@ -384,7 +388,7 @@ const PrinterDialog: React.FC<Props> = ({
                                 <span>{printer.name}</span>
                                 <span className="text-sm text-fg-muted">
                                   {printer.port_name}
-                                  {printer.is_default && " — Default"}
+                                  {printer.is_default && ` ${t("settings.printer.dialog_default_badge")}`}
                                 </span>
                               </div>
                             </SelectItem>
@@ -422,7 +426,7 @@ const PrinterDialog: React.FC<Props> = ({
                         ) : (
                           <RefreshCw className="h-4 w-4 mr-1.5" />
                         )}
-                        {isScanning ? "Scanning..." : "Scan Devices"}
+                        {isScanning ? t("settings.printer.dialog_scanning") : t("settings.printer.dialog_scan_devices")}
                       </Button>
                     </div>
                     <FormControl>
@@ -450,7 +454,7 @@ const PrinterDialog: React.FC<Props> = ({
                         <SelectContent>
                           {usbDevices.length === 0 && !isScanning && (
                             <div className="px-3 py-4 text-base text-fg-muted text-center">
-                              Click &quot;Scan Devices&quot; to detect USB printers
+                              {t("settings.printer.dialog_click_scan_hint")}
                             </div>
                           )}
                           {usbDevices.map((device) => (
@@ -505,7 +509,7 @@ const PrinterDialog: React.FC<Props> = ({
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel className="text-lg font-medium">
-                      Port (Optional)
+                      {t("settings.printer.dialog_port_label")}
                     </FormLabel>
                     <FormControl>
                       <Input
@@ -527,7 +531,7 @@ const PrinterDialog: React.FC<Props> = ({
                 <FormItem>
                   <div className="flex items-center justify-between py-2">
                     <FormLabel className="text-lg font-medium">
-                      Set as default printer
+                      {t("settings.printer.dialog_is_default_label")}
                     </FormLabel>
                     <FormControl>
                       <Switch
@@ -548,7 +552,7 @@ const PrinterDialog: React.FC<Props> = ({
                 <FormItem>
                   <div className="flex items-center justify-between py-2">
                     <FormLabel className="text-lg font-medium">
-                      Open cash drawer
+                      {t("settings.printer.dialog_cash_drawer_label")}
                     </FormLabel>
                     <FormControl>
                       <Switch
@@ -564,7 +568,7 @@ const PrinterDialog: React.FC<Props> = ({
 
             {cashDrawerEnabled && (
               <div className="space-y-3 pl-4 border-l-2 border-theme-border">
-                <p className="text-base font-medium text-fg-muted">Open drawer on</p>
+                <p className="text-base font-medium text-fg-muted">{t("settings.printer.dialog_open_drawer_on")}</p>
                 <FormField
                   control={control}
                   name="openCashDrawerOnCash"
@@ -578,7 +582,7 @@ const PrinterDialog: React.FC<Props> = ({
                           />
                         </FormControl>
                         <FormLabel className="text-lg font-normal cursor-pointer">
-                          Cash payments
+                          {t("settings.printer.dialog_cash_payments")}
                         </FormLabel>
                       </div>
                     </FormItem>
@@ -597,7 +601,7 @@ const PrinterDialog: React.FC<Props> = ({
                           />
                         </FormControl>
                         <FormLabel className="text-lg font-normal cursor-pointer">
-                          Card payments
+                          {t("settings.printer.dialog_card_payments")}
                         </FormLabel>
                       </div>
                     </FormItem>
@@ -611,18 +615,46 @@ const PrinterDialog: React.FC<Props> = ({
               name="paperWidth"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-lg font-medium">Paper Width</FormLabel>
+                  <FormLabel className="text-lg font-medium">{t("settings.printer.dialog_paper_width_label")}</FormLabel>
                   <FormControl>
                     <Select onValueChange={field.onChange} value={field.value ?? "80mm"}>
                       <SelectTrigger className="h-12 text-lg px-4">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="80mm">80mm (Standard roll)</SelectItem>
-                        <SelectItem value="57mm">57/58mm (Narrow roll)</SelectItem>
+                        <SelectItem value="80mm">{t("settings.printer.dialog_paper_80mm")}</SelectItem>
+                        <SelectItem value="57mm">{t("settings.printer.dialog_paper_57mm")}</SelectItem>
                       </SelectContent>
                     </Select>
                   </FormControl>
+                  <FormMessage className="text-base" />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={control}
+              name="encoding"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-lg font-medium">{t("settings.printer.encoding")}</FormLabel>
+                  <FormControl>
+                    <Select onValueChange={field.onChange} value={field.value ?? "ascii"}>
+                      <SelectTrigger className="h-12 text-lg px-4">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="ascii">{t("settings.printer.encoding_ascii")}</SelectItem>
+                        <SelectItem value="utf8">{t("settings.printer.encoding_utf8")}</SelectItem>
+                        <SelectItem value="cp852">{t("settings.printer.encoding_cp852")}</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </FormControl>
+                  <p className="text-sm text-fg-muted mt-1">
+                    {field.value === "ascii" && t("settings.printer.dialog_encoding_ascii_desc")}
+                    {field.value === "utf8" && t("settings.printer.dialog_encoding_utf8_desc")}
+                    {field.value === "cp852" && t("settings.printer.dialog_encoding_cp852_desc")}
+                  </p>
                   <FormMessage className="text-base" />
                 </FormItem>
               )}
@@ -635,14 +667,14 @@ const PrinterDialog: React.FC<Props> = ({
                 onClick={handleClose}
                 className="h-12 px-6 text-lg min-w-[48px]"
               >
-                Cancel
+                {t("common.cancel")}
               </Button>
               <Button
                 type="submit"
                 variant="default"
                 className="h-12 px-6 text-lg min-w-[48px] text-white bg-primary hover:bg-primary/90"
               >
-                {editingPrinter ? "Update" : "Add"} Printer
+                {editingPrinter ? t("settings.printer.dialog_update_button") : t("settings.printer.add")}
               </Button>
             </div>
           </form>

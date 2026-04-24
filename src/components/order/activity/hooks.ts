@@ -3,6 +3,7 @@ import { AdminOrder, AdminPaymentCollection, AdminPayment, AdminOrderFulfillment
 import { ActivityEvent } from "@/types/utils";
 import constants from "@/utils/constants";
 import { classifyFulfillment } from "@/utils/pos/fulfillment";
+import { useTranslation } from "@/i18n";
 
 const normalizeTimestamp = (timestamp: string | Date | undefined): string | null => {
   if (!timestamp) return null;
@@ -29,6 +30,7 @@ const createEvent = (
 };
 
 export const useActivityEvents = (order: AdminOrder) => {
+  const { t } = useTranslation();
   const events = useMemo(() => {
     const activityEvents: ActivityEvent[] = [];
 
@@ -36,7 +38,7 @@ export const useActivityEvents = (order: AdminOrder) => {
     const orderPlaced = createEvent(
       `order_placed_${order.id}`,
       "order_placed",
-      "Order placed",
+      t("orders.event_order_placed"),
       order.created_at,
       {
         amount: order.total,
@@ -52,7 +54,7 @@ export const useActivityEvents = (order: AdminOrder) => {
           const event = createEvent(
             `payment_captured_${payment.id || `payment_${collection.id}_${Date.now()}`}`,
             "payment_captured",
-            "Payment captured",
+            t("orders.event_payment_captured"),
             payment.captured_at,
             {
               amount: payment.amount || collection.amount || order.total,
@@ -65,7 +67,7 @@ export const useActivityEvents = (order: AdminOrder) => {
           const event = createEvent(
             `awaiting_payment_${payment.id || `awaiting_${collection.id}_${Date.now()}`}`,
             "awaiting_payment",
-            "Awaiting payment",
+            t("orders.event_awaiting_payment"),
             payment.created_at,
             {
               amount: payment.amount || collection.amount || order.total,
@@ -85,7 +87,7 @@ export const useActivityEvents = (order: AdminOrder) => {
           const event = createEvent(
             `payment_captured_collection_${collection.id || Date.now()}`,
             "payment_captured",
-            "Payment captured",
+            t("orders.event_payment_captured"),
             collection.updated_at,
             {
               amount: collection.amount || order.total,
@@ -108,7 +110,7 @@ export const useActivityEvents = (order: AdminOrder) => {
       const fulfilledEvent = createEvent(
         `fulfilled_${fulfillment.id || Date.now()}`,
         "fulfilled",
-        "Items fulfilled",
+        t("orders.event_items_fulfilled"),
         fulfillment.created_at,
         { itemCount }
       );
@@ -120,7 +122,7 @@ export const useActivityEvents = (order: AdminOrder) => {
         const packedEvent = createEvent(
           `packed_${fulfillment.id || Date.now()}`,
           "fulfilled",
-          "Items packed",
+          t("orders.event_items_packed"),
           packedAt,
           { itemCount }
         );
@@ -133,7 +135,7 @@ export const useActivityEvents = (order: AdminOrder) => {
         const shipmentEvent = createEvent(
           `shipped_${fulfillment.id || Date.now()}`,
           "shipped",
-          "Shipment created",
+          t("orders.event_shipment_created"),
           shippedAt,
           { itemCount }
         );
@@ -146,7 +148,7 @@ export const useActivityEvents = (order: AdminOrder) => {
         const pickedUpEvent = createEvent(
           `marked_picked_up_${fulfillment.id || Date.now()}`,
           "marked_picked_up",
-          "Marked as picked up",
+          t("orders.event_marked_as_picked_up"),
           timestamp,
           { itemCount }
         );
@@ -177,7 +179,7 @@ export const useActivityEvents = (order: AdminOrder) => {
               const deliveredEvent = createEvent(
                 `delivered_${fulfillment.id || Date.now()}`,
                 "delivered",
-                "Marked as delivered",
+                t("orders.event_marked_as_delivered"),
                 deliveredTimestamp,
                 { itemCount }
               );
@@ -201,7 +203,7 @@ export const useActivityEvents = (order: AdminOrder) => {
     return uniqueEvents.sort(
       (a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
     );
-  }, [order]);
+  }, [order, t]);
 
   return events;
 };

@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import React from "react";
 import { FooterProps } from "./hooks";
+import { useTranslation } from "@/i18n";
 import { LoadingSpinner } from "@/components/ui/loading-spinner";
 import {
   Select,
@@ -21,6 +22,7 @@ const Footer: React.FC<FooterProps> = ({
   handlePageChange,
   handlePageSizeChange,
 }) => {
+  const { t } = useTranslation();
   return (
     <div className="flex flex-col md:flex-row md:items-center md:justify-between">
       <div className="flex items-center gap-3">
@@ -47,11 +49,11 @@ const Footer: React.FC<FooterProps> = ({
           {"<"}
         </Button>
         <span className="flex items-center text-base font-medium text-fg px-4">
-          Page{" "}
+          {t("pagination.page_label")}{" "}
           <strong className="mx-1 inline-block min-w-[2ch] text-center">
             {totalPages > 0 ? pageIndex + 1 : 0}
           </strong>{" "}
-          of{" "}
+          {t("pagination.of")}{" "}
           <strong className="inline-block min-w-[3ch] text-center">
             {totalPages}
           </strong>
@@ -87,7 +89,7 @@ const Footer: React.FC<FooterProps> = ({
       </div>
       <div className="flex items-center gap-4">
         <label htmlFor="page-size" className="text-base text-fg-muted">
-          Rows per page:
+          {t("pagination.rows_per_page")}
         </label>
         <Select
           value={pageSize.toString()}
@@ -113,7 +115,7 @@ const Footer: React.FC<FooterProps> = ({
             <LoadingSpinner />
           ) : (
             <>
-              {showingStart}-{showingEnd} of {count}
+              {showingStart}-{showingEnd} {t("pagination.of")} {count}
             </>
           )}
         </span>

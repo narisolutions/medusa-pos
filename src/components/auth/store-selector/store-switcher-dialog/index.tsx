@@ -32,6 +32,7 @@ import { StoreConfig } from "@/types/utils";
 import { useStoreManager } from "@/context/store-manager";
 import { checkBackendHealth, handleErrorToast } from "@/utils/helpers";
 import MedusaIcon from "@/assets/icons/medusa";
+import { useTranslation } from "@/i18n";
 
 type View = "list" | "add" | "edit";
 
@@ -43,6 +44,7 @@ interface Props {
 const StoreSwitcherDialog: React.FC<Props> = ({ open, onClose }) => {
   const { stores, activeStoreId, setActiveStore, addStore, updateStore, deleteStore } =
     useStoreManager();
+  const { t } = useTranslation();
   const [view, setView] = useState<View>("list");
   const [editingStore, setEditingStore] = useState<StoreConfig | undefined>(undefined);
   const [selectedStoreId, setSelectedStoreId] = useState<string | null>(null);
@@ -118,7 +120,7 @@ const StoreSwitcherDialog: React.FC<Props> = ({ open, onClose }) => {
     if (urlChanged) {
       const health = await checkBackendHealth(data.backendUrl);
       if (!health.success) {
-        handleErrorToast(`Cannot reach backend: ${health.error ?? "Unknown error"}`);
+        handleErrorToast(t("auth.cannot_reach_backend", { error: health.error ?? t("common.error") }));
         return;
       }
     }
@@ -163,9 +165,9 @@ const StoreSwitcherDialog: React.FC<Props> = ({ open, onClose }) => {
             </Button>
           )}
           <DialogTitle className="text-2xl flex-1">
-            {view === "list" && "Select store"}
-            {view === "add" && "Add store"}
-            {view === "edit" && "Edit store"}
+            {view === "list" && t("auth.select_store_title")}
+            {view === "add" && t("auth.add_store_title")}
+            {view === "edit" && t("auth.edit_store_title")}
           </DialogTitle>
         </DialogHeader>
 
@@ -199,7 +201,7 @@ const StoreSwitcherDialog: React.FC<Props> = ({ open, onClose }) => {
                     >
                       {store.name}
                       {isActive ? (
-                        <span className="ml-2 text-sm font-medium text-fg-subtle">(active)</span>
+                        <span className="ml-2 text-sm font-medium text-fg-subtle">({t("auth.active_badge")})</span>
                       ) : null}
                     </span>
                     <Button
@@ -226,7 +228,7 @@ const StoreSwitcherDialog: React.FC<Props> = ({ open, onClose }) => {
                 onClick={openAdd}
               >
                 <Plus size={22} />
-                Add new store
+                {t("auth.add_new_store")}
               </Button>
             </div>
 
@@ -237,7 +239,7 @@ const StoreSwitcherDialog: React.FC<Props> = ({ open, onClose }) => {
                 className="min-h-[52px] px-6 text-base rounded-2xl"
                 onClick={onClose}
               >
-                Cancel
+                {t("common.cancel")}
               </Button>
               <Button
                 type="button"
@@ -248,7 +250,7 @@ const StoreSwitcherDialog: React.FC<Props> = ({ open, onClose }) => {
                   if (selected) void handleSelect(selected);
                 }}
               >
-                Select
+                {t("common.select")}
               </Button>
             </div>
           </div>
@@ -286,7 +288,7 @@ const StoreSwitcherDialog: React.FC<Props> = ({ open, onClose }) => {
                           </SelectContent>
                         </Select>
                         <Input
-                          placeholder="api.example.com or localhost:9000"
+                          placeholder={t("auth.api_url_host_placeholder")}
                           className="flex-1 py-6 text-base rounded-xl border-theme-border"
                           value={host}
                           onChange={(e) => {
@@ -315,7 +317,7 @@ const StoreSwitcherDialog: React.FC<Props> = ({ open, onClose }) => {
                       disabled={isSubmitting}
                       className="min-h-[48px] py-4 px-6 text-base rounded-2xl bg-red-600 text-white hover:bg-red-700"
                     >
-                      Delete store
+                      {t("auth.delete_store_button")}
                     </Button>
                   )}
                 </div>
@@ -327,14 +329,14 @@ const StoreSwitcherDialog: React.FC<Props> = ({ open, onClose }) => {
                     disabled={isSubmitting}
                     className="min-h-[48px] py-4 px-6 text-base rounded-2xl"
                   >
-                    Cancel
+                    {t("common.cancel")}
                   </Button>
                   <Button
                     type="submit"
                     disabled={isSubmitting}
                     className="min-h-[48px] py-4 px-6 text-base rounded-2xl text-white"
                   >
-                    Save {isSubmitting ? <Loader2 className="animate-spin size-5" /> : null}
+                    {t("common.save")} {isSubmitting ? <Loader2 className="animate-spin size-5" /> : null}
                   </Button>
                 </div>
               </div>

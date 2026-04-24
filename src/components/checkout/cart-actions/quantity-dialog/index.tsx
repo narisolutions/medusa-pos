@@ -7,6 +7,7 @@ import { Minus, Plus } from "lucide-react";
 import { useCartStore } from "@/context/cart";
 import { toast } from "sonner";
 import { handleErrorToast } from "@/utils/helpers";
+import { useTranslation } from "@/i18n";
 
 type Props = {
   open: boolean;
@@ -14,6 +15,7 @@ type Props = {
 };
 
 const QuantityModal: React.FC<Props> = ({ open, onClose }) => {
+  const { t } = useTranslation();
   const {
     items,
     updateItemQuantity,
@@ -78,7 +80,7 @@ const QuantityModal: React.FC<Props> = ({ open, onClose }) => {
         <DialogTitle className="text-center text-lg font-medium">
           {selectedItemId
             ? currentItem?.title
-            : "Set quantity for next item added in cart"}
+            : t("checkout.set_quantity_for_next_item")}
         </DialogTitle>
 
         <div className="flex flex-col items-center gap-4 py-6">

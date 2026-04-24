@@ -1,4 +1,5 @@
 import { useState, useCallback, useMemo } from "react";
+import { useTranslation } from "@/i18n";
 import { useBarcodeBackgroundPaste } from "@/hooks/barcode/useBarcodePaste";
 import { useDebounce } from "@/hooks/ui/useDebounce";
 import { useCartStore } from "@/context/cart";
@@ -27,11 +28,6 @@ const handleMouseDown = (e: React.MouseEvent<HTMLButtonElement>) => {
   e.preventDefault();
 };
 
-const getInputPlaceholder = (mode: "search" | "barcode") =>
-  mode === "search"
-    ? "Search items..."
-    : "Scan barcode or paste with Ctrl+V...";
-
 interface Props {
   products?: AdminProduct[];
   inputRef?: React.RefObject<HTMLInputElement>;
@@ -39,6 +35,7 @@ interface Props {
 
 const useCheckoutFilter = (props?: Props) => {
   const { products = [], inputRef } = props || {};
+  const { t } = useTranslation();
   const salesChannelId = useSalesChannel((s) => s.salesChannelId);
   const setNeedsWarning = useSalesChannel((s) => s.setNeedsWarning);
   const [filterState, setFilterState] = useState<FilterState>({
@@ -104,7 +101,7 @@ const useCheckoutFilter = (props?: Props) => {
         const result = addItemToCart(variant);
 
         if (!result.success) {
-          handleErrorToast(result.message || "Cannot add item to cart");
+          handleErrorToast(result.message || t("checkout.cannot_add_to_cart"));
           playErrorSound();
           return;
         }
@@ -112,8 +109,8 @@ const useCheckoutFilter = (props?: Props) => {
         const itemTitle = variant.product?.title || variant.title;
         const message =
           result.action === "added"
-            ? `Added ${itemTitle} to cart`
-            : `Increased quantity of ${itemTitle}`;
+            ? t("checkout.item_added", { title: itemTitle })
+            : t("checkout.quantity_increased", { title: itemTitle });
 
         toast.success(message);
         playSuccessSound();
@@ -131,7 +128,7 @@ const useCheckoutFilter = (props?: Props) => {
         updateFilterState({ isProcessing: false });
       }
     },
-    [isProcessing, addItemToCart, updateFilterState]
+    [isProcessing, addItemToCart, updateFilterState, t]
   );
 
   const handleBarcodeSubmit = useCallback(
@@ -140,7 +137,7 @@ const useCheckoutFilter = (props?: Props) => {
 
       if (!salesChannelId) {
         setNeedsWarning(true);
-        toast.error("No sales channel configured");
+        toast.error(t("checkout.no_sales_channel_configured"));
         playErrorSound();
         return;
       }
@@ -156,7 +153,7 @@ const useCheckoutFilter = (props?: Props) => {
 
         if (!productVariant) {
           playErrorSound();
-          handleErrorToast("Product not found");
+          handleErrorToast(t("checkout.product_not_found"));
           setFilterState((prev) => ({ ...prev, inputValue: "" }));
           return;
         }
@@ -164,7 +161,7 @@ const useCheckoutFilter = (props?: Props) => {
         const result = addItemToCart(productVariant);
 
         if (!result.success) {
-          handleErrorToast(result.message || "Cannot add item to cart");
+          handleErrorToast(result.message || t("checkout.cannot_add_to_cart"));
           playErrorSound();
           return;
         }
@@ -172,8 +169,8 @@ const useCheckoutFilter = (props?: Props) => {
         const itemTitle = productVariant.product?.title || productVariant.title;
         const message =
           result.action === "added"
-            ? `Added ${itemTitle} to cart`
-            : `Increased quantity of ${itemTitle}`;
+            ? t("checkout.item_added", { title: itemTitle })
+            : t("checkout.quantity_increased", { title: itemTitle });
 
         toast.success(message);
         playSuccessSound();
@@ -196,6 +193,7 @@ const useCheckoutFilter = (props?: Props) => {
       updateFilterState,
       salesChannelId,
       setNeedsWarning,
+      t,
     ]
   );
 
@@ -306,7 +304,10 @@ const useCheckoutFilter = (props?: Props) => {
 
     // Utility functions
     handleMouseDown,
-    getInputPlaceholder: () => getInputPlaceholder(mode),
+    getInputPlaceholder: () =>
+      mode === "search"
+        ? t("checkout.search_placeholder")
+        : t("checkout.barcode_placeholder"),
     getBrandTitle,
   };
 };

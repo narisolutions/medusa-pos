@@ -13,6 +13,7 @@ import {
 import { Table as ReactTable } from "@tanstack/react-table";
 import type { AdminOrder } from "@medusajs/types";
 import { useQuerySalesChannel } from "@/hooks/queries/useQuerySalesChannel";
+import { useTranslation } from "@/i18n";
 
 interface Props {
   filters: {
@@ -35,6 +36,7 @@ const Header: React.FC<Props> = ({
 }) => {
   const { data: rawChannels } = useQuerySalesChannel();
   const salesChannels = (rawChannels ?? []).filter((ch) => !ch.is_disabled);
+  const { t } = useTranslation();
 
   const onGlobalFilterChange = (value: string) => {
     onFiltersChange({
@@ -81,7 +83,7 @@ const Header: React.FC<Props> = ({
           <div className="relative flex-1 max-w-md">
             <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-fg-subtle h-5 w-5" />
             <Input
-              placeholder="Search orders..."
+              placeholder={t("orders.search_placeholder")}
               value={filters.search}
               onChange={(e) => onGlobalFilterChange(e.target.value)}
               className="pl-12 h-12 text-base w-full"
@@ -101,9 +103,9 @@ const Header: React.FC<Props> = ({
             <>
               <div className="h-8 w-px bg-theme-border-strong"></div>
               <div className="flex items-center gap-2">
-                <span className="text-sm text-fg-muted">Active filter:</span>
+                <span className="text-sm text-fg-muted">{t("orders.active_filter")}</span>
                 <span className="inline-flex items-center gap-2 bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 text-sm px-3 py-1.5 rounded-md">
-                  Search: "{filters.search}"
+                  {t("orders.filter_search_prefix")}"{filters.search}"
                   <X
                     className="h-3 w-3 cursor-pointer hover:bg-blue-200 rounded"
                     onClick={() => onGlobalFilterChange("")}
@@ -116,48 +118,42 @@ const Header: React.FC<Props> = ({
         <div className="flex flex-wrap gap-3 items-center justify-end">
           <div className="flex flex-wrap gap-3">
             <div className="flex items-center gap-2">
-              <span className="text-sm text-fg-muted">Fulfillment:</span>
+              <span className="text-sm text-fg-muted">{t("orders.fulfillment_label")}</span>
               <div className="w-52">
                 <Select
                   value={filters.fulfillment_status || ""}
                   onValueChange={onFulfillmentStatusChange}
                 >
                   <SelectTrigger className="h-11 text-sm">
-                    <SelectValue placeholder="All" />
+                    <SelectValue placeholder={t("orders.all")} />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">All</SelectItem>
-                    <SelectItem value="not_fulfilled">Not fulfilled</SelectItem>
-                    <SelectItem value="partially_fulfilled">
-                      Partially fulfilled
-                    </SelectItem>
-                    <SelectItem value="fulfilled">Fulfilled</SelectItem>
-                    <SelectItem value="partially_shipped">
-                      Partially shipped
-                    </SelectItem>
-                    <SelectItem value="shipped">Shipped</SelectItem>
-                    <SelectItem value="partially_delivered">
-                      Partially delivered
-                    </SelectItem>
-                    <SelectItem value="delivered">Delivered</SelectItem>
-                    <SelectItem value="canceled">Canceled</SelectItem>
+                    <SelectItem value="">{t("orders.all")}</SelectItem>
+                    <SelectItem value="not_fulfilled">{t("orders.status_not_fulfilled")}</SelectItem>
+                    <SelectItem value="partially_fulfilled">{t("orders.status_partially_fulfilled")}</SelectItem>
+                    <SelectItem value="fulfilled">{t("orders.status_fulfilled")}</SelectItem>
+                    <SelectItem value="partially_shipped">{t("orders.status_partially_shipped")}</SelectItem>
+                    <SelectItem value="shipped">{t("orders.status_shipped")}</SelectItem>
+                    <SelectItem value="partially_delivered">{t("orders.status_partially_delivered")}</SelectItem>
+                    <SelectItem value="delivered">{t("orders.status_delivered")}</SelectItem>
+                    <SelectItem value="canceled">{t("orders.status_canceled")}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
             </div>
 
             <div className="flex items-center gap-2">
-              <span className="text-sm text-fg-muted">Channel:</span>
+              <span className="text-sm text-fg-muted">{t("orders.channel_label")}</span>
               <div className="w-44">
                 <Select
                   value={filters.sales_channel || ""}
                   onValueChange={onSalesChannelChange}
                 >
                   <SelectTrigger className="h-11 text-sm">
-                    <SelectValue placeholder="All" />
+                    <SelectValue placeholder={t("orders.all")} />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">All</SelectItem>
+                    <SelectItem value="">{t("orders.all")}</SelectItem>
                     {salesChannels.map((ch) => (
                       <SelectItem key={ch.id} value={ch.name}>
                         {ch.name}
@@ -183,7 +179,7 @@ const Header: React.FC<Props> = ({
                     isRefreshing ? "animate-spin" : ""
                   }`}
                 />
-                {isRefreshing ? "Refreshing..." : "Refresh"}
+                {isRefreshing ? t("common.refreshing") : t("common.refresh")}
               </Button>
             )}
             <Button
@@ -192,7 +188,7 @@ const Header: React.FC<Props> = ({
               onClick={clearAllFilters}
               className="text-base h-12 px-6"
             >
-              Clear Filters
+              {t("orders.clear_filters_button")}
             </Button>
           </div>
         </div>
