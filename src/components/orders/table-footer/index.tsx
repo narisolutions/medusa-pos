@@ -115,7 +115,7 @@ const Footer: React.FC<FooterProps> = ({
             <LoadingSpinner />
           ) : (
             <>
-              {showingStart}-{showingEnd} of {count}
+              {showingStart}-{showingEnd} {t("pagination.of")} {count}
             </>
           )}
         </span>

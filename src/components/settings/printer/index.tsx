@@ -13,8 +13,10 @@ import {
 import { usePrinterModal } from "./dialog/hooks";
 import { Printer, usePrinterSettings } from "./hooks";
 import PrinterModal from "./dialog";
+import { useTranslation } from "@/i18n";
 
 const PrinterSettings: React.FC = () => {
+  const { t } = useTranslation();
   const { isOpen, editingPrinter, openModal, closeModal } = usePrinterModal();
   const {
     printers,
@@ -36,13 +38,13 @@ const PrinterSettings: React.FC = () => {
       <div className="flex flex-col h-full space-y-8">
         <div className="border-b border-theme-border pb-6">
           <p className="text-lg leading-relaxed text-fg-muted font-medium">
-            Manage your printing devices and configurations
+            {t("settings.printer.description")}
           </p>
         </div>
         <div className="flex-1 flex items-center justify-center">
           <div className="text-center">
             <div className="w-8 h-8 border-2 border-theme-border-strong border-t-fg-muted rounded-full animate-spin mx-auto mb-4"></div>
-            <p className="text-lg text-fg-subtle">Loading printers...</p>
+            <p className="text-lg text-fg-subtle">{t("settings.printer.loading")}</p>
           </div>
         </div>
       </div>
@@ -57,7 +59,7 @@ const PrinterSettings: React.FC = () => {
       return (
         <div className="flex items-center space-x-3">
           <div className="w-4 h-4 border-2 border-theme-border-strong border-t-fg-muted rounded-full animate-spin"></div>
-          <span className="text-lg text-fg-subtle">Testing print…</span>
+          <span className="text-lg text-fg-subtle">{t("settings.printer.testing_print")}</span>
         </div>
       );
     }
@@ -66,7 +68,7 @@ const PrinterSettings: React.FC = () => {
       return (
         <div className="flex items-center space-x-3">
           <div className="w-4 h-4 border-2 border-theme-border-strong border-t-fg-muted rounded-full animate-spin"></div>
-          <span className="text-lg text-fg-subtle">Testing drawer…</span>
+          <span className="text-lg text-fg-subtle">{t("settings.printer.testing_drawer")}</span>
         </div>
       );
     }
@@ -75,7 +77,7 @@ const PrinterSettings: React.FC = () => {
       return (
         <div className="flex items-center space-x-3">
           <div className="h-3 w-3 rounded-full bg-surface-subtle" />
-          <span className="text-lg text-fg-subtle">Not tested</span>
+          <span className="text-lg text-fg-subtle">{t("settings.printer.not_tested")}</span>
         </div>
       );
     }
@@ -91,15 +93,11 @@ const PrinterSettings: React.FC = () => {
               <span
                 className={`text-lg ${printResult.success ? "text-green-600" : "text-red-600"}`}
               >
-                {printResult.success ? "Print OK" : "Print issue"}
+                {printResult.success ? t("settings.printer.print_ok") : t("settings.printer.print_issue")}
               </span>
             </div>
-            {printResult.message && (
-              <span
-                className={`text-sm max-w-[min(280px,100%)] leading-snug ${printResult.success ? "text-fg-muted" : "text-red-500"}`}
-              >
-                {printResult.message}
-              </span>
+            {printResult.success && printResult.message && (
+              <span className="text-sm text-fg-muted leading-snug">{printResult.message}</span>
             )}
           </div>
         )}
@@ -112,15 +110,11 @@ const PrinterSettings: React.FC = () => {
               <span
                 className={`text-lg ${drawerResult.success ? "text-green-600" : "text-red-600"}`}
               >
-                {drawerResult.success ? "Drawer OK" : "Drawer issue"}
+                {drawerResult.success ? t("settings.printer.drawer_ok") : t("settings.printer.drawer_issue")}
               </span>
             </div>
-            {drawerResult.message && (
-              <span
-                className={`text-sm max-w-[min(280px,100%)] leading-snug ${drawerResult.success ? "text-fg-muted" : "text-red-500"}`}
-              >
-                {drawerResult.message}
-              </span>
+            {drawerResult.success && drawerResult.message && (
+              <span className="text-sm text-fg-muted leading-snug">{drawerResult.message}</span>
             )}
           </div>
         )}
@@ -132,14 +126,14 @@ const PrinterSettings: React.FC = () => {
     <div className="flex flex-col h-full space-y-8">
       <div className="flex items-center justify-between border-b border-theme-border pb-6">
         <p className="text-lg leading-relaxed text-fg-muted font-medium">
-          Manage your printing devices and configurations
+          {t("settings.printer.description")}
         </p>
         <Button
           onClick={() => openModal()}
           className="bg-primary hover:bg-primary/90 text-white h-12 px-8 text-lg font-medium min-w-[48px]"
         >
           <Plus className="h-5 w-5 mr-3" />
-          Add Printer
+          {t("settings.printer.add")}
         </Button>
       </div>
 
@@ -148,17 +142,17 @@ const PrinterSettings: React.FC = () => {
           <div className="text-center">
             <PrinterIcon className="h-16 w-16 text-fg-subtle mx-auto mb-6" />
             <h3 className="text-xl font-medium text-fg mb-3">
-              No printers configured
+              {t("settings.printer.no_printers_title")}
             </h3>
             <p className="text-lg text-fg-muted mb-8 max-w-sm mx-auto">
-              Get started by adding your first printer device to begin printing receipts.
+              {t("settings.printer.no_printers_description")}
             </p>
-            <Button 
+            <Button
               onClick={() => openModal()}
               className="bg-primary hover:bg-primary/90 text-white h-12 px-8 text-lg font-medium min-w-[48px]"
             >
               <Plus className="h-5 w-5 mr-3" />
-              Add Your First Printer
+              {t("settings.printer.add_first_printer")}
             </Button>
           </div>
         </div>
@@ -167,13 +161,13 @@ const PrinterSettings: React.FC = () => {
           <Table className="h-full">
             <TableHeader className="bg-surface-muted shrink-0">
               <TableRow className="border-b border-theme-border hover:bg-transparent">
-                <TableHead className="text-base font-semibold text-fg-muted py-4 px-4 first:pl-6">Name</TableHead>
-                <TableHead className="text-base font-semibold text-fg-muted py-4 px-4">Type</TableHead>
-                <TableHead className="text-lg font-semibold text-fg-muted py-6 px-6">Connection</TableHead>
-                <TableHead className="text-lg font-semibold text-fg-muted py-6 px-6">Address</TableHead>
-                <TableHead className="text-lg font-semibold text-fg-muted py-6 px-6">Status</TableHead>
-                <TableHead className="text-lg font-semibold text-fg-muted py-6 px-6">Default</TableHead>
-                <TableHead className="text-right text-lg font-semibold text-fg-muted py-6 px-6 last:pr-8">Actions</TableHead>
+                <TableHead className="text-base font-semibold text-fg-muted py-4 px-4 first:pl-6">{t("settings.printer.column_name")}</TableHead>
+                <TableHead className="text-base font-semibold text-fg-muted py-4 px-4">{t("settings.printer.column_type")}</TableHead>
+                <TableHead className="text-lg font-semibold text-fg-muted py-6 px-6">{t("settings.printer.column_connection")}</TableHead>
+                <TableHead className="text-lg font-semibold text-fg-muted py-6 px-6">{t("settings.printer.column_address")}</TableHead>
+                <TableHead className="text-lg font-semibold text-fg-muted py-6 px-6">{t("settings.printer.column_status")}</TableHead>
+                <TableHead className="text-lg font-semibold text-fg-muted py-6 px-6">{t("settings.printer.column_default")}</TableHead>
+                <TableHead className="text-right text-lg font-semibold text-fg-muted py-6 px-6 last:pr-8">{t("settings.printer.column_actions")}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody className="flex-1 overflow-auto">
@@ -209,7 +203,7 @@ const PrinterSettings: React.FC = () => {
                   <TableCell className="text-lg text-fg py-6 px-6">
                     {printer.isDefault && (
                       <span className="inline-flex items-center px-3 py-1.5 rounded-full text-sm font-medium bg-primary text-white">
-                        Default
+                        {t("settings.printer.default_badge")}
                       </span>
                     )}
                   </TableCell>
@@ -221,7 +215,7 @@ const PrinterSettings: React.FC = () => {
                         disabled={testingPrinter === printer.id}
                         className="text-lg h-11 px-4 min-w-[48px]"
                       >
-                        Test
+                        {t("settings.printer.test_button")}
                       </Button>
                       <Button
                         variant="outline"
@@ -229,7 +223,7 @@ const PrinterSettings: React.FC = () => {
                         disabled={testingCashDrawer === printer.id}
                         className="text-lg h-11 px-4 min-w-[48px]"
                       >
-                        {testingCashDrawer === printer.id ? "Opening..." : "Test drawer"}
+                        {testingCashDrawer === printer.id ? t("settings.printer.opening") : t("settings.printer.test_drawer_button")}
                       </Button>
                       <Button
                         variant="outline"

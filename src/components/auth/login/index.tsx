@@ -45,7 +45,7 @@ const Login: React.FC = () => {
           </h2>
           {isConfigured && (
             <span className="inline-flex items-center justify-center self-center rounded-full bg-surface-subtle px-3 text-xs font-medium text-fg-muted">
-              {isBackendStaging ? "Staging" : "Production"}
+              {isBackendStaging ? t("auth.staging") : t("auth.production")}
             </span>
           )}
           <StoreSelectorBox />

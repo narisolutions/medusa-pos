@@ -4,11 +4,13 @@ import { useEffect, useState } from "react";
 import { useHeader } from "./hooks";
 import { useQueryStore } from "@/hooks/queries/useQueryStore";
 import { getBrandName, getLogoUrl } from "@/utils/settings/store/metadata";
+import { useTranslation } from "@/i18n";
 
 const Header: React.FC = () => {
   const [now, setNow] = useState(new Date());
   const sidebar = useSidebar();
   const { data: store } = useQueryStore();
+  const { t } = useTranslation();
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -39,7 +41,7 @@ const Header: React.FC = () => {
           />
         ) : (
           <span className="text-lg font-semibold text-foreground">
-            {getBrandName(store) || "POS"}
+            {getBrandName(store) || t("common.pos")}
           </span>
         )}
       </div>

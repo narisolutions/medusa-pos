@@ -18,14 +18,8 @@ import { usePreferencesSettings } from "./hooks";
 import type { ThemeMode, LanguageMode } from "@/types/preferences";
 import { useTranslation } from "@/i18n";
 
-const THEME_OPTIONS: { value: ThemeMode; label: string }[] = [
-  { value: "light", label: "Light" },
-  { value: "dark", label: "Dark" },
-  { value: "system", label: "System" },
-];
-
 const LANGUAGE_OPTIONS: { value: LanguageMode; label: string }[] = [
-  { value: "system", label: "System" },
+  { value: "system", label: "system" },
   { value: "en", label: "English" },
   { value: "ka", label: "ქართული" },
   { value: "pl", label: "Polski" },
@@ -35,6 +29,12 @@ const PreferencesSettings: React.FC = () => {
   const { form, isDirty, isSubmitting, handleSubmit, onSubmit, isTauri, handleThemeModeChange, handleLanguageChange } =
     usePreferencesSettings();
   const { t } = useTranslation();
+
+  const THEME_OPTIONS: { value: ThemeMode; label: string }[] = [
+    { value: "light", label: t("settings.preferences.theme_light") },
+    { value: "dark", label: t("settings.preferences.theme_dark") },
+    { value: "system", label: t("settings.preferences.theme_system") },
+  ];
 
   const { control, watch } = form;
   const currentTheme = watch("themeMode");
@@ -79,7 +79,7 @@ const PreferencesSettings: React.FC = () => {
                               : "bg-surface border-theme-border text-fg-muted hover:bg-surface-hover"
                           }`}
                         >
-                          {label}
+                          {value === "system" ? t("settings.preferences.language_system") : label}
                         </button>
                       ))}
                     </div>
@@ -167,29 +167,29 @@ const PreferencesSettings: React.FC = () => {
                     <FormControl>
                       <SelectTrigger className="h-11 text-base px-4">
                         {field.value === "system" && (
-                          <span>System default</span>
+                          <span>{t("settings.preferences.date_system")}</span>
                         )}
                         {field.value === "DD.MM.YYYY" && (
-                          <span>DD.MM.YYYY (e.g. 09.03.2026)</span>
+                          <span>{t("settings.preferences.date_ddmmyyyy")}</span>
                         )}
                         {field.value === "YYYY-MM-DD" && (
-                          <span>YYYY-MM-DD (e.g. 2026-03-09)</span>
+                          <span>{t("settings.preferences.date_yyyymmdd")}</span>
                         )}
                         {field.value === "MM/DD/YYYY" && (
-                          <span>MM/DD/YYYY (e.g. 03/09/2026)</span>
+                          <span>{t("settings.preferences.date_mmddyyyy")}</span>
                         )}
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="system">System default</SelectItem>
+                      <SelectItem value="system">{t("settings.preferences.date_system")}</SelectItem>
                       <SelectItem value="DD.MM.YYYY">
-                        DD.MM.YYYY (e.g. 09.03.2026)
+                        {t("settings.preferences.date_ddmmyyyy")}
                       </SelectItem>
                       <SelectItem value="YYYY-MM-DD">
-                        YYYY-MM-DD (e.g. 2026-03-09)
+                        {t("settings.preferences.date_yyyymmdd")}
                       </SelectItem>
                       <SelectItem value="MM/DD/YYYY">
-                        MM/DD/YYYY (e.g. 03/09/2026)
+                        {t("settings.preferences.date_mmddyyyy")}
                       </SelectItem>
                     </SelectContent>
                   </Select>
@@ -209,20 +209,20 @@ const PreferencesSettings: React.FC = () => {
                     <FormControl>
                       <SelectTrigger className="h-11 text-base px-4">
                         {field.value === "system" && (
-                          <span>System default</span>
+                          <span>{t("settings.preferences.time_system")}</span>
                         )}
                         {field.value === "24h" && (
-                          <span>24-hour (14:30)</span>
+                          <span>{t("settings.preferences.time_24h")}</span>
                         )}
                         {field.value === "12h" && (
-                          <span>12-hour (2:30 PM)</span>
+                          <span>{t("settings.preferences.time_12h")}</span>
                         )}
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="system">System default</SelectItem>
-                      <SelectItem value="24h">24-hour (14:30)</SelectItem>
-                      <SelectItem value="12h">12-hour (2:30 PM)</SelectItem>
+                      <SelectItem value="system">{t("settings.preferences.time_system")}</SelectItem>
+                      <SelectItem value="24h">{t("settings.preferences.time_24h")}</SelectItem>
+                      <SelectItem value="12h">{t("settings.preferences.time_12h")}</SelectItem>
                     </SelectContent>
                   </Select>
                 </FormItem>
@@ -250,19 +250,19 @@ const PreferencesSettings: React.FC = () => {
                     <FormControl>
                       <SelectTrigger className="h-11 text-base px-4">
                         {field.value === "before" && (
-                          <span>Before amount (e.g. $10)</span>
+                          <span>{t("settings.preferences.symbol_before")}</span>
                         )}
                         {field.value === "after" && (
-                          <span>After amount (e.g. 10$)</span>
+                          <span>{t("settings.preferences.symbol_after")}</span>
                         )}
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
                       <SelectItem value="before">
-                        Before amount (e.g. $10)
+                        {t("settings.preferences.symbol_before")}
                       </SelectItem>
                       <SelectItem value="after">
-                        After amount (e.g. 10$)
+                        {t("settings.preferences.symbol_after")}
                       </SelectItem>
                     </SelectContent>
                   </Select>
@@ -282,17 +282,17 @@ const PreferencesSettings: React.FC = () => {
                     <FormControl>
                       <SelectTrigger className="h-11 text-base px-4">
                         {field.value === "dot" && (
-                          <span>Dot (e.g. 10.50)</span>
+                          <span>{t("settings.preferences.decimal_dot")}</span>
                         )}
                         {field.value === "comma" && (
-                          <span>Comma (e.g. 10,50)</span>
+                          <span>{t("settings.preferences.decimal_comma")}</span>
                         )}
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="dot">Dot (e.g. 10.50)</SelectItem>
+                      <SelectItem value="dot">{t("settings.preferences.decimal_dot")}</SelectItem>
                       <SelectItem value="comma">
-                        Comma (e.g. 10,50)
+                        {t("settings.preferences.decimal_comma")}
                       </SelectItem>
                     </SelectContent>
                   </Select>
@@ -320,25 +320,21 @@ const PreferencesSettings: React.FC = () => {
                       <div className="text-sm text-fg-muted space-y-2">
                         <p>
                           <span className="font-medium text-fg">
-                            Recommended:
+                            {t("settings.preferences.endpoints_recommended")}
                           </span>{" "}
-                          keep this enabled if your backend provides the <code>/pos</code>{" "}
-                          routes.
+                          {t("settings.preferences.endpoints_recommended_desc")}
                         </p>
                         <p>
                           <span className="font-medium text-fg">
-                            Custom endpoints enabled
+                            {t("settings.preferences.endpoints_enabled_title")}
                           </span>{" "}
-                          returns POS-ready product data, including context-aware computed
-                          prices and correctly calculated variant inventory quantities.
+                          {t("settings.preferences.endpoints_enabled_desc")}
                         </p>
                         <p>
                           <span className="font-medium text-fg">
-                            Custom endpoints disabled
+                            {t("settings.preferences.endpoints_disabled_title")}
                           </span>{" "}
-                          uses the standard Medusa Admin product list, which may return raw
-                          variant prices (price records without context computation) and may
-                          not provide reliable computed inventory quantity for POS use cases.
+                          {t("settings.preferences.endpoints_disabled_desc")}
                         </p>
                       </div>
                     </div>

@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
+import { t } from "@/i18n";
 import { Forms } from "@/types/form";
 import schemas from "@/utils/schemas";
 import {
@@ -104,9 +105,9 @@ export const usePreferencesSettings = () => {
         }
 
         reset(data);
-        toast.success("Preferences saved");
+        toast.success(t("settings.preferences.saved"));
       } catch {
-        toast.error("Failed to save preferences");
+        toast.error(t("settings.preferences.save_error"));
       } finally {
         setIsSubmitting(false);
       }
