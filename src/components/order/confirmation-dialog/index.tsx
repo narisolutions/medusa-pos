@@ -2,6 +2,7 @@ import React from "react";
 import { Dialog, DialogContent, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { CheckCircle, Package } from "lucide-react";
+import { useTranslation } from "@/i18n";
 
 interface PickupConfirmationDialogProps {
   isOpen: boolean;
@@ -18,6 +19,7 @@ const PickupConfirmationDialog: React.FC<PickupConfirmationDialogProps> = ({
   isProcessing,
   orderDisplayId,
 }) => {
+  const { t } = useTranslation();
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && !isProcessing && onClose()}>
       <DialogContent className="max-w-md" preventOutsideClose={isProcessing}>
@@ -27,15 +29,15 @@ const PickupConfirmationDialog: React.FC<PickupConfirmationDialogProps> = ({
           </div>
           
           <DialogTitle className="text-2xl font-bold text-fg">
-            Confirm Pickup
+            {t("orders.confirm_pickup_title")}
           </DialogTitle>
 
           <div className="space-y-3 py-4">
             <p className="text-base text-fg-muted">
-              Are you sure the customer has picked up order <span className="font-semibold">#{orderDisplayId}</span>?
+              {t("orders.confirm_pickup_message", { orderId: orderDisplayId })}
             </p>
             <p className="text-sm text-fg-muted">
-              This action will mark the order as delivered and cannot be undone.
+              {t("orders.confirm_pickup_irreversible")}
             </p>
           </div>
         </div>
@@ -47,7 +49,7 @@ const PickupConfirmationDialog: React.FC<PickupConfirmationDialogProps> = ({
             disabled={isProcessing}
             className="flex-1 h-16 text-lg font-semibold touch-manipulation"
           >
-            Cancel
+            {t("common.cancel")}
           </Button>
           <Button
             onClick={onConfirm}
@@ -55,7 +57,7 @@ const PickupConfirmationDialog: React.FC<PickupConfirmationDialogProps> = ({
             className="flex-1 h-16 text-lg font-semibold bg-green-600 hover:bg-green-700 text-white touch-manipulation"
           >
             <CheckCircle className="w-6 h-6 mr-2" />
-            {isProcessing ? "Marking..." : "Confirm Pickup"}
+            {isProcessing ? t("orders.marking") : t("orders.confirm_pickup_button")}
           </Button>
         </DialogFooter>
       </DialogContent>

@@ -4,6 +4,7 @@ import { User } from "lucide-react";
 import { isOrderGuestCustomer } from "@/utils/helpers";
 import { useQueryStore } from "@/hooks/queries/useQueryStore";
 import { getGuestCustomerEmail } from "@/utils/settings/store/metadata";
+import { useTranslation } from "@/i18n";
 // import CustomerDialog from "./customer-dialog";
 
 interface Props {
@@ -11,6 +12,7 @@ interface Props {
 }
 
 const Customer: React.FC<Props> = ({ order }) => {
+  const { t } = useTranslation();
   const { customer, shipping_address, billing_address } = order;
   const { data: store } = useQueryStore();
   const guestEmail = getGuestCustomerEmail(store);
@@ -24,7 +26,7 @@ const Customer: React.FC<Props> = ({ order }) => {
           <div className="flex items-center gap-2">
             <User className="w-5 h-5 text-fg-muted" />
             <h2 className="text-lg font-semibold text-fg">
-              Customer & Address
+              {t("orders.customer_address_header")}
             </h2>
           </div>
           {/* <Button
@@ -44,21 +46,21 @@ const Customer: React.FC<Props> = ({ order }) => {
             {(!customer.email || customer.email.trim() === "") &&
             isOrderGuestCustomer(customer.email, guestEmail) ? (
               <div className="text-base">
-                <span className="text-fg-muted">Customer: </span>
-                <span className="font-medium text-fg">Guest</span>
+                <span className="text-fg-muted">{t("orders.customer_label")}: </span>
+                <span className="font-medium text-fg">{t("orders.guest_customer")}</span>
               </div>
             ) : (
               <>
                 <div>
                   <h3 className="text-base font-medium text-fg mb-2">
-                    Customer Information
+                    {t("orders.customer_information_header")}
                   </h3>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-base">
                     {(customer.first_name && customer.last_name) ||
                     (billing_address?.first_name &&
                       billing_address?.last_name) ? (
                       <div>
-                        <span className="text-fg-muted">Name: </span>
+                        <span className="text-fg-muted">{t("orders.customer_name_label")}</span>
                         <span className="font-medium text-fg">
                           {customer.first_name && customer.last_name
                             ? `${customer.first_name} ${customer.last_name}`
@@ -68,7 +70,7 @@ const Customer: React.FC<Props> = ({ order }) => {
                     ) : null}
                     {customer.email && (
                       <div>
-                        <span className="text-fg-muted">Email: </span>
+                        <span className="text-fg-muted">{t("orders.customer_email_label")}</span>
                         <span className="font-medium text-fg">
                           {customer.email}
                         </span>
@@ -76,7 +78,7 @@ const Customer: React.FC<Props> = ({ order }) => {
                     )}
                     {(customer.phone || billing_address?.phone) && (
                       <div className="sm:col-span-2">
-                        <span className="text-fg-muted">Phone: </span>
+                        <span className="text-fg-muted">{t("orders.customer_phone_label")}</span>
                         <span className="font-medium text-fg">
                           {customer.phone || billing_address?.phone}
                         </span>
@@ -91,7 +93,7 @@ const Customer: React.FC<Props> = ({ order }) => {
                     (!shipping_address.country_code && false)) && (
                     <div>
                       <h3 className="text-base font-medium text-fg mb-2">
-                        Shipping Address
+                        {t("orders.shipping_address_header")}
                       </h3>
                       <div className="text-base text-fg-muted">
                         {[

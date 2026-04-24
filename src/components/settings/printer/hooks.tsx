@@ -2,17 +2,20 @@ import { useState, useEffect } from "react";
 import { Forms } from "@/types/form";
 import { Wifi, Usb, Bluetooth, Monitor } from "lucide-react";
 import storage from "@/utils/storage";
+import { useTranslation } from "@/i18n";
 import { useQueryStore } from "@/hooks/queries/useQueryStore";
 import { useQuerySalesChannel } from "@/hooks/queries/useQuerySalesChannel";
 import { getBrandName } from "@/utils/settings/store/metadata";
 import { getTauriInvokeErrorMessage } from "@/utils/helpers";
 import { printerIssueStaffHintSettings } from "@/utils/helpers";
+import { toast } from "sonner";
 
 export type Printer = Forms["Printer"] & {
   id: string;
 };
 
 const usePrinterSettings = (editingPrinter: Printer | null) => {
+  const { t } = useTranslation();
   const { data: store } = useQueryStore();
   const { data: salesChannels } = useQuerySalesChannel();
   const [printers, setPrinters] = useState<Printer[]>([]);
@@ -102,16 +105,19 @@ const usePrinterSettings = (editingPrinter: Printer | null) => {
 
       setTestResults((prev) => ({
         ...prev,
-        [printer.id]: { success: true, message: "Test page sent to printer" },
+        [printer.id]: { success: true, message: t("settings.printer.test_page_sent") },
       }));
     } catch (error) {
       const detail = getTauriInvokeErrorMessage(error, "Test failed");
       console.error("Printer test failed:", { printer: printer.name, detail });
+      toast.error(t("settings.printer.print_issue"), {
+        description: detail || printerIssueStaffHintSettings(printer.name),
+      });
       setTestResults((prev) => ({
         ...prev,
         [printer.id]: {
           success: false,
-          message: printerIssueStaffHintSettings(printer.name),
+          message: "",
         },
       }));
     } finally {
@@ -132,7 +138,7 @@ const usePrinterSettings = (editingPrinter: Printer | null) => {
       });
       setCashDrawerTestResults((prev) => ({
         ...prev,
-        [printer.id]: { success: true, message: "Cash drawer signal sent" },
+        [printer.id]: { success: true, message: t("settings.printer.cash_drawer_signal_sent") },
       }));
     } catch (error) {
       const detail = getTauriInvokeErrorMessage(
@@ -140,11 +146,14 @@ const usePrinterSettings = (editingPrinter: Printer | null) => {
         "Failed to open cash drawer"
       );
       console.error("Cash drawer test failed:", { printer: printer.name, detail });
+      toast.error(t("settings.printer.drawer_issue"), {
+        description: detail || printerIssueStaffHintSettings(printer.name),
+      });
       setCashDrawerTestResults((prev) => ({
         ...prev,
         [printer.id]: {
           success: false,
-          message: printerIssueStaffHintSettings(printer.name),
+          message: "",
         },
       }));
     } finally {
@@ -164,10 +173,10 @@ const usePrinterSettings = (editingPrinter: Printer | null) => {
 
   const getConnectionTypeLabel = (connectionType: string) => {
     const labels = {
-      local: "Local",
-      network: "Network",
-      usb: "USB",
-      bluetooth: "Bluetooth",
+      local: t("settings.printer.connection_local"),
+      network: t("settings.printer.connection_network"),
+      usb: t("settings.printer.connection_usb"),
+      bluetooth: t("settings.printer.connection_bluetooth"),
     };
     return labels[connectionType as keyof typeof labels] || connectionType;
   };
