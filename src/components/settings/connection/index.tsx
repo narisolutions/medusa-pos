@@ -20,8 +20,10 @@ import { useForm } from "react-hook-form";
 import { Forms } from "@/types/form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import schemas from "@/utils/schemas";
+import { useTranslation } from "@/i18n";
 
 const ConnectionSettings: React.FC = () => {
+  const { t } = useTranslation();
   const form = useForm<Forms["ApiSettings"]>({
     resolver: zodResolver(schemas.apiSettings),
     defaultValues: {
@@ -51,14 +53,17 @@ const ConnectionSettings: React.FC = () => {
 
   return (
     <div className="flex flex-col h-full space-y-8">
-      <div className="border-b border-theme-border pb-6">
+      <div className="border-b border-theme-border pb-6 space-y-2">
         <p className="text-lg leading-relaxed text-fg-muted font-medium">
-          Configure your backend API connection and sales channel
+          {t("settings.connection.description")}
+        </p>
+        <p className="text-sm text-fg-subtle leading-relaxed">
+          {t("settings.connection.long_description")}
         </p>
       </div>
 
       <p className="text-sm text-fg-muted">
-        Currently logged in:{" "}
+        {t("settings.connection.logged_in_label")}
         <span className="font-medium">
           {(admin as unknown as { user: { email: string } })?.user?.email}
         </span>
@@ -71,11 +76,11 @@ const ConnectionSettings: React.FC = () => {
             name="backend_url"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-lg font-medium">API URL</FormLabel>
+                <FormLabel className="text-lg font-medium">{t("settings.connection.api_url_label")}</FormLabel>
                 <FormControl>
                   <Input
                     type="url"
-                    placeholder="https://your-backend.com"
+                    placeholder={t("settings.connection.api_url_placeholder")}
                     className="h-12 text-lg px-4"
                     disabled={true}
                     {...field}
@@ -92,7 +97,7 @@ const ConnectionSettings: React.FC = () => {
             render={({ field }) => (
               <FormItem>
                 <FormLabel className="text-lg font-medium">
-                  Sales Channel
+                  {t("settings.connection.sales_channel_label")}
                 </FormLabel>
                 <Select
                   onValueChange={field.onChange}
@@ -108,8 +113,8 @@ const ConnectionSettings: React.FC = () => {
                       ) : (
                         <span className="text-fg-muted">
                           {isLoadingSalesChannels
-                            ? "Loading sales channels..."
-                            : "Select a sales channel"}
+                            ? t("settings.connection.loading_sales_channels")
+                            : t("settings.connection.select_sales_channel")}
                         </span>
                       )}
                     </SelectTrigger>
@@ -123,8 +128,8 @@ const ConnectionSettings: React.FC = () => {
                     {(!salesChannels || salesChannels.length === 0) && (
                       <SelectItem value="" className="text-fg-muted">
                         {isLoadingSalesChannels
-                          ? "Loading sales channels..."
-                          : "No sales channels available"}
+                          ? t("settings.connection.loading_sales_channels")
+                          : t("settings.connection.no_sales_channels")}
                       </SelectItem>
                     )}
                   </SelectContent>
@@ -139,7 +144,7 @@ const ConnectionSettings: React.FC = () => {
             render={({ field }) => (
               <FormItem>
                 <FormLabel className="text-lg font-medium">
-                  Stock Location
+                  {t("settings.connection.stock_location_label")}
                 </FormLabel>
                 <Select
                   onValueChange={field.onChange}
@@ -155,8 +160,8 @@ const ConnectionSettings: React.FC = () => {
                       ) : (
                         <span className="text-fg-muted">
                           {isLoadingStockLocations
-                            ? "Loading stock locations..."
-                            : "Select a stock location"}
+                            ? t("settings.connection.loading_stock_locations")
+                            : t("settings.connection.select_stock_location")}
                         </span>
                       )}
                     </SelectTrigger>
@@ -170,8 +175,8 @@ const ConnectionSettings: React.FC = () => {
                     {(!stockLocations || stockLocations.length === 0) && (
                       <SelectItem value="" className="text-fg-muted">
                         {isLoadingStockLocations
-                          ? "Loading stock locations..."
-                          : "No stock locations available"}
+                          ? t("settings.connection.loading_stock_locations")
+                          : t("settings.connection.no_stock_locations")}
                       </SelectItem>
                     )}
                   </SelectContent>
@@ -187,7 +192,7 @@ const ConnectionSettings: React.FC = () => {
             disabled={isLoading || !isDirty}
             className="h-12 px-6 text-white text-lg min-w-[48px] bg-primary hover:bg-primary/90"
           >
-            {isLoading ? "Saving..." : "Save Configuration"}
+            {isLoading ? t("settings.connection.saving") : t("settings.connection.save_button")}
           </Button>
         </form>
       </Form>

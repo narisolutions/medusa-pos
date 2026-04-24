@@ -1,10 +1,67 @@
 import { ReceiptData } from "@/types/utils";
 import { jsPDF } from "jspdf";
 import { formatDateOnly, formatTimeOnly, formatCurrencyRaw } from "@/utils/settings/preferences";
+import { sanitizePrinterString, type PrinterEncoding } from "./printer-encoding";
 
 export type { ReceiptData };
+export type { PrinterEncoding };
 
-const buildReceipt = (data: ReceiptData): string => {
+export type PaperWidth = "80mm" | "57mm";
+
+export type ReceiptLabels = {
+  title: string;
+  date: string;
+  time: string;
+  order: string;
+  customer: string;
+  customerGuest: string;
+  name: string;
+  email: string;
+  items: string;
+  orderTotals: string;
+  subtotal: string;
+  discount: string;
+  vat: string;
+  total: string;
+  paymentMethod: string;
+  amountPaid: string;
+  change: string;
+  thankYou: string;
+};
+
+export const DEFAULT_RECEIPT_LABELS: ReceiptLabels = {
+  title: "SALES RECEIPT",
+  date: "Date",
+  time: "Time",
+  order: "Order",
+  customer: "CUSTOMER",
+  customerGuest: "Guest",
+  name: "Name",
+  email: "Email",
+  items: "ITEMS",
+  orderTotals: "Order Totals",
+  subtotal: "Subtotal",
+  discount: "Discount",
+  vat: "VAT",
+  total: "Total",
+  paymentMethod: "Payment Method",
+  amountPaid: "Amount Paid",
+  change: "Change",
+  thankYou: "Thank you for your visit!",
+};
+
+const PAPER_CONFIG: Record<PaperWidth, { lineWidth: number; maxItemTitleLen: number; pdfPageWidth: number; pdfMargin: number }> = {
+  "80mm": { lineWidth: 48, maxItemTitleLen: 30, pdfPageWidth: 80, pdfMargin: 5 },
+  "57mm": { lineWidth: 32, maxItemTitleLen: 18, pdfPageWidth: 58, pdfMargin: 3 },
+};
+
+const buildReceipt = (
+  data: ReceiptData,
+  paperWidth: PaperWidth = "80mm",
+  labels: ReceiptLabels = DEFAULT_RECEIPT_LABELS,
+  encoding: PrinterEncoding = "ascii"
+): string => {
+  const { lineWidth, maxItemTitleLen } = PAPER_CONFIG[paperWidth];
   const currentDate = new Date();
   const dateStr = formatDateOnly(currentDate);
   const timeStr = formatTimeOnly(currentDate);
@@ -12,13 +69,13 @@ const buildReceipt = (data: ReceiptData): string => {
   const padLine = (
     left: string,
     right: string,
-    totalWidth: number = 48
+    totalWidth: number = lineWidth
   ): string => {
     const padding = totalWidth - left.length - right.length;
     return left + " ".repeat(Math.max(1, padding)) + right;
   };
 
-  const centerText = (text: string, totalWidth: number = 48): string => {
+  const centerText = (text: string, totalWidth: number = lineWidth): string => {
     const padding = Math.floor((totalWidth - text.length) / 2);
     return " ".repeat(Math.max(0, padding)) + text;
   };
@@ -26,30 +83,9 @@ const buildReceipt = (data: ReceiptData): string => {
   const fmtCurrency = (amount: number): string =>
     formatCurrencyRaw(amount, data.currency);
 
-  /**
-   * Sanitizes item title to only contain English alphabet letters and spaces.
-   * Removes accents (é -> e), emojis, and other special characters.
-   */
-  const sanitizeItemTitle = (title: string): string => {
-    if (!title) return "";
 
-    // Normalize Unicode characters (decomposes é into e + ́)
-    const normalized = title.normalize("NFD");
-
-    // Remove diacritical marks (accents) and keep only ASCII letters, spaces, and numbers
-    // This regex keeps: A-Z, a-z, 0-9, spaces, and basic punctuation like hyphens
-    const sanitized = normalized
-      .replace(/[\u0300-\u036f]/g, "") // Remove combining diacritical marks
-      .replace(/[^\x20-\x7E]/g, "") // Remove non-ASCII characters (emojis, etc.)
-      .replace(/[^a-zA-Z0-9\s-]/g, "") // Keep only letters, numbers, spaces, and hyphens
-      .replace(/\s+/g, " ") // Replace multiple spaces with single space
-      .trim();
-
-    return sanitized;
-  };
-
-  const separator = "================================================";
-  const thinSeparator = "------------------------------------------------";
+  const separator = "=".repeat(lineWidth);
+  const thinSeparator = "-".repeat(lineWidth);
 
   let receipt = `${centerText(data.companyName)}
   ${centerText(data.storeName)}
@@ -63,28 +99,28 @@ const buildReceipt = (data: ReceiptData): string => {
     receipt += `\n${centerText(`Tel: ${data.storePhone}`)}`;
   }
 
-  receipt += `\n\n${separator}\n${centerText("SALES RECEIPT")}\n${separator}\nDate: ${dateStr}                Time: ${timeStr}`;
+  receipt += `\n\n${separator}\n${centerText(labels.title)}\n${separator}\n${labels.date}: ${dateStr}                ${labels.time}: ${timeStr}`;
 
-  receipt += `\nOrder: #${data.orderDisplayId}`;
+  receipt += `\n${labels.order}: #${data.orderDisplayId}`;
 
   const guestEmail = data.guestEmail;
 
   if (data.customerName || data.customerEmail) {
     receipt += `\n${thinSeparator}`;
     if (guestEmail && data.customerEmail === guestEmail) {
-      receipt += `\nCustomer: Guest`;
+      receipt += `\n${labels.customer}: ${labels.customerGuest}`;
     } else {
-      receipt += `\nCUSTOMER:`;
+      receipt += `\n${labels.customer}:`;
       if (data.customerName) {
-        receipt += `\nName: ${data.customerName}`;
+        receipt += `\n${labels.name}: ${data.customerName}`;
       }
       if (data.customerEmail) {
-        receipt += `\nEmail: ${data.customerEmail}`;
+        receipt += `\n${labels.email}: ${data.customerEmail}`;
       }
     }
   }
 
-  receipt += `\n\n${thinSeparator}\nITEMS:\n${thinSeparator}`;
+  receipt += `\n\n${thinSeparator}\n${labels.items}:\n${thinSeparator}`;
 
   // Add items with quantity
   data.items.forEach((item) => {
@@ -118,11 +154,11 @@ const buildReceipt = (data: ReceiptData): string => {
         ? toNumber(item.total)
         : toNumber(item.unit_price) * toNumber(item.quantity);
 
-    // Sanitize and truncate item title to 30 characters
-    const sanitizedTitle = sanitizeItemTitle(item.title);
+    // Sanitize and truncate item title to fit the paper width
+    const sanitizedTitle = sanitizePrinterString(item.title, encoding);
     const itemName =
-      sanitizedTitle.length > 30
-        ? sanitizedTitle.substring(0, 30)
+      sanitizedTitle.length > maxItemTitleLen
+        ? sanitizedTitle.substring(0, maxItemTitleLen)
         : sanitizedTitle;
 
     // Item name and total on first line
@@ -134,7 +170,7 @@ const buildReceipt = (data: ReceiptData): string => {
 
     // Item discount if any
     if (item.discount_total && toNumber(item.discount_total) > 0) {
-      receipt += `\n  Discount: -${fmtCurrency(toNumber(item.discount_total))}`;
+      receipt += `\n  ${labels.discount}: -${fmtCurrency(toNumber(item.discount_total))}`;
     }
   });
 
@@ -152,44 +188,45 @@ const buildReceipt = (data: ReceiptData): string => {
   const hasDiscount = discountAmount > 0;
 
   // Order Totals section
-  receipt += `\nOrder Totals:`;
+  receipt += `\n${labels.orderTotals}:`;
 
   // Only show Subtotal and Discount if there is a discount
   if (hasDiscount) {
     // Subtotal before discount is applied (includes VAT and discount amount)
     const subtotalBeforeDiscount = data.subtotal + data.tax + discountAmount;
-    receipt += `\n${padLine("Subtotal:", fmtCurrency(subtotalBeforeDiscount))}`;
-    receipt += `\n${padLine("Discount:", fmtCurrency(discountAmount))}`;
+    receipt += `\n${padLine(labels.subtotal + ":", fmtCurrency(subtotalBeforeDiscount))}`;
+    receipt += `\n${padLine(labels.discount + ":", fmtCurrency(discountAmount))}`;
   }
 
-  receipt += `\n${padLine("VAT:", fmtCurrency(data.tax))}`;
-  receipt += `\n${padLine("Total:", fmtCurrency(data.total))}`;
+  receipt += `\n${padLine(labels.vat + ":", fmtCurrency(data.tax))}`;
+  receipt += `\n${padLine(labels.total + ":", fmtCurrency(data.total))}`;
 
-  receipt += `\n\nPayment Method: ${data.paymentMethod}`;
+  receipt += `\n\n${labels.paymentMethod}: ${data.paymentMethod}`;
 
   if (data.amountPaid) {
-    receipt += `\n${padLine("Amount Paid:", fmtCurrency(data.amountPaid))}`;
+    receipt += `\n${padLine(labels.amountPaid + ":", fmtCurrency(data.amountPaid))}`;
   }
 
   if (data.change && data.change > 0) {
-    receipt += `\n${padLine("Change:", fmtCurrency(data.change))}`;
+    receipt += `\n${padLine(labels.change + ":", fmtCurrency(data.change))}`;
   }
 
-  receipt += `\n\n${centerText(data.footer || "Thank you for your visit!")}`;
+  receipt += `\n\n${centerText(data.footer || labels.thankYou)}`;
   receipt += `\n\n${separator}\n`;
 
   return receipt;
 };
 
-const buildReceiptPDF = (data: ReceiptData): Uint8Array => {
+const buildReceiptPDF = (data: ReceiptData, paperWidth: PaperWidth = "80mm", labels: ReceiptLabels = DEFAULT_RECEIPT_LABELS): Uint8Array => {
+  const { pdfPageWidth, pdfMargin, maxItemTitleLen } = PAPER_CONFIG[paperWidth];
   const doc = new jsPDF({
     orientation: "portrait",
     unit: "mm",
-    format: [80, 200],
+    format: [pdfPageWidth, 200],
   });
 
   const pageWidth = doc.internal.pageSize.getWidth();
-  const margin = 5;
+  const margin = pdfMargin;
   let yPosition = 8;
 
   // Helper to add text with alignment
@@ -268,7 +305,7 @@ const buildReceiptPDF = (data: ReceiptData): Uint8Array => {
   addSeparator("thick", 2, 4);
   
   // Receipt Title
-  addText("SALES RECEIPT", "center", 12, true, 5);
+  addText(labels.title, "center", 12, true, 5);
   addSeparator("thin", 0, 4);
 
   // Order Information
@@ -276,9 +313,9 @@ const buildReceiptPDF = (data: ReceiptData): Uint8Array => {
   const dateStr = formatDateOnly(currentDate);
   const timeStr = formatTimeOnly(currentDate);
   
-  addTwoColumn("Date:", dateStr, false, 5);
-  addTwoColumn("Time:", timeStr, false, 5);
-  addTwoColumn("Order:", `#${data.orderDisplayId}`, true, 5);
+  addTwoColumn(labels.date + ":", dateStr, false, 5);
+  addTwoColumn(labels.time + ":", timeStr, false, 5);
+  addTwoColumn(labels.order + ":", `#${data.orderDisplayId}`, true, 5);
 
   const guestEmail = data.guestEmail;
 
@@ -286,14 +323,14 @@ const buildReceiptPDF = (data: ReceiptData): Uint8Array => {
   if (data.customerName || data.customerEmail) {
     addSpacing(2);
     if (guestEmail && data.customerEmail === guestEmail) {
-      addTwoColumn("Customer:", "Guest", false, 5);
+      addTwoColumn(labels.customer + ":", labels.customerGuest, false, 5);
     } else {
-      addText("CUSTOMER:", "left", 9, true, 4);
+      addText(labels.customer + ":", "left", 9, true, 4);
       if (data.customerName) {
-        addTwoColumn("Name:", data.customerName, false, 5);
+        addTwoColumn(labels.name + ":", data.customerName, false, 5);
       }
       if (data.customerEmail) {
-        addTwoColumn("Email:", data.customerEmail, false, 5);
+        addTwoColumn(labels.email + ":", data.customerEmail, false, 5);
       }
     }
   }
@@ -301,14 +338,14 @@ const buildReceiptPDF = (data: ReceiptData): Uint8Array => {
   addSeparator("thin", 3, 4);
 
   // Items Section
-  addText("ITEMS", "left", 10, true, 5);
+  addText(labels.items, "left", 10, true, 5);
 
   data.items.forEach((item) => {
     const itemTotal = item.total !== undefined
       ? toNumber(item.total)
       : toNumber(item.unit_price) * toNumber(item.quantity);
 
-    const itemTitle = String(item.title || "").substring(0, 25);
+    const itemTitle = String(item.title || "").substring(0, Math.max(10, maxItemTitleLen - 7));
     const totalStr = formatCurrencyRaw(itemTotal, data.currency);
     
     // Item name and total
@@ -326,7 +363,7 @@ const buildReceiptPDF = (data: ReceiptData): Uint8Array => {
       const discountStr = `-${formatCurrencyRaw(toNumber(item.discount_total), data.currency)}`;
       doc.setFontSize(8);
       doc.setFont("helvetica", "italic");
-      doc.text(`  Discount: ${discountStr}`, margin + 2, yPosition);
+      doc.text(`  ${labels.discount}: ${discountStr}`, margin + 2, yPosition);
       yPosition += 4;
     }
     
@@ -337,37 +374,37 @@ const buildReceiptPDF = (data: ReceiptData): Uint8Array => {
   addSeparator("thin", 2, 4);
 
   // Order Totals Section
-  addText("ORDER TOTALS", "left", 10, true, 5);
+  addText(labels.orderTotals.toUpperCase(), "left", 10, true, 5);
 
   const discountAmount = toNumber(data.discount);
   const hasDiscount = discountAmount > 0;
 
   if (hasDiscount) {
     const subtotalBeforeDiscount = data.subtotal + data.tax + discountAmount;
-    addTwoColumn("Subtotal:", formatCurrencyRaw(subtotalBeforeDiscount, data.currency), false, 5);
-    addTwoColumn("Discount:", `-${formatCurrencyRaw(discountAmount, data.currency)}`, false, 5);
+    addTwoColumn(labels.subtotal + ":", formatCurrencyRaw(subtotalBeforeDiscount, data.currency), false, 5);
+    addTwoColumn(labels.discount + ":", `-${formatCurrencyRaw(discountAmount, data.currency)}`, false, 5);
   }
 
-  addTwoColumn("VAT:", formatCurrencyRaw(data.tax, data.currency), false, 5);
+  addTwoColumn(labels.vat + ":", formatCurrencyRaw(data.tax, data.currency), false, 5);
   
   addSeparator("thin", 2, 4);
-  addTwoColumn("TOTAL:", formatCurrencyRaw(data.total, data.currency), true, 5);
+  addTwoColumn(labels.total.toUpperCase() + ":", formatCurrencyRaw(data.total, data.currency), true, 5);
   addSeparator("thin", 2, 4);
 
   // Payment Information
-  addTwoColumn("Payment Method:", data.paymentMethod, false, 5);
+  addTwoColumn(labels.paymentMethod + ":", data.paymentMethod, false, 5);
 
   if (data.amountPaid) {
-    addTwoColumn("Amount Paid:", formatCurrencyRaw(data.amountPaid, data.currency), false, 5);
+    addTwoColumn(labels.amountPaid + ":", formatCurrencyRaw(data.amountPaid, data.currency), false, 5);
   }
 
   if (data.change && data.change > 0) {
-    addTwoColumn("Change:", formatCurrencyRaw(data.change, data.currency), false, 5);
+    addTwoColumn(labels.change + ":", formatCurrencyRaw(data.change, data.currency), false, 5);
   }
 
   // Footer
   addSeparator("thin", 4, 4);
-  addText(data.footer || "Thank you for your visit!", "center", 9, false, 5);
+  addText(data.footer || labels.thankYou, "center", 9, false, 5);
   addSpacing(3);
   addSeparator("thick", 0, 0);
 

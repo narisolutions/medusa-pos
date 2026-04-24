@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { AdminOrder } from "@medusajs/types";
-import { buildReceipt, buildReceiptPDF, ReceiptData } from "@/utils/pos/receipt";
+import { buildReceipt, buildReceiptPDF, ReceiptData, DEFAULT_RECEIPT_LABELS } from "@/utils/pos/receipt";
+import { useTranslation } from "@/i18n";
 import { toast } from "sonner";
 import storage from "@/utils/storage";
 import { Printer } from "@/components/settings/printer/hooks";
@@ -23,6 +24,7 @@ const usePrinterService = () => {
   const [printers, setPrinters] = useState<Printer[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const { data: store } = useQueryStore();
+  const { t } = useTranslation();
 
   useEffect(() => {
     loadPrinters();
@@ -126,37 +128,55 @@ const usePrinterService = () => {
 
   // Helper function to build receipt data from order
   const buildReceiptDataFromOrder = useCallback((order: AdminOrder): ReceiptData => {
-    const receiptItems = order.items || [];
-
-    // Calculate item discounts from metadata
-    let itemDiscountsTotal = 0;
-    receiptItems.forEach((item) => {
-      const itemMetadata = item.metadata as
+    // Map items, computing discount_total per item from metadata
+    const mappedReceiptItems = (order.items || []).map((item) => {
+      const itemMeta = item.metadata as
         | {
             item_discount?: { type: "amount" | "percent"; value: number };
-            original_price?: number;
+            original_unit_price?: number;
           }
         | undefined;
-
-      if (itemMetadata?.item_discount) {
-        const discount = itemMetadata.item_discount;
-        const quantity = item.quantity || 1;
-
-        if (discount.type === "amount") {
-          itemDiscountsTotal += discount.value * quantity;
-        } else if (discount.type === "percent") {
-          const originalPrice =
-            itemMetadata.original_price || item.unit_price || 0;
-          const discountAmount = (originalPrice * discount.value) / 100;
-          itemDiscountsTotal += discountAmount * quantity;
+      let itemDiscountAmount = 0;
+      if (itemMeta?.item_discount) {
+        const { type, value } = itemMeta.item_discount;
+        const qty = item.quantity || 1;
+        if (type === "amount") {
+          itemDiscountAmount = value * qty;
+        } else {
+          const base = itemMeta.original_unit_price ?? item.unit_price ?? 0;
+          itemDiscountAmount = (base * value / 100) * qty;
         }
       }
+      return {
+        ...item,
+        discount_total: itemDiscountAmount > 0 ? itemDiscountAmount : (item.discount_total || 0),
+      };
     });
+
+    // Sum item-level discounts
+    const itemDiscountsTotal = mappedReceiptItems.reduce(
+      (acc, item) => acc + (item.discount_total || 0),
+      0
+    );
+
+    // Add order-level discount from metadata
+    const orderMeta = order.metadata as
+      | { order_discount?: { type: "amount" | "percent"; value: number } }
+      | null
+      | undefined;
+    let orderDiscountAmount = 0;
+    if (orderMeta?.order_discount?.value) {
+      const { type, value } = orderMeta.order_discount;
+      const base = (order.subtotal || 0) - itemDiscountsTotal;
+      orderDiscountAmount = type === "percent"
+        ? (base * value) / 100
+        : Math.min(value, base);
+    }
 
     const subtotal = order.subtotal || 0;
     const tax = order.tax_total || 0;
     const total = order.total || 0;
-    const discount = (order.discount_total || 0) + itemDiscountsTotal;
+    const discount = (order.discount_total || 0) + itemDiscountsTotal + orderDiscountAmount;
     const cashPaid: number = typeof order.metadata?.cash_paid === "number" 
       ? order.metadata.cash_paid 
       : 0;
@@ -197,7 +217,7 @@ const usePrinterService = () => {
           ? `${order.customer.first_name} ${order.customer.last_name}`.trim()
           : undefined,
       guestEmail: getGuestCustomerEmail(store),
-      items: receiptItems,
+      items: mappedReceiptItems,
       subtotal,
       tax,
       taxRate: 18,
@@ -211,6 +231,28 @@ const usePrinterService = () => {
     };
   }, [store]);
 
+  const getReceiptLabels = useCallback(() => ({
+    ...DEFAULT_RECEIPT_LABELS,
+    title: t("receipt.title"),
+    date: t("receipt.date"),
+    time: t("receipt.time"),
+    order: t("receipt.order"),
+    customer: t("receipt.customer"),
+    customerGuest: t("receipt.customer_guest"),
+    name: t("receipt.name"),
+    email: t("receipt.email"),
+    items: t("receipt.items"),
+    orderTotals: t("receipt.order_totals"),
+    subtotal: t("receipt.subtotal"),
+    discount: t("receipt.discount"),
+    vat: t("receipt.vat"),
+    total: t("receipt.total"),
+    paymentMethod: t("receipt.payment_method"),
+    amountPaid: t("receipt.amount_paid"),
+    change: t("receipt.change"),
+    thankYou: t("receipt.thank_you"),
+  }), [t]);
+
   const printOrderReceipt = useCallback(
     async (
       order: AdminOrder,
@@ -223,7 +265,9 @@ const usePrinterService = () => {
 
       try {
         const receiptData = buildReceiptDataFromOrder(order);
-        const receiptText = buildReceipt(receiptData);
+        const paperWidth = printer.paperWidth ?? "80mm";
+        const encoding = (printer as Printer & { encoding?: string }).encoding as import("@/utils/pos/receipt/printer-encoding").PrinterEncoding ?? "ascii";
+        const receiptText = buildReceipt(receiptData, paperWidth, getReceiptLabels(), encoding);
         await printReceiptText(receiptText, printer);
 
         return { success: true, receiptData };
@@ -239,14 +283,15 @@ const usePrinterService = () => {
         throw error;
       }
     },
-    [getDefaultPrinter, printReceiptText, buildReceiptDataFromOrder]
+    [getDefaultPrinter, printReceiptText, buildReceiptDataFromOrder, getReceiptLabels]
   );
 
   const downloadReceiptAsPDF = useCallback(
     async (order: AdminOrder): Promise<void> => {
       try {
         const receiptData = buildReceiptDataFromOrder(order);
-        const pdfBytes = buildReceiptPDF(receiptData);
+        const defaultPrinter = getDefaultPrinter();
+        const pdfBytes = buildReceiptPDF(receiptData, defaultPrinter?.paperWidth ?? "80mm", getReceiptLabels());
 
         // Generate filename
         const orderId = order.display_id?.toString() || "N/A";
@@ -277,7 +322,7 @@ const usePrinterService = () => {
         throw error;
       }
     },
-    [buildReceiptDataFromOrder]
+    [buildReceiptDataFromOrder, getDefaultPrinter, getReceiptLabels]
   );
 
   return {

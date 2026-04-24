@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
+import { useTranslation } from "@/i18n";
 import { AdminOrder } from "@medusajs/types";
 import { toast } from "sonner";
 import {
@@ -41,6 +42,7 @@ export function getOrderContactEmail(order: AdminOrder): string | undefined {
 export const useOrder = (order: AdminOrder) => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const { t } = useTranslation();
   const { printOrderReceipt, downloadReceiptAsPDF, getDefaultPrinter } =
     usePrinterService();
   const [isPrinting, setIsPrinting] = useState(false);
@@ -77,21 +79,19 @@ export const useOrder = (order: AdminOrder) => {
 
   const handleReprintReceipt = async () => {
     if (isPrinting) return;
-
     setIsPrinting(true);
     try {
       await printOrderReceipt(order);
-      toast.success("Receipt sent to printer");
+      toast.success(t("orders.receipt_sent_to_printer"));
     } catch {
       const printer = getDefaultPrinter();
       if (printer) {
-        toast.error("The receipt did not print", {
+        toast.error(t("orders.receipt_did_not_print"), {
           description: printerIssueStaffHintToast(printer.name),
         });
       } else {
-        toast.error("The receipt did not print", {
-          description:
-            "No default printer is set. Add one under Settings → Printers.",
+        toast.error(t("orders.receipt_did_not_print"), {
+          description: t("checkout.no_default_printer"),
         });
       }
     } finally {
@@ -106,7 +106,7 @@ export const useOrder = (order: AdminOrder) => {
     try {
       await downloadReceiptAsPDF(order);
     } catch {
-      handleErrorToast("Failed to download receipt. Please try again.");
+      handleErrorToast(t("orders.failed_to_download_receipt"));
     } finally {
       setIsDownloadingPDF(false);
     }
@@ -161,17 +161,17 @@ export const useOrder = (order: AdminOrder) => {
       }
 
       const { filename } = await triggerFileDownload(response);
-      toast.success(`Shipping label downloaded successfully: ${filename}`, {
-        description: "Saved to your Downloads folder",
+      toast.success(t("orders.shipping_label_downloaded", { filename }), {
+        description: t("printer_service.saved_to_downloads"),
         action: {
-          label: "Open Folder",
+          label: t("printer_service.open_folder_button"),
           onClick: () => openDownloadsFolder(filename),
         },
       });
     } catch (error) {
       const errorMessage =
         error instanceof Error ? error.message : "Unknown error";
-      handleErrorToast(`Failed to download shipping label: ${errorMessage}`);
+      handleErrorToast(t("orders.failed_to_download_shipping_label", { error: errorMessage }));
     } finally {
       setIsDownloading(false);
     }
@@ -182,7 +182,7 @@ export const useOrder = (order: AdminOrder) => {
 
     const label = fulfillment.labels?.[0];
     if (!label) {
-      handleErrorToast("No shipping label found for this fulfillment");
+      handleErrorToast(t("orders.no_shipping_label"));
       return;
     }
 
@@ -199,12 +199,12 @@ export const useOrder = (order: AdminOrder) => {
         ],
       });
 
-      toast.success("Shipment created successfully");
+      toast.success(t("orders.shipment_created_success"));
       invalidateOrderQueries();
     } catch (error) {
       const errorMessage =
         error instanceof Error ? error.message : "Unknown error";
-      handleErrorToast(`Failed to create shipment: ${errorMessage}`);
+      handleErrorToast(t("orders.failed_to_create_shipment", { error: errorMessage }));
     } finally {
       setIsCreatingShipment(false);
     }
@@ -212,7 +212,7 @@ export const useOrder = (order: AdminOrder) => {
 
   const handleOpenPickupConfirmation = () => {
     if (!fulfillment?.id) {
-      handleErrorToast("No fulfillment found for this order");
+      handleErrorToast(t("orders.no_fulfillment_found"));
       return;
     }
     setIsPickupConfirmationOpen(true);
@@ -221,7 +221,7 @@ export const useOrder = (order: AdminOrder) => {
   const handleMarkAsPickedUp = async () => {
     if (isMarkingAsPickedUp || !fulfillment?.id) {
       if (!fulfillment?.id) {
-        handleErrorToast("No fulfillment found for this order");
+        handleErrorToast(t("orders.no_fulfillment_found"));
       }
       return;
     }
@@ -232,13 +232,13 @@ export const useOrder = (order: AdminOrder) => {
       const sdk = getSdk();
       await sdk.admin.order.markAsDelivered(order.id, fulfillment.id);
 
-      toast.success("Order marked as picked up successfully");
+      toast.success(t("orders.marked_as_picked_up_success"));
       invalidateOrderQueries();
       navigate("/orders");
     } catch (error) {
       const errorMessage =
         error instanceof Error ? error.message : "Unknown error";
-      handleErrorToast(`Failed to mark as picked up: ${errorMessage}`);
+      handleErrorToast(t("orders.failed_to_mark_as_picked_up", { error: errorMessage }));
     } finally {
       setIsMarkingAsPickedUp(false);
     }

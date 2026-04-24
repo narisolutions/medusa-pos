@@ -4,6 +4,7 @@ import { Numpad } from "@/components/ui/numpad";
 import { useCheckout } from "../../hooks";
 import { useCartStore } from "@/context/cart";
 import { OrderDiscount } from "@/types/utils";
+import { useTranslation } from "@/i18n";
 
 type Props = {
   open: boolean;
@@ -13,6 +14,7 @@ type Props = {
 const DiscountModal: React.FC<Props> = ({ open, onClose }) => {
   const { selectedItemId, setItemMetadata } = useCartStore();
   const { items } = useCheckout();
+  const { t } = useTranslation();
 
   const currentItem = items.find((i) => i.variant_id === selectedItemId);
   const currentItemDiscount =
@@ -73,16 +75,16 @@ const DiscountModal: React.FC<Props> = ({ open, onClose }) => {
   return (
     <Dialog open={open} onOpenChange={handleDialogOpenChange}>
       <DialogContent className="max-w-lg">
-        <DialogTitle className="text-xl font-semibold">Item Discount</DialogTitle>
+        <DialogTitle className="text-xl font-semibold">{t("checkout.discount_dialog_title")}</DialogTitle>
         <div className="space-y-4">
           {selectedItemId ? (
             <Fragment>
               <label className="text-sm text-fg-muted">
-                Apply discount to: <b>{currentItem?.title}</b>
+                {t("checkout.apply_discount_label")}<b>{currentItem?.title}</b>
               </label>
 
               <div className="space-y-2">
-                <label className="text-sm text-fg-muted">Discount Type</label>
+                <label className="text-sm text-fg-muted">{t("checkout.discount_type_label")}</label>
                 <div className="flex gap-4">
                   <label className="flex items-center gap-2 cursor-pointer">
                     <input
@@ -92,7 +94,7 @@ const DiscountModal: React.FC<Props> = ({ open, onClose }) => {
                       onChange={() => handleTypeChange("amount")}
                       className="w-4 h-4 border-theme-border-strong text-primary focus:ring-primary/30"
                     />
-                    <span className="text-sm">Amount</span>
+                    <span className="text-sm">{t("checkout.discount_amount")}</span>
                   </label>
                   <label className="flex items-center gap-2 cursor-pointer">
                     <input
@@ -102,15 +104,15 @@ const DiscountModal: React.FC<Props> = ({ open, onClose }) => {
                       onChange={() => handleTypeChange("percent")}
                       className="w-4 h-4 border-theme-border-strong text-primary focus:ring-primary/30"
                     />
-                    <span className="text-sm">Percentage</span>
+                    <span className="text-sm">{t("checkout.discount_percentage")}</span>
                   </label>
                 </div>
               </div>
 
               <div className="space-y-2">
                 <label className="text-sm text-fg-muted">
-                  Discount Value {discountType === "percent" && "(%)"}
-                  {discountType === "amount" && "(Amount)"}
+                  {t("checkout.discount_value_label")}{discountType === "percent" && "(%)"}
+                  {discountType === "amount" && `(${t("checkout.discount_amount")})`}
                 </label>
                 <div className="text-2xl font-semibold text-center p-3 border border-theme-border-strong rounded-md bg-surface-muted">
                   {discountValue || "0"}
@@ -126,7 +128,7 @@ const DiscountModal: React.FC<Props> = ({ open, onClose }) => {
             </Fragment>
           ) : (
             <div className="flex h-[400px] w-full items-center justify-center rounded-md border border-theme-border-strong bg-surface-muted text-base text-fg-subtle">
-              Please select an item to apply a discount.
+              {t("checkout.select_item_for_discount")}
             </div>
           )}
         </div>

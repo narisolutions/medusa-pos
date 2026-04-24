@@ -1,4 +1,5 @@
 import { useState, useCallback, useMemo, useRef } from "react";
+import { useTranslation } from "@/i18n";
 import { AdminOrder } from "@medusajs/types";
 import { toast } from "sonner";
 import { getSdk } from "@/config/medusa";
@@ -32,6 +33,7 @@ export const useFulfillmentDialog = (
   onClose?: () => void
 ) => {
   const queryClient = useQueryClient();
+  const { t } = useTranslation();
   const [isProcessing, setIsProcessing] = useState(false);
   const [selectedLocationId, setSelectedLocationId] = useState<string>("");
   const [selectedShippingOptionId, setSelectedShippingOptionId] =
@@ -69,7 +71,7 @@ export const useFulfillmentDialog = (
 
   const handleCreateFulfillment = useCallback(async () => {
     if (!hasSelectedItems) {
-      handleErrorToast("Please select at least one item to fulfill");
+      handleErrorToast(t("orders.select_at_least_one_item"));
       return;
     }
 
@@ -82,7 +84,7 @@ export const useFulfillmentDialog = (
       }));
 
     if (itemsToFulfill.length === 0) {
-      handleErrorToast("Please select at least one item to fulfill");
+      handleErrorToast(t("orders.select_at_least_one_item"));
       return;
     }
 
@@ -92,8 +94,8 @@ export const useFulfillmentDialog = (
     );
 
     if (!shippingOptionId) {
-      toast.error("No shipping on this order", {
-        description: "Add a shipping method in Medusa Admin, then try again.",
+      toast.error(t("orders.no_shipping_on_order"), {
+        description: t("orders.add_shipping_method_hint"),
       });
       return;
     }
@@ -139,7 +141,7 @@ export const useFulfillmentDialog = (
         throw new Error("Failed to get fulfillment ID");
       }
 
-      toast.success("Fulfillment created successfully");
+      toast.success(t("orders.fulfillment_created_success"));
 
       // Invalidate order query to refetch updated order data
       queryClient.invalidateQueries({ queryKey: ["order", order.id] });
@@ -149,9 +151,9 @@ export const useFulfillmentDialog = (
     } catch (error) {
       console.error("Fulfillment error:", error);
       handleErrorToast(
-        `Failed to create fulfillment: ${
-          error instanceof Error ? error.message : "Unknown error"
-        }`
+        t("orders.failed_to_create_fulfillment", {
+          error: error instanceof Error ? error.message : t("common.error"),
+        })
       );
     } finally {
       setIsProcessing(false);
@@ -164,6 +166,7 @@ export const useFulfillmentDialog = (
     selectedShippingOptionId,
     onClose,
     queryClient,
+    t,
   ]);
 
   const handleClose = useCallback(() => {

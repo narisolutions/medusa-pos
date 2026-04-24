@@ -20,9 +20,11 @@ import {
 import { useOrdersWithData } from "./hooks";
 import Header from "./table-header";
 import Footer from "./table-footer";
+import { useTranslation } from "@/i18n";
 
 const Orders: React.FC = () => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const {
     data: orders,
     isLoading,
@@ -172,10 +174,10 @@ const Orders: React.FC = () => {
                     {isLoading ? (
                       <div className="flex items-center justify-center gap-3">
                         <div className="w-5 h-5 border-2 border-theme-border border-t-theme-border-strong rounded-full animate-spin"></div>
-                        <span className="text-base">Loading...</span>
+                        <span className="text-base">{t("orders.loading")}</span>
                       </div>
                     ) : (
-                      <span className="text-base">No orders found</span>
+                      <span className="text-base">{t("orders.empty_state")}</span>
                     )}
                   </TableCell>
                 </TableRow>
