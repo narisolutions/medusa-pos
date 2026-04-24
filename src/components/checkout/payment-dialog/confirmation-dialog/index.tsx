@@ -3,6 +3,7 @@ import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { formatPrice } from "@/utils/helpers";
 import { useCheckout } from "../../hooks";
+import { useTranslation } from "@/i18n";
 
 interface ConfirmationDialogProps {
   isOpen: boolean;
@@ -20,21 +21,22 @@ const ConfirmationDialog: React.FC<ConfirmationDialogProps> = ({
   total,
 }) => {
   const { currency } = useCheckout();
+  const { t } = useTranslation();
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onCancel()}>
       <DialogContent className="max-w-md">
         <DialogTitle className="text-2xl font-semibold text-fg text-center">
-          Confirm Payment
+          {t("checkout.confirm_payment_title")}
         </DialogTitle>
 
         <div className="space-y-6 py-4">
           <p className="text-lg text-fg-muted text-center">
-            Please confirm that the payment on the terminal was successful.
+            {t("checkout.confirm_payment_message")}
           </p>
-          
+
           <div className="bg-blue-50 border-2 border-blue-200 rounded-lg p-4">
             <p className="text-center text-blue-800 font-medium">
-              Amount:{" "}
+              {t("checkout.amount_label")}:{" "}
               <span className="text-2xl font-bold">
                 {formatPrice(total, currency)}
               </span>
@@ -49,14 +51,14 @@ const ConfirmationDialog: React.FC<ConfirmationDialogProps> = ({
             className="flex-1 h-14 text-lg font-medium"
             disabled={isProcessing}
           >
-            Cancel
+            {t("common.cancel")}
           </Button>
           <Button
             onClick={onConfirm}
             disabled={isProcessing}
             className="flex-1 h-14 text-lg font-medium bg-green-600 hover:bg-green-700 text-white"
           >
-            {isProcessing ? "Processing..." : "Payment Successful"}
+            {isProcessing ? t("common.processing") : t("checkout.payment_successful_button")}
           </Button>
         </div>
       </DialogContent>

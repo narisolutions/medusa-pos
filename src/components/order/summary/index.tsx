@@ -3,12 +3,14 @@ import { AdminOrder } from "@medusajs/types";
 import { Receipt } from "lucide-react";
 import { formatPrice } from "@/utils/helpers";
 import constants from "@/utils/constants";
+import { useTranslation } from "@/i18n";
 
 interface SummaryProps {
   order: AdminOrder;
 }
 
 const Summary: React.FC<SummaryProps> = ({ order }) => {
+  const { t } = useTranslation();
   const {
     subtotal,
     discount_total,
@@ -54,19 +56,19 @@ const Summary: React.FC<SummaryProps> = ({ order }) => {
       <div className="px-6 py-4 border-b border-theme-border bg-surface-muted">
         <div className="flex items-center gap-2">
           <Receipt className="w-5 h-5 text-fg-muted" />
-          <h2 className="text-lg font-semibold text-fg">Order Summary</h2>
+          <h2 className="text-lg font-semibold text-fg">{t("orders.order_summary_header")}</h2>
         </div>
       </div>
       <div className="p-6">
         <div className="grid grid-cols-2 gap-4">
           <div className="text-center">
-            <p className="text-base text-fg-muted">Subtotal</p>
+            <p className="text-base text-fg-muted">{t("orders.subtotal_label")}</p>
             <p className="text-lg font-semibold text-fg">
               {formatPrice(subtotal || 0, currency)}
             </p>
           </div>
           <div className="text-center">
-            <p className="text-base text-fg-muted">Discount</p>
+            <p className="text-base text-fg-muted">{t("orders.discount_label")}</p>
           <div
             className={`text-lg font-semibold ${
               displayed_discount > 0 ? "text-red-600" : "text-fg"
@@ -77,19 +79,19 @@ const Summary: React.FC<SummaryProps> = ({ order }) => {
           </div>
           </div>
           <div className="text-center">
-            <p className="text-base text-fg-muted">Shipping</p>
+            <p className="text-base text-fg-muted">{t("orders.shipping_label")}</p>
             <p className="text-lg font-semibold text-fg">
               {formatPrice(shipping_total || 0, currency)}
             </p>
           </div>
           <div className="text-center">
-            <p className="text-base text-fg-muted">VAT</p>
+            <p className="text-base text-fg-muted">{t("orders.vat_label")}</p>
             <p className="text-lg font-semibold text-fg">
               {formatPrice(tax_total || 0, currency)}
             </p>
           </div>
           <div className="text-center col-span-2 border-t border-theme-border pt-4 mt-2">
-            <p className="text-base text-fg-muted">Total</p>
+            <p className="text-base text-fg-muted">{t("orders.total_label")}</p>
             <p className="text-2xl font-bold text-fg">
               {formatPrice(total, currency)}
             </p>

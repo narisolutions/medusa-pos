@@ -1,6 +1,7 @@
 import { useState, useCallback, useEffect, useMemo } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import { toast } from "sonner";
+import { useTranslation } from "@/i18n";
 import { useQueryClient } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { useQuerySalesChannel } from "@/hooks/queries/useQuerySalesChannel";
@@ -21,6 +22,7 @@ interface Props {
 }
 
 export const useConnectionSettings = ({ form }: Props) => {
+  const { t } = useTranslation();
   const [isLoading, setIsLoading] = useState(false);
   const [initialValues, setInitialValues] = useState<Preferences>({});
   const admin = useUser((state) => state.admin);
@@ -89,7 +91,7 @@ export const useConnectionSettings = ({ form }: Props) => {
         setInitialValues(configValues);
         reset(configValues);
       } catch {
-        handleErrorToast("No existing config found or failed to load");
+        handleErrorToast(t("settings.connection.load_error"));
 
         const defaultValues = {
           backend_url: "",
@@ -124,7 +126,7 @@ export const useConnectionSettings = ({ form }: Props) => {
           const healthResult = await checkBackendHealth(url);
           if (!healthResult.success) {
             handleErrorToast(
-              `Cannot reach backend: ${healthResult.error}. Please check the URL and try again.`
+              t("settings.connection.cannot_reach_backend", { error: healthResult.error })
             );
             return;
           }
@@ -165,25 +167,25 @@ export const useConnectionSettings = ({ form }: Props) => {
           stock_location: data.stock_location || "",
         });
 
-        toast.success("Configuration saved successfully");
+        toast.success(t("settings.connection.saved"));
       } catch (error) {
-        let errorMessage = "Unknown error occurred";
+        let errorMessage = t("common.error");
         if (error instanceof Error) {
-          errorMessage = error.message || "Unknown error occurred";
+          errorMessage = error.message || t("common.error");
         } else if (typeof error === "string") {
           errorMessage = error;
         } else if (error && typeof error === "object" && "message" in error) {
           errorMessage =
             String((error as { message: unknown }).message) ||
-            "Unknown error occurred";
+            t("common.error");
         }
 
-        handleErrorToast(`Failed to save configuration: ${errorMessage}`);
+        handleErrorToast(t("settings.connection.save_failed", { error: errorMessage }));
       } finally {
         setIsLoading(false);
       }
     },
-    [initialValues, queryClient, setSalesChannelId, setNeedsWarning]
+    [initialValues, queryClient, setSalesChannelId, setNeedsWarning, t]
   );
 
   // Get current selected sales channel name for display

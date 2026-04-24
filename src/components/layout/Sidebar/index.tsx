@@ -13,42 +13,24 @@ import { ChevronLeft, LogOut, Settings } from "lucide-react";
 import Payments from "@/assets/icons/payments";
 import Checkout from "@/assets/icons/checkout";
 import { useUnfulfilledOrdersCount } from "@/hooks/queries/useUnfulfilledOrdersCount";
-
-const mainMenuItems = [
-  {
-    id: "checkout",
-    label: "POS",
-    to: "/checkout",
-    icon: Checkout,
-  },
-  {
-    id: "orders",
-    label: "Orders",
-    to: "/orders",
-    icon: Payments,
-  },
-];
-
-const bottomMenuItems = [
-  {
-    id: "settings",
-    label: "Settings",
-    to: "/settings",
-    icon: Settings,
-  },
-  {
-    id: "logout",
-    label: "Log out",
-    to: "/sign-in",
-    icon: LogOut,
-  },
-];
+import { useTranslation } from "@/i18n";
 
 const AppSidebar = () => {
   const sidebar = useSidebar();
   const logout = useUser((state) => state.logout);
   const navigate = useNavigate();
   const { data: unfulfilledCount = 0 } = useUnfulfilledOrdersCount();
+  const { t } = useTranslation();
+
+  const mainMenuItems = [
+    { id: "checkout", label: t("nav.pos"), to: "/checkout", icon: Checkout },
+    { id: "orders", label: t("nav.orders"), to: "/orders", icon: Payments },
+  ];
+
+  const bottomMenuItems = [
+    { id: "settings", label: t("nav.settings"), to: "/settings", icon: Settings },
+    { id: "logout", label: t("nav.logout"), to: "/sign-in", icon: LogOut },
+  ];
 
   const handleLogout = async () => {
     try {
@@ -72,13 +54,13 @@ const AppSidebar = () => {
           </Button>
         </SidebarHeader>
 
-        <SidebarMenu className="px-4 py-6 flex-1">
+        <SidebarMenu className="px-2 py-6 flex-1">
           {mainMenuItems.map((item) => (
             <SidebarMenuItem key={item.id}>
               <NavLink
                 to={item.to}
                 className={({ isActive }) =>
-                  `flex flex-col h-auto items-center justify-center p-4 w-full text-center rounded-md text-fg-muted relative ${
+                  `flex flex-col h-auto items-center justify-center gap-1 px-2 py-3 w-full text-center rounded-md text-fg-muted relative ${
                     isActive
                       ? "bg-(--color-bg-base) border border-primary text-primary"
                       : ""
@@ -89,7 +71,7 @@ const AppSidebar = () => {
                   <>
                     <div className="relative">
                       <item.icon
-                        className={`size-8 mb-0.5 ${isActive ? "text-primary" : ""}`}
+                        className={`size-8 ${isActive ? "text-primary" : ""}`}
                       />
                       {item.id === "orders" && unfulfilledCount > 0 && (
                         <span className="absolute -top-1 -right-1 flex items-center justify-center min-w-[18px] h-[18px] px-1.5 text-xs font-medium text-white bg-primary rounded-full">
@@ -97,7 +79,9 @@ const AppSidebar = () => {
                         </span>
                       )}
                     </div>
-                    <span className="text-base font-medium">{item.label}</span>
+                    <span className="block w-full text-sm font-medium leading-tight text-center truncate">
+                      {item.label}
+                    </span>
                   </>
                 )}
               </NavLink>
@@ -105,17 +89,17 @@ const AppSidebar = () => {
           ))}
         </SidebarMenu>
 
-        <SidebarMenu className="px-4 pb-6 mt-auto">
+        <SidebarMenu className="px-2 pb-6 mt-auto">
           {bottomMenuItems.map((item) => (
             <SidebarMenuItem key={item.id}>
               {item.id === "logout" ? (
                 <Button
                   onClick={handleLogout}
                   variant="ghost"
-                  className="flex flex-col h-auto items-center justify-center p-4 w-full text-center rounded-md"
+                  className="flex flex-col h-auto items-center justify-center gap-1 px-2 py-3 w-full text-center rounded-md"
                 >
                   <item.icon className="size-8 text-fg-muted" />
-                  <span className="text-base font-medium text-fg-muted">
+                  <span className="block w-full text-sm font-medium text-fg-muted leading-tight text-center truncate">
                     {item.label}
                   </span>
                 </Button>
@@ -123,7 +107,7 @@ const AppSidebar = () => {
                 <NavLink
                   to={item.to}
                   className={({ isActive }) =>
-                    `flex flex-col h-auto items-center justify-center p-4 w-full text-center rounded-md text-fg-muted ${
+                    `flex flex-col h-auto items-center justify-center gap-1 px-2 py-3 w-full text-center rounded-md text-fg-muted ${
                       isActive
                         ? "bg-(--color-bg-base) border border-primary text-primary"
                         : ""
@@ -133,9 +117,9 @@ const AppSidebar = () => {
                   {({ isActive }) => (
                     <>
                       <item.icon
-                        className={`size-8 mb-0.5 ${isActive ? "text-primary" : ""}`}
+                        className={`size-8 ${isActive ? "text-primary" : ""}`}
                       />
-                      <span className="text-base font-medium">
+                      <span className="block w-full text-sm font-medium leading-tight text-center truncate">
                         {item.label}
                       </span>
                     </>

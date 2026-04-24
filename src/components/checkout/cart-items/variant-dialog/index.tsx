@@ -7,6 +7,7 @@ import { formatPrice } from "@/utils/helpers";
 import { Image, Info, Package, LoaderCircle } from "lucide-react";
 import { useItemDialog } from "./hooks";
 import { useCheckout } from "../../hooks";
+import { useTranslation } from "@/i18n";
 
 interface Props {
   item: CartItem | (AdminProductVariant & { product: AdminProduct });
@@ -47,6 +48,7 @@ const ItemDialog: React.FC<Props> = ({
   } = useItemDialog(item, open);
 
   const { currency } = useCheckout();
+  const { t } = useTranslation();
 
   // Extract comment from metadata if it exists
   const itemComment = 
@@ -81,11 +83,11 @@ const ItemDialog: React.FC<Props> = ({
       <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
         <div className="space-y-4">
           <DialogTitle className="text-lg font-semibold flex items-center gap-2">
-            Item Details
+            {t("checkout.item_dialog_title")}
             {isInventoryKit && (
               <div className="flex items-center gap-1 px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full">
                 <Package size={12} />
-                Kit
+                {t("checkout.kit_badge")}
               </div>
             )}
           </DialogTitle>
@@ -94,7 +96,7 @@ const ItemDialog: React.FC<Props> = ({
             <div className="flex justify-center">
               <img
                 src={String(thumbnail)}
-                alt="Product"
+                alt={t("checkout.product_label")}
                 className="w-40 h-40 object-contain"
               />
             </div>
@@ -106,7 +108,7 @@ const ItemDialog: React.FC<Props> = ({
 
           <div className="grid grid-cols-1 gap-3">
             <div className="flex justify-between items-start p-3 bg-[--color-bg-base] rounded">
-              <span className="text-fg-muted font-medium">Product:</span>
+              <span className="text-fg-muted font-medium">{t("checkout.product_label")}:</span>
               <div className="text-right">
                 <div className="font-medium">{productTitle || "-"}</div>
                 {title && <div className="text-sm text-fg-subtle">{title}</div>}
@@ -114,7 +116,7 @@ const ItemDialog: React.FC<Props> = ({
             </div>
 
             <div className="flex justify-between items-center p-3 bg-[--color-bg-base] rounded">
-              <span className="text-fg-muted font-medium">Price:</span>
+              <span className="text-fg-muted font-medium">{t("checkout.price_label")}:</span>
               <div className="text-right">
                 {hasDiscount ? (
                   <>
@@ -125,8 +127,7 @@ const ItemDialog: React.FC<Props> = ({
                       {formatPrice(unit_price ?? 0, currency)}
                     </div>
                     <div className="text-xs text-red-500 mt-1">
-                      Save {formatPrice(discountAmount, currency)} ({discountPercentage}%
-                      off)
+                      {t("checkout.save_label", { amount: formatPrice(discountAmount, currency), percentage: discountPercentage })}
                     </div>
                   </>
                 ) : (
@@ -139,22 +140,16 @@ const ItemDialog: React.FC<Props> = ({
                   <div className="mt-2 pt-2 border-t border-theme-border">
                     <div className="flex items-center justify-end gap-2 mb-1">
                       <span className="px-2 py-0.5 text-xs font-medium rounded bg-orange-100 text-orange-700">
-                        Manual Discount
+                        {t("checkout.manual_discount_badge")}
                       </span>
                     </div>
                     <div className="text-sm text-fg-subtle">
                       {manualDiscount?.type === "percent"
-                        ? `${manualDiscount.value}% off`
-                        : `${formatPrice(
-                            manualDiscount?.value || 0,
-                            currency
-                          )} off`}
+                        ? t("checkout.percent_off", { value: manualDiscount.value })
+                        : t("checkout.amount_off", { amount: formatPrice(manualDiscount?.value || 0, currency) })}
                     </div>
                     <div className="text-lg font-semibold text-orange-600 mt-1">
-                      Final: {formatPrice(
-                        priceAfterManualDiscount ?? 0,
-                        currency
-                      )}
+                      {t("checkout.final_price_label", { price: formatPrice(priceAfterManualDiscount ?? 0, currency) })}
                     </div>
                   </div>
                 )}
@@ -163,19 +158,19 @@ const ItemDialog: React.FC<Props> = ({
 
             {sku && (
               <div className="flex justify-between items-center p-3 bg-[--color-bg-base] rounded">
-                <span className="text-fg-muted font-medium">SKU:</span>
+                <span className="text-fg-muted font-medium">{t("checkout.sku_label")}</span>
                 <span>{sku || "-"}</span>
               </div>
             )}
 
             <div className="flex justify-between items-center p-3 bg-[--color-bg-base] rounded">
-              <span className="text-fg-muted font-medium">Barcode:</span>
+              <span className="text-fg-muted font-medium">{t("checkout.barcode_label")}</span>
               <span>{ean || "-"}</span>
             </div>
 
             {optionsDisplay && (
               <div className="flex justify-between items-center p-3 bg-[--color-bg-base] rounded">
-                <span className="text-fg-muted font-medium">Options:</span>
+                <span className="text-fg-muted font-medium">{t("checkout.options_label")}:</span>
                 <span>{optionsDisplay}</span>
               </div>
             )}
@@ -183,7 +178,7 @@ const ItemDialog: React.FC<Props> = ({
             {availableQuantity !== null && (
               <div className="flex justify-between items-center p-3 bg-[--color-bg-base] rounded">
                 <span className="text-fg-muted font-medium">
-                  Available Quantity:
+                  {t("checkout.available_quantity_label")}:
                 </span>
                 <span
                   className={`px-2 py-1 text-xs font-medium rounded-full ${
@@ -195,11 +190,11 @@ const ItemDialog: React.FC<Props> = ({
                   }`}
                 >
                   {isOutOfStock
-                    ? "Out of stock"
+                    ? t("checkout.out_of_stock")
                     : isLastOne
-                      ? "Last One"
+                      ? t("checkout.last_one")
                       : isFewLeft
-                        ? `Only ${availableQuantity} left`
+                        ? t("checkout.only_n_left", { count: availableQuantity })
                         : availableQuantity}
                 </span>
               </div>
@@ -208,7 +203,7 @@ const ItemDialog: React.FC<Props> = ({
             {itemComment && (
               <div className="p-3 bg-blue-50 rounded border border-blue-200">
                 <span className="text-fg-muted font-medium block mb-2">
-                  Comment:
+                  {t("checkout.comment_label")}:
                 </span>
                 <p className="text-sm text-fg-muted whitespace-pre-wrap">
                   {itemComment}
@@ -222,15 +217,10 @@ const ItemDialog: React.FC<Props> = ({
             <div className="mt-6 border-t border-theme-border pt-4">
               <h3 className="text-md font-semibold mb-3 flex items-center gap-2">
                 <Package size={16} />
-                Kit Contents
+                {t("checkout.kit_contents_title")}
                 {inventoryKitItems && inventoryKitItems.length > 0 && (
                   <span className="text-sm font-normal text-fg-subtle">
-                    (
-                    {inventoryKitItems.reduce(
-                      (total, item) => total + (item.required_quantity || 1),
-                      0
-                    )}{" "}
-                    items)
+                    ({t("checkout.items", { count: inventoryKitItems.reduce((total, item) => total + (item.required_quantity || 1), 0) })})
                   </span>
                 )}
               </h3>
@@ -239,12 +229,12 @@ const ItemDialog: React.FC<Props> = ({
                 <div className="flex items-center justify-center py-4">
                   <LoaderCircle className="animate-spin" size={24} />
                   <span className="ml-2 text-sm text-fg-muted">
-                    Loading kit items...
+                    {t("checkout.loading_kit_items")}
                   </span>
                 </div>
               ) : kitItemsError ? (
                 <div className="p-3 bg-red-50 text-red-700 rounded text-sm">
-                  Error loading kit items. Please try again.
+                  {t("checkout.kit_items_error")}
                 </div>
               ) : inventoryKitItems && inventoryKitItems.length > 0 ? (
                 <div className="space-y-2">
@@ -272,7 +262,7 @@ const ItemDialog: React.FC<Props> = ({
 
                         <div className="flex-1 min-w-0">
                           <div className="font-medium text-sm text-fg truncate">
-                            {kitItem.product?.title || "Unknown Product"}
+                            {kitItem.product?.title || t("checkout.unknown_product")}
                           </div>
                           <div className="text-xs text-fg-subtle truncate">
                             {kitItem.title !== kitItem.product?.title &&
@@ -280,7 +270,7 @@ const ItemDialog: React.FC<Props> = ({
                           </div>
                           {kitItem.sku && (
                             <div className="text-xs text-fg-subtle">
-                              SKU: {kitItem.sku}
+                              {t("checkout.sku_label")}{kitItem.sku}
                             </div>
                           )}
                         </div>
@@ -298,8 +288,8 @@ const ItemDialog: React.FC<Props> = ({
                                 }`}
                               >
                                 {kitItem.inventory_quantity === 0
-                                  ? "Out of stock"
-                                  : `${kitItem.inventory_quantity} in stock`}
+                                  ? t("checkout.out_of_stock")
+                                  : t("checkout.in_stock", { count: kitItem.inventory_quantity })}
                               </span>
                             </div>
                           )}
@@ -309,7 +299,7 @@ const ItemDialog: React.FC<Props> = ({
                 </div>
               ) : (
                 <div className="p-3 bg-surface-muted text-fg-muted rounded text-sm text-center">
-                  No kit items found
+                  {t("checkout.no_kit_items")}
                 </div>
               )}
             </div>

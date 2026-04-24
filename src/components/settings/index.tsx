@@ -5,10 +5,12 @@ import ConnectionSettings from "./connection";
 import StoreSettings from "./store";
 import PreferencesSettings from "./preferences";
 import storage from "@/utils/storage";
+import { useTranslation } from "@/i18n";
 
 type SettingsTabs = "printer" | "connection" | "store" | "preferences";
 
 const Settings: React.FC = () => {
+  const { t } = useTranslation();
   const [settingsTab, setSettingsTab] = useState<SettingsTabs>("printer");
 
   useEffect(() => {
@@ -42,25 +44,25 @@ const Settings: React.FC = () => {
             value="printer"
             className="text-lg px-6 py-4 border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:text-primary text-fg-muted bg-transparent rounded-none min-h-[48px]"
           >
-            Printer
+            {t("settings.printer.title")}
           </TabsTrigger>
           <TabsTrigger
             value="connection"
             className="text-lg px-6 py-4 border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:text-primary text-fg-muted bg-transparent rounded-none min-h-[48px]"
           >
-            Connection
+            {t("settings.connection.title")}
           </TabsTrigger>
           <TabsTrigger
             value="store"
             className="text-lg px-6 py-4 border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:text-primary text-fg-muted bg-transparent rounded-none min-h-[48px]"
           >
-            Store
+            {t("settings.store.title")}
           </TabsTrigger>
           <TabsTrigger
             value="preferences"
             className="text-lg px-6 py-4 border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:text-primary text-fg-muted bg-transparent rounded-none min-h-[48px]"
           >
-            Preferences
+            {t("settings.preferences.title")}
           </TabsTrigger>
         </TabsList>
 

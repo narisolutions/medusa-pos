@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { AdminOrder } from "@medusajs/types";
-import { buildReceipt, buildReceiptPDF, ReceiptData } from "@/utils/pos/receipt";
+import { buildReceipt, buildReceiptPDF, ReceiptData, DEFAULT_RECEIPT_LABELS } from "@/utils/pos/receipt";
+import { useTranslation } from "@/i18n";
 import { toast } from "sonner";
 import storage from "@/utils/storage";
 import { Printer } from "@/components/settings/printer/hooks";
@@ -23,6 +24,7 @@ const usePrinterService = () => {
   const [printers, setPrinters] = useState<Printer[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const { data: store } = useQueryStore();
+  const { t } = useTranslation();
 
   useEffect(() => {
     loadPrinters();
@@ -229,6 +231,28 @@ const usePrinterService = () => {
     };
   }, [store]);
 
+  const getReceiptLabels = useCallback(() => ({
+    ...DEFAULT_RECEIPT_LABELS,
+    title: t("receipt.title"),
+    date: t("receipt.date"),
+    time: t("receipt.time"),
+    order: t("receipt.order"),
+    customer: t("receipt.customer"),
+    customerGuest: t("receipt.customer_guest"),
+    name: t("receipt.name"),
+    email: t("receipt.email"),
+    items: t("receipt.items"),
+    orderTotals: t("receipt.order_totals"),
+    subtotal: t("receipt.subtotal"),
+    discount: t("receipt.discount"),
+    vat: t("receipt.vat"),
+    total: t("receipt.total"),
+    paymentMethod: t("receipt.payment_method"),
+    amountPaid: t("receipt.amount_paid"),
+    change: t("receipt.change"),
+    thankYou: t("receipt.thank_you"),
+  }), [t]);
+
   const printOrderReceipt = useCallback(
     async (
       order: AdminOrder,
@@ -242,7 +266,8 @@ const usePrinterService = () => {
       try {
         const receiptData = buildReceiptDataFromOrder(order);
         const paperWidth = printer.paperWidth ?? "80mm";
-        const receiptText = buildReceipt(receiptData, paperWidth);
+        const encoding = (printer as Printer & { encoding?: string }).encoding as import("@/utils/pos/receipt/printer-encoding").PrinterEncoding ?? "ascii";
+        const receiptText = buildReceipt(receiptData, paperWidth, getReceiptLabels(), encoding);
         await printReceiptText(receiptText, printer);
 
         return { success: true, receiptData };
@@ -258,7 +283,7 @@ const usePrinterService = () => {
         throw error;
       }
     },
-    [getDefaultPrinter, printReceiptText, buildReceiptDataFromOrder]
+    [getDefaultPrinter, printReceiptText, buildReceiptDataFromOrder, getReceiptLabels]
   );
 
   const downloadReceiptAsPDF = useCallback(
@@ -266,7 +291,7 @@ const usePrinterService = () => {
       try {
         const receiptData = buildReceiptDataFromOrder(order);
         const defaultPrinter = getDefaultPrinter();
-        const pdfBytes = buildReceiptPDF(receiptData, defaultPrinter?.paperWidth ?? "80mm");
+        const pdfBytes = buildReceiptPDF(receiptData, defaultPrinter?.paperWidth ?? "80mm", getReceiptLabels());
 
         // Generate filename
         const orderId = order.display_id?.toString() || "N/A";
@@ -297,7 +322,7 @@ const usePrinterService = () => {
         throw error;
       }
     },
-    [buildReceiptDataFromOrder, getDefaultPrinter]
+    [buildReceiptDataFromOrder, getDefaultPrinter, getReceiptLabels]
   );
 
   return {

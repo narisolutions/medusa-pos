@@ -29,8 +29,10 @@ import { Forms } from "@/types/form";
 import { DEFAULT_PAYMENT_METHODS } from "@/utils/settings/store/metadata";
 import { useStoreSettings } from "./hooks";
 import ColorField from "./color-field";
+import { useTranslation } from "@/i18n";
 
 const StoreSettings: React.FC = () => {
+  const { t } = useTranslation();
   const form = useForm<Forms["StoreSettings"]>({
     defaultValues: {
       storeName: "",
@@ -71,7 +73,7 @@ const StoreSettings: React.FC = () => {
     <div className="flex flex-col h-full space-y-8">
       <div className="border-b border-theme-border pb-6">
         <p className="text-lg leading-relaxed text-fg-muted font-medium">
-          Configure store branding and display defaults
+          {t("settings.store.description")}
         </p>
       </div>
 
@@ -87,11 +89,11 @@ const StoreSettings: React.FC = () => {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className="text-lg font-medium">
-                    Store Name
+                    {t("settings.store.store_name_label")}
                   </FormLabel>
                   <FormControl>
                     <Input
-                      placeholder="Acme Store"
+                      placeholder={t("settings.store.store_name_placeholder")}
                       className="h-12 text-lg px-4"
                       disabled={isLoading}
                       {...field}
@@ -107,11 +109,11 @@ const StoreSettings: React.FC = () => {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className="text-lg font-medium">
-                    Brand / POS Name
+                    {t("settings.store.brand_name_label")}
                   </FormLabel>
                   <FormControl>
                     <Input
-                      placeholder="Example POS"
+                      placeholder={t("settings.store.brand_name_placeholder")}
                       className="h-12 text-lg px-4"
                       disabled={isLoading}
                       {...field}
@@ -122,13 +124,13 @@ const StoreSettings: React.FC = () => {
             />
 
             <div className="flex flex-col gap-3">
-              <Label className="text-lg font-medium">Store Logo</Label>
+              <Label className="text-lg font-medium">{t("settings.store.logo_label")}</Label>
               <div className="flex items-center gap-4">
                 <div className="w-24 h-24 border-2 border-dashed border-theme-border-strong rounded-lg flex items-center justify-center bg-surface-subtle shrink-0 overflow-hidden">
                   {currentLogoUrl ? (
                     <img
                       src={currentLogoUrl}
-                      alt="Logo preview"
+                      alt={t("settings.store.logo_preview_alt")}
                       className="max-w-full max-h-full object-contain"
                     />
                   ) : (
@@ -143,7 +145,7 @@ const StoreSettings: React.FC = () => {
                     disabled={isPickingLogo || isLoading}
                   >
                     <Upload className="w-4 h-4 mr-2" />
-                    {isPickingLogo ? "Opening..." : "Choose Logo"}
+                    {isPickingLogo ? t("settings.store.opening_logo") : t("settings.store.choose_logo_button")}
                   </Button>
                   {currentLogoUrl && (
                     <Button
@@ -152,14 +154,13 @@ const StoreSettings: React.FC = () => {
                       onClick={handleRemoveLogo}
                       className="text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20"
                     >
-                      <X className="w-4 h-4 mr-2" /> Remove Logo
+                      <X className="w-4 h-4 mr-2" /> {t("settings.store.remove_logo_button")}
                     </Button>
                   )}
                 </div>
               </div>
               <p className="text-sm text-fg-muted">
-                PNG, JPG, JPEG, SVG, or WebP (max 256 KB). Displayed in the app
-                header.
+                {t("settings.store.logo_requirements")}
               </p>
             </div>
 
@@ -169,11 +170,11 @@ const StoreSettings: React.FC = () => {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className="text-lg font-medium">
-                    Store Address
+                    {t("settings.store.store_address_label")}
                   </FormLabel>
                   <FormControl>
                     <Input
-                      placeholder="123 Main St, City, Country"
+                      placeholder={t("settings.store.store_address_placeholder")}
                       className="h-12 text-lg px-4"
                       disabled={isLoading}
                       {...field}
@@ -189,11 +190,11 @@ const StoreSettings: React.FC = () => {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className="text-lg font-medium">
-                    Store Address Line 2
+                    {t("settings.store.store_address2_label")}
                   </FormLabel>
                   <FormControl>
                     <Input
-                      placeholder="Suite 100, Floor 2, etc."
+                      placeholder={t("settings.store.store_address2_placeholder")}
                       className="h-12 text-lg px-4"
                       disabled={isLoading}
                       {...field}
@@ -209,11 +210,11 @@ const StoreSettings: React.FC = () => {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className="text-lg font-medium">
-                    Store Phone
+                    {t("settings.store.store_phone_label")}
                   </FormLabel>
                   <FormControl>
                     <Input
-                      placeholder="+1 555 000 0000"
+                      placeholder={t("settings.store.store_phone_placeholder")}
                       className="h-12 text-lg px-4"
                       disabled={isLoading}
                       {...field}
@@ -229,7 +230,7 @@ const StoreSettings: React.FC = () => {
               render={({ field }) => (
                 <FormItem id="guest-customer-email">
                   <FormLabel className="text-lg font-medium flex items-center gap-2">
-                    Guest customer email
+                    {t("settings.store.guest_email_label")}
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <button
@@ -244,16 +245,14 @@ const StoreSettings: React.FC = () => {
                         sideOffset={4}
                         className="max-w-xs text-left"
                       >
-                        Used when creating anonymous POS orders with no attached
-                        customer. Required so receipts and orders have a
-                        valid email.
+                        {t("settings.store.guest_email_tooltip")}
                       </TooltipContent>
                     </Tooltip>
                   </FormLabel>
                   <FormControl>
                     <Input
                       type="email"
-                      placeholder="guest@example.com"
+                      placeholder={t("settings.store.guest_email_placeholder")}
                       className="h-12 text-lg px-4"
                       disabled={isLoading}
                       {...field}
@@ -264,9 +263,9 @@ const StoreSettings: React.FC = () => {
             />
 
             <div className="space-y-4">
-              <Label className="text-lg font-medium">Payment Methods</Label>
+              <Label className="text-lg font-medium">{t("settings.store.payment_methods_label")}</Label>
               <p className="text-sm text-fg-muted">
-                Add, remove, or customize payment methods. Provider ID must match your Medusa backend (e.g. pp_cash_pos).
+                {t("settings.store.payment_methods_description")}
               </p>
               <div className="space-y-3 rounded-lg border border-theme-border p-4 bg-surface-muted">
                 {fields.map((field, index) => (
@@ -298,7 +297,7 @@ const StoreSettings: React.FC = () => {
                         <FormItem className="w-48 shrink-0">
                           <FormControl>
                             <Input
-                              placeholder="Provider ID"
+                              placeholder={t("settings.store.provider_id_placeholder")}
                               className="h-10 font-mono text-sm"
                               disabled={isLoading}
                               {...idField}
@@ -314,7 +313,7 @@ const StoreSettings: React.FC = () => {
                         <FormItem className="flex-1 min-w-0">
                           <FormControl>
                             <Input
-                              placeholder="Display name"
+                              placeholder={t("settings.store.display_name_placeholder")}
                               className="h-10"
                               disabled={isLoading}
                               {...inputField}
@@ -337,18 +336,18 @@ const StoreSettings: React.FC = () => {
                                 className="h-10"
                                 disabled={isLoading}
                               >
-                                <SelectValue placeholder="Icon" />
+                                <SelectValue placeholder={t("settings.store.icon_label")} />
                               </SelectTrigger>
                             </FormControl>
                             <SelectContent>
                               <SelectItem value="cash">
                                 <span className="flex items-center gap-2">
-                                  <Banknote className="w-4 h-4" /> Cash
+                                  <Banknote className="w-4 h-4" /> {t("settings.store.icon_cash")}
                                 </span>
                               </SelectItem>
                               <SelectItem value="card">
                                 <span className="flex items-center gap-2">
-                                  <CreditCard className="w-4 h-4" /> Card
+                                  <CreditCard className="w-4 h-4" /> {t("settings.store.icon_card")}
                                 </span>
                               </SelectItem>
                             </SelectContent>
@@ -363,7 +362,7 @@ const StoreSettings: React.FC = () => {
                       className="shrink-0 text-fg-muted hover:text-destructive hover:bg-destructive/10"
                       onClick={() => remove(index)}
                       disabled={isLoading || fields.length <= 1}
-                      aria-label="Remove payment method"
+                      aria-label={t("settings.store.remove_payment_method_aria")}
                     >
                       <Trash2 className="w-4 h-4" />
                     </Button>
@@ -384,7 +383,7 @@ const StoreSettings: React.FC = () => {
                   disabled={isLoading}
                 >
                   <Plus className="w-4 h-4 mr-2" />
-                  Add payment method
+                  {t("settings.store.add_payment_method_button")}
                 </Button>
               </div>
             </div>
@@ -396,7 +395,7 @@ const StoreSettings: React.FC = () => {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel className="text-lg font-medium">
-                      Base Font Size (px)
+                      {t("settings.store.font_size_label")}
                     </FormLabel>
                     <FormControl>
                       <Input
@@ -419,9 +418,9 @@ const StoreSettings: React.FC = () => {
                 name="primaryColor"
                 render={({ field }) => (
                   <ColorField
-                    label="Primary Color"
+                    label={t("settings.store.primary_color_label")}
                     value={field.value}
-                    placeholder="#7f1d1d"
+                    placeholder={t("settings.store.primary_color_placeholder")}
                     disabled={isLoading}
                     onChange={field.onChange}
                   />
@@ -433,9 +432,9 @@ const StoreSettings: React.FC = () => {
                 name="secondaryColor"
                 render={({ field }) => (
                   <ColorField
-                    label="Secondary Color"
+                    label={t("settings.store.secondary_color_label")}
                     value={field.value}
-                    placeholder="#1f2937"
+                    placeholder={t("settings.store.secondary_color_placeholder")}
                     disabled={isLoading}
                     onChange={field.onChange}
                   />
@@ -448,7 +447,7 @@ const StoreSettings: React.FC = () => {
               disabled={!isDirty || isSubmitting || isLoading}
               className="h-12 px-6 text-white text-lg min-w-[48px] bg-primary hover:bg-primary/90"
             >
-              {isSubmitting ? "Saving..." : "Save Store Settings"}
+              {isSubmitting ? t("settings.store.saving") : t("settings.store.save_button")}
             </Button>
           </form>
         </Form>

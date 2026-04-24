@@ -11,6 +11,7 @@ import { useCheckout } from "../hooks";
 import { usePaymentModal } from "./hooks";
 import ConfirmationDialog from "./confirmation-dialog";
 import { CreditCard } from "lucide-react";
+import { useTranslation } from "@/i18n";
 
 interface PaymentModalProps {
   isOpen: boolean;
@@ -47,6 +48,7 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
   } = usePaymentModal(draftOrderId, onClose, isOpen);
 
   const { currency } = useCheckout();
+  const { t } = useTranslation();
 
   const isLoading = !draftOrder;
 
@@ -68,7 +70,7 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
         <div className="bg-surface border-b border-theme-border px-6 py-4 flex items-center justify-between shrink-0">
           <div>
             <DialogTitle className="text-xl font-bold text-fg">
-              Payment
+              {t("checkout.payment_dialog_title")}
             </DialogTitle>
             <div className="flex items-center gap-2 mt-1">
               <PaymentIcon className="w-4 h-4 text-fg-subtle" />
@@ -84,7 +86,7 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
           <div className="w-80 bg-surface-muted border-r border-theme-border overflow-y-auto">
             <div className="p-4">
               <div className="text-xs font-semibold text-fg-subtle uppercase tracking-wider mb-3">
-                Order Summary · {items.length} items
+                {t("checkout.order_summary_label")}
               </div>
               <div className="space-y-2">
                 {items.map((item) => {
@@ -125,7 +127,7 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
                   <div className="grid grid-cols-2 gap-8 mb-6">
                     <div className="flex flex-col">
                       <div className="text-xs font-semibold text-fg-subtle uppercase tracking-wider mb-2">
-                        Total Due
+                        {t("checkout.total_due_label")}
                       </div>
                       {isLoading ? (
                         <>
@@ -139,7 +141,7 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
                           </div>
                           {tax > 0 && (
                             <div className="text-sm text-fg-subtle mt-2">
-                              Including VAT {formatPrice(tax, currency)}
+                              {t("checkout.including_vat")}{formatPrice(tax, currency)}
                             </div>
                           )}
                         </>
@@ -148,7 +150,7 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
 
                     <div className="flex flex-col">
                       <div className="text-xs font-semibold text-fg-subtle uppercase tracking-wider mb-2">
-                        Cash Tendered
+                        {t("checkout.cash_tendered_label")}
                       </div>
                       <div className="relative">
                         <Input
@@ -174,7 +176,7 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
                   <div className="grid grid-cols-2 gap-8 mb-6">
                     <div className="flex flex-col">
                       <div className="text-xs font-semibold text-fg-subtle uppercase tracking-wider mb-2">
-                        Quick Amounts
+                        {t("checkout.quick_amounts_label")}
                       </div>
                       <div className="grid grid-cols-2 gap-3">
                         {quickAmounts.map((amount) => {
@@ -214,7 +216,7 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
                             className="relative w-full h-16 bg-blue-50 dark:bg-blue-900/30 border-2 border-blue-300 dark:border-blue-700 rounded-lg hover:border-blue-400 dark:hover:border-blue-600 hover:bg-blue-100 dark:hover:bg-blue-900/50 transition-all flex items-center justify-center cursor-pointer active:scale-[0.98] touch-manipulation"
                           >
                             <span className="text-base font-semibold text-blue-800 dark:text-blue-300">
-                              Exact Amount
+                              {t("checkout.exact_amount_button")}
                             </span>
                           </button>
                         </div>
@@ -223,7 +225,7 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
 
                     <div className="flex flex-col">
                       <div className="text-xs font-semibold text-fg-subtle uppercase tracking-wider mb-2">
-                        Numpad
+                        {t("checkout.numpad_label")}
                       </div>
                       <div className="flex items-center justify-center">
                         <Numpad
@@ -259,7 +261,7 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
                                 : "text-rose-800"
                             }`}
                           >
-                            {change >= 0 ? "Change Due" : "Amount Short"}
+                            {change >= 0 ? t("checkout.change_due") : t("checkout.amount_short")}
                           </span>
                           <span
                             className={`text-3xl font-bold ${
@@ -281,14 +283,14 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
                         disabled={isProcessing}
                         className="h-16 text-lg font-semibold"
                       >
-                        Cancel
+                        {t("common.cancel")}
                       </Button>
                       <Button
                         onClick={handleCompleteClick}
                         disabled={!canProcessPayment || isProcessing}
                         className="h-16 text-xl font-bold bg-primary hover:bg-primary/90 disabled:opacity-40 text-white"
                       >
-                        {isProcessing ? "Processing..." : "Complete Payment"}
+                        {isProcessing ? t("common.processing") : t("checkout.complete_payment_button")}
                       </Button>
                     </div>
                   </div>
@@ -300,7 +302,7 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
                 <div className="max-w-lg w-full text-center space-y-8">
                   <div>
                     <div className="text-xs font-semibold text-fg-subtle uppercase tracking-wider mb-3">
-                      Amount
+                      {t("checkout.amount_label")}
                     </div>
                     {isLoading ? (
                       <>
@@ -314,7 +316,7 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
                         </div>
                         {tax > 0 && (
                             <div className="text-sm text-fg-subtle mt-2">
-                              Including VAT {formatPrice(tax, currency)}
+                              {t("checkout.including_vat")}{formatPrice(tax, currency)}
                             </div>
                         )}
                       </>
@@ -328,7 +330,7 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
                   </div>
 
                   <p className="text-lg text-fg-muted">
-                    Please present card to the payment terminal
+                    {t("checkout.present_card_message")}
                   </p>
 
                   <div className="flex gap-4 pt-8">
@@ -338,14 +340,14 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
                       disabled={isProcessing}
                       className="flex-1 h-16 text-lg font-semibold"
                     >
-                      Cancel
+                      {t("common.cancel")}
                     </Button>
                     <Button
                       onClick={handleCompleteClick}
                       disabled={!canProcessPayment || isProcessing}
                       className="flex-2 h-16 text-xl font-bold bg-primary hover:bg-primary/90 disabled:opacity-40 text-white"
                     >
-                      {isProcessing ? "Processing..." : "Confirm Payment"}
+                      {isProcessing ? t("common.processing") : t("checkout.confirm_payment_button")}
                     </Button>
                   </div>
                 </div>
