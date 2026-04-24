@@ -5,10 +5,12 @@ import { useStoreManager } from "@/context/store-manager";
 import StoreSwitcherDialog from "./store-switcher-dialog";
 import { Button } from "@/components/ui/button";
 import MedusaIcon from "@/assets/icons/medusa";
+import { useTranslation } from "@/i18n";
 
 const StoreSelectorBox: React.FC = () => {
   const { activeStore } = useStoreManager();
   const [open, setOpen] = useState(false);
+  const { t } = useTranslation();
 
   return (
     <>
@@ -35,7 +37,7 @@ const StoreSelectorBox: React.FC = () => {
           {activeStore ? (
             <p className="text-lg font-semibold text-fg truncate">{activeStore.name}</p>
           ) : (
-            <p className="text-base text-fg-subtle italic truncate">No store selected — add one to continue</p>
+            <p className="text-base text-fg-subtle italic truncate">{t("auth.no_store_selected")}</p>
           )}
         </div>
 

@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
+import { t } from "@/i18n";
 import { Forms } from "@/types/form";
 import { useQueryStore, useUpdateStore } from "@/hooks/queries/useQueryStore";
 import { useStore } from "@/context/store";
@@ -24,9 +25,9 @@ async function pickAndConvertLogo(): Promise<string | null> {
   const { open } = await import("@tauri-apps/plugin-dialog");
   const selected = await open({
     multiple: false,
-    title: "Select Store Logo",
+    title: t("settings.store.pick_logo_dialog_title"),
     filters: [
-      { name: "Image", extensions: ["png", "jpg", "jpeg", "svg", "webp"] },
+      { name: t("settings.store.pick_logo_filter_name"), extensions: ["png", "jpg", "jpeg", "svg", "webp"] },
     ],
   });
 
@@ -36,7 +37,7 @@ async function pickAndConvertLogo(): Promise<string | null> {
   const bytes = await fs.readFile(selected as string);
 
   if (bytes.byteLength > constants.MAX_LOGO_BYTES) {
-    throw new Error("Logo image must be smaller than 256 KB");
+    throw new Error(t("settings.store.logo_too_large"));
   }
 
   const ext = (selected as string).split(".").pop()?.toLowerCase() ?? "png";
@@ -143,7 +144,7 @@ const useStoreSettings = ({ form }: Props): UseStoreSettingsReturn => {
 
       setNeedsSetup(false);
       await storage.removeItem("store_setup_dismissed");
-      toast.success("Store settings saved");
+      toast.success(t("settings.store.saved"));
     },
     [store, updateStore, setNeedsSetup]
   );
@@ -155,7 +156,7 @@ const useStoreSettings = ({ form }: Props): UseStoreSettingsReturn => {
       if (logoUrl) setValue("logoUrl", logoUrl, { shouldDirty: true });
     } catch (err) {
       toast.error(
-        err instanceof Error ? err.message : "Failed to load logo image"
+        err instanceof Error ? err.message : t("settings.store.logo_load_error")
       );
     } finally {
       setIsPickingLogo(false);

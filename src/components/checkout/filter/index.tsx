@@ -17,6 +17,7 @@ import ItemDialog from "../cart-items/variant-dialog";
 import { useCheckout } from "../hooks";
 import { getVariantAvailableQuantity, getVariantUnitPrice } from "@/utils/pos/cart";
 import { useCustomEndpoints } from "@/hooks/ui/useCustomEndpoints";
+import { useTranslation } from "@/i18n";
 
 interface Props {
   products: AdminProduct[];
@@ -48,6 +49,7 @@ const CheckoutFilter: React.FC<Props> = ({ products }) => {
 
   const { currency } = useCheckout();
   const { customEndpointsEnabled } = useCustomEndpoints();
+  const { t } = useTranslation();
 
   // Handle clicking outside to close dropdown
   useEffect(() => {
@@ -78,9 +80,7 @@ const CheckoutFilter: React.FC<Props> = ({ products }) => {
     <div className="flex flex-col gap-2">
       {!customEndpointsEnabled && (
         <div className="rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900">
-          Custom product endpoints are disabled: stock is not checked automatically when
-          adding items to cart, and prices are raw (not context-calculated). Verify stock
-          and price manually.
+          {t("checkout.endpoints_disabled_warning")}
         </div>
       )}
       <div className="flex justify-center items-center gap-6 border border-theme-border bg-surface p-6 rounded-lg">
@@ -113,7 +113,7 @@ const CheckoutFilter: React.FC<Props> = ({ products }) => {
           {showDropdown && mode === "search" && filteredVariants.length > 0 && (
             <CommandList className="absolute top-full left-0 right-0 z-50 max-h-125 overflow-y-auto border border-theme-border bg-surface rounded-lg shadow-lg mt-2">
               <CommandEmpty className="py-6 text-lg">
-                No products found.
+                {t("checkout.no_products_found")}
               </CommandEmpty>
               <CommandGroup>
                 {filteredVariants.map((variant) => {
@@ -165,7 +165,7 @@ const CheckoutFilter: React.FC<Props> = ({ products }) => {
                             {variant.product?.title}
                             {brandTitle && (
                               <span className="text-sm text-fg-subtle ml-2 font-normal">
-                                by {brandTitle}
+                                {t("checkout.by_brand")}{brandTitle}
                               </span>
                             )}
                           </div>
@@ -175,12 +175,12 @@ const CheckoutFilter: React.FC<Props> = ({ products }) => {
                               <span className="ml-2">• {optionsDisplay}</span>
                             )}
                             {sku && (
-                              <span className="ml-2">• SKU: {sku}</span>
+                              <span className="ml-2">• {t("checkout.sku_label")}{sku}</span>
                             )}
                           </div>
                           {ean && (
                             <div className="text-sm text-fg-subtle">
-                              Barcode: {ean}
+                              {t("checkout.barcode_label")}{ean}
                             </div>
                           )}
                         </div>
@@ -195,11 +195,11 @@ const CheckoutFilter: React.FC<Props> = ({ products }) => {
                                 }`}
                             >
                               {isOutOfStock
-                                ? "Out of stock"
+                                ? t("checkout.out_of_stock")
                                 : isLastOne
-                                  ? "Last One"
+                                  ? t("checkout.last_one")
                                   : isFewLeft
-                                    ? `Only ${availableQuantity} left`
+                                    ? t("checkout.only_n_left", { count: availableQuantity })
                                     : null}
                             </span>
                           )}
@@ -263,7 +263,7 @@ const CheckoutFilter: React.FC<Props> = ({ products }) => {
           {isProcessing ? (
             <Loader2 className="h-6 w-6 animate-spin" />
           ) : (
-            "Add Item"
+            t("checkout.add_item")
           )}
         </Button>
       </div>

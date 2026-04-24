@@ -7,6 +7,7 @@ import { Loader2, User, X } from "lucide-react";
 import { toast } from "sonner";
 import { AdminOrder } from "@medusajs/types";
 import { useCheckout } from "../../hooks";
+import { useTranslation } from "@/i18n";
 
 type CustomerDialogProps = {
   open: boolean;
@@ -39,6 +40,7 @@ const CustomerDialog: React.FC<CustomerDialogProps> = ({
   } = useCustomerDialog();
 
   const hasAccount = order?.customer?.has_account || null;
+  const { t } = useTranslation();
 
   // Initialize email when dialog opens
   useEffect(() => {
@@ -105,7 +107,7 @@ const CustomerDialog: React.FC<CustomerDialogProps> = ({
     <Dialog open={open} onOpenChange={handleDialogOpenChange}>
       <DialogContent className="max-w-xl p-6 md:p-8">
         <DialogTitle className="text-2xl font-semibold">
-          Attach Customer
+          {t("checkout.attach_customer_title")}
         </DialogTitle>
         <div className="space-y-6">
           <div className="space-y-3">
@@ -117,7 +119,7 @@ const CustomerDialog: React.FC<CustomerDialogProps> = ({
                   setEmail(e.target.value);
                   resetSearch();
                 }}
-                placeholder="customer@example.com"
+                placeholder={t("checkout.customer_email_placeholder")}
                 className="flex-1 h-12 text-base"
                 onKeyDown={(e) => {
                   if (e.key === "Enter") {
@@ -134,7 +136,7 @@ const CustomerDialog: React.FC<CustomerDialogProps> = ({
                 {isLoading ? (
                   <Loader2 className="w-5 h-5 animate-spin" />
                 ) : (
-                  "Search"
+                  t("checkout.search_customer_button")
                 )}
               </Button>
             </div>
@@ -146,18 +148,18 @@ const CustomerDialog: React.FC<CustomerDialogProps> = ({
                 <User className="w-6 h-6 text-green-600 mt-0.5" />
                 <div className="flex-1">
                   <div className="font-semibold text-green-900">
-                    Customer Found
+                    {t("checkout.customer_found")}
                   </div>
                   <div className="text-base text-green-700 mt-1 space-y-1">
-                    <div>Email: {customer.email}</div>
+                    <div>{t("checkout.customer_email_label")}{customer.email}</div>
                     {customer.first_name || customer.last_name ? (
                       <div>
-                        Name: {customer.first_name || ""}{" "}
+                        {t("checkout.customer_name_label")}{customer.first_name || ""}{" "}
                         {customer.last_name || ""}
                       </div>
                     ) : null}
                     <div className="text-sm text-green-600 mt-1">
-                      Phone: {customer.phone || "-"}
+                      {t("checkout.customer_phone_label")}{customer.phone || "-"}
                     </div>
                   </div>
                 </div>
@@ -168,8 +170,7 @@ const CustomerDialog: React.FC<CustomerDialogProps> = ({
           {hasSearched && !isLoading && email && !customer && (
             <div className="p-5 bg-yellow-50 border border-yellow-200 rounded-xl">
               <div className="text-base text-yellow-800">
-                No registered customer found with this email. Please enter a
-                valid registered customer email.
+                {t("checkout.no_customer_found_message")}
               </div>
             </div>
           )}
@@ -179,7 +180,7 @@ const CustomerDialog: React.FC<CustomerDialogProps> = ({
               <div className="flex items-center justify-between">
                 <div>
                   <div className="text-base font-semibold text-blue-900">
-                    Current Customer
+                    {t("checkout.current_customer")}
                   </div>
                   <div className="text-base text-blue-700">
                     {currentCustomerEmail}
@@ -192,7 +193,7 @@ const CustomerDialog: React.FC<CustomerDialogProps> = ({
                     className="h-11 px-4 text-base text-red-600 hover:text-red-700 hover:bg-red-50"
                   >
                     <X className="w-5 h-5 mr-2" />
-                    Remove
+                    {t("checkout.remove_customer_button")}
                   </Button>
                 )}
               </div>
@@ -205,14 +206,14 @@ const CustomerDialog: React.FC<CustomerDialogProps> = ({
               onClick={onClose}
               className="h-12 px-5 text-base"
             >
-              Cancel
+              {t("common.cancel")}
             </Button>
             <Button
               onClick={handleApply}
               disabled={!customer || isLoading}
               className="h-12 px-6 text-base bg-primary hover:bg-primary/90 text-white"
             >
-              Apply
+              {t("common.apply")}
             </Button>
           </div>
         </div>

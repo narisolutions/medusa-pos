@@ -3,12 +3,14 @@ import { AdminOrder } from "@medusajs/types";
 import { formatTimeAgo, formatExactTime } from "@/utils/helpers";
 import { Clock } from "lucide-react";
 import { useActivityEvents } from "./hooks";
+import { useTranslation } from "@/i18n";
 
 interface Props {
   order: AdminOrder;
 }
 
 const Activity: React.FC<Props> = ({ order }) => {
+  const { t } = useTranslation();
   const events = useActivityEvents(order);
 
   if (events.length === 0) {
@@ -18,7 +20,7 @@ const Activity: React.FC<Props> = ({ order }) => {
   return (
     <div className="bg-surface rounded-lg border border-theme-border overflow-hidden shadow-sm flex flex-col h-full">
       <div className="px-6 py-4 border-b border-theme-border bg-surface-muted shrink-0">
-        <h2 className="text-lg font-semibold text-fg">Activity</h2>
+        <h2 className="text-lg font-semibold text-fg">{t("orders.activity_header")}</h2>
       </div>
       <div className="p-6 space-y-4 overflow-y-auto flex-1 min-h-0">
         {events.map((event) => (

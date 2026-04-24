@@ -12,6 +12,7 @@ import {
 import { formatDate } from "@/utils/helpers";
 import constants from "@/utils/constants";
 import { useOrder } from "./hooks";
+import { useTranslation } from "@/i18n";
 import FulfillmentDialog from "./fulfillment-dialog";
 import PickupConfirmationDialog from "./confirmation-dialog";
 import Activity from "./activity";
@@ -25,6 +26,7 @@ interface Props {
 }
 
 const Order: React.FC<Props> = ({ order }) => {
+  const { t } = useTranslation();
   const {
     getStatusColor,
     getFulfillmentStatusColor,
@@ -66,14 +68,14 @@ const Order: React.FC<Props> = ({ order }) => {
             className={`text-fg-muted hover:text-fg hover:bg-surface-hover border-theme-border ${constants.ORDER_BUTTON_LG_CLASSES}`}
           >
             <ArrowLeft className="w-5 h-5 mr-3" />
-            Back to Orders
+            {t("common.back_to_orders")}
           </Button>
           <div>
             <h1 className="text-2xl font-bold text-fg">
-              Order #{display_id}
+              {t("orders.order_title", { id: display_id })}
             </h1>
             <p className="text-fg-muted text-sm">
-              Created {formatDate(created_at)}
+              {t("orders.created_label")} {formatDate(created_at)}
             </p>
           </div>
         </div>
@@ -87,7 +89,7 @@ const Order: React.FC<Props> = ({ order }) => {
               className={`bg-blue-600 hover:bg-blue-700 text-white ${constants.ORDER_BUTTON_BASE_CLASSES} min-w-[180px]`}
             >
               <Truck className="w-5 h-5 mr-3" />
-              {isCreatingShipment ? "Creating..." : "Create Shipment"}
+              {isCreatingShipment ? t("orders.creating_shipment") : t("orders.create_shipment_button")}
             </Button>
           )}
           {canMarkAsPickedUp && (
@@ -99,7 +101,7 @@ const Order: React.FC<Props> = ({ order }) => {
               className={`bg-green-600 hover:bg-green-700 text-white ${constants.ORDER_BUTTON_BASE_CLASSES} min-w-[180px]`}
             >
               <CheckCircle className="w-5 h-5 mr-3" />
-              Mark as Picked Up
+              {t("orders.mark_picked_up_button")}
             </Button>
           )}
           {canDownloadShippingLabel && (
@@ -111,7 +113,7 @@ const Order: React.FC<Props> = ({ order }) => {
               className={`border-theme-border text-fg-muted hover:text-fg hover:bg-surface-hover ${constants.ORDER_BUTTON_BASE_CLASSES} min-w-[200px]`}
             >
               <Download className="w-5 h-5 mr-3" />
-              {isDownloading ? "Downloading..." : "Download Shipping Label"}
+              {isDownloading ? t("common.downloading") : t("orders.download_shipping_label_button")}
             </Button>
           )}
           <div className="flex items-center gap-2">
@@ -123,7 +125,7 @@ const Order: React.FC<Props> = ({ order }) => {
               className={`border-theme-border text-fg-muted hover:text-fg hover:bg-surface-hover ${constants.ORDER_BUTTON_BASE_CLASSES} min-w-[200px]`}
             >
               <Printer className="w-5 h-5 mr-3" />
-              {isPrinting ? "Printing..." : "Print Receipt"}
+              {isPrinting ? t("orders.printing") : t("orders.print_receipt_button")}
             </Button>
             <Button
               variant="outline"
@@ -133,7 +135,7 @@ const Order: React.FC<Props> = ({ order }) => {
               className={`border-theme-border text-fg-muted hover:text-fg hover:bg-surface-hover ${constants.ORDER_BUTTON_BASE_CLASSES} min-w-[200px]`}
             >
               <FileDown className="w-5 h-5 mr-3" />
-              {isDownloadingPDF ? "Downloading..." : "Download PDF"}
+              {isDownloadingPDF ? t("common.downloading") : t("orders.download_pdf_button")}
             </Button>
           </div>
           <div className="flex items-center gap-2">

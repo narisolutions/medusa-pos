@@ -27,6 +27,7 @@ import {
   cashDrawerIssueStaffHintToast,
   handleErrorToast,
 } from "@/utils/helpers";
+import { useTranslation } from "@/i18n";
 
 type PaymentMethodOption = {
   key: string;
@@ -89,6 +90,7 @@ const CheckoutContext = createContext<CheckoutContextValue | undefined>(
 );
 
 const useProvideCheckout = (): CheckoutContextValue => {
+  const { t } = useTranslation();
   const { data: store } = useQueryStore();
   const paymentMethodOptions = useMemo(
     () => toPaymentMethodOptions(getPaymentMethods(store)),
@@ -133,9 +135,9 @@ const useProvideCheckout = (): CheckoutContextValue => {
 
       removeItem(itemId);
 
-      toast.success(`Removed ${currentItem?.title || "item"} from cart`);
+      toast.success(t("checkout.item_removed", { title: currentItem?.title || "item" }));
     },
-    [items, removeItem]
+    [items, removeItem, t]
   );
 
   const handleQuantityChange = useCallback(
@@ -158,15 +160,15 @@ const useProvideCheckout = (): CheckoutContextValue => {
         
         const message =
           delta < 0
-            ? `Decreased quantity of ${currentItem.title}`
-            : `Increased quantity of ${currentItem.title}`;
-        
+            ? t("checkout.quantity_decreased", { title: currentItem.title })
+            : t("checkout.quantity_increased", { title: currentItem.title });
+
         toast.success(message);
       } catch (error) {
         handleErrorToast((error as Error).message);
       }
     },
-    [handleRemoveItem, items, updateItemQuantity]
+    [handleRemoveItem, items, updateItemQuantity, t]
   );
 
   const goToGuestEmailSetting = useCallback(() => {
@@ -194,9 +196,7 @@ const useProvideCheckout = (): CheckoutContextValue => {
     try {
 
       if (!metadata.payment_method) {
-        handleErrorToast(
-          "Please select a payment method before proceeding to checkout."
-        );
+        handleErrorToast(t("checkout.select_payment_method"));
         return;
       }
 
@@ -213,7 +213,7 @@ const useProvideCheckout = (): CheckoutContextValue => {
         await syncLocalChangesToDraftOrder();
       } else {
         if (!defaultRegion || !salesChannelId) {
-          handleErrorToast("Region or sales channel information is missing.");
+          handleErrorToast(t("checkout.region_channel_missing"));
           return;
         }
 
@@ -231,10 +231,10 @@ const useProvideCheckout = (): CheckoutContextValue => {
 
         if (!customerEmail && !customerId && !guestEmail) {
           toast.error(
-            "Guest customer email is not configured. Set it in Store Settings or attach a customer before checkout.",
+            t("checkout.guest_email_not_configured"),
             {
               action: {
-                label: "Go to Store Settings",
+                label: t("common.go_to_store_settings"),
                 onClick: goToGuestEmailSetting,
               },
               actionButtonStyle: {
@@ -259,7 +259,7 @@ const useProvideCheckout = (): CheckoutContextValue => {
 
       setIsPaymentModalOpen(true);
     } catch (error) {
-      handleErrorToast("Failed to prepare checkout: " + (error as Error).message);
+      handleErrorToast(t("checkout.failed_to_prepare_checkout", { error: (error as Error).message }));
     }
   }, [
     items,
@@ -271,6 +271,7 @@ const useProvideCheckout = (): CheckoutContextValue => {
     metadata,
     store,
     goToGuestEmailSetting,
+    t,
   ]);
 
   const handleCloseModal = useCallback(() => {
@@ -314,17 +315,16 @@ const useProvideCheckout = (): CheckoutContextValue => {
       await openCashDrawer();
     } catch {
       if (printer) {
-        toast.error("The cash drawer did not open", {
+        toast.error(t("checkout.cash_drawer_error_title"), {
           description: cashDrawerIssueStaffHintToast(printer.name),
         });
       } else {
-        toast.error("The cash drawer did not open", {
-          description:
-            "No default printer is set. Add one under Settings → Printers.",
+        toast.error(t("checkout.cash_drawer_error_title"), {
+          description: t("checkout.no_default_printer"),
         });
       }
     }
-  }, [openCashDrawer, getDefaultPrinter]);
+  }, [openCashDrawer, getDefaultPrinter, t]);
 
   const customerEmail = (metadata as Record<string, unknown>)
     .customer_email as string | null | undefined;

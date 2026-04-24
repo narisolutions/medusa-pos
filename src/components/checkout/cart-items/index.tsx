@@ -15,6 +15,7 @@ import ItemDialog from "./variant-dialog";
 import { useCartItems } from "./hooks";
 import { useCheckout } from "../hooks";
 import { useCartStore } from "@/context/cart";
+import { useTranslation } from "@/i18n";
 
 const CartItems: React.FC = () => {
   const {
@@ -29,6 +30,7 @@ const CartItems: React.FC = () => {
   } = useCartItems();
 
   const { currency } = useCheckout();
+  const { t } = useTranslation();
 
   const subtotal = useCartStore((state) => state.getSubtotal());
   const discountAmount = useCartStore((state) => state.getDiscountAmount());
@@ -49,14 +51,14 @@ const CartItems: React.FC = () => {
           <Table className="table-fixed w-full">
             <TableHeader className="sticky top-0 bg-primary text-white [&_th]:px-7 z-10">
               <TableRow className="h-13">
-                <TableHead className="text-white w-[30%]">Item</TableHead>
-                <TableHead className="text-white w-[10%]">SKU</TableHead>
-                <TableHead className="text-white w-[15%]">Options</TableHead>
+                <TableHead className="text-white w-[30%]">{t("checkout.column_item")}</TableHead>
+                <TableHead className="text-white w-[10%]">{t("checkout.column_sku")}</TableHead>
+                <TableHead className="text-white w-[15%]">{t("checkout.column_options")}</TableHead>
                 <TableHead className="text-white text-center w-[15%]">
-                  Quantity
+                  {t("checkout.column_quantity")}
                 </TableHead>
                 <TableHead className="text-white text-right w-[15%]">
-                  Price
+                  {t("checkout.column_price")}
                 </TableHead>
                 <TableHead className="text-white w-[10%]"></TableHead>
               </TableRow>
@@ -67,9 +69,9 @@ const CartItems: React.FC = () => {
                   <TableCell colSpan={6} className="w-full">
                     <div className="flex flex-col items-center gap-2 pt-65 justify-center w-full">
                       <ShoppingCart className="text-fg-subtle" />
-                      <h3 className="text-lg font-medium text-fg">No items scanned</h3>
+                      <h3 className="text-lg font-medium text-fg">{t("checkout.no_items_title")}</h3>
                       <p className="text-sm text-fg-muted">
-                        Start scanning items to add them to the checkout
+                        {t("checkout.no_items_description")}
                       </p>
                     </div>
                   </TableCell>
@@ -118,7 +120,7 @@ const CartItems: React.FC = () => {
                             </div>
                             {isOutOfStock && (
                               <span className="ml-2 px-2 py-1 text-xs font-medium rounded-full bg-red-100 text-red-800">
-                                Out of stock
+                                {t("checkout.out_of_stock")}
                               </span>
                             )}
                           </div>
@@ -221,17 +223,17 @@ const CartItems: React.FC = () => {
       {items.length > 0 && (
         <div className="p-4 border-t border-theme-border space-y-2">
           <div className="flex justify-between text-base text-fg-muted">
-            <span>Subtotal</span>
+            <span>{t("checkout.subtotal_label")}</span>
             <span>{formatPrice(subtotal, currency)}</span>
           </div>
           {discountAmount > 0 && (
             <div className="flex justify-between text-base text-green-600">
-              <span>Discount</span>
+              <span>{t("checkout.discount_label")}</span>
               <span>-{formatPrice(discountAmount, currency)}</span>
             </div>
           )}
           <div className="flex justify-between items-center pt-2 border-t">
-            <span className="text-xl font-medium">Total</span>
+            <span className="text-xl font-medium">{t("checkout.total_label")}</span>
             <span className="text-2xl font-bold text-primary">
               {formatPrice(totalAfterDiscount, currency)}
             </span>
