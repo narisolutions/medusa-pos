@@ -8,6 +8,7 @@ export default function useUpdateCheck() {
     let cancelled = false;
 
     async function checkForUpdate() {
+      if (import.meta.env.DEV) return;
       try {
         const update = await check();
         if (cancelled || !update) return;
