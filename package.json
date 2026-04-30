@@ -79,7 +79,7 @@
     "sidebar": "^1.0.2",
     "sonner": "^2.0.7",
     "tailwind-merge": "^3.5.0",
-    "zod": "^3.25.76",
+    "zod": "^4.4.1",
     "zustand": "^5.0.12"
   },
   "devDependencies": {
