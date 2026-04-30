@@ -4,69 +4,105 @@ import { AdminCustomer } from "@medusajs/types";
 import { handleErrorToast } from "@/utils/helpers";
 
 export const useCustomerDialog = () => {
-  const [email, setEmail] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
-  const [customer, setCustomer] = useState<AdminCustomer | null>(null);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [isSearching, setIsSearching] = useState(false);
+  const [isCreating, setIsCreating] = useState(false);
+  const [customers, setCustomers] = useState<AdminCustomer[]>([]);
+  const [selectedCustomer, setSelectedCustomer] =
+    useState<AdminCustomer | null>(null);
   const [hasSearched, setHasSearched] = useState(false);
 
-  const searchCustomer = useCallback(async (searchEmail: string) => {
-    setIsLoading(true);
-    setCustomer(null);
+  const searchCustomers = useCallback(async (term: string) => {
+    setIsSearching(true);
+    setCustomers([]);
+    setSelectedCustomer(null);
     setHasSearched(true);
 
     try {
       const sdk = getSdk();
 
-      // Fetch customers list and filter by email
-      const { customers } = await sdk.admin.customer.list({
-        email: searchEmail,
-        limit: 1,
+      const { customers: results } = await sdk.admin.customer.list({
+        q: term,
+        limit: 10,
       });
 
-      if (customers && customers.length > 0) {
-        const foundCustomer = customers[0] as AdminCustomer;
+      const normalized = (results || []) as AdminCustomer[];
+      setCustomers(normalized);
 
-        if (
-          foundCustomer.email?.toLowerCase() === searchEmail.toLowerCase()
-        ) {
-          setCustomer(foundCustomer);
-        } else {
-          handleErrorToast("No customer found with this email");
-          setCustomer(null);
-        }
-      } else {
-        handleErrorToast("No registered customer found with this email");
-        setCustomer(null);
+      if (normalized.length === 1) {
+        setSelectedCustomer(normalized[0]);
       }
     } catch (error) {
-      console.error("Failed to search customer:", error);
+      console.error("Failed to search customers:", error);
       handleErrorToast(
-        error instanceof Error
-          ? error.message
-          : "Failed to search for customer"
+        error instanceof Error ? error.message : "Failed to search for customer"
       );
-      setCustomer(null);
+      setCustomers([]);
+      setSelectedCustomer(null);
     } finally {
-      setIsLoading(false);
+      setIsSearching(false);
     }
   }, []);
 
+  const createCustomer = useCallback(
+    async (payload: {
+      email: string;
+      first_name?: string;
+      last_name?: string;
+      phone?: string;
+      company_name?: string;
+    }): Promise<AdminCustomer> => {
+      setIsCreating(true);
+
+      try {
+        const sdk = getSdk();
+        const { customer } = await sdk.admin.customer.create(payload);
+        const created = customer as AdminCustomer;
+
+        setCustomers((prev) => {
+          const withoutCreated = prev.filter((c) => c.id !== created.id);
+          return [created, ...withoutCreated];
+        });
+        setSelectedCustomer(created);
+        setHasSearched(true);
+
+        return created;
+      } catch (error) {
+        console.error("Failed to create customer:", error);
+        handleErrorToast(
+          error instanceof Error ? error.message : "Failed to create customer"
+        );
+        throw error;
+      } finally {
+        setIsCreating(false);
+      }
+    },
+    []
+  );
+
   const clearCustomer = useCallback(() => {
-    setCustomer(null);
+    setCustomers([]);
+    setSelectedCustomer(null);
     setHasSearched(false);
   }, []);
 
   const resetSearch = useCallback(() => {
     setHasSearched(false);
+    setCustomers([]);
+    setSelectedCustomer(null);
   }, []);
 
   return {
-    email,
-    setEmail,
-    isLoading,
-    customer,
+    searchTerm,
+    setSearchTerm,
+    isSearching,
+    isCreating,
+    customers,
+    selectedCustomer,
+    setSelectedCustomer,
     hasSearched,
-    searchCustomer,
+    searchCustomers,
+    createCustomer,
     clearCustomer,
     resetSearch,
   };
