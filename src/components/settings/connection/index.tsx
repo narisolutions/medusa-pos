@@ -120,7 +120,7 @@ const ConnectionSettings: React.FC = () => {
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    {salesChannels?.map((channel) => (
+                    {salesChannels?.map((channel: { id: string; name: string }) => (
                       <SelectItem key={channel.id} value={channel.id}>
                         {channel.name}
                       </SelectItem>
@@ -167,7 +167,7 @@ const ConnectionSettings: React.FC = () => {
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    {stockLocations?.map((location) => (
+                    {stockLocations?.map((location: { id: string; name: string }) => (
                       <SelectItem key={location.id} value={String(location.id)}>
                         {location.name}
                       </SelectItem>

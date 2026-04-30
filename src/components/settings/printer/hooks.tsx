@@ -87,7 +87,8 @@ const usePrinterSettings = (editingPrinter: Printer | null) => {
     try {
       const salesChannelId = await storage.getItem("sales_channel_id");
       const salesChannelName =
-        salesChannels?.find((sc) => sc.id === salesChannelId)?.name ?? null;
+        salesChannels?.find((sc: { id: string; name: string }) => sc.id === salesChannelId)
+          ?.name ?? null;
 
       const { invoke } = await import("@tauri-apps/api/core");
       await invoke("print_test", {

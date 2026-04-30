@@ -47,7 +47,13 @@ const useUpdateStore = (): UseMutationResult<
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ storeId, payload }) => {
+    mutationFn: async ({
+      storeId,
+      payload,
+    }: {
+      storeId: string;
+      payload: UpdateStorePayload;
+    }) => {
       const sdk = getSdk();
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const { store } = await sdk.admin.store.update(storeId, payload as any);
@@ -56,7 +62,7 @@ const useUpdateStore = (): UseMutationResult<
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: STORE_QUERY_KEY });
     },
-    onError: (error) => handleErrorToast(error),
+    onError: (error: unknown) => handleErrorToast(error),
   });
 };
 

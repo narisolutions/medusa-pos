@@ -58,7 +58,7 @@ const useQueryOrder = (
       return await fetchOrder(orderId);
     },
     enabled: isAuthenticated && !!orderId,
-    retry: (failureCount, error) => {
+    retry: (failureCount: number, error: unknown) => {
       // Retry if SDK not initialized (HMR issue)
       const errorMessage = error instanceof Error ? error.message : String(error);
       if (errorMessage.includes("SDK not initialized")) {
@@ -66,7 +66,8 @@ const useQueryOrder = (
       }
       return failureCount < 1; // Otherwise retry once
     },
-    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 3000), // Exponential backoff
+    retryDelay: (attemptIndex: number) =>
+      Math.min(1000 * 2 ** attemptIndex, 3000), // Exponential backoff
   });
 };
 

@@ -201,7 +201,7 @@ export const useFulfillmentDialog = (
       storage.getItem("stock_location_id").then((storedLocationId) => {
         if (storedLocationId && stockLocationsQuery.data) {
           const existsInList = stockLocationsQuery.data.some(
-            (loc) => String(loc.id) === storedLocationId
+            (loc: { id: unknown }) => String(loc.id) === storedLocationId
           );
           if (existsInList && !selectedLocationId) {
             preferredLocationIdRef.current = storedLocationId;
@@ -222,7 +222,7 @@ export const useFulfillmentDialog = (
     }
 
     const location = stockLocationsQuery.data.find(
-      (loc) => String(loc.id) === locationId
+      (loc: { id: unknown }) => String(loc.id) === locationId
     );
 
     return location?.name || null;
@@ -230,13 +230,13 @@ export const useFulfillmentDialog = (
 
   const selectedLocation = useMemo(() => {
     return stockLocationsQuery.data?.find(
-      (location) => String(location.id) === selectedLocationId
+      (location: { id: unknown }) => String(location.id) === selectedLocationId
     );
   }, [stockLocationsQuery.data, selectedLocationId]);
 
   const selectedShippingOption = useMemo(() => {
     return shippingOptionsQuery.data?.find(
-      (option) => option.id === selectedShippingOptionId
+      (option: { id: string }) => option.id === selectedShippingOptionId
     );
   }, [shippingOptionsQuery.data, selectedShippingOptionId]);
 

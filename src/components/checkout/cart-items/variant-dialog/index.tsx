@@ -220,7 +220,7 @@ const ItemDialog: React.FC<Props> = ({
                 {t("checkout.kit_contents_title")}
                 {inventoryKitItems && inventoryKitItems.length > 0 && (
                   <span className="text-sm font-normal text-fg-subtle">
-                    ({t("checkout.items", { count: inventoryKitItems.reduce((total, item) => total + (item.required_quantity || 1), 0) })})
+                    ({t("checkout.items", { count: inventoryKitItems.reduce((total: number, item: { required_quantity?: number }) => total + (item.required_quantity || 1), 0) })})
                   </span>
                 )}
               </h3>
@@ -238,7 +238,18 @@ const ItemDialog: React.FC<Props> = ({
                 </div>
               ) : inventoryKitItems && inventoryKitItems.length > 0 ? (
                 <div className="space-y-2">
-                  {inventoryKitItems.map((kitItem, index) => {
+                  {inventoryKitItems.map(
+                    (
+                      kitItem: {
+                        id: string;
+                        required_quantity?: number;
+                        title?: string;
+                        sku?: string;
+                        inventory_quantity?: number | null;
+                        product?: { title?: string; thumbnail?: string };
+                      },
+                      index: number
+                    ) => {
                     return (
                       <div
                         key={`${kitItem.id}-${index}`}

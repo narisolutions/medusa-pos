@@ -35,7 +35,9 @@ const Header: React.FC<Props> = ({
   isRefreshing = false,
 }) => {
   const { data: rawChannels } = useQuerySalesChannel();
-  const salesChannels = (rawChannels ?? []).filter((ch) => !ch.is_disabled);
+  const salesChannels = (rawChannels ?? []).filter(
+    (ch: { is_disabled?: boolean }) => !ch.is_disabled
+  );
   const { t } = useTranslation();
 
   const onGlobalFilterChange = (value: string) => {
@@ -154,7 +156,7 @@ const Header: React.FC<Props> = ({
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="">{t("orders.all")}</SelectItem>
-                    {salesChannels.map((ch) => (
+                    {salesChannels.map((ch: { id: string; name: string }) => (
                       <SelectItem key={ch.id} value={ch.name}>
                         {ch.name}
                       </SelectItem>

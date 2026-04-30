@@ -38,7 +38,9 @@ export const useConnectionSettings = ({ form }: Props) => {
 
   const salesChannels = useMemo(() => {
     if (!salesChannelsRaw) return [];
-    return salesChannelsRaw.filter((channel) => !channel.is_disabled);
+    return salesChannelsRaw.filter(
+      (channel: { is_disabled?: boolean }) => !channel.is_disabled
+    );
   }, [salesChannelsRaw]);
 
   const stockLocations = useMemo(() => {
@@ -60,7 +62,9 @@ export const useConnectionSettings = ({ form }: Props) => {
         let salesChannelValue = "";
         if (storedSalesChannelId && salesChannels.length > 0 && !isLoadingSalesChannels) {
           // Validate that stored channel exists in loaded channels
-          const channelExists = salesChannels.some((ch) => ch.id === storedSalesChannelId);
+          const channelExists = salesChannels.some(
+            (ch: { id: string }) => ch.id === storedSalesChannelId
+          );
           if (channelExists) {
             salesChannelValue = storedSalesChannelId;
           }
@@ -73,7 +77,9 @@ export const useConnectionSettings = ({ form }: Props) => {
         let stockLocationValue = "";
         if (storedStockLocationId && stockLocations.length > 0 && !isLoadingStockLocations) {
           // Validate that stored location exists in loaded locations
-          const locationExists = stockLocations.some((loc) => String(loc.id) === storedStockLocationId);
+          const locationExists = stockLocations.some(
+            (loc: { id: unknown }) => String(loc.id) === storedStockLocationId
+          );
           if (locationExists) {
             stockLocationValue = storedStockLocationId;
           }
@@ -191,13 +197,19 @@ export const useConnectionSettings = ({ form }: Props) => {
   // Get current selected sales channel name for display
   const getSelectedChannelName = useCallback(() => {
     const currentValue = watch("sales_channel");
-    return salesChannels.find((ch) => ch.id === currentValue)?.name || "";
+    return (
+      salesChannels.find((ch: { id: string; name: string }) => ch.id === currentValue)
+        ?.name || ""
+    );
   }, [watch, salesChannels]);
 
   // Get current selected stock location name for display
   const getSelectedLocationName = useCallback(() => {
     const currentValue = watch("stock_location");
-    return stockLocations.find((loc) => String(loc.id) === currentValue)?.name || "";
+    return (
+      stockLocations.find((loc: { id: unknown; name: string }) => String(loc.id) === currentValue)
+        ?.name || ""
+    );
   }, [watch, stockLocations]);
 
   return {

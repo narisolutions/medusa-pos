@@ -102,7 +102,7 @@ const useDraftOrder = () => {
       // converted order has `shipping_methods` and admin fulfillments can resolve a provider.
       // Vanilla Medusa seeds often have "Standard Shipping" but nothing named "pickup".
       const shippingOptionForDraft =
-        shippingOptions?.find((option) =>
+        shippingOptions?.find((option: { name: string }) =>
           option.name.toLowerCase().includes("pickup")
         ) ?? shippingOptions?.[0];
 

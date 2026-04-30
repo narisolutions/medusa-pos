@@ -83,7 +83,7 @@ const useItemDialog = (
   );
 
   const inventoryKitItems = allKitItems.filter(
-    (kitItem) => kitItem.id !== currentVariantId
+    (kitItem: { id: string }) => kitItem.id !== currentVariantId
   );
 
   // Convert to safe values
