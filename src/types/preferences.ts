@@ -18,7 +18,7 @@ export type AppearancePreferences = {
   themeMode: ThemeMode;
 };
 
-export type LanguageMode = "en" | "ka" | "pl" | "system";
+export type LanguageMode = "en" | "ka" | "pl" | "es" | "fr" | "de" | "sv" | "system";
 
 export type IntegrationPreferences = {
   customEndpointsEnabled: boolean;

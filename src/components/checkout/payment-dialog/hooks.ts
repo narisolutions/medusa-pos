@@ -190,7 +190,7 @@ const useCashPayment = (
 
 const useOrderProcessing = () => {
   const processPaymentCollection = useCallback(
-    async (order: AdminOrder): Promise<void> => {
+    async (order: AdminOrder, providerId: string): Promise<void> => {
       const sdk = getSdk();
 
       if (
@@ -202,6 +202,14 @@ const useOrderProcessing = () => {
 
       if (order.payment_collections && order.payment_collections.length > 0) {
         const existingPaymentCollection = order.payment_collections[0];
+        try {
+          await sdk.admin.paymentCollection.createPaymentSession(
+            existingPaymentCollection.id,
+            { provider_id: providerId }
+          );
+        } catch (err) {
+          console.warn("createPaymentSession unavailable, falling back to markAsPaid:", err);
+        }
         await sdk.admin.paymentCollection.markAsPaid(
           existingPaymentCollection.id,
           { order_id: order.id }
@@ -215,6 +223,14 @@ const useOrderProcessing = () => {
         amount: paymentAmount,
       });
 
+      try {
+        await sdk.admin.paymentCollection.createPaymentSession(
+          payment_collection.id,
+          { provider_id: providerId }
+        );
+      } catch (err) {
+        console.warn("createPaymentSession unavailable, falling back to markAsPaid:", err);
+      }
       await sdk.admin.paymentCollection.markAsPaid(payment_collection.id, {
         order_id: order.id,
       });
@@ -431,7 +447,7 @@ const usePaymentModal = (
         });
 
         // Step 3: Process payment
-        await processPaymentCollection(order);
+        await processPaymentCollection(order, selectedPaymentMethod ?? "pp_cash_pos");
 
         // Step 4: Process fulfillment
         await processFulfillment(order);
