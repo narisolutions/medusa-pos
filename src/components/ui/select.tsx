@@ -21,6 +21,7 @@ interface SelectProps {
 function Select({ value, defaultValue, onValueChange, children }: SelectProps) {
   const [open, setOpen] = React.useState(false)
   const [internalValue, setInternalValue] = React.useState(value || defaultValue || "")
+  const rootRef = React.useRef<HTMLDivElement>(null)
 
   const currentValue = value !== undefined ? value : internalValue
 
@@ -32,6 +33,17 @@ function Select({ value, defaultValue, onValueChange, children }: SelectProps) {
     setOpen(false)
   }
 
+  React.useEffect(() => {
+    if (!open) return
+    const handleOutsideClick = (e: MouseEvent) => {
+      if (rootRef.current && !rootRef.current.contains(e.target as Node)) {
+        setOpen(false)
+      }
+    }
+    document.addEventListener("mousedown", handleOutsideClick)
+    return () => document.removeEventListener("mousedown", handleOutsideClick)
+  }, [open])
+
   return (
     <SelectContext.Provider
       value={{
@@ -41,7 +53,7 @@ function Select({ value, defaultValue, onValueChange, children }: SelectProps) {
         setOpen,
       }}
     >
-      <div className="relative">
+      <div ref={rootRef} className="relative">
         {children}
       </div>
     </SelectContext.Provider>
