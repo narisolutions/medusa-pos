@@ -17,6 +17,7 @@ import {
   getStorePhone,
   getGuestCustomerEmail,
   getPaymentMethodsForSettings,
+  getMethodType,
 } from "@/utils/settings/store/metadata";
 import constants from "@/utils/constants";
 
@@ -193,14 +194,15 @@ const usePrinterService = () => {
         (m) => m.id?.toLowerCase() === paymentMethodId?.toLowerCase()
       )?.label ?? paymentMethodId ?? "PP_CASH_POS";
 
+    const isCashMethod = getMethodType(store, paymentMethodId) === "cash";
+
     const amountPaid: number =
-      paymentMethodId === "pp_cash_pos" && cashPaid > 0
+      isCashMethod && cashPaid > 0
         ? cashPaid
         : total;
 
     const change: number =
-    
-      paymentMethodId === "pp_cash_pos" && cashPaid > 0
+      isCashMethod && cashPaid > 0
         ? Math.max(0, cashPaid - total)
         : 0;
 

@@ -36,6 +36,7 @@ const fetchProductByBarcode = async (
 
     if (!data?.variants?.length) {
       return null;
+      
     }
 
     const variant = data.variants[0];
