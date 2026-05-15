@@ -12,7 +12,7 @@ const fetchOrders = async (
     const baseParams = {
       fields:
         options?.fields ||
-        "display_id,status,total,created_at,currency_code,*items,customer.email,*sales_channel,payment_status,fulfillment_status, fulfillments.*, *shipping_methods",
+        "display_id,status,total,created_at,currency_code,*items,customer.email,*sales_channel,payment_status,fulfillment_status,fulfillments.*,*shipping_methods,metadata,*payment_collections.payments.provider_id,*payment_collections.payment_sessions.provider_id",
       limit: options?.limit || 10,
       offset: options?.offset || 0,
       order: "-created_at",

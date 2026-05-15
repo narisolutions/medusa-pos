@@ -120,6 +120,21 @@ All builds include signed updater artifacts so the app can auto-update itself af
 
 **Linux** — No code signing is required. The AppImage runs directly after making it executable (`chmod +x`).
 
+## Roadmap
+
+Features planned for upcoming releases, roughly in priority order.
+
+| Feature | Description |
+|---|---|
+| **Manual card transactions** | Record card payments with the specific terminal/method used, without requiring a connected payment provider |
+| **Draft orders tab** | Separate "Draft Orders" tab alongside the orders list; park an in-progress sale and retrieve it later (with inventory allocation consideration) |
+| **Z-report** | Daily cash-up report exportable to PDF or printable directly to a receipt printer |
+| **Cash reconciliation** | End-of-shift cash reconciliation flow: count physical cash, compare against expected totals, and record discrepancies |
+| **Refunds, exchanges & partial refunds** | Process full/partial refunds and product exchanges from the order detail page, keeping full order history intact |
+| **Quotation creation** | Generate and send customer quotations (e.g. bulk orders) directly from the POS |
+| **Manager PIN override** | PIN-based authorization layer allowing managers to approve restricted actions unavailable to standard staff |
+| **Medusa POS plugin** | Publish the custom `/pos` backend endpoints used by this app as a standalone installable Medusa plugin, so any Medusa store can enable POS-specific features (inventory checks, context-aware pricing, kit support) without manual integration |
+
 ## Useful Links
 
 - [Contributing](CONTRIBUTING.md)

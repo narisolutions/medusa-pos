@@ -218,6 +218,7 @@
     "created_label": "Created",
     "currency_label": "Currency",
     "payment_status_label": "Payment Status",
+    "payment_method_label": "Payment Method",
     "payment_amount_label": "Payment Amount",
     "sales_channel_label": "Sales Channel",
     "order_items_header": "Order Items",

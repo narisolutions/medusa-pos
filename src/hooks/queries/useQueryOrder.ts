@@ -13,7 +13,7 @@ const fetchOrder = async (orderId: string): Promise<AdminOrder | null> => {
     const sdk = getSdk();
     const { order } = await sdk.admin.order.retrieve(orderId, {
       fields:
-        "*items,*items.variant,*customer,*sales_channel,*shipping_address,*shipping_methods,*billing_address,*fulfillments.*,*fulfillments.shipping_option.*,*payment_collections.*,*payment_collections.payments.*,*region,*summary,display_id,status,payment_status,fulfillment_status,created_at,updated_at,total,subtotal,tax_total,discount_total,shipping_total,currency_code,metadata",
+        "*items,*items.variant,*customer,*sales_channel,*shipping_address,*shipping_methods,*billing_address,*fulfillments.*,*fulfillments.shipping_option.*,*payment_collections,*payment_collections.payments,*payment_collections.payment_sessions,payment_collections.payments.provider_id,payment_collections.payment_sessions.provider_id,*region,*summary,display_id,status,payment_status,fulfillment_status,created_at,updated_at,total,subtotal,tax_total,discount_total,shipping_total,currency_code,metadata",
     });
 
     return order as AdminOrder;
@@ -47,10 +47,9 @@ const useQueryOrder = (
             const { invoke } = await import("@tauri-apps/api/core");
             const config = await invoke<{ backend_url: string }>("load_config");
             await initializeSdk(config.backend_url);
-          } catch (initError) {
+          } catch {
             // If initialization fails, wait a bit and try fetching anyway
             await new Promise(resolve => setTimeout(resolve, 1000));
-            console.error(initError);
           }
         }
       }
