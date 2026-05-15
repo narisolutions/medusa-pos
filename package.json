@@ -74,7 +74,7 @@
     "react-dom": "^18.3.1",
     "react-error-boundary": "^6.1.1",
     "react-hook-form": "^7.75.0",
-    "react-i18next": "^17.0.4",
+    "react-i18next": "^17.0.7",
     "react-router-dom": "^7.15.0",
     "sidebar": "^1.0.2",
     "sonner": "^2.0.7",
