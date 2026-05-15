@@ -195,6 +195,10 @@ export const initializeSdk = async (baseUrl?: string) => {
               }
               
               const text = await response.text();
+              // Empty body (204 No Content or empty 200) — return null instead of throwing SyntaxError
+              if (!text || text.trim() === '') {
+                return null;
+              }
               const json = JSON.parse(text);
               
               // Extract and store auth token from login response

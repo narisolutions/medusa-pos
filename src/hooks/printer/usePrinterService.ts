@@ -16,8 +16,11 @@ import {
   getStoreAddress2,
   getStorePhone,
   getGuestCustomerEmail,
-  getPaymentMethodsForSettings,
 } from "@/utils/settings/store/metadata";
+import {
+  getOrderPaymentMethodLabel,
+  getOrderPaymentMethodType,
+} from "@/utils/pos/payment";
 import constants from "@/utils/constants";
 
 const usePrinterService = () => {
@@ -181,26 +184,16 @@ const usePrinterService = () => {
       ? order.metadata.cash_paid 
       : 0;
     
-    const providerId = order.payment_collections?.[0]?.payment_sessions?.[0]?.provider_id;
-    const paymentMethodId =
-      providerId === "pp_system_default" && order.metadata?.payment_method
-        ? String(order.metadata.payment_method).toLowerCase()
-        : providerId;
-
-    const configuredMethods = getPaymentMethodsForSettings(store);
-    const paymentMethodLabel =
-      configuredMethods.find(
-        (m) => m.id?.toLowerCase() === paymentMethodId?.toLowerCase()
-      )?.label ?? paymentMethodId ?? "PP_CASH_POS";
+    const paymentMethodLabel = getOrderPaymentMethodLabel(order, store) || "PP_CASH_POS";
+    const isCashMethod = getOrderPaymentMethodType(order, store) === "cash";
 
     const amountPaid: number =
-      paymentMethodId === "pp_cash_pos" && cashPaid > 0
+      isCashMethod && cashPaid > 0
         ? cashPaid
         : total;
 
     const change: number =
-    
-      paymentMethodId === "pp_cash_pos" && cashPaid > 0
+      isCashMethod && cashPaid > 0
         ? Math.max(0, cashPaid - total)
         : 0;
 

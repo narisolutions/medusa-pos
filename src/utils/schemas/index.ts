@@ -98,6 +98,7 @@ export default {
           label: z.string().min(1),
           enabled: z.boolean(),
           icon: z.enum(["cash", "card"]).optional(),
+          type: z.enum(["cash", "card"]).optional(),
         })
       )
       .optional(),

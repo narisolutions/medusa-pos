@@ -1,4 +1,4 @@
-import React, { Fragment, useState } from "react";
+import React, { Fragment, useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -12,13 +12,20 @@ type Props = {
 };
 
 const CommentModal: React.FC<Props> = ({ open, onClose }) => {
-  const { selectedItemId, setItemMetadata } = useCartStore();
+  const { selectedItemId, setItemMetadata, pendingItemComment, setPendingItemComment } = useCartStore();
   const { items, orderComment, setOrderComment } = useCheckout();
   const { t } = useTranslation();
   const [scope, setScope] = useState<"order" | "item">("order");
+  const [pendingCommentInput, setPendingCommentInput] = useState<string>("");
 
   const currentItem = items.find((i) => i.variant_id === selectedItemId);
   const currentItemComment = (currentItem?.metadata?.comment as string) || "";
+
+  useEffect(() => {
+    if (open && !selectedItemId) {
+      setPendingCommentInput(pendingItemComment || "");
+    }
+  }, [open, selectedItemId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleScopeChange = (value: string) => {
     setScope(value === "item" ? "item" : "order");
@@ -32,6 +39,9 @@ const CommentModal: React.FC<Props> = ({ open, onClose }) => {
   };
 
   const onApply = () => {
+    if (scope === "item" && !selectedItemId) {
+      setPendingItemComment(pendingCommentInput || null);
+    }
     onClose();
     setScope("order");
   };
@@ -81,9 +91,19 @@ const CommentModal: React.FC<Props> = ({ open, onClose }) => {
                   />
                 </Fragment>
               ) : (
-                <div className="flex h-[180px] w-full items-center justify-center rounded-lg border border-theme-border bg-surface-muted text-base text-fg-muted">
-                  {t("checkout.select_item_for_comment")}
-                </div>
+                <Fragment>
+                  <label className="text-base font-medium text-fg">
+                    {t("checkout.comment_next_item_label")}
+                  </label>
+                  <textarea
+                    rows={6}
+                    value={pendingCommentInput}
+                    onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
+                      setPendingCommentInput(e.target.value)
+                    }
+                    className="w-full rounded-lg border border-theme-border p-4 text-base focus:outline-none focus:ring-2 focus:ring-primary/30"
+                  />
+                </Fragment>
               )}
             </div>
           )}

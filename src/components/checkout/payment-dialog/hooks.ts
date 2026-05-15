@@ -9,7 +9,8 @@ import { useCartStore } from "@/context/cart";
 import { PaymentMethod } from "@/types/utils";
 import { useCheckout } from "../hooks";
 import { useQueryStore } from "@/hooks/queries/useQueryStore";
-import { getPaymentMethods } from "@/utils/settings/store/metadata";
+import storage from "@/utils/storage";
+import { getPaymentMethods, getMethodType } from "@/utils/settings/store/metadata";
 import constants from "@/utils/constants";
 import { CreditCard, Banknote } from "lucide-react";
 import {
@@ -98,10 +99,7 @@ const useOrderCalculations = (draftOrder: AdminDraftOrder | null) => {
   return { subtotal, discount, tax, total, itemCount };
 };
 
-const useCashPayment = (
-  total: number,
-  selectedPaymentMethod?: PaymentMethod
-) => {
+const useCashPayment = (total: number, isCashType: boolean) => {
   const [customerPaid, setCustomerPaid] = useState<string>("");
   const [billCounts, setBillCounts] = useState<Record<number, number>>({});
 
@@ -160,12 +158,12 @@ const useCashPayment = (
   };
 
   const change =
-    selectedPaymentMethod === "pp_cash_pos" && customerPaid
+    isCashType && customerPaid
       ? (parseFloat(customerPaid) || 0) - total
       : 0;
 
   const canProcessPayment =
-    selectedPaymentMethod === "pp_cash_pos"
+    isCashType
       ? (parseFloat(customerPaid) || 0) >= total
       : true;
 
@@ -200,38 +198,45 @@ const useOrderProcessing = () => {
         return;
       }
 
+      let collectionId: string;
+
       if (order.payment_collections && order.payment_collections.length > 0) {
-        const existingPaymentCollection = order.payment_collections[0];
-        try {
-          await sdk.admin.paymentCollection.createPaymentSession(
-            existingPaymentCollection.id,
-            { provider_id: providerId }
-          );
-        } catch (err) {
-          console.warn("createPaymentSession unavailable, falling back to markAsPaid:", err);
-        }
-        await sdk.admin.paymentCollection.markAsPaid(
-          existingPaymentCollection.id,
-          { order_id: order.id }
+        collectionId = order.payment_collections[0].id;
+      } else {
+        const paymentAmount = order.summary?.accounting_total || order.total || 0;
+        const { payment_collection } = await sdk.admin.paymentCollection.create({
+          order_id: order.id,
+          amount: paymentAmount,
+        });
+        collectionId = payment_collection.id;
+      }
+
+      const { payment_collection: updatedCollection } =
+        await sdk.admin.paymentCollection.createPaymentSession(
+          collectionId,
+          { provider_id: providerId },
+          { fields: "*payment_sessions,*payments" }
         );
+
+      const alreadyCaptured = updatedCollection.payments?.find(
+        (p) => !!p.captured_at
+      );
+      if (alreadyCaptured) {
         return;
       }
 
-      const paymentAmount = order.summary?.accounting_total || order.total || 0;
-      const { payment_collection } = await sdk.admin.paymentCollection.create({
-        order_id: order.id,
-        amount: paymentAmount,
-      });
+      const pendingPayment = updatedCollection.payments?.find(
+        (p) => !p.captured_at
+      );
 
-      try {
-        await sdk.admin.paymentCollection.createPaymentSession(
-          payment_collection.id,
-          { provider_id: providerId }
-        );
-      } catch (err) {
-        console.warn("createPaymentSession unavailable, falling back to markAsPaid:", err);
+      if (pendingPayment?.id) {
+        await sdk.admin.payment.capture(pendingPayment.id, {});
+        return;
       }
-      await sdk.admin.paymentCollection.markAsPaid(payment_collection.id, {
+
+      // Provider did not auto-authorize — fall back to markAsPaid.
+      // Fix: return PaymentSessionStatus.AUTHORIZED from initiatePayment() in the provider.
+      await sdk.admin.paymentCollection.markAsPaid(collectionId, {
         order_id: order.id,
       });
     },
@@ -270,9 +275,12 @@ const useOrderProcessing = () => {
           return;
         }
 
+        const locationId = await storage.getItem("stock_location_id");
+
         const response = await sdk.admin.order.createFulfillment(order.id, {
           items: itemsToFulfill,
           no_notification: true,
+          ...(locationId ? { location_id: locationId } : {}),
         });
 
         let fulfillmentId = response.order?.fulfillments?.[0]?.id;
@@ -292,7 +300,7 @@ const useOrderProcessing = () => {
         await sdk.admin.order.markAsDelivered(order.id, fulfillmentId);
       } catch (error) {
         handleErrorToast(
-          `Warning: Fulfillment failed (${error instanceof Error ? error.message : "Unknown"}), but order created`
+          `Fulfillment failed (${error instanceof Error ? error.message : "Unknown"}), but order created`
         );
       }
     },
@@ -317,6 +325,8 @@ const usePaymentModal = (
 
   // Get payment method display info
   const paymentMethodInfo = usePaymentMethodDisplay(selectedPaymentMethod);
+  const { data: store } = useQueryStore();
+  const isCashType = getMethodType(store, selectedPaymentMethod) === "cash";
 
   // Compose sub-hooks
   const { draftOrder, fetchDraftOrder } = useDraftOrderState(
@@ -335,7 +345,7 @@ const usePaymentModal = (
     resetCashState,
     billCounts,
     quickAmounts,
-  } = useCashPayment(calculations.total, selectedPaymentMethod);
+  } = useCashPayment(calculations.total, isCashType);
   const { processPaymentCollection, processFulfillment } = useOrderProcessing();
 
   // Fire-and-forget: print receipt + open cash drawer after order succeeds.
@@ -359,7 +369,7 @@ const usePaymentModal = (
       });
 
       if (defaultPrinter?.openCashDrawer) {
-        const isCash = paymentMethod === "pp_cash_pos";
+        const isCash = getMethodType(store, paymentMethod) === "cash";
         const isCard = !isCash && paymentMethod !== undefined;
         if (
           (isCash && defaultPrinter.openCashDrawerOnCash) ||
@@ -374,7 +384,7 @@ const usePaymentModal = (
         }
       }
     },
-    [printOrderReceipt, openCashDrawer, getDefaultPrinter]
+    [store, printOrderReceipt, openCashDrawer, getDefaultPrinter]
   );
 
   // Clean up after successful order — synchronous-ish: clears cart, resets
@@ -405,13 +415,16 @@ const usePaymentModal = (
   // Main payment processing flow
   const handleProcessPayment =
     useCallback(async (): Promise<AdminOrder | null> => {
-      // Validate payment before processing
       if (!draftOrderId) {
         handleErrorToast("No order prepared. Please create order first.");
         playErrorSound();
         return null;
       }
-
+      if (!selectedPaymentMethod) {
+        handleErrorToast("No payment method selected.");
+        playErrorSound();
+        return null;
+      }
       if (!canProcessPayment) {
         playErrorSound();
         handleErrorToast("Insufficient payment amount");
@@ -420,59 +433,100 @@ const usePaymentModal = (
 
       setIsProcessing(true);
 
+      // Tracks whether the draft order has already been consumed by convertToOrder.
+      // Used in the catch block to decide whether to close the modal on error.
+      let orderConversionDone = false;
+
       try {
         const sdk = getSdk();
 
-        // Update draft order metadata with cash_paid if payment method is cash
-        if (selectedPaymentMethod === "pp_cash_pos" && customerPaid) {
+        // Step 1: Patch cash_paid into draft metadata (cash payments only)
+        if (isCashType && customerPaid) {
           const cashPaidAmount = parseFloat(customerPaid) || 0;
-
           const { draft_order } = await sdk.admin.draftOrder.retrieve(draftOrderId!);
           const currentMetadata = (draft_order.metadata || {}) as Record<string, unknown>;
-
           await sdk.admin.draftOrder.update(draftOrderId!, {
-            metadata: {
-              ...currentMetadata,
-              cash_paid: cashPaidAmount,
-            },
+            metadata: { ...currentMetadata, cash_paid: cashPaidAmount },
           });
         }
 
-        const { order: convertedOrder } =
-          await sdk.admin.draftOrder.convertToOrder(draftOrderId!);
+        // Step 2: Convert draft → order
+        const { order: convertedOrder } = await sdk.admin.draftOrder.convertToOrder(draftOrderId!);
 
+        // CRITICAL: draft is now consumed. Clear the ID immediately so that no
+        // subsequent error path can leave a stale draft order ID in state.
+        setDraftOrderId(null);
+        orderConversionDone = true;
+
+        // Step 3: Fetch full order with expanded payment/fulfillment fields
         const { order } = await sdk.admin.order.retrieve(convertedOrder.id, {
           fields:
             "*payment_collections,*payment_collections.payments,*summary,*fulfillments,*items,*customer,*sales_channel,*shipping_methods",
         });
 
-        // Step 3: Process payment
-        await processPaymentCollection(order, selectedPaymentMethod ?? "pp_cash_pos");
+        // Step 4: Process payment collection
+        let finalOrder = order;
+        try {
+          await processPaymentCollection(order, selectedPaymentMethod);
+        } catch {
+          // Re-fetch the order to check whether payment was captured on the backend
+          // despite the frontend error (e.g. empty-body response).
+          let paymentWasCaptured = false;
+          try {
+            const { order: refreshed } = await sdk.admin.order.retrieve(order.id, {
+              fields: "payment_status",
+            });
+            paymentWasCaptured =
+              refreshed.payment_status === "captured" ||
+              refreshed.payment_status === "authorized";
 
-        // Step 4: Process fulfillment
-        await processFulfillment(order);
+            if (paymentWasCaptured) {
+              const { order: fullRefreshed } = await sdk.admin.order.retrieve(order.id, {
+                fields:
+                  "*payment_collections,*payment_collections.payments,*summary,*fulfillments,*items,*customer,*sales_channel,*shipping_methods",
+              });
+              finalOrder = fullRefreshed;
+            }
+          } catch {
+            // ignore — handled below by paymentWasCaptured === false
+          }
 
-        // Step 5: Clean up and finalize
-        await cleanupAfterOrder(order, selectedPaymentMethod);
+          if (!paymentWasCaptured) {
+            try {
+              await sdk.admin.order.cancel(order.id);
+            } catch {
+              throw new Error(
+                `Payment failed and order #${order.display_id} could not be cancelled. Please resolve it in the admin panel.`
+              );
+            }
+            throw new Error("Payment processing failed. Please try again.");
+          }
+        }
 
-        return order;
+        // Step 5: Process fulfillment (errors are non-fatal — shows toast but doesn't throw)
+        await processFulfillment(finalOrder);
+
+        // Step 6: Complete the order (non-fatal)
+        try {
+          await sdk.admin.order.complete(finalOrder.id, {});
+        } catch {
+          // non-fatal
+        }
+
+        // Step 7: Clean up and finalize
+        await cleanupAfterOrder(finalOrder, selectedPaymentMethod);
+        return finalOrder;
+
       } catch (error) {
         playErrorSound();
+        handleErrorToast(
+          error instanceof Error ? error.message : "Failed to create order. Please try again."
+        );
 
-        if (error instanceof Error) {
-          if (error.message.includes("Payment collection")) {
-            handleErrorToast(
-              "Payment processing failed. Please verify payment status."
-            );
-          } else if (error.message.includes("payment")) {
-            handleErrorToast(
-              "Payment configuration error. Check payment provider."
-            );
-          } else {
-            handleErrorToast(`Order creation failed: ${error.message}`);
-          }
-        } else {
-          handleErrorToast("Failed to create order. Please try again.");
+        // If the draft was already converted when the error occurred, close the modal
+        // so the user can start a fresh checkout. Cart items are preserved.
+        if (orderConversionDone) {
+          onClose?.();
         }
 
         return null;
@@ -482,11 +536,14 @@ const usePaymentModal = (
     }, [
       draftOrderId,
       canProcessPayment,
+      isCashType,
       selectedPaymentMethod,
       customerPaid,
       processPaymentCollection,
       processFulfillment,
       cleanupAfterOrder,
+      setDraftOrderId,
+      onClose,
     ]);
 
   // Handle modal close
@@ -498,9 +555,7 @@ const usePaymentModal = (
 
   // Handle complete button click
   const handleCompleteClick = useCallback(() => {
-    const isCardPayment =
-      selectedPaymentMethod === "pp_tbc_pos" ||
-      selectedPaymentMethod === "pp_bank-of-georgia_pos";
+    const isCardPayment = !isCashType;
 
     if (isCardPayment) {
       setShowConfirmation(true);
@@ -511,7 +566,7 @@ const usePaymentModal = (
         }
       });
     }
-  }, [selectedPaymentMethod, handleProcessPayment, handleClose]);
+  }, [isCashType, handleProcessPayment, handleClose]);
 
   // Handle complete payment with modal close (legacy, kept for backwards compatibility)
   const handleCompletePayment = useCallback(async (): Promise<void> => {
@@ -548,7 +603,7 @@ const usePaymentModal = (
     quickAmounts,
     items,
     paymentMethodInfo,
-    isCashPayment: selectedPaymentMethod === "pp_cash_pos",
+    isCashPayment: isCashType,
 
     // Functions
     handleCashValueChange,
