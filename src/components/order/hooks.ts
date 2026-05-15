@@ -6,7 +6,6 @@ import { toast } from "sonner";
 import {
   triggerFileDownload,
   openDownloadsFolder,
-  getAuthToken,
   handleErrorToast,
   formatOrderStatusText,
   getOrderStatusColor,
@@ -14,7 +13,7 @@ import {
   getOrderPaymentStatusColor,
   printerIssueStaffHintToast,
 } from "@/utils/helpers";
-import { getSdkBaseUrl, getSdk } from "@/config/medusa";
+import { getSdkBaseUrl, getSdk, getAuthToken } from "@/config/medusa";
 import { useQueryClient } from "@tanstack/react-query";
 import { usePrinterService } from "@/hooks/printer/usePrinterService";
 import { classifyFulfillment, classifyOrderShippingMethod } from "@/utils/pos/fulfillment";

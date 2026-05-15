@@ -74,7 +74,7 @@ export default {
     startFullscreen: z.boolean(),
     themeMode: z.enum(["light", "dark", "system"]),
     customEndpointsEnabled: z.boolean(),
-    language: z.enum(["en", "ka", "pl", "system"]),
+    language: z.enum(["en", "ka", "pl", "es", "fr", "de", "sv", "system"]),
   }),
 
   storeSettings: z.object({
@@ -98,6 +98,7 @@ export default {
           label: z.string().min(1),
           enabled: z.boolean(),
           icon: z.enum(["cash", "card"]).optional(),
+          type: z.enum(["cash", "card"]).optional(),
         })
       )
       .optional(),

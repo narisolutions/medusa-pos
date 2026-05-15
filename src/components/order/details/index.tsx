@@ -4,6 +4,8 @@ import { Calendar } from "lucide-react";
 import { formatPrice, formatDate } from "@/utils/helpers";
 import constants from "@/utils/constants";
 import { useTranslation } from "@/i18n";
+import { useQueryStore } from "@/hooks/queries/useQueryStore";
+import { getOrderPaymentMethodLabel } from "@/utils/pos/payment";
 
 interface DetailsProps {
   order: AdminOrder;
@@ -17,6 +19,7 @@ const Details: React.FC<DetailsProps> = ({
   formatStatusText,
 }) => {
   const { t } = useTranslation();
+  const { data: store } = useQueryStore();
   const {
     display_id,
     created_at,
@@ -25,6 +28,8 @@ const Details: React.FC<DetailsProps> = ({
     total,
     sales_channel,
   } = order;
+
+  const paymentMethodLabel = getOrderPaymentMethodLabel(order, store);
 
   const currency = currency_code || constants.CHECKOUT_CONFIG.CURRENCY;
 
@@ -63,6 +68,12 @@ const Details: React.FC<DetailsProps> = ({
               </span>
             </div>
           </div>
+          {paymentMethodLabel && (
+            <div className="flex justify-between text-base">
+              <span className="text-fg-muted">{t("orders.payment_method_label")}</span>
+              <span className="font-medium text-fg">{paymentMethodLabel}</span>
+            </div>
+          )}
           <div className="flex justify-between text-base">
             <span className="text-fg-muted">{t("orders.payment_amount_label")}</span>
             <span className="font-medium text-fg">

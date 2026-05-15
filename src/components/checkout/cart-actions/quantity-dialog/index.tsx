@@ -89,8 +89,14 @@ const QuantityModal: React.FC<Props> = ({ open, onClose }) => {
               variant="ghost"
               size="icon"
               className="h-16 w-16 border text-2xl"
-              onClick={() => applyQty(currentQty - 1)}
-              disabled={currentQty <= 1 && !!selectedItemId}
+              onClick={() => {
+                if (selectedItemId) {
+                  applyQty(currentQty - 1);
+                } else {
+                  setInput((prev) => String(Math.max(1, (parseInt(prev, 10) || 1) - 1)));
+                }
+              }}
+              disabled={selectedItemId ? currentQty <= 1 : false}
             >
               <Minus className="h-8 w-8" />
             </Button>
@@ -110,7 +116,13 @@ const QuantityModal: React.FC<Props> = ({ open, onClose }) => {
               variant="ghost"
               size="icon"
               className="h-16 w-16 border text-2xl"
-              onClick={() => applyQty(currentQty + 1)}
+              onClick={() => {
+                if (selectedItemId) {
+                  applyQty(currentQty + 1);
+                } else {
+                  setInput((prev) => String((parseInt(prev, 10) || 0) + 1));
+                }
+              }}
             >
               <Plus className="h-8 w-8" />
             </Button>
