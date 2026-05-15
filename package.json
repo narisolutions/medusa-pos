@@ -92,7 +92,7 @@
     "@vitejs/plugin-react": "^6.0.1",
     "dotenv-cli": "^11.0.0",
     "eslint": "^9.39.3",
-    "eslint-plugin-react-hooks": "^5.2.0",
+    "eslint-plugin-react-hooks": "^7.1.1",
     "eslint-plugin-react-refresh": "^0.5.2",
     "prettier": "^3.8.3",
     "shadcn": "^4.2.0",
