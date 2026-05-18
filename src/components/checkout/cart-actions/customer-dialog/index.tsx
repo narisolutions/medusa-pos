@@ -152,7 +152,7 @@ const CustomerDialog: React.FC<CustomerDialogProps> = ({
     <Dialog open={open} onOpenChange={handleDialogOpenChange}>
       <DialogContent className="max-w-2xl p-6 md:p-8">
         <DialogTitle className="text-2xl font-semibold">
-          {t("checkout.attach_customer_title")}
+          {t("checkout.customer_attach_title")}
         </DialogTitle>
         <div className="space-y-6">
           <div className="space-y-3">
@@ -182,7 +182,7 @@ const CustomerDialog: React.FC<CustomerDialogProps> = ({
                 {isBusy ? (
                   <Loader2 className="w-5 h-5 animate-spin" />
                 ) : (
-                  t("checkout.search_customer_button")
+                  t("checkout.customer_search_button")
                 )}
               </Button>
               <Button
@@ -194,7 +194,7 @@ const CustomerDialog: React.FC<CustomerDialogProps> = ({
                 disabled={isBusy}
                 className="h-12 px-5 text-base"
               >
-                {t("checkout.create_customer_button")}
+                {t("checkout.customer_create_button")}
               </Button>
             </div>
           </div>
@@ -286,7 +286,7 @@ const CustomerDialog: React.FC<CustomerDialogProps> = ({
             !isCreateMode && (
             <div className="p-5 bg-yellow-50 border border-yellow-200 rounded-xl">
               <div className="text-base text-yellow-800">
-                {t("checkout.no_customer_found_message")}
+                {t("checkout.customer_not_found_message")}
               </div>
             </div>
           )}
@@ -295,7 +295,7 @@ const CustomerDialog: React.FC<CustomerDialogProps> = ({
             <div className="p-5 border border-theme-border rounded-xl bg-surface space-y-4">
               <div className="flex items-center justify-between gap-3">
                 <div className="text-base font-semibold text-fg">
-                  {t("checkout.create_customer_title")}
+                  {t("checkout.customer_create_title")}
                 </div>
                 {selectedCustomerLabel ? (
                   <div className="text-xs text-muted-foreground truncate">
@@ -365,7 +365,7 @@ const CustomerDialog: React.FC<CustomerDialogProps> = ({
                   {isBusy ? (
                     <Loader2 className="w-5 h-5 animate-spin" />
                   ) : (
-                    t("checkout.create_customer_submit_button")
+                    t("checkout.customer_create_submit_button")
                   )}
                 </Button>
               </div>
@@ -377,7 +377,7 @@ const CustomerDialog: React.FC<CustomerDialogProps> = ({
               <div className="flex items-center justify-between">
                 <div>
                   <div className="text-base font-semibold text-blue-900">
-                    {t("checkout.current_customer")}
+                    {t("checkout.customer_current")}
                   </div>
                   <div className="text-base text-blue-700">
                     {currentCustomerEmail}
@@ -390,7 +390,7 @@ const CustomerDialog: React.FC<CustomerDialogProps> = ({
                     className="h-11 px-4 text-base text-red-600 hover:text-red-700 hover:bg-red-50"
                   >
                     <X className="w-5 h-5 mr-2" />
-                    {t("checkout.remove_customer_button")}
+                    {t("checkout.customer_remove_button")}
                   </Button>
                 )}
               </div>
