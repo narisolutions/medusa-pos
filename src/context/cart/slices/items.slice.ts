@@ -1,6 +1,6 @@
 import { StateCreator } from "zustand";
 import { AdminProductVariant } from "@medusajs/types";
-import { CartItem, AddItemResult } from "@/types/utils";
+import { CartItem, AddItemResult, OrderDiscount } from "@/types/utils";
 import {
   buildItemMetadata,
   resolveSelectedItemId,
@@ -12,10 +12,14 @@ import {
 export interface CartItemsSlice {
   items: CartItem[];
   itemQuantity: number | null;
+  pendingItemDiscount: OrderDiscount | null;
+  pendingItemComment: string | null;
   selectedItemId: string | undefined;
   draftOrderId: string | null;
   setSelectedItemId: (id: string | undefined) => void;
   setItemQuantity: (quantity: number | null) => void;
+  setPendingItemDiscount: (discount: OrderDiscount | null) => void;
+  setPendingItemComment: (comment: string | null) => void;
   setItems: (items: CartItem[]) => void;
   setDraftOrderId: (id: string | null) => void;
   addItem: (variant: AdminProductVariant) => AddItemResult;
@@ -33,6 +37,8 @@ export const createCartItemsSlice: StateCreator<
 > = (set, get) => ({
   items: [],
   itemQuantity: null,
+  pendingItemDiscount: null,
+  pendingItemComment: null,
   selectedItemId: undefined,
   draftOrderId: null,
 
@@ -44,6 +50,14 @@ export const createCartItemsSlice: StateCreator<
 
   setItemQuantity: (quantity: number | null) => {
     set({ itemQuantity: quantity });
+  },
+
+  setPendingItemDiscount: (discount: OrderDiscount | null) => {
+    set({ pendingItemDiscount: discount });
+  },
+
+  setPendingItemComment: (comment: string | null) => {
+    set({ pendingItemComment: comment });
   },
 
   setItems: (items: CartItem[]) => {
@@ -68,7 +82,7 @@ export const createCartItemsSlice: StateCreator<
   },
 
   addItem: (variant: AdminProductVariant): AddItemResult => {
-    const { items, itemQuantity } = get();
+    const { items, itemQuantity, pendingItemDiscount, pendingItemComment } = get();
     const availableQty = getVariantAvailableQuantity(variant);
 
     // Check if product is out of stock only when inventory quantity is explicitly provided.
@@ -123,12 +137,28 @@ export const createCartItemsSlice: StateCreator<
       );
     } else {
       action = 'added';
-      const metadata = buildItemMetadata(variant);
+      const metadata = buildItemMetadata(variant) as Record<string, unknown>;
+
+      let unitPrice = getVariantUnitPrice(variant);
+
+      if (pendingItemDiscount && pendingItemDiscount.value > 0) {
+        const originalUnitPrice = unitPrice;
+        metadata.original_unit_price = originalUnitPrice;
+        metadata.item_discount = pendingItemDiscount;
+        const discountAmount = pendingItemDiscount.type === "percent"
+          ? (originalUnitPrice * pendingItemDiscount.value) / 100
+          : pendingItemDiscount.value;
+        unitPrice = Math.max(0, originalUnitPrice - Math.min(discountAmount, originalUnitPrice));
+      }
+
+      if (pendingItemComment) {
+        metadata.comment = pendingItemComment;
+      }
 
       const newItem: CartItem = {
         variant_id: variant.id,
         quantity: qtyToAdd,
-        unit_price: getVariantUnitPrice(variant),
+        unit_price: unitPrice,
         title:
           variant.title === "Default variant"
             ? variant.product?.title
@@ -148,6 +178,8 @@ export const createCartItemsSlice: StateCreator<
         items: updatedItems,
         selectedItemId: nextSelected,
         itemQuantity: null,
+        pendingItemDiscount: null,
+        pendingItemComment: null,
       };
     });
 
@@ -206,13 +238,20 @@ export const createCartItemsSlice: StateCreator<
 
   clearItems: () => {
     set((state) => {
-      if (state.items.length === 0 && state.selectedItemId === undefined) {
+      if (
+        state.items.length === 0 &&
+        state.selectedItemId === undefined &&
+        state.pendingItemDiscount === null &&
+        state.pendingItemComment === null
+      ) {
         return state;
       }
 
       return {
         items: [],
         selectedItemId: undefined,
+        pendingItemDiscount: null,
+        pendingItemComment: null,
         metadata: { ...DEFAULT_CART_METADATA },
       };
     });

@@ -12,7 +12,7 @@ type Props = {
 };
 
 const DiscountModal: React.FC<Props> = ({ open, onClose }) => {
-  const { selectedItemId, setItemMetadata } = useCartStore();
+  const { selectedItemId, setItemMetadata, pendingItemDiscount, setPendingItemDiscount } = useCartStore();
   const { items } = useCheckout();
   const { t } = useTranslation();
 
@@ -20,32 +20,33 @@ const DiscountModal: React.FC<Props> = ({ open, onClose }) => {
   const currentItemDiscount =
     (currentItem?.metadata?.item_discount as OrderDiscount | null) ?? null;
 
+  const activeDiscount = selectedItemId ? currentItemDiscount : pendingItemDiscount;
+
   const [discountType, setDiscountType] = useState<"amount" | "percent">(
-    currentItemDiscount?.type || "amount"
+    activeDiscount?.type || "amount"
   );
   const [discountValue, setDiscountValue] = useState<string>(
-    String(currentItemDiscount?.value ?? 0)
+    String(activeDiscount?.value ?? 0)
   );
   const [originalDiscount, setOriginalDiscount] = useState<OrderDiscount | null>(null);
 
   // Update local state when dialog opens or item/discount changes
   useEffect(() => {
     if (open) {
-      if (currentItemDiscount) {
-        setDiscountType(currentItemDiscount.type || "amount");
-        setDiscountValue(String(currentItemDiscount.value ?? 0));
-        setOriginalDiscount(currentItemDiscount);
+      if (activeDiscount) {
+        setDiscountType(activeDiscount.type || "amount");
+        setDiscountValue(String(activeDiscount.value ?? 0));
+        setOriginalDiscount(activeDiscount);
       } else {
         setDiscountType("amount");
         setDiscountValue("0");
         setOriginalDiscount(null);
       }
     }
-  }, [open, currentItemDiscount, selectedItemId]);
+  }, [open, selectedItemId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleTypeChange = (type: "amount" | "percent") => {
     setDiscountType(type);
-    // If switching back to the original type, restore the original value
     if (originalDiscount && originalDiscount.type === type) {
       setDiscountValue(String(originalDiscount.value ?? 0));
     } else {
@@ -62,12 +63,15 @@ const DiscountModal: React.FC<Props> = ({ open, onClose }) => {
   };
 
   const onApply = () => {
-    if (!selectedItemId) return;
-
     const value = Number(discountValue) || 0;
-    setItemMetadata(selectedItemId, {
-      item_discount: { type: discountType, value },
-    });
+
+    if (selectedItemId) {
+      setItemMetadata(selectedItemId, {
+        item_discount: { type: discountType, value },
+      });
+    } else {
+      setPendingItemDiscount(value > 0 ? { type: discountType, value } : null);
+    }
 
     onClose();
   };
@@ -77,60 +81,56 @@ const DiscountModal: React.FC<Props> = ({ open, onClose }) => {
       <DialogContent className="max-w-lg">
         <DialogTitle className="text-xl font-semibold">{t("checkout.discount_dialog_title")}</DialogTitle>
         <div className="space-y-4">
-          {selectedItemId ? (
-            <Fragment>
-              <label className="text-sm text-fg-muted">
-                {t("checkout.apply_discount_label")}<b>{currentItem?.title}</b>
-              </label>
+          <Fragment>
+            <label className="text-sm text-fg-muted">
+              {selectedItemId
+                ? <>{t("checkout.apply_discount_label")}<b>{currentItem?.title}</b></>
+                : t("checkout.discount_next_item_label")}
+            </label>
 
-              <div className="space-y-2">
-                <label className="text-sm text-fg-muted">{t("checkout.discount_type_label")}</label>
-                <div className="flex gap-4">
-                  <label className="flex items-center gap-2 cursor-pointer">
-                    <input
-                      type="radio"
-                      name="item-discount-type"
-                      checked={discountType === "amount"}
-                      onChange={() => handleTypeChange("amount")}
-                      className="w-4 h-4 border-theme-border-strong text-primary focus:ring-primary/30"
-                    />
-                    <span className="text-sm">{t("checkout.discount_amount")}</span>
-                  </label>
-                  <label className="flex items-center gap-2 cursor-pointer">
-                    <input
-                      type="radio"
-                      name="item-discount-type"
-                      checked={discountType === "percent"}
-                      onChange={() => handleTypeChange("percent")}
-                      className="w-4 h-4 border-theme-border-strong text-primary focus:ring-primary/30"
-                    />
-                    <span className="text-sm">{t("checkout.discount_percentage")}</span>
-                  </label>
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <label className="text-sm text-fg-muted">
-                  {t("checkout.discount_value_label")}{discountType === "percent" && "(%)"}
-                  {discountType === "amount" && `(${t("checkout.discount_amount")})`}
+            <div className="space-y-2">
+              <label className="text-sm text-fg-muted">{t("checkout.discount_type_label")}</label>
+              <div className="flex gap-4">
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="radio"
+                    name="item-discount-type"
+                    checked={discountType === "amount"}
+                    onChange={() => handleTypeChange("amount")}
+                    className="w-4 h-4 border-theme-border-strong text-primary focus:ring-primary/30"
+                  />
+                  <span className="text-sm">{t("checkout.discount_amount")}</span>
                 </label>
-                <div className="text-2xl font-semibold text-center p-3 border border-theme-border-strong rounded-md bg-surface-muted">
-                  {discountValue || "0"}
-                </div>
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="radio"
+                    name="item-discount-type"
+                    checked={discountType === "percent"}
+                    onChange={() => handleTypeChange("percent")}
+                    className="w-4 h-4 border-theme-border-strong text-primary focus:ring-primary/30"
+                  />
+                  <span className="text-sm">{t("checkout.discount_percentage")}</span>
+                </label>
               </div>
-
-              <Numpad
-                value={discountValue}
-                onChange={setDiscountValue}
-                onEnter={onApply}
-                allowDecimal={true}
-              />
-            </Fragment>
-          ) : (
-            <div className="flex h-[400px] w-full items-center justify-center rounded-md border border-theme-border-strong bg-surface-muted text-base text-fg-subtle">
-              {t("checkout.select_item_for_discount")}
             </div>
-          )}
+
+            <div className="space-y-2">
+              <label className="text-sm text-fg-muted">
+                {t("checkout.discount_value_label")}{discountType === "percent" && "(%)"}
+                {discountType === "amount" && `(${t("checkout.discount_amount")})`}
+              </label>
+              <div className="text-2xl font-semibold text-center p-3 border border-theme-border-strong rounded-md bg-surface-muted">
+                {discountValue || "0"}
+              </div>
+            </div>
+
+            <Numpad
+              value={discountValue}
+              onChange={setDiscountValue}
+              onEnter={onApply}
+              allowDecimal={true}
+            />
+          </Fragment>
         </div>
       </DialogContent>
     </Dialog>

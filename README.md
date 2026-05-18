@@ -120,6 +120,20 @@ All builds include signed updater artifacts so the app can auto-update itself af
 
 **Linux** — No code signing is required. The AppImage runs directly after making it executable (`chmod +x`).
 
+## Roadmap
+
+We're actively building out Medusa POS into a full-featured retail system. Here's what's coming:
+
+- **Medusa POS plugin** *(coming soon)* — The custom backend endpoints that power inventory checks, context-aware pricing, and kit support will be released as a standalone, installable Medusa plugin so the community can adopt them without manual setup.
+- **Cash reconciliation** *(coming soon)* — Guide staff through end-of-shift cash counting, compare against system totals, and record any discrepancies.
+- **Payment provider integrations** — Native support for physical card readers and payment terminals, with real provider IDs recorded against each order for accurate reporting.
+- **Manual card transactions** — Accept card payments through any external terminal and record the method used against the order, no payment provider integration required.
+- **Draft orders & parked sales** — A dedicated Draft Orders tab lets staff park an in-progress sale and pick it up later, with inventory held during the session.
+- **Refunds, exchanges & partial refunds** — Handle the full post-sale lifecycle from the order page: full or partial refunds, product exchanges, and additional charges, all with a complete audit trail.
+- **Quotations** — Create and send formal quotations to customers directly from the POS, useful for large or made-to-order purchases.
+- **Z-report** — Generate a daily sales summary at end of shift, printable to a receipt printer or exportable as PDF.
+- **Manager PIN override** — A PIN-based approval flow that lets managers authorize sensitive actions (discounts, voids, refunds) without handing over their session.
+
 ## Useful Links
 
 - [Contributing](CONTRIBUTING.md)

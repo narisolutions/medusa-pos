@@ -7,6 +7,8 @@ import { useQueryOrders } from "@/hooks/queries/useQueryOrders";
 import storage from "@/utils/storage";
 import constants from "@/utils/constants";
 import { classifyOrderShippingMethod, getShippingMethodLabel } from "@/utils/pos/fulfillment";
+import { useQueryStore } from "@/hooks/queries/useQueryStore";
+import { getOrderPaymentMethodLabel } from "@/utils/pos/payment";
 
 const columnHelper = createColumnHelper<AdminOrder>();
 
@@ -60,6 +62,7 @@ const getFulfillmentStatusColor = (status: string) => {
 
 const useOrders = () => {
   const { t } = useTranslation();
+  const { data: store } = useQueryStore();
   const columns = useMemo(
     () => [
       columnHelper.accessor("display_id", {
@@ -172,6 +175,17 @@ const useOrders = () => {
           );
         },
       }),
+      columnHelper.display({
+        id: "payment_method",
+        header: t("orders.payment_method_label"),
+        cell: (info) => {
+          const label = getOrderPaymentMethodLabel(info.row.original, store);
+          if (!label) {
+            return <span className="text-base text-fg-muted">—</span>;
+          }
+          return <span className="text-base text-fg">{label}</span>;
+        },
+      }),
       columnHelper.accessor("fulfillment_status", {
         id: "fulfillment_status",
         header: t("orders.column_fulfillment"),
@@ -211,7 +225,7 @@ const useOrders = () => {
         },
       }),
     ],
-    [t]
+    [t, store]
   );
 
   return { columns };
