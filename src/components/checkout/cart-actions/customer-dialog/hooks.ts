@@ -86,11 +86,7 @@ export const useCustomerDialog = () => {
     setHasSearched(false);
   }, []);
 
-  const resetSearch = useCallback(() => {
-    setHasSearched(false);
-    setCustomers([]);
-    setSelectedCustomer(null);
-  }, []);
+ 
 
   return {
     searchTerm,
@@ -104,7 +100,6 @@ export const useCustomerDialog = () => {
     searchCustomers,
     createCustomer,
     clearCustomer,
-    resetSearch,
   };
 };
 

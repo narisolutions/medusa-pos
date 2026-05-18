@@ -40,7 +40,6 @@ const CustomerDialog: React.FC<CustomerDialogProps> = ({
     searchCustomers,
     createCustomer,
     clearCustomer,
-    resetSearch,
   } = useCustomerDialog();
 
   const hasAccount = order?.customer?.has_account || null;
@@ -162,7 +161,7 @@ const CustomerDialog: React.FC<CustomerDialogProps> = ({
                 value={searchTerm}
                 onChange={(e) => {
                   setSearchTerm(e.target.value);
-                  resetSearch();
+                  clearCustomer();
                   setIsCreateMode(false);
                 }}
                 placeholder={t("checkout.customer_search_placeholder")}
