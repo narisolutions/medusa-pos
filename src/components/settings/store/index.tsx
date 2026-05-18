@@ -1,6 +1,6 @@
 import React from "react";
 import { useForm, useFieldArray } from "react-hook-form";
-import { ImageIcon, Upload, X, Banknote, CreditCard, Plus, Trash2, Info } from "lucide-react";
+import { ImageIcon, Upload, X, Banknote, CreditCard, Plus, Trash2, Info, AlertTriangle } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -27,6 +27,7 @@ import {
 } from "@/components/ui/tooltip";
 import { Forms } from "@/types/form";
 import { DEFAULT_PAYMENT_METHODS } from "@/utils/settings/store/metadata";
+import { useQueryPaymentProviders } from "@/hooks/queries/useQueryPaymentProviders";
 import { useStoreSettings } from "./hooks";
 import ColorField from "./color-field";
 import { useTranslation } from "@/i18n";
@@ -59,6 +60,9 @@ const StoreSettings: React.FC = () => {
     control,
     name: "paymentMethods",
   });
+
+  const { data: installedProviders, isError: providersError } = useQueryPaymentProviders();
+  const installedProviderIds = new Set((!providersError && installedProviders?.map((p) => p.id)) || []);
 
   const {
     currentLogoUrl,
@@ -293,18 +297,40 @@ const StoreSettings: React.FC = () => {
                     <FormField
                       control={control}
                       name={`paymentMethods.${index}.id`}
-                      render={({ field: idField }) => (
-                        <FormItem className="w-48 shrink-0">
-                          <FormControl>
-                            <Input
-                              placeholder={t("settings.store.provider_id_placeholder")}
-                              className="h-10 font-mono text-sm"
-                              disabled={isLoading}
-                              {...idField}
-                            />
-                          </FormControl>
-                        </FormItem>
-                      )}
+                      render={({ field: idField }) => {
+                        const idValue = idField.value ?? "";
+                        const isUnknown =
+                          installedProviders !== undefined &&
+                          installedProviderIds.size > 0 &&
+                          idValue.length > 0 &&
+                          !installedProviderIds.has(idValue);
+                        return (
+                          <FormItem className="w-48 shrink-0">
+                            <div className="relative">
+                              <FormControl>
+                                <Input
+                                  placeholder={t("settings.store.provider_id_placeholder")}
+                                  className={`h-10 font-mono text-sm${isUnknown ? " pr-8 border-yellow-500" : ""}`}
+                                  disabled={isLoading}
+                                  {...idField}
+                                />
+                              </FormControl>
+                              {isUnknown && (
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <span className="absolute right-2 top-1/2 -translate-y-1/2 text-yellow-500 cursor-help">
+                                      <AlertTriangle className="w-4 h-4" />
+                                    </span>
+                                  </TooltipTrigger>
+                                  <TooltipContent>
+                                    {t("settings.store.provider_id_not_installed")}
+                                  </TooltipContent>
+                                </Tooltip>
+                              )}
+                            </div>
+                          </FormItem>
+                        );
+                      }}
                     />
                     <FormField
                       control={control}
@@ -355,6 +381,35 @@ const StoreSettings: React.FC = () => {
                         </FormItem>
                       )}
                     />
+                    <FormField
+                      control={control}
+                      name={`paymentMethods.${index}.type`}
+                      render={({ field: typeField }) => (
+                        <FormItem className="w-28 shrink-0">
+                          <Select
+                            value={typeField.value ?? "card"}
+                            onValueChange={typeField.onChange}
+                          >
+                            <FormControl>
+                              <SelectTrigger
+                                className="h-10"
+                                disabled={isLoading}
+                              >
+                                <SelectValue placeholder={t("settings.store.type_label")} />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              <SelectItem value="cash">
+                                {t("settings.store.type_cash")}
+                              </SelectItem>
+                              <SelectItem value="card">
+                                {t("settings.store.type_card")}
+                              </SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </FormItem>
+                      )}
+                    />
                     <Button
                       type="button"
                       variant="ghost"
@@ -378,6 +433,7 @@ const StoreSettings: React.FC = () => {
                       label: "",
                       enabled: true,
                       icon: "card",
+                      type: "card",
                     })
                   }
                   disabled={isLoading}

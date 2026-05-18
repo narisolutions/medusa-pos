@@ -5,6 +5,8 @@ export type PaymentMethodConfig = {
   label: string;
   enabled: boolean;
   icon?: "cash" | "card";
+  /** Drives payment processing behavior (numpad, change calc, confirmation dialog). */
+  type?: "cash" | "card";
 };
 
 /** POS-specific store settings, nested under metadata.pos */
@@ -37,8 +39,8 @@ type RawStoreMetadata = Record<string, unknown> & {
 };
 
 const DEFAULT_PAYMENT_METHODS: PaymentMethodConfig[] = [
-  { id: "pp_cash_pos", label: "Cash", enabled: true, icon: "cash" },
-  { id: "pp_manual_pos", label: "Card", enabled: true, icon: "card" },
+  { id: "pp_cash_pos", label: "Cash", enabled: true, icon: "cash", type: "cash" },
+  { id: "pp_manual_pos", label: "Card", enabled: true, icon: "card", type: "card" },
 ];
 
 /** Returns true if store has POS data (pos object or legacy flat keys) */
@@ -168,6 +170,23 @@ export function buildStoreMetadataPayload(
     Object.entries(existing).filter(([key]) => !POS_METADATA_KEYS.has(key))
   );
   return { ...rest, pos };
+}
+
+/**
+ * Returns the behavioral type ("cash" or "card") for a given provider ID.
+ * Falls back from the explicit `type` field to the `icon` field for legacy saved configs.
+ * Defaults to "card" when the method is not found.
+ */
+export function getMethodType(
+  store: AdminStore | null | undefined,
+  providerId: string | undefined
+): "cash" | "card" {
+  if (!providerId) return "card";
+  const configured = getStoreMetadata(store).payment_methods;
+  const all = configured?.length ? configured : DEFAULT_PAYMENT_METHODS;
+  const found = all.find((m) => m.id === providerId);
+  if (!found) return "card";
+  return found.type ?? (found.icon === "cash" ? "cash" : "card");
 }
 
 export { DEFAULT_PAYMENT_METHODS };

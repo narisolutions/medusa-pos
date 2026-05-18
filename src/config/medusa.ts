@@ -1,7 +1,25 @@
 import { invoke } from "@tauri-apps/api/core";
 import constants from "@/utils/constants";
 import type Medusa from "@medusajs/js-sdk";
-import { getAuthToken } from "@/utils/helpers";
+
+const AUTH_TOKEN_KEY = "medusa_auth_token";
+
+export const getAuthToken = async (): Promise<string | null> => {
+  try {
+    const { Store } = await import("@tauri-apps/plugin-store");
+    const store = await Store.load(".auth.dat");
+    const token = await store.get<string>(AUTH_TOKEN_KEY);
+    if (token) return token;
+    const localToken = localStorage.getItem(AUTH_TOKEN_KEY);
+    if (localToken) {
+      await store.set(AUTH_TOKEN_KEY, localToken);
+      await store.save();
+    }
+    return localToken;
+  } catch {
+    try { return localStorage.getItem(AUTH_TOKEN_KEY); } catch { return null; }
+  }
+};
 
 let sdkInstance: InstanceType<typeof Medusa> | null = null;
 let sdkBaseUrl: string | null = null;

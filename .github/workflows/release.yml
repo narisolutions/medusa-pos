@@ -112,7 +112,7 @@ jobs:
 
       - name: Install pnpm
         if: steps.pm.outputs.manager == 'pnpm'
-        uses: pnpm/action-setup@v5
+        uses: pnpm/action-setup@v6
 
       # --------------- Toolchains ---------------
 

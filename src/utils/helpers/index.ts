@@ -2,7 +2,6 @@ import { toast } from "sonner";
 import { formatDateTime, formatPrice } from "@/utils/settings/preferences";
 import router from "@/router/router";
 import constants from "@/utils/constants";
-import { Store } from "@tauri-apps/plugin-store";
 import { queryClient } from "@/config/query";
 import { useCartStore } from "@/context/cart";
 import { useUser } from "@/context/user";
@@ -218,6 +217,22 @@ const openDownloadsFolder = async (
   }
 };
 
+const AUTH_TOKEN_KEY = "medusa_auth_token";
+
+const syncAuthTokenToStore = async (): Promise<void> => {
+  try {
+    const token = localStorage.getItem(AUTH_TOKEN_KEY);
+    if (token) {
+      const { Store } = await import("@tauri-apps/plugin-store");
+      const store = await Store.load(".auth.dat");
+      await store.set(AUTH_TOKEN_KEY, token);
+      await store.save();
+    }
+  } catch (error) {
+    console.warn("Failed to sync auth token to Tauri store:", error);
+  }
+};
+
 const isEmpty = (value: unknown): boolean => {
   return (
     value === undefined ||
@@ -228,60 +243,6 @@ const isEmpty = (value: unknown): boolean => {
       value !== null &&
       Object.keys(value).length === 0)
   );
-};
-
-// Token storage utilities for Tauri store sync
-const TOKEN_STORE_KEY = "medusa_auth_token";
-let tokenStore: Store | null = null;
-
-const getTokenStore = async (): Promise<Store> => {
-  if (!tokenStore) {
-    const { Store } = await import("@tauri-apps/plugin-store");
-    tokenStore = await Store.load(".auth.dat");
-  }
-  return tokenStore;
-};
-
-const syncAuthTokenToStore = async (): Promise<void> => {
-  try {
-    const token = localStorage.getItem(TOKEN_STORE_KEY);
-    if (token) {
-      const store = await getTokenStore();
-      await store.set(TOKEN_STORE_KEY, token);
-      await store.save();
-    }
-  } catch (error) {
-    console.warn("Failed to sync auth token to Tauri store:", error);
-  }
-};
-
-const getAuthToken = async (): Promise<string | null> => {
-  try {
-    const store = await getTokenStore();
-    const token = await store.get<string>(TOKEN_STORE_KEY);
-
-    if (token) {
-      return token;
-    }
-
-    const localToken = localStorage.getItem(TOKEN_STORE_KEY);
-
-    if (localToken) {
-      await syncAuthTokenToStore();
-    }
-
-    return localToken;
-  } catch (error) {
-    console.warn(
-      "Failed to get auth token from store, trying localStorage:",
-      error
-    );
-    try {
-      return localStorage.getItem(TOKEN_STORE_KEY);
-    } catch {
-      return null;
-    }
-  }
 };
 
 // Order Status Helpers
@@ -416,8 +377,6 @@ export {
   triggerFileDownload,
   openDownloadsFolder,
   isEmpty,
-  syncAuthTokenToStore,
-  getAuthToken,
   formatOrderStatusText,
   getOrderStatusColorFromMapping,
   getOrderStatusColor,
@@ -429,4 +388,5 @@ export {
   printerIssueStaffHintToast,
   cashDrawerIssueStaffHintToast,
   printerIssueStaffHintSettings,
+  syncAuthTokenToStore,
 };

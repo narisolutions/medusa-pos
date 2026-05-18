@@ -23,6 +23,10 @@ const LANGUAGE_OPTIONS: { value: LanguageMode; label: string }[] = [
   { value: "en", label: "English" },
   { value: "ka", label: "ქართული" },
   { value: "pl", label: "Polski" },
+  { value: "es", label: "Español" },
+  { value: "fr", label: "Français" },
+  { value: "de", label: "Deutsch" },
+  { value: "sv", label: "Svenska" },
 ];
 
 const PreferencesSettings: React.FC = () => {
@@ -38,7 +42,6 @@ const PreferencesSettings: React.FC = () => {
 
   const { control, watch } = form;
   const currentTheme = watch("themeMode");
-  const currentLanguage = watch("language");
 
   return (
     <div className="flex flex-col h-full min-h-0">
@@ -63,27 +66,30 @@ const PreferencesSettings: React.FC = () => {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className="text-base font-medium">{t("settings.preferences.language")}</FormLabel>
-                  <FormControl>
-                    <div className="flex gap-2">
+                  <Select
+                    value={field.value}
+                    onValueChange={(value) => {
+                      field.onChange(value as LanguageMode);
+                      handleLanguageChange(value as LanguageMode);
+                    }}
+                  >
+                    <FormControl>
+                      <SelectTrigger className="h-11 text-base px-4">
+                        <span>
+                          {field.value === "system"
+                            ? t("settings.preferences.language_system")
+                            : (LANGUAGE_OPTIONS.find((o) => o.value === field.value)?.label ?? field.value)}
+                        </span>
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
                       {LANGUAGE_OPTIONS.map(({ value, label }) => (
-                        <button
-                          key={value}
-                          type="button"
-                          onClick={() => {
-                            field.onChange(value);
-                            handleLanguageChange(value);
-                          }}
-                          className={`h-11 px-5 text-base font-medium rounded-md border transition-colors ${
-                            currentLanguage === value
-                              ? "bg-primary text-white border-primary"
-                              : "bg-surface border-theme-border text-fg-muted hover:bg-surface-hover"
-                          }`}
-                        >
+                        <SelectItem key={value} value={value}>
                           {value === "system" ? t("settings.preferences.language_system") : label}
-                        </button>
+                        </SelectItem>
                       ))}
-                    </div>
-                  </FormControl>
+                    </SelectContent>
+                  </Select>
                 </FormItem>
               )}
             />
