@@ -1280,9 +1280,9 @@ dependencies = [
 
 [[package]]
 name = "escpos"
-version = "0.15.3"
+version = "0.16.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "114d88702db94d377c1eb87a27c5b81c7934ba89cbbf4cc8309e8704666b0340"
+checksum = "b4559471b8f0f237d1599d693029d2cf14f2a7206176666c7934e599c7ccce99"
 dependencies = [
  "encoding_rs",
  "image",
