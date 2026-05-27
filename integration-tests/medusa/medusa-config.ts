@@ -1,4 +1,5 @@
 import { defineConfig, loadEnv } from "@medusajs/framework/utils"
+import PosPlugin from "@narisolutions/medusa-plugin-pos"
 
 loadEnv(process.env.NODE_ENV || "development", process.cwd())
 
@@ -17,4 +18,7 @@ module.exports = defineConfig({
   admin: {
     disable: true,
   },
+  plugins: [
+    PosPlugin({ defaultCurrencyCode: "usd" }),
+  ],
 })

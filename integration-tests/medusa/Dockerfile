@@ -5,7 +5,14 @@ RUN apt-get update && apt-get install -y --no-install-recommends curl && rm -rf 
 WORKDIR /app/medusa
 
 COPY package.json ./
-RUN npm install
+RUN npm install --no-audit --no-fund
+
+# Install the POS plugin by extracting its tarball straight into node_modules.
+# This keeps it out of npm's dependency resolver, which otherwise backtracks
+# forever over Medusa's peer-dependency graph.
+COPY narisolutions-medusa-plugin-pos-0.1.0.tgz ./
+RUN mkdir -p "node_modules/@narisolutions/medusa-plugin-pos" \
+ && tar -xzf narisolutions-medusa-plugin-pos-0.1.0.tgz -C "node_modules/@narisolutions/medusa-plugin-pos" --strip-components=1
 
 COPY . .
 
