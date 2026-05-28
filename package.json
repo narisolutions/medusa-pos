@@ -78,7 +78,7 @@
     "react-router-dom": "^7.15.0",
     "sidebar": "^1.0.2",
     "sonner": "^2.0.7",
-    "tailwind-merge": "^3.5.0",
+    "tailwind-merge": "^3.6.0",
     "zod": "^4.4.3",
     "zustand": "^5.0.13"
   },
