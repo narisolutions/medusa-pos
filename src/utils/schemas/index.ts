@@ -17,6 +17,14 @@ export default {
       }),
   }),
 
+  customerSchema: z.object({
+    email: z.string().email({ message: "Please enter a valid email address" }),
+    first_name: z.string().optional(),
+    last_name: z.string().optional(),
+    phone: z.string().optional(),
+    company_name: z.string().optional(),
+  }),
+
   printer: z.object({
     id: z.string().optional(),
     name: z.string().min(1, { message: "Printer name is required" }),
