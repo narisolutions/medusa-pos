@@ -29,11 +29,7 @@ const usePrinterService = () => {
   const { data: store } = useQueryStore();
   const { t } = useTranslation();
 
-  useEffect(() => {
-    loadPrinters();
-  }, []);
-
-  const loadPrinters = async () => {
+  const loadPrinters = useCallback(async () => {
     try {
       const stored = await storage.getItem<Printer[]>("printers");
       if (stored) {
@@ -44,7 +40,17 @@ const usePrinterService = () => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+    queueMicrotask(() => {
+      if (!cancelled) loadPrinters();
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [loadPrinters]);
 
   const getDefaultPrinter = useCallback((): Printer | null => {
     return printers.find((printer) => printer.isDefault) || null;

@@ -1,4 +1,5 @@
 import { useState, useCallback, useEffect, useMemo } from "react";
+import { useChange } from "@/hooks/utils/useChange";
 import { toast } from "sonner";
 import { queryClient } from "@/config/query";
 import { getSdk } from "@/config/medusa";
@@ -65,13 +66,23 @@ const useDraftOrderState = (draftOrderId?: string | null, isOpen?: boolean) => {
     }
   };
 
+  const shouldLoad = !!draftOrderId && !!isOpen;
+  useChange(shouldLoad, () => {
+    if (!shouldLoad) setDraftOrder(null);
+  });
+
   useEffect(() => {
     if (!draftOrderId || !isOpen) {
-      setDraftOrder(null);
       return;
     }
 
-    fetchDraftOrder();
+    let cancelled = false;
+    queueMicrotask(() => {
+      if (!cancelled) fetchDraftOrder();
+    });
+    return () => {
+      cancelled = true;
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen, draftOrderId]);
 

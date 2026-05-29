@@ -1,4 +1,5 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useMemo, useState } from "react";
+import { useChange } from "@/hooks/utils/useChange";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -61,18 +62,11 @@ const QuantityModal: React.FC<Props> = ({ open, onClose }) => {
     }
   };
 
-  useEffect(() => {
-    if (!open) {
-      setShowNumpad(false);
-      return;
-    }
-
-    if (selectedItemId) {
-      setInput(currentQty.toString());
-    } else {
-      setInput("");
-    }
-  }, [open, selectedItemId, currentQty, itemQuantity]);
+  useChange(`${open}|${selectedItemId ?? ""}|${currentQty}|${itemQuantity}`, () => {
+    if (!open) setShowNumpad(false);
+    else if (selectedItemId) setInput(currentQty.toString());
+    else setInput("");
+  });
 
   return (
     <Dialog open={open} onOpenChange={(o) => !o && onClose()}>

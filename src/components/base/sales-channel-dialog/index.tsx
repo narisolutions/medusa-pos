@@ -1,4 +1,5 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
+import { useChange } from "@/hooks/utils/useChange";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useSalesChannel } from "@/context/sales-channel";
 import { useUser } from "@/context/user";
@@ -23,10 +24,8 @@ const SalesChannelWarningDialog: React.FC = () => {
 
   const [dismissed, setDismissed] = useState(false);
 
-  // Reset dismissal whenever the user navigates, so each checkout visit re-evaluates
-  useEffect(() => {
-    setDismissed(false);
-  }, [pathname]);
+  // Reset dismissal on navigation so each checkout visit re-evaluates.
+  useChange(pathname, () => setDismissed(false));
 
   const isCheckoutPage = pathname.startsWith("/checkout");
   const open = isAuthenticated && !dismissed && (needsWarning || (!salesChannelId && isCheckoutPage));

@@ -116,7 +116,7 @@ fn create_usb_printer(vendor_id: u16, product_id: u16) -> Result<Printer<UsbDriv
         vendor_id,
         product_id
     );
-    match UsbDriver::open(vendor_id, product_id, Some(Duration::from_secs(8))) {
+    match UsbDriver::open(vendor_id, product_id, Some(Duration::from_secs(8)), None) {
         Ok(driver) => Ok(Printer::new(
             driver,
             Protocol::default(),

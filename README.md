@@ -124,7 +124,7 @@ All builds include signed updater artifacts so the app can auto-update itself af
 
 We're actively building out Medusa POS into a full-featured retail system. Here's what's coming:
 
-- **Medusa POS plugin** *(coming soon)* — The custom backend endpoints that power inventory checks, context-aware pricing, and kit support will be released as a standalone, installable Medusa plugin so the community can adopt them without manual setup.
+- **Medusa POS plugin** *(released)* — The custom backend endpoints that power inventory checks, context-aware pricing, and kit support are available as a standalone Medusa plugin: [`@narisolutions/medusa-plugin-pos`](https://github.com/narisolutions/medusa-plugins).
 - **Cash reconciliation** *(coming soon)* — Guide staff through end-of-shift cash counting, compare against system totals, and record any discrepancies.
 - **Payment provider integrations** — Native support for physical card readers and payment terminals, with real provider IDs recorded against each order for accurate reporting.
 - **Manual card transactions** — Accept card payments through any external terminal and record the method used against the order, no payment provider integration required.
@@ -136,6 +136,7 @@ We're actively building out Medusa POS into a full-featured retail system. Here'
 
 ## Useful Links
 
+- [Medusa POS Plugin](https://github.com/narisolutions/medusa-plugins) — `@narisolutions/medusa-plugin-pos` on npm
 - [Contributing](CONTRIBUTING.md)
 - [Discussions](https://github.com/narisolutions/medusa-pos/discussions)
 - [Issues](https://github.com/narisolutions/medusa-pos/issues)

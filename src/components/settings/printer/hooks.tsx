@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Forms } from "@/types/form";
 import { Wifi, Usb, Bluetooth, Monitor } from "lucide-react";
 import storage from "@/utils/storage";
@@ -29,11 +29,7 @@ const usePrinterSettings = (editingPrinter: Printer | null) => {
     Record<string, { success: boolean; message: string }>
   >({});
 
-  useEffect(() => {
-    loadPrinters();
-  }, []);
-
-  const loadPrinters = async () => {
+  const loadPrinters = useCallback(async () => {
     try {
       const stored = await storage.getItem<Printer[]>("printers");
       if (stored) {
@@ -44,7 +40,17 @@ const usePrinterSettings = (editingPrinter: Printer | null) => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+    queueMicrotask(() => {
+      if (!cancelled) loadPrinters();
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [loadPrinters]);
 
   const savePrinters = async (newPrinters: Printer[]) => {
     try {

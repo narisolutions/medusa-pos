@@ -24,9 +24,12 @@ const useBarcodeBackgroundPaste = ({
   const barcodeBufferRef = useRef<string>('');
   const lastKeystrokeTimeRef = useRef<number>(0);
   
-  onBarcodePasteRef.current = onBarcodePaste;
-  onKeystrokeRef.current = onKeystroke;
-  enabledRef.current = enabled;
+  // Keep refs in sync with the latest props (after render, not during).
+  useEffect(() => {
+    onBarcodePasteRef.current = onBarcodePaste;
+    onKeystrokeRef.current = onKeystroke;
+    enabledRef.current = enabled;
+  });
 
   // Prevent scanning duplication
   const processBarcode = (barcode: string) => {

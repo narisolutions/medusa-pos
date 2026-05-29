@@ -1,4 +1,5 @@
 import { useEffect, useState, useCallback } from "react";
+import { useChange } from "./hooks/utils/useChange";
 import { RouterProvider } from "react-router-dom";
 import router from "./router/router";
 import { QueryClientProvider } from "@tanstack/react-query";
@@ -33,9 +34,12 @@ function App() {
   const globalLoading = useUser((state) => state.globalLoading);
   const [bootTimedOut, setBootTimedOut] = useState(false);
 
+  useChange(bootLoading, () => {
+    if (!bootLoading) setBootTimedOut(false);
+  });
+
   useEffect(() => {
     if (!bootLoading) {
-      setBootTimedOut(false);
       return;
     }
 
