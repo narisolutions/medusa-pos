@@ -25,6 +25,20 @@ export default async function seed({ container }: ExecArgs) {
 
   logger.info("Seeding POS test data...")
 
+  // Skip if already seeded (idempotency guard for container restarts)
+  const { data: existingRegions } = await query.graph({
+    entity: "region",
+    fields: ["id", "countries.iso_2"],
+  })
+  const alreadySeeded = existingRegions.some(
+    (r: { countries?: { iso_2: string }[] }) =>
+      r.countries?.some((c) => c.iso_2 === "us")
+  )
+  if (alreadySeeded) {
+    logger.info("Seed data already exists, skipping.")
+    return
+  }
+
   // ── Store ──────────────────────────────────────────────────────────
   const { data: stores } = await query.graph({
     entity: "store",

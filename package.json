@@ -31,7 +31,7 @@
     "android:build:apk:debug": "tauri android build --apk -d",
     "android:build:apk:split": "tauri android build --apk --split-per-abi",
     "android:build:apk:arm64": "tauri android build --apk --target aarch64",
-    "test:env:up": "docker compose -f integration-tests/docker-compose.yml --env-file integration-tests/.env up --build -d",
+    "test:env:up": "docker compose -f integration-tests/docker-compose.yml --env-file integration-tests/.env up --build -d --wait",
     "test:env:down": "docker compose -f integration-tests/docker-compose.yml down",
     "test:env:reset": "docker compose -f integration-tests/docker-compose.yml down -v",
     "test:env:logs": "docker compose -f integration-tests/docker-compose.yml logs -f medusa"
