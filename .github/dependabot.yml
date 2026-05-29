@@ -58,10 +58,14 @@ updates:
     directory: "/src-tauri"
     schedule:
       interval: "weekly"
+    # Keep Rust dependency PRs on the integration branch, not main
+    target-branch: "develop"
     open-pull-requests-limit: 5
 
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
       interval: "weekly"
+    # Keep workflow dependency PRs on the integration branch, not main
+    target-branch: "develop"
     open-pull-requests-limit: 5
