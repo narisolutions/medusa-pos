@@ -67,7 +67,7 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "cmdk": "^1.1.1",
-    "i18next": "^26.2.0",
+    "i18next": "^26.3.0",
     "jspdf": "^4.2.1",
     "lucide-react": "^1.17.0",
     "react": "^18.3.1",
