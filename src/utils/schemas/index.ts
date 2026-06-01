@@ -81,7 +81,6 @@ export default {
     decimalSeparator: z.enum(["dot", "comma"]),
     startFullscreen: z.boolean(),
     themeMode: z.enum(["light", "dark", "system"]),
-    customEndpointsEnabled: z.boolean(),
     language: z.enum(["en", "ka", "pl", "es", "fr", "de", "sv", "system"]),
   }),
 

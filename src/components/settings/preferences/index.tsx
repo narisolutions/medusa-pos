@@ -307,52 +307,6 @@ const PreferencesSettings: React.FC = () => {
             />
           </fieldset>
 
-          <div className="border-t border-theme-border" />
-
-          {/* Integrations */}
-          <fieldset className="space-y-4">
-            <legend className="text-lg font-semibold text-fg">{t("settings.preferences.integrations")}</legend>
-
-            <FormField
-              control={control}
-              name="customEndpointsEnabled"
-              render={({ field }) => (
-                <FormItem>
-                  <div className="flex items-start justify-between gap-4">
-                    <div className="space-y-2">
-                      <FormLabel className="text-base font-medium">
-                        {t("settings.preferences.custom_endpoints")}
-                      </FormLabel>
-                      <div className="text-sm text-fg-muted space-y-2">
-                        <p>
-                          <span className="font-medium text-fg">
-                            {t("settings.preferences.endpoints_recommended")}
-                          </span>{" "}
-                          {t("settings.preferences.endpoints_recommended_desc")}
-                        </p>
-                        <p>
-                          <span className="font-medium text-fg">
-                            {t("settings.preferences.endpoints_enabled_title")}
-                          </span>{" "}
-                          {t("settings.preferences.endpoints_enabled_desc")}
-                        </p>
-                        <p>
-                          <span className="font-medium text-fg">
-                            {t("settings.preferences.endpoints_disabled_title")}
-                          </span>{" "}
-                          {t("settings.preferences.endpoints_disabled_desc")}
-                        </p>
-                      </div>
-                    </div>
-                    <FormControl>
-                      <Switch checked={field.value} onCheckedChange={field.onChange} />
-                    </FormControl>
-                  </div>
-                </FormItem>
-              )}
-            />
-          </fieldset>
-
           <div className="border-t border-theme-border pt-4 shrink-0">
             <Button
               type="submit"

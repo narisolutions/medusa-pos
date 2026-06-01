@@ -20,15 +20,10 @@ export type AppearancePreferences = {
 
 export type LanguageMode = "en" | "ka" | "pl" | "es" | "fr" | "de" | "sv" | "system";
 
-export type IntegrationPreferences = {
-  customEndpointsEnabled: boolean;
-};
-
 export type UserPreferences = {
   dateTime: DateTimePreferences;
   display: DisplayPreferences;
   currency: CurrencyPreferences;
   appearance: AppearancePreferences;
-  integration: IntegrationPreferences;
   language: LanguageMode;
 };

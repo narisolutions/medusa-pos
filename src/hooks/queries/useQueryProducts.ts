@@ -3,7 +3,7 @@ import { getSdk } from "@/config/medusa";
 import { handleErrorToast } from "@/utils/helpers";
 import { useUser } from "@/context/user";
 import { AdminProduct } from "@medusajs/types";
-import { loadPreferences } from "@/utils/settings/preferences";
+import { isPosPluginInstalled } from "@/utils/pos/plugin";
 
 const MEDUSA_PRODUCT_FIELDS = [
   "*variants",
@@ -32,9 +32,7 @@ const fetchProducts = async (
     return [];
   }
 
-  const prefs = await loadPreferences();
-
-  if (prefs.integration.customEndpointsEnabled) {
+  if (await isPosPluginInstalled()) {
     try {
       const sdk = getSdk();
       const products = await sdk.client.fetch<AdminProduct[]>(

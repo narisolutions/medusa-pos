@@ -29,8 +29,8 @@ Medusa POS is an independent open-source project and is not officially affiliate
 
 ## Medusa Version Tested
 
-- Frontend SDK/types in this project: `@medusajs/js-sdk@2.13.3`, `@medusajs/types@2.13.3`
-- App behavior validated against Medusa Admin API v2.13.x style responses.
+- Frontend SDK/types in this project: `@medusajs/js-sdk@2.15.3`, `@medusajs/types@2.15.3`
+- App behavior validated against Medusa Admin API v2.15.x style responses.
 
 If your backend is older/newer, behavior can differ (especially pricing and inventory fields).
 
@@ -38,7 +38,7 @@ If your backend is older/newer, behavior can differ (especially pricing and inve
 
 ### Prerequisites
 
-- Node.js 18+
+- Node.js 20.19+, 22.13+, or 24+ (see `engines` in `package.json`)
 - Rust (stable)
 - Yarn
 - Tauri prerequisites for your OS: [tauri.app/start/prerequisites](https://tauri.app/start/prerequisites/)

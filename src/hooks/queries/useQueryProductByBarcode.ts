@@ -4,8 +4,9 @@ import { handleErrorToast } from "@/utils/helpers";
 import { ApiProductResponse } from "@/types/utils";
 import { AdminProductVariant } from "@medusajs/types";
 import storage from "@/utils/storage";
-import { loadPreferences } from "@/utils/settings/preferences";
+import { isPosPluginInstalled } from "@/utils/pos/plugin";
 import { toast } from "sonner";
+import { t } from "@/i18n";
 
 const fetchProductByBarcode = async (
   barcode: string
@@ -14,9 +15,8 @@ const fetchProductByBarcode = async (
     return null;
   }
 
-  const prefs = await loadPreferences();
-  if (!prefs.integration.customEndpointsEnabled) {
-    toast.error("Barcode lookup requires custom endpoints. Enable them in Settings → Preferences.");
+  if (!(await isPosPluginInstalled())) {
+    toast.error(t("checkout.barcode_custom_endpoints_disabled"));
     return null;
   }
 
