@@ -52,6 +52,7 @@ export const useOrder = (order: AdminOrder) => {
   const [isFulfillmentDialogOpen, setIsFulfillmentDialogOpen] = useState(false);
   const [isPickupConfirmationOpen, setIsPickupConfirmationOpen] =
     useState(false);
+  const [isRecordPaymentOpen, setIsRecordPaymentOpen] = useState(false);
 
   const fulfillmentStatus = order.fulfillment_status;
   const isNegativeFulfillmentStatus =
@@ -265,6 +266,16 @@ export const useOrder = (order: AdminOrder) => {
     fulfillmentStatus !== "fulfilled" &&
     fulfillmentStatus !== "delivered";
 
+  // Payment is outstanding and the order is not canceled → allow recording it.
+  const paymentStatus = order.payment_status;
+  const canRecordPayment =
+    order.status !== "canceled" &&
+    (paymentStatus === "not_paid" ||
+      paymentStatus === "awaiting" ||
+      paymentStatus === "requires_action" ||
+      paymentStatus === "partially_authorized" ||
+      paymentStatus === "partially_captured");
+
   return {
     getStatusColor,
     getFulfillmentStatusColor,
@@ -284,11 +295,14 @@ export const useOrder = (order: AdminOrder) => {
     canCreateShipment,
     canMarkAsPickedUp,
     canDownloadShippingLabel,
+    canRecordPayment,
     isNegativeFulfillmentStatus,
     isFulfillmentDialogOpen,
     setIsFulfillmentDialogOpen,
     isPickupConfirmationOpen,
     setIsPickupConfirmationOpen,
+    isRecordPaymentOpen,
+    setIsRecordPaymentOpen,
     handleDownloadReceiptPDF,
   };
 };

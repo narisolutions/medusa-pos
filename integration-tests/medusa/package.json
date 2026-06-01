@@ -12,6 +12,7 @@
   "dependencies": {
     "@medusajs/framework": "^2.15.1",
     "@medusajs/medusa": "^2.15.1",
+    "@narisolutions/medusa-plugin-pos": "0.1.1",
     "awilix": "^8.0.1"
   },
   "devDependencies": {

@@ -195,7 +195,12 @@
     "kit_items_error": "Erreur lors du chargement des articles du pack. Veuillez réessayer.",
     "unknown_product": "Produit inconnu",
     "in_stock": "{{count}} en stock",
-    "no_kit_items": "Aucun article de pack trouvé"
+    "no_kit_items": "Aucun article de pack trouvé",
+    "amount_due_label": "Montant dû",
+    "deliver_pay_later": "Livrer, payer plus tard",
+    "deliver_pay_later_button": "Confirmer — payer plus tard",
+    "pay_later_confirm_title": "Livrer sans paiement ?",
+    "pay_later_confirm_message": "La commande sera créée et livrée maintenant. Le paiement reste dû et pourra être enregistré plus tard depuis la commande."
   },
   "orders": {
     "search_placeholder": "Rechercher des commandes...",
@@ -310,7 +315,16 @@
     "no_shipping_on_order": "Aucune livraison sur cette commande",
     "add_shipping_method_hint": "Ajoutez un mode de livraison dans Medusa Admin, puis réessayez.",
     "fulfillment_created_success": "Traitement créé avec succès",
-    "failed_to_create_fulfillment": "Échec de la création du traitement : {{error}}"
+    "failed_to_create_fulfillment": "Échec de la création du traitement : {{error}}",
+    "record_payment": "Enregistrer le paiement",
+    "record_payment_success": "Paiement enregistré avec succès",
+    "record_payment_failed": "Échec de l'enregistrement du paiement",
+    "payment_label": "Paiement :",
+    "filter_unpaid": "Impayé",
+    "status_awaiting": "En attente",
+    "status_captured": "Encaissé",
+    "status_partially_captured": "Partiellement encaissé",
+    "status_refunded": "Remboursé"
   },
   "receipt": {
     "title": "TICKET DE CAISSE",
@@ -330,7 +344,9 @@
     "payment_method": "Mode de paiement",
     "amount_paid": "Montant payé",
     "change": "Monnaie rendue",
-    "thank_you": "Merci de votre visite !"
+    "thank_you": "Merci de votre visite !",
+    "amount_due": "Montant dû",
+    "unpaid": "** IMPAYÉ — PAIEMENT EN ATTENTE **"
   },
   "settings": {
     "preferences": {

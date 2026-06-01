@@ -195,7 +195,12 @@
     "kit_items_error": "Det gick inte att ladda paketartiklarna. Försök igen.",
     "unknown_product": "Okänd produkt",
     "in_stock": "{{count}} i lager",
-    "no_kit_items": "Inga paketartiklar hittades"
+    "no_kit_items": "Inga paketartiklar hittades",
+    "amount_due_label": "Belopp att betala",
+    "deliver_pay_later": "Leverera, betala senare",
+    "deliver_pay_later_button": "Bekräfta — betala senare",
+    "pay_later_confirm_title": "Leverera utan betalning?",
+    "pay_later_confirm_message": "Ordern skapas och levereras nu. Betalningen kvarstår och kan registreras senare från ordern."
   },
   "orders": {
     "search_placeholder": "Sök order...",
@@ -310,7 +315,16 @@
     "no_shipping_on_order": "Ingen frakt på denna order",
     "add_shipping_method_hint": "Lägg till en fraktmetod i Medusa Admin och försök igen.",
     "fulfillment_created_success": "Leveranshantering skapad",
-    "failed_to_create_fulfillment": "Det gick inte att skapa leveranshanteringen: {{error}}"
+    "failed_to_create_fulfillment": "Det gick inte att skapa leveranshanteringen: {{error}}",
+    "record_payment": "Registrera betalning",
+    "record_payment_success": "Betalningen har registrerats",
+    "record_payment_failed": "Det gick inte att registrera betalningen",
+    "payment_label": "Betalning:",
+    "filter_unpaid": "Obetald",
+    "status_awaiting": "Väntar",
+    "status_captured": "Inkasserad",
+    "status_partially_captured": "Delvis inkasserad",
+    "status_refunded": "Återbetald"
   },
   "receipt": {
     "title": "FÖRSÄLJNINGSKVITTO",
@@ -330,7 +344,9 @@
     "payment_method": "Betalningsmetod",
     "amount_paid": "Betalt belopp",
     "change": "Växel",
-    "thank_you": "Tack för ditt besök!"
+    "thank_you": "Tack för ditt besök!",
+    "amount_due": "Belopp att betala",
+    "unpaid": "** OBETALD — BETALNING VÄNTAR **"
   },
   "settings": {
     "preferences": {

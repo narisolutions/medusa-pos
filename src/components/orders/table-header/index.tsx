@@ -20,6 +20,7 @@ interface Props {
     search: string;
     sales_channel: string;
     fulfillment_status: string;
+    payment_status: string;
   };
   onFiltersChange: (filters: Props["filters"]) => void;
   table: ReactTable<AdminOrder>;
@@ -65,11 +66,21 @@ const Header: React.FC<Props> = ({
     table.getColumn("sales_channel")?.setFilterValue(value || undefined);
   };
 
+  const onPaymentStatusChange = (value: string) => {
+    onFiltersChange({
+      ...filters,
+      payment_status: value,
+    });
+
+    table.getColumn("payment_status")?.setFilterValue(value || undefined);
+  };
+
   const clearAllFilters = () => {
     onFiltersChange({
       search: "",
       sales_channel: "",
       fulfillment_status: "",
+      payment_status: "",
     });
 
     table.setGlobalFilter("");
@@ -137,6 +148,28 @@ const Header: React.FC<Props> = ({
                     <SelectItem value="partially_delivered">{t("orders.status_partially_delivered")}</SelectItem>
                     <SelectItem value="delivered">{t("orders.status_delivered")}</SelectItem>
                     <SelectItem value="canceled">{t("orders.status_canceled")}</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-fg-muted">{t("orders.payment_label")}</span>
+              <div className="w-44">
+                <Select
+                  value={filters.payment_status || ""}
+                  onValueChange={onPaymentStatusChange}
+                >
+                  <SelectTrigger className="h-11 text-sm">
+                    <SelectValue placeholder={t("orders.all")} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="">{t("orders.all")}</SelectItem>
+                    <SelectItem value="not_paid">{t("orders.filter_unpaid")}</SelectItem>
+                    <SelectItem value="awaiting">{t("orders.status_awaiting")}</SelectItem>
+                    <SelectItem value="captured">{t("orders.status_captured")}</SelectItem>
+                    <SelectItem value="partially_captured">{t("orders.status_partially_captured")}</SelectItem>
+                    <SelectItem value="refunded">{t("orders.status_refunded")}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>

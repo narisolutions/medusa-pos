@@ -195,7 +195,12 @@
     "kit_items_error": "Fehler beim Laden der Set-Artikel. Bitte erneut versuchen.",
     "unknown_product": "Unbekanntes Produkt",
     "in_stock": "{{count}} auf Lager",
-    "no_kit_items": "Keine Set-Artikel gefunden"
+    "no_kit_items": "Keine Set-Artikel gefunden",
+    "amount_due_label": "Fälliger Betrag",
+    "deliver_pay_later": "Liefern, später zahlen",
+    "deliver_pay_later_button": "Bestätigen – später zahlen",
+    "pay_later_confirm_title": "Ohne Zahlung liefern?",
+    "pay_later_confirm_message": "Die Bestellung wird jetzt erstellt und geliefert. Die Zahlung bleibt offen und kann später bei der Bestellung erfasst werden."
   },
   "orders": {
     "search_placeholder": "Bestellungen suchen...",
@@ -310,7 +315,16 @@
     "no_shipping_on_order": "Kein Versand für diese Bestellung",
     "add_shipping_method_hint": "Fügen Sie im Medusa Admin eine Versandmethode hinzu und versuchen Sie es erneut.",
     "fulfillment_created_success": "Fulfillment erfolgreich erstellt",
-    "failed_to_create_fulfillment": "Fulfillment konnte nicht erstellt werden: {{error}}"
+    "failed_to_create_fulfillment": "Fulfillment konnte nicht erstellt werden: {{error}}",
+    "record_payment": "Zahlung erfassen",
+    "record_payment_success": "Zahlung erfolgreich erfasst",
+    "record_payment_failed": "Zahlung konnte nicht erfasst werden",
+    "payment_label": "Zahlung:",
+    "filter_unpaid": "Unbezahlt",
+    "status_awaiting": "Ausstehend",
+    "status_captured": "Eingezogen",
+    "status_partially_captured": "Teilweise eingezogen",
+    "status_refunded": "Erstattet"
   },
   "receipt": {
     "title": "VERKAUFSBELEG",
@@ -330,7 +344,9 @@
     "payment_method": "Zahlungsmethode",
     "amount_paid": "Gezahlter Betrag",
     "change": "Rückgeld",
-    "thank_you": "Vielen Dank für Ihren Besuch!"
+    "thank_you": "Vielen Dank für Ihren Besuch!",
+    "amount_due": "Fälliger Betrag",
+    "unpaid": "** UNBEZAHLT — ZAHLUNG AUSSTEHEND **"
   },
   "settings": {
     "preferences": {

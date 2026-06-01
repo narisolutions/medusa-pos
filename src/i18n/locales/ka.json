@@ -195,7 +195,12 @@
     "kit_items_error": "კომპლექტის ნივთების ჩატვირთვა ვერ მოხერხდა. სცადეთ თავიდან.",
     "unknown_product": "უცნობი პროდუქტი",
     "in_stock": "{{count}} მარაგშია",
-    "no_kit_items": "კომპლექტის ნივთები ვერ მოიძებნა"
+    "no_kit_items": "კომპლექტის ნივთები ვერ მოიძებნა",
+    "amount_due_label": "გადასახდელი თანხა",
+    "deliver_pay_later": "მიწოდება, გადახდა მოგვიანებით",
+    "deliver_pay_later_button": "დადასტურება — გადახდა მოგვიანებით",
+    "pay_later_confirm_title": "მიწოდება გადახდის გარეშე?",
+    "pay_later_confirm_message": "შეკვეთა შეიქმნება და მიეწოდება ახლა. გადახდა დარჩება დაუფარავი და მოგვიანებით შესაძლებელია მისი დაფიქსირება შეკვეთიდან."
   },
   "orders": {
     "search_placeholder": "შეკვეთების ძებნა...",
@@ -310,7 +315,16 @@
     "no_shipping_on_order": "ამ შეკვეთაზე მიწოდება არ არის",
     "add_shipping_method_hint": "დაამატეთ მიწოდების მეთოდი Medusa Admin-ში და სცადეთ თავიდან.",
     "fulfillment_created_success": "შეკვეთა წარმატებით გამზადდა",
-    "failed_to_create_fulfillment": "შეკვეთა ვერ გამზადდა: {{error}}"
+    "failed_to_create_fulfillment": "შეკვეთა ვერ გამზადდა: {{error}}",
+    "record_payment": "გადახდის დაფიქსირება",
+    "record_payment_success": "გადახდა წარმატებით დაფიქსირდა",
+    "record_payment_failed": "გადახდის დაფიქსირება ვერ მოხერხდა",
+    "payment_label": "გადახდა:",
+    "filter_unpaid": "გადაუხდელი",
+    "status_awaiting": "მოლოდინში",
+    "status_captured": "ჩარიცხული",
+    "status_partially_captured": "ნაწილობრივ ჩარიცხული",
+    "status_refunded": "დაბრუნებული"
   },
   "receipt": {
     "title": "გაყიდვის ქვითარი",
@@ -330,7 +344,9 @@
     "payment_method": "გადახდის მეთოდი",
     "amount_paid": "გადახდილი თანხა",
     "change": "ხურდა",
-    "thank_you": "გმადლობთ ვიზიტისთვის!"
+    "thank_you": "გმადლობთ ვიზიტისთვის!",
+    "amount_due": "გადასახდელი თანხა",
+    "unpaid": "** გადაუხდელი — გადახდა მოლოდინში **"
   },
   "settings": {
     "preferences": {

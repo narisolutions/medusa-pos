@@ -100,6 +100,30 @@ export const useActivityEvents = (order: AdminOrder) => {
       }
     });
 
+    // Pay-later orders may have no payment collection at all yet. Surface an
+    // awaiting-payment event anchored at order creation so staff see it is
+    // outstanding, unless a payment event was already derived above.
+    const hasPaymentEvent = activityEvents.some(
+      (e) => e.type === "payment_captured" || e.type === "awaiting_payment"
+    );
+    const isPaymentOutstanding =
+      order.payment_status === "not_paid" ||
+      order.payment_status === "awaiting" ||
+      order.payment_status === "requires_action";
+    if (!hasPaymentEvent && isPaymentOutstanding) {
+      const awaitingEvent = createEvent(
+        `awaiting_payment_order_${order.id}`,
+        "awaiting_payment",
+        t("orders.event_awaiting_payment"),
+        order.created_at,
+        {
+          amount: order.total,
+          currency: order.currency_code || constants.CHECKOUT_CONFIG.CURRENCY,
+        }
+      );
+      if (awaitingEvent) activityEvents.push(awaitingEvent);
+    }
+
     // Fulfillment events
     order.fulfillments?.forEach((fulfillment: AdminOrderFulfillment, fulfillmentIndex: number) => {
       const record = fulfillment as unknown as Record<string, unknown>;

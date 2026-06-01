@@ -195,7 +195,12 @@
     "kit_items_error": "Error loading kit items. Please try again.",
     "unknown_product": "Unknown Product",
     "in_stock": "{{count}} in stock",
-    "no_kit_items": "No kit items found"
+    "no_kit_items": "No kit items found",
+    "amount_due_label": "Amount Due",
+    "deliver_pay_later": "Deliver, pay later",
+    "deliver_pay_later_button": "Confirm — pay later",
+    "pay_later_confirm_title": "Deliver without payment?",
+    "pay_later_confirm_message": "The order will be created and delivered now. Payment stays outstanding and can be recorded later from the order."
   },
   "orders": {
     "search_placeholder": "Search orders...",
@@ -310,7 +315,16 @@
     "no_shipping_on_order": "No shipping on this order",
     "add_shipping_method_hint": "Add a shipping method in Medusa Admin, then try again.",
     "fulfillment_created_success": "Fulfillment created successfully",
-    "failed_to_create_fulfillment": "Failed to create fulfillment: {{error}}"
+    "failed_to_create_fulfillment": "Failed to create fulfillment: {{error}}",
+    "record_payment": "Record payment",
+    "record_payment_success": "Payment recorded successfully",
+    "record_payment_failed": "Failed to record payment",
+    "payment_label": "Payment:",
+    "filter_unpaid": "Unpaid",
+    "status_awaiting": "Awaiting",
+    "status_captured": "Captured",
+    "status_partially_captured": "Partially captured",
+    "status_refunded": "Refunded"
   },
   "receipt": {
     "title": "SALES RECEIPT",
@@ -330,7 +344,9 @@
     "payment_method": "Payment Method",
     "amount_paid": "Amount Paid",
     "change": "Change",
-    "thank_you": "Thank you for your visit!"
+    "thank_you": "Thank you for your visit!",
+    "amount_due": "Amount Due",
+    "unpaid": "** UNPAID — PAYMENT PENDING **"
   },
   "settings": {
     "preferences": {

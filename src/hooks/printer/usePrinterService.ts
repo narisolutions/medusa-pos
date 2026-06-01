@@ -193,13 +193,23 @@ const usePrinterService = () => {
     const paymentMethodLabel = getOrderPaymentMethodLabel(order, store) || "PP_CASH_POS";
     const isCashMethod = getOrderPaymentMethodType(order, store) === "cash";
 
-    const amountPaid: number =
-      isCashMethod && cashPaid > 0
+    // Order is delivered but payment is outstanding (pay later) — render an
+    // "amount due" receipt instead of amount-paid/change.
+    const paymentStatus = order.payment_status;
+    const isUnpaid =
+      paymentStatus === "not_paid" ||
+      paymentStatus === "awaiting" ||
+      paymentStatus === "requires_action" ||
+      (order.metadata?.pay_later === true && paymentStatus !== "captured");
+
+    const amountPaid: number = isUnpaid
+      ? 0
+      : isCashMethod && cashPaid > 0
         ? cashPaid
         : total;
 
     const change: number =
-      isCashMethod && cashPaid > 0
+      !isUnpaid && isCashMethod && cashPaid > 0
         ? Math.max(0, cashPaid - total)
         : 0;
 
@@ -226,6 +236,8 @@ const usePrinterService = () => {
       paymentMethod: paymentMethodLabel,
       amountPaid,
       change,
+      isUnpaid,
+      amountDue: isUnpaid ? total : undefined,
       footer: "Thank you for your business!",
     };
   }, [store]);
@@ -249,6 +261,8 @@ const usePrinterService = () => {
     paymentMethod: t("receipt.payment_method"),
     amountPaid: t("receipt.amount_paid"),
     change: t("receipt.change"),
+    amountDue: t("receipt.amount_due"),
+    unpaid: t("receipt.unpaid"),
     thankYou: t("receipt.thank_you"),
   }), [t]);
 

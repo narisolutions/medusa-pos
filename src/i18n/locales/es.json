@@ -195,7 +195,12 @@
     "kit_items_error": "Error al cargar los artículos del pack. Inténtalo de nuevo.",
     "unknown_product": "Producto desconocido",
     "in_stock": "{{count}} en existencias",
-    "no_kit_items": "No se han encontrado artículos del pack"
+    "no_kit_items": "No se han encontrado artículos del pack",
+    "amount_due_label": "Importe pendiente",
+    "deliver_pay_later": "Entregar, pagar después",
+    "deliver_pay_later_button": "Confirmar — pagar después",
+    "pay_later_confirm_title": "¿Entregar sin pago?",
+    "pay_later_confirm_message": "El pedido se creará y entregará ahora. El pago queda pendiente y podrá registrarse más tarde desde el pedido."
   },
   "orders": {
     "search_placeholder": "Buscar pedidos...",
@@ -310,7 +315,16 @@
     "no_shipping_on_order": "No hay envío en este pedido",
     "add_shipping_method_hint": "Añade un método de envío en Medusa Admin e inténtalo de nuevo.",
     "fulfillment_created_success": "Cumplimiento creado correctamente",
-    "failed_to_create_fulfillment": "Error al crear el cumplimiento: {{error}}"
+    "failed_to_create_fulfillment": "Error al crear el cumplimiento: {{error}}",
+    "record_payment": "Registrar pago",
+    "record_payment_success": "Pago registrado correctamente",
+    "record_payment_failed": "No se pudo registrar el pago",
+    "payment_label": "Pago:",
+    "filter_unpaid": "Sin pagar",
+    "status_awaiting": "Pendiente",
+    "status_captured": "Cobrado",
+    "status_partially_captured": "Cobrado parcialmente",
+    "status_refunded": "Reembolsado"
   },
   "receipt": {
     "title": "RECIBO DE VENTA",
@@ -330,7 +344,9 @@
     "payment_method": "Método de pago",
     "amount_paid": "Importe pagado",
     "change": "Cambio",
-    "thank_you": "¡Gracias por su visita!"
+    "thank_you": "¡Gracias por su visita!",
+    "amount_due": "Importe pendiente",
+    "unpaid": "** SIN PAGAR — PAGO PENDIENTE **"
   },
   "settings": {
     "preferences": {

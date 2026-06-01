@@ -80,6 +80,13 @@ const Orders: React.FC = () => {
       });
     }
 
+    if (filters.payment_status) {
+      newColumnFilters.push({
+        id: "payment_status",
+        value: filters.payment_status,
+      });
+    }
+
     setColumnFilters((prev) => {
       const prevStr = JSON.stringify(prev);
       const newStr = JSON.stringify(newColumnFilters);

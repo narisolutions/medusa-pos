@@ -195,7 +195,12 @@
     "kit_items_error": "Błąd ładowania elementów zestawu. Spróbuj ponownie.",
     "unknown_product": "Nieznany produkt",
     "in_stock": "{{count}} w magazynie",
-    "no_kit_items": "Brak elementów zestawu"
+    "no_kit_items": "Brak elementów zestawu",
+    "amount_due_label": "Kwota do zapłaty",
+    "deliver_pay_later": "Wydaj, zapłać później",
+    "deliver_pay_later_button": "Potwierdź — zapłać później",
+    "pay_later_confirm_title": "Wydać bez płatności?",
+    "pay_later_confirm_message": "Zamówienie zostanie utworzone i wydane teraz. Płatność pozostaje nieuregulowana i można ją zarejestrować później z poziomu zamówienia."
   },
   "orders": {
     "search_placeholder": "Szukaj zamówień...",
@@ -310,7 +315,16 @@
     "no_shipping_on_order": "To zamówienie nie ma dostawy",
     "add_shipping_method_hint": "Dodaj metodę dostawy w Medusa Admin i spróbuj ponownie.",
     "fulfillment_created_success": "Realizacja utworzona pomyślnie",
-    "failed_to_create_fulfillment": "Nie udało się utworzyć realizacji: {{error}}"
+    "failed_to_create_fulfillment": "Nie udało się utworzyć realizacji: {{error}}",
+    "record_payment": "Zarejestruj płatność",
+    "record_payment_success": "Płatność zarejestrowana pomyślnie",
+    "record_payment_failed": "Nie udało się zarejestrować płatności",
+    "payment_label": "Płatność:",
+    "filter_unpaid": "Nieopłacone",
+    "status_awaiting": "Oczekuje",
+    "status_captured": "Pobrane",
+    "status_partially_captured": "Częściowo pobrane",
+    "status_refunded": "Zwrócone"
   },
   "receipt": {
     "title": "PARAGON SPRZEDAŻY",
@@ -330,7 +344,9 @@
     "payment_method": "Metoda płatności",
     "amount_paid": "Kwota zapłacona",
     "change": "Reszta",
-    "thank_you": "Dziękujemy za wizytę!"
+    "thank_you": "Dziękujemy za wizytę!",
+    "amount_due": "Kwota do zapłaty",
+    "unpaid": "** NIEOPŁACONE — PŁATNOŚĆ OCZEKUJĄCA **"
   },
   "settings": {
     "preferences": {
