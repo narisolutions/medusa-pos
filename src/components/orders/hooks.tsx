@@ -174,6 +174,11 @@ const useOrders = () => {
             </div>
           );
         },
+        filterFn: (row, id, value) => {
+          const rowValue = row.getValue(id) as string;
+          if (!value) return true; // Show all if no filter
+          return rowValue === value; // Exact match
+        },
       }),
       columnHelper.display({
         id: "payment_method",
@@ -236,6 +241,7 @@ const useOrdersWithData = () => {
     search: "",
     sales_channel: "",
     fulfillment_status: "",
+    payment_status: "",
   };
 
   const [filters, setFilters] = useState(defaultFilters);

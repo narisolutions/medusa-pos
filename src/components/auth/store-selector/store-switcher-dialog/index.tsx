@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useChange } from "@/hooks/utils/useChange";
 import { ChevronLeft, Loader2, Pencil, Plus } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -58,11 +59,11 @@ const StoreSwitcherDialog: React.FC<Props> = ({ open, onClose }) => {
 
   const { control, handleSubmit, formState: { isSubmitting }, reset } = form;
 
-  useEffect(() => {
+  // Sync scheme/host inputs when the view or edited store changes.
+  useChange(`${view}|${editingStore?.id ?? ""}`, () => {
     if (view === "add") {
       setScheme("https://");
       setHost("");
-      reset({ backendUrl: "" });
     } else if (view === "edit" && editingStore) {
       const url = editingStore.backendUrl;
       if (url.startsWith("http://")) {
@@ -75,23 +76,31 @@ const StoreSwitcherDialog: React.FC<Props> = ({ open, onClose }) => {
         setScheme("https://");
         setHost(url);
       }
+    }
+  });
+
+  // reset() is a side effect on the RHF instance — keep it in an effect.
+  useEffect(() => {
+    if (view === "add") {
+      reset({ backendUrl: "" });
+    } else if (view === "edit" && editingStore) {
       reset({ backendUrl: editingStore.backendUrl });
     }
   }, [view, editingStore, reset]);
 
-  useEffect(() => {
+  // Reset to list view when the dialog closes.
+  useChange(open, () => {
     if (!open) {
       setView("list");
       setEditingStore(undefined);
       setSelectedStoreId(null);
     }
-  }, [open]);
+  });
 
-  useEffect(() => {
-    if (open && view === "list") {
-      setSelectedStoreId(activeStoreId ?? stores[0]?.id ?? null);
-    }
-  }, [open, view, activeStoreId, stores]);
+  // Default the selected store when the list view is shown.
+  useChange(`${open}|${view}|${activeStoreId ?? ""}|${stores.map((s) => s.id).join(",")}`, () => {
+    if (open && view === "list") setSelectedStoreId(activeStoreId ?? stores[0]?.id ?? null);
+  });
 
   const openAdd = () => {
     setEditingStore(undefined);

@@ -8,6 +8,7 @@ import {
   CheckCircle,
   Printer,
   FileDown,
+  Banknote,
 } from "lucide-react";
 import { formatDate } from "@/utils/helpers";
 import constants from "@/utils/constants";
@@ -15,6 +16,7 @@ import { useOrder } from "./hooks";
 import { useTranslation } from "@/i18n";
 import FulfillmentDialog from "./fulfillment-dialog";
 import PickupConfirmationDialog from "./confirmation-dialog";
+import RecordPaymentDialog from "./record-payment-dialog";
 import Activity from "./activity";
 import Summary from "./summary";
 import Details from "./details";
@@ -46,11 +48,14 @@ const Order: React.FC<Props> = ({ order }) => {
     canCreateShipment,
     canMarkAsPickedUp,
     canDownloadShippingLabel,
+    canRecordPayment,
     isNegativeFulfillmentStatus,
     isFulfillmentDialogOpen,
     setIsFulfillmentDialogOpen,
     isPickupConfirmationOpen,
     setIsPickupConfirmationOpen,
+    isRecordPaymentOpen,
+    setIsRecordPaymentOpen,
     handleDownloadReceiptPDF,
   } = useOrder(order);
 
@@ -80,6 +85,17 @@ const Order: React.FC<Props> = ({ order }) => {
           </div>
         </div>
         <div className="flex items-center gap-3">
+          {canRecordPayment && (
+            <Button
+              variant="default"
+              size="lg"
+              onClick={() => setIsRecordPaymentOpen(true)}
+              className={`bg-amber-600 hover:bg-amber-700 text-white ${constants.ORDER_BUTTON_BASE_CLASSES} min-w-[180px]`}
+            >
+              <Banknote className="w-5 h-5 mr-3" />
+              {t("orders.record_payment")}
+            </Button>
+          )}
           {canCreateShipment && (
             <Button
               variant="default"
@@ -206,6 +222,12 @@ const Order: React.FC<Props> = ({ order }) => {
         onConfirm={handleMarkAsPickedUp}
         isProcessing={isMarkingAsPickedUp}
         orderDisplayId={order.display_id || 0}
+      />
+
+      <RecordPaymentDialog
+        isOpen={isRecordPaymentOpen}
+        onClose={() => setIsRecordPaymentOpen(false)}
+        order={order}
       />
     </div>
   );

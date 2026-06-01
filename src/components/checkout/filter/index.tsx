@@ -16,7 +16,7 @@ import { ExtendedAdminProduct } from "@/types/utils";
 import ItemDialog from "../cart-items/variant-dialog";
 import { useCheckout } from "../hooks";
 import { getVariantAvailableQuantity, getVariantUnitPrice } from "@/utils/pos/cart";
-import { useCustomEndpoints } from "@/hooks/ui/useCustomEndpoints";
+import { useQueryPosPlugin } from "@/hooks/queries/useQueryPosPlugin";
 import { useTranslation } from "@/i18n";
 
 interface Props {
@@ -48,7 +48,7 @@ const CheckoutFilter: React.FC<Props> = ({ products }) => {
   } = useCheckoutFilter({ products, inputRef });
 
   const { currency } = useCheckout();
-  const { customEndpointsEnabled } = useCustomEndpoints();
+  const { data: pluginInstalled } = useQueryPosPlugin();
   const { t } = useTranslation();
 
   // Handle clicking outside to close dropdown
@@ -78,7 +78,7 @@ const CheckoutFilter: React.FC<Props> = ({ products }) => {
 
   return (
     <div className="flex flex-col gap-2">
-      {!customEndpointsEnabled && (
+      {pluginInstalled === false && (
         <div className="rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900">
           {t("checkout.endpoints_disabled_warning")}
         </div>

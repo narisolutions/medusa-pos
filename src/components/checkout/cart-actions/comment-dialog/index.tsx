@@ -1,4 +1,5 @@
-import React, { Fragment, useState, useEffect } from "react";
+import React, { Fragment, useState } from "react";
+import { useChange } from "@/hooks/utils/useChange";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -21,11 +22,9 @@ const CommentModal: React.FC<Props> = ({ open, onClose }) => {
   const currentItem = items.find((i) => i.variant_id === selectedItemId);
   const currentItemComment = (currentItem?.metadata?.comment as string) || "";
 
-  useEffect(() => {
-    if (open && !selectedItemId) {
-      setPendingCommentInput(pendingItemComment || "");
-    }
-  }, [open, selectedItemId]); // eslint-disable-line react-hooks/exhaustive-deps
+  useChange(`${open}|${selectedItemId ?? ""}`, () => {
+    if (open && !selectedItemId) setPendingCommentInput(pendingItemComment || "");
+  });
 
   const handleScopeChange = (value: string) => {
     setScope(value === "item" ? "item" : "order");

@@ -48,11 +48,11 @@ export const useActivityEvents = (order: AdminOrder) => {
     if (orderPlaced) activityEvents.push(orderPlaced);
 
     // Payment events
-    order.payment_collections?.forEach((collection: AdminPaymentCollection) => {
-      collection.payments?.forEach((payment: AdminPayment) => {
+    order.payment_collections?.forEach((collection: AdminPaymentCollection, collectionIndex: number) => {
+      collection.payments?.forEach((payment: AdminPayment, paymentIndex: number) => {
         if (payment.captured_at) {
           const event = createEvent(
-            `payment_captured_${payment.id || `payment_${collection.id}_${Date.now()}`}`,
+            `payment_captured_${payment.id || `payment_${collection.id}_${collectionIndex}_${paymentIndex}`}`,
             "payment_captured",
             t("orders.event_payment_captured"),
             payment.captured_at,
@@ -65,7 +65,7 @@ export const useActivityEvents = (order: AdminOrder) => {
           if (event) activityEvents.push(event);
         } else if (payment.created_at && !payment.captured_at && order.payment_status !== "captured") {
           const event = createEvent(
-            `awaiting_payment_${payment.id || `awaiting_${collection.id}_${Date.now()}`}`,
+            `awaiting_payment_${payment.id || `awaiting_${collection.id}_${collectionIndex}_${paymentIndex}`}`,
             "awaiting_payment",
             t("orders.event_awaiting_payment"),
             payment.created_at,
@@ -85,7 +85,7 @@ export const useActivityEvents = (order: AdminOrder) => {
         );
         if (!hasPaymentCaptured) {
           const event = createEvent(
-            `payment_captured_collection_${collection.id || Date.now()}`,
+            `payment_captured_collection_${collection.id || collectionIndex}`,
             "payment_captured",
             t("orders.event_payment_captured"),
             collection.updated_at,
@@ -100,15 +100,39 @@ export const useActivityEvents = (order: AdminOrder) => {
       }
     });
 
+    // Pay-later orders may have no payment collection at all yet. Surface an
+    // awaiting-payment event anchored at order creation so staff see it is
+    // outstanding, unless a payment event was already derived above.
+    const hasPaymentEvent = activityEvents.some(
+      (e) => e.type === "payment_captured" || e.type === "awaiting_payment"
+    );
+    const isPaymentOutstanding =
+      order.payment_status === "not_paid" ||
+      order.payment_status === "awaiting" ||
+      order.payment_status === "requires_action";
+    if (!hasPaymentEvent && isPaymentOutstanding) {
+      const awaitingEvent = createEvent(
+        `awaiting_payment_order_${order.id}`,
+        "awaiting_payment",
+        t("orders.event_awaiting_payment"),
+        order.created_at,
+        {
+          amount: order.total,
+          currency: order.currency_code || constants.CHECKOUT_CONFIG.CURRENCY,
+        }
+      );
+      if (awaitingEvent) activityEvents.push(awaitingEvent);
+    }
+
     // Fulfillment events
-    order.fulfillments?.forEach((fulfillment: AdminOrderFulfillment) => {
+    order.fulfillments?.forEach((fulfillment: AdminOrderFulfillment, fulfillmentIndex: number) => {
       const record = fulfillment as unknown as Record<string, unknown>;
       const { isPickup, isShipping } = classifyFulfillment(fulfillment);
       const itemCount = (record.items as Array<unknown> | undefined)?.length || order.items?.length || 0;
 
       // Items fulfilled (generic -- always shown)
       const fulfilledEvent = createEvent(
-        `fulfilled_${fulfillment.id || Date.now()}`,
+        `fulfilled_${fulfillment.id || fulfillmentIndex}`,
         "fulfilled",
         t("orders.event_items_fulfilled"),
         fulfillment.created_at,
@@ -120,7 +144,7 @@ export const useActivityEvents = (order: AdminOrder) => {
       const packedAt = record.packed_at as string | Date | undefined;
       if (packedAt && packedAt !== fulfillment.created_at) {
         const packedEvent = createEvent(
-          `packed_${fulfillment.id || Date.now()}`,
+          `packed_${fulfillment.id || fulfillmentIndex}`,
           "fulfilled",
           t("orders.event_items_packed"),
           packedAt,
@@ -133,7 +157,7 @@ export const useActivityEvents = (order: AdminOrder) => {
       const shippedAt = record.shipped_at as string | Date | undefined;
       if (shippedAt && isShipping) {
         const shipmentEvent = createEvent(
-          `shipped_${fulfillment.id || Date.now()}`,
+          `shipped_${fulfillment.id || fulfillmentIndex}`,
           "shipped",
           t("orders.event_shipment_created"),
           shippedAt,
@@ -146,7 +170,7 @@ export const useActivityEvents = (order: AdminOrder) => {
       if (isPickup && order.fulfillment_status === "delivered") {
         const timestamp = shippedAt || fulfillment.updated_at || order.updated_at;
         const pickedUpEvent = createEvent(
-          `marked_picked_up_${fulfillment.id || Date.now()}`,
+          `marked_picked_up_${fulfillment.id || fulfillmentIndex}`,
           "marked_picked_up",
           t("orders.event_marked_as_picked_up"),
           timestamp,
@@ -177,7 +201,7 @@ export const useActivityEvents = (order: AdminOrder) => {
 
             if (timeDiff > 1000 || !shippedTime) {
               const deliveredEvent = createEvent(
-                `delivered_${fulfillment.id || Date.now()}`,
+                `delivered_${fulfillment.id || fulfillmentIndex}`,
                 "delivered",
                 t("orders.event_marked_as_delivered"),
                 deliveredTimestamp,

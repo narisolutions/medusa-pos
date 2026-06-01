@@ -1,4 +1,5 @@
 import { useState, useCallback, useEffect, useMemo } from "react";
+import { useChange } from "@/hooks/utils/useChange";
 import { toast } from "sonner";
 import { queryClient } from "@/config/query";
 import { getSdk } from "@/config/medusa";
@@ -9,7 +10,7 @@ import { useCartStore } from "@/context/cart";
 import { PaymentMethod } from "@/types/utils";
 import { useCheckout } from "../hooks";
 import { useQueryStore } from "@/hooks/queries/useQueryStore";
-import storage from "@/utils/storage";
+import { useOrderProcessing } from "@/hooks/order/useOrderProcessing";
 import { getPaymentMethods, getMethodType } from "@/utils/settings/store/metadata";
 import constants from "@/utils/constants";
 import { CreditCard, Banknote } from "lucide-react";
@@ -65,13 +66,23 @@ const useDraftOrderState = (draftOrderId?: string | null, isOpen?: boolean) => {
     }
   };
 
+  const shouldLoad = !!draftOrderId && !!isOpen;
+  useChange(shouldLoad, () => {
+    if (!shouldLoad) setDraftOrder(null);
+  });
+
   useEffect(() => {
     if (!draftOrderId || !isOpen) {
-      setDraftOrder(null);
       return;
     }
 
-    fetchDraftOrder();
+    let cancelled = false;
+    queueMicrotask(() => {
+      if (!cancelled) fetchDraftOrder();
+    });
+    return () => {
+      cancelled = true;
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen, draftOrderId]);
 
@@ -186,130 +197,6 @@ const useCashPayment = (total: number, isCashType: boolean) => {
   };
 };
 
-const useOrderProcessing = () => {
-  const processPaymentCollection = useCallback(
-    async (order: AdminOrder, providerId: string): Promise<void> => {
-      const sdk = getSdk();
-
-      if (
-        order.payment_status === "captured" ||
-        order.payment_status === "authorized"
-      ) {
-        return;
-      }
-
-      let collectionId: string;
-
-      if (order.payment_collections && order.payment_collections.length > 0) {
-        collectionId = order.payment_collections[0].id;
-      } else {
-        const paymentAmount = order.summary?.accounting_total || order.total || 0;
-        const { payment_collection } = await sdk.admin.paymentCollection.create({
-          order_id: order.id,
-          amount: paymentAmount,
-        });
-        collectionId = payment_collection.id;
-      }
-
-      const { payment_collection: updatedCollection } =
-        await sdk.admin.paymentCollection.createPaymentSession(
-          collectionId,
-          { provider_id: providerId },
-          { fields: "*payment_sessions,*payments" }
-        );
-
-      const alreadyCaptured = updatedCollection.payments?.find(
-        (p) => !!p.captured_at
-      );
-      if (alreadyCaptured) {
-        return;
-      }
-
-      const pendingPayment = updatedCollection.payments?.find(
-        (p) => !p.captured_at
-      );
-
-      if (pendingPayment?.id) {
-        await sdk.admin.payment.capture(pendingPayment.id, {});
-        return;
-      }
-
-      // Provider did not auto-authorize — fall back to markAsPaid.
-      // Fix: return PaymentSessionStatus.AUTHORIZED from initiatePayment() in the provider.
-      await sdk.admin.paymentCollection.markAsPaid(collectionId, {
-        order_id: order.id,
-      });
-    },
-    []
-  );
-
-  const processFulfillment = useCallback(
-    async (order: AdminOrder): Promise<void> => {
-      const sdk = getSdk();
-
-      if (
-        order.fulfillment_status === "fulfilled" ||
-        order.fulfillment_status === "shipped" ||
-        order.fulfillment_status === "delivered"
-      ) {
-        return;
-      }
-
-      try {
-        if (order.fulfillments && order.fulfillments.length > 0) {
-          const existingFulfillment = order.fulfillments[0];
-          await sdk.admin.order.markAsDelivered(
-            order.id,
-            existingFulfillment.id
-          );
-          return;
-        }
-
-        const itemsToFulfill =
-          order.items?.map((item) => ({
-            id: item.id,
-            quantity: item.quantity || 1,
-          })) || [];
-
-        if (itemsToFulfill.length === 0) {
-          return;
-        }
-
-        const locationId = await storage.getItem("stock_location_id");
-
-        const response = await sdk.admin.order.createFulfillment(order.id, {
-          items: itemsToFulfill,
-          no_notification: true,
-          ...(locationId ? { location_id: locationId } : {}),
-        });
-
-        let fulfillmentId = response.order?.fulfillments?.[0]?.id;
-
-        if (!fulfillmentId) {
-          const { order: refreshedOrder } = await sdk.admin.order.retrieve(
-            order.id,
-            { fields: "*fulfillments" }
-          );
-          fulfillmentId = refreshedOrder.fulfillments?.[0]?.id;
-        }
-
-        if (!fulfillmentId) {
-          throw new Error("Failed to get fulfillment ID");
-        }
-
-        await sdk.admin.order.markAsDelivered(order.id, fulfillmentId);
-      } catch (error) {
-        handleErrorToast(
-          `Fulfillment failed (${error instanceof Error ? error.message : "Unknown"}), but order created`
-        );
-      }
-    },
-    []
-  );
-
-  return { processPaymentCollection, processFulfillment };
-};
-
 const usePaymentModal = (
   draftOrderId?: string | null,
   onClose?: () => void,
@@ -317,6 +204,12 @@ const usePaymentModal = (
 ) => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [showConfirmation, setShowConfirmation] = useState(false);
+  const [showPayLaterConfirmation, setShowPayLaterConfirmation] =
+    useState(false);
+  // Snapshot of the order total taken when processing starts. Once the order is
+  // submitted we clear draftOrderId, which nulls the draft order and would drop
+  // the displayed total to 0.00 mid-flow. We show this frozen value instead.
+  const [frozenTotal, setFrozenTotal] = useState<number | null>(null);
 
   const { printOrderReceipt, openCashDrawer, getDefaultPrinter } = usePrinterService();
   const { clearItems, setDraftOrderId } = useCartStore();
@@ -347,6 +240,11 @@ const usePaymentModal = (
     quickAmounts,
   } = useCashPayment(calculations.total, isCashType);
   const { processPaymentCollection, processFulfillment } = useOrderProcessing();
+
+  // While processing, the draft order is cleared (so its total reads 0). Show the
+  // frozen snapshot taken at submit time so the amount never flashes to 0.00.
+  const displayTotal =
+    isProcessing && frozenTotal != null ? frozenTotal : calculations.total;
 
   // Fire-and-forget: print receipt + open cash drawer after order succeeds.
   // Runs independently so it never blocks the modal from closing.
@@ -390,7 +288,11 @@ const usePaymentModal = (
   // Clean up after successful order — synchronous-ish: clears cart, resets
   // state, shows success toast. Hardware side effects are fire-and-forget.
   const cleanupAfterOrder = useCallback(
-    async (order: AdminOrder, paymentMethod: PaymentMethod | undefined): Promise<void> => {
+    async (
+      order: AdminOrder,
+      paymentMethod: PaymentMethod | undefined,
+      options?: { successMessage?: string }
+    ): Promise<void> => {
       clearItems();
       setDraftOrderId(null);
       void queryClient.invalidateQueries({ queryKey: ["orders"] });
@@ -398,7 +300,10 @@ const usePaymentModal = (
       resetCashState();
       setPaymentMethod(undefined);
 
-      toast.success(`Order #${order.display_id} created successfully!`);
+      toast.success(
+        options?.successMessage ??
+          `Order #${order.display_id} created successfully!`
+      );
       playSuccessSound();
 
       runPostOrderHardware(order, paymentMethod);
@@ -431,6 +336,7 @@ const usePaymentModal = (
         return null;
       }
 
+      setFrozenTotal(calculations.total);
       setIsProcessing(true);
 
       // Tracks whether the draft order has already been consumed by convertToOrder.
@@ -539,7 +445,89 @@ const usePaymentModal = (
       isCashType,
       selectedPaymentMethod,
       customerPaid,
+      calculations.total,
       processPaymentCollection,
+      processFulfillment,
+      cleanupAfterOrder,
+      setDraftOrderId,
+      onClose,
+    ]);
+
+  // Deliver now, pay later: create + fulfill the order but SKIP payment capture.
+  // Never cancels on failure and never completes — the uncaptured order is the
+  // "outstanding payment" signal. Inventory is still decremented via fulfillment.
+  const handleDeliverPayLater =
+    useCallback(async (): Promise<AdminOrder | null> => {
+      if (!draftOrderId) {
+        handleErrorToast("No order prepared. Please create order first.");
+        playErrorSound();
+        return null;
+      }
+
+      setFrozenTotal(calculations.total);
+      setIsProcessing(true);
+
+      // Tracks whether convertToOrder has consumed the draft (controls modal close on error).
+      let orderConversionDone = false;
+
+      try {
+        const sdk = getSdk();
+
+        // Step 1: Flag the draft as pay-later so the order, receipt and orders
+        // list can detect it. Mirrors the cash_paid metadata patch above.
+        const { draft_order } =
+          await sdk.admin.draftOrder.retrieve(draftOrderId);
+        const currentMetadata = (draft_order.metadata || {}) as Record<
+          string,
+          unknown
+        >;
+        await sdk.admin.draftOrder.update(draftOrderId, {
+          metadata: { ...currentMetadata, pay_later: true },
+        });
+
+        // Step 2: Convert draft → order, then clear the id immediately.
+        const { order: convertedOrder } =
+          await sdk.admin.draftOrder.convertToOrder(draftOrderId);
+        setDraftOrderId(null);
+        orderConversionDone = true;
+
+        // Step 3: Fetch full order with expanded fields.
+        const { order } = await sdk.admin.order.retrieve(convertedOrder.id, {
+          fields:
+            "*payment_collections,*payment_collections.payments,*summary,*fulfillments,*items,*customer,*sales_channel,*shipping_methods",
+        });
+
+        // Step 4: Deliver now (decrements inventory). Skip payment capture and
+        // order.complete; do NOT cancel on any failure.
+        await processFulfillment(order);
+
+        // Step 5: Clean up and finalize with an "outstanding" toast.
+        await cleanupAfterOrder(order, selectedPaymentMethod, {
+          successMessage: `Order #${order.display_id} delivered — payment outstanding`,
+        });
+        return order;
+      } catch (error) {
+        playErrorSound();
+        handleErrorToast(
+          error instanceof Error
+            ? error.message
+            : "Failed to create order. Please try again."
+        );
+
+        // Never cancel a pay-later order. If the draft was already converted,
+        // close so the cashier can continue; the order is in the orders list.
+        if (orderConversionDone) {
+          onClose?.();
+        }
+
+        return null;
+      } finally {
+        setIsProcessing(false);
+      }
+    }, [
+      draftOrderId,
+      selectedPaymentMethod,
+      calculations.total,
       processFulfillment,
       cleanupAfterOrder,
       setDraftOrderId,
@@ -549,9 +537,25 @@ const usePaymentModal = (
   // Handle modal close
   const handleClose = useCallback(() => {
     resetCashState();
+    setFrozenTotal(null);
     setShowConfirmation(false);
+    setShowPayLaterConfirmation(false);
     onClose?.();
   }, [resetCashState, onClose]);
+
+  // Open the pay-later confirmation dialog.
+  const handleDeliverPayLaterClick = useCallback(() => {
+    setShowPayLaterConfirmation(true);
+  }, []);
+
+  // Confirm pay-later from the confirmation dialog.
+  const handleConfirmPayLater = useCallback(async (): Promise<void> => {
+    const result = await handleDeliverPayLater();
+    if (result) {
+      setShowPayLaterConfirmation(false);
+      handleClose();
+    }
+  }, [handleDeliverPayLater, handleClose]);
 
   // Handle complete button click
   const handleCompleteClick = useCallback(() => {
@@ -592,9 +596,12 @@ const usePaymentModal = (
     isProcessing,
     draftOrder,
     showConfirmation,
+    showPayLaterConfirmation,
 
     // Calculations
     ...calculations,
+    // Keep the confirmed amount visible during submission instead of 0.00.
+    total: displayTotal,
 
     // Computed values
     cartItemsCount: calculations.itemCount,
@@ -616,6 +623,10 @@ const usePaymentModal = (
     handleCompleteClick,
     handleConfirmPayment,
     setShowConfirmation,
+    handleDeliverPayLater,
+    handleDeliverPayLaterClick,
+    handleConfirmPayLater,
+    setShowPayLaterConfirmation,
     fetchDraftOrder,
     billCounts,
   };

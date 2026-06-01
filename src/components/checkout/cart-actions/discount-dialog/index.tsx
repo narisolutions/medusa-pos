@@ -1,4 +1,5 @@
-import React, { Fragment, useState, useEffect } from "react";
+import React, { Fragment, useState } from "react";
+import { useChange } from "@/hooks/utils/useChange";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Numpad } from "@/components/ui/numpad";
 import { useCheckout } from "../../hooks";
@@ -30,20 +31,18 @@ const DiscountModal: React.FC<Props> = ({ open, onClose }) => {
   );
   const [originalDiscount, setOriginalDiscount] = useState<OrderDiscount | null>(null);
 
-  // Update local state when dialog opens or item/discount changes
-  useEffect(() => {
-    if (open) {
-      if (activeDiscount) {
-        setDiscountType(activeDiscount.type || "amount");
-        setDiscountValue(String(activeDiscount.value ?? 0));
-        setOriginalDiscount(activeDiscount);
-      } else {
-        setDiscountType("amount");
-        setDiscountValue("0");
-        setOriginalDiscount(null);
-      }
+  useChange(`${open}|${selectedItemId ?? ""}`, () => {
+    if (!open) return;
+    if (activeDiscount) {
+      setDiscountType(activeDiscount.type || "amount");
+      setDiscountValue(String(activeDiscount.value ?? 0));
+      setOriginalDiscount(activeDiscount);
+    } else {
+      setDiscountType("amount");
+      setDiscountValue("0");
+      setOriginalDiscount(null);
     }
-  }, [open, selectedItemId]); // eslint-disable-line react-hooks/exhaustive-deps
+  });
 
   const handleTypeChange = (type: "amount" | "percent") => {
     setDiscountType(type);

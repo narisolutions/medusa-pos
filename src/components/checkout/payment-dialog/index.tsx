@@ -10,6 +10,7 @@ import constants from "@/utils/constants";
 import { useCheckout } from "../hooks";
 import { usePaymentModal } from "./hooks";
 import ConfirmationDialog from "./confirmation-dialog";
+import PayLaterConfirmationDialog from "./pay-later-confirmation-dialog";
 import { CreditCard } from "lucide-react";
 import { useTranslation } from "@/i18n";
 
@@ -33,6 +34,7 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
     canProcessPayment,
     quickAmounts,
     showConfirmation,
+    showPayLaterConfirmation,
     handleCashValueChange,
     handleClose,
     handleQuickAmount,
@@ -40,6 +42,9 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
     handleCompleteClick,
     handleConfirmPayment,
     setShowConfirmation,
+    handleDeliverPayLaterClick,
+    handleConfirmPayLater,
+    setShowPayLaterConfirmation,
     items,
     paymentMethodInfo,
     isCashPayment,
@@ -293,6 +298,14 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
                         {isProcessing ? t("common.processing") : t("checkout.complete_payment_button")}
                       </Button>
                     </div>
+                    <Button
+                      variant="outline"
+                      onClick={handleDeliverPayLaterClick}
+                      disabled={isLoading || isProcessing}
+                      className="w-full h-12 text-base font-medium border-theme-border text-fg-muted hover:text-fg hover:bg-surface-hover"
+                    >
+                      {t("checkout.deliver_pay_later")}
+                    </Button>
                   </div>
                 </div>
               </div>
@@ -350,6 +363,14 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
                       {isProcessing ? t("common.processing") : t("checkout.confirm_payment_button")}
                     </Button>
                   </div>
+                  <Button
+                    variant="outline"
+                    onClick={handleDeliverPayLaterClick}
+                    disabled={isLoading || isProcessing}
+                    className="w-full h-12 text-base font-medium border-theme-border text-fg-muted hover:text-fg hover:bg-surface-hover"
+                  >
+                    {t("checkout.deliver_pay_later")}
+                  </Button>
                 </div>
               </div>
             )}
@@ -362,6 +383,15 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
         isOpen={showConfirmation}
         onCancel={() => setShowConfirmation(false)}
         onConfirm={handleConfirmPayment}
+        isProcessing={isProcessing}
+        total={total}
+      />
+
+      {/* Pay-later Confirmation Dialog */}
+      <PayLaterConfirmationDialog
+        isOpen={showPayLaterConfirmation}
+        onCancel={() => setShowPayLaterConfirmation(false)}
+        onConfirm={handleConfirmPayLater}
         isProcessing={isProcessing}
         total={total}
       />

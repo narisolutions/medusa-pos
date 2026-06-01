@@ -30,7 +30,6 @@ const defaults: Forms["PreferencesSettings"] = {
   decimalSeparator: DEFAULT_PREFERENCES.currency.decimalSeparator,
   startFullscreen: DEFAULT_PREFERENCES.display.startFullscreen,
   themeMode: DEFAULT_PREFERENCES.appearance.themeMode,
-  customEndpointsEnabled: DEFAULT_PREFERENCES.integration.customEndpointsEnabled,
   language: DEFAULT_PREFERENCES.language,
 };
 
@@ -59,7 +58,6 @@ export const usePreferencesSettings = () => {
         decimalSeparator: prefs.currency.decimalSeparator,
         startFullscreen: prefs.display.startFullscreen,
         themeMode: prefs.appearance.themeMode,
-        customEndpointsEnabled: prefs.integration.customEndpointsEnabled,
         language: prefs.language,
       });
     };
@@ -90,10 +88,9 @@ export const usePreferencesSettings = () => {
         const currency = { symbolPosition: data.symbolPosition, decimalSeparator: data.decimalSeparator } as const;
         const display = { startFullscreen: data.startFullscreen };
         const appearance = { themeMode: data.themeMode };
-        const integration = { customEndpointsEnabled: data.customEndpointsEnabled };
         const language = data.language;
 
-        await updatePreferences({ dateTime, currency, display, appearance, integration, language });
+        await updatePreferences({ dateTime, currency, display, appearance, language });
 
         initDateTimePrefs(dateTime);
         initCurrencyPrefs(currency);

@@ -26,6 +26,16 @@ function createUserStore() {
     ...initialState,
     setGlobalLoading: (globalLoading) => set({ globalLoading }),
     login: async (admin) => {
+      // Start every authenticated session with fresh POS-plugin detection,
+      // regardless of how the previous session ended (logout, 401, backend change).
+      // Reset before flipping isAuthenticated so the detection query (which is
+      // enabled on auth and has staleTime: Infinity) re-probes instead of serving
+      // the previous session's cached result.
+      const { resetPosPluginCache } = await import("@/utils/pos/plugin");
+      resetPosPluginCache();
+      const { queryClient } = await import("@/config/query");
+      queryClient.removeQueries({ queryKey: ["pos-plugin-installed"] });
+
       set({ admin, isAuthenticated: true });
       await storage.setItem("last_login", Date.now());
     },
@@ -43,6 +53,16 @@ function createUserStore() {
       }
       set({ admin: null, isAuthenticated: false });
       await storage.clear();
+
+      // Reset session-scoped caches so the next login detects against its own
+      // backend instead of leaking the previous user's result. Without this the
+      // POS-plugin detection (and other server caches) survive logout, e.g. the
+      // checkout "install plugin" banner would show the wrong state until refresh.
+      // Dynamic imports keep this module free of static deps (see logout comment above).
+      const { resetPosPluginCache } = await import("@/utils/pos/plugin");
+      resetPosPluginCache();
+      const { queryClient } = await import("@/config/query");
+      queryClient.clear();
     },
     update: (admin) => {
       set({

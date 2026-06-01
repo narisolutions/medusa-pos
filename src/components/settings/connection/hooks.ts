@@ -158,6 +158,11 @@ export const useConnectionSettings = ({ form }: Props) => {
         if (changes.hasBackendChanges && data.backend_url) {
           const { initializeSdk } = await import("@/config/medusa");
           await initializeSdk(data.backend_url);
+          // Re-detect the POS plugin against the new backend
+          const { resetPosPluginCache } = await import("@/utils/pos/plugin");
+          resetPosPluginCache();
+          queryClient.invalidateQueries({ queryKey: ["pos-plugin-installed"] });
+          queryClient.invalidateQueries({ queryKey: ["products"] });
         }
 
         // Update initial values after successful save

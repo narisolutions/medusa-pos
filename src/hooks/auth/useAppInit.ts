@@ -177,7 +177,15 @@ const useAppInit = () => {
   }, [logout, update, isAuthRoute]);
 
   useEffect(() => {
-    initApp();
+    // Defer to a microtask so initApp's initial state updates don't run
+    // synchronously within this effect (they then behave as async updates).
+    let cancelled = false;
+    queueMicrotask(() => {
+      if (!cancelled) initApp();
+    });
+    return () => {
+      cancelled = true;
+    };
   }, [initApp]);
 
   const isReady = useMemo(() => !!config && !bootLoading, [config, bootLoading]);

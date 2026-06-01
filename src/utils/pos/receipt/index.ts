@@ -26,6 +26,8 @@ export type ReceiptLabels = {
   paymentMethod: string;
   amountPaid: string;
   change: string;
+  amountDue: string;
+  unpaid: string;
   thankYou: string;
 };
 
@@ -47,6 +49,8 @@ export const DEFAULT_RECEIPT_LABELS: ReceiptLabels = {
   paymentMethod: "Payment Method",
   amountPaid: "Amount Paid",
   change: "Change",
+  amountDue: "Amount Due",
+  unpaid: "** UNPAID — PAYMENT PENDING **",
   thankYou: "Thank you for your visit!",
 };
 
@@ -203,12 +207,17 @@ const buildReceipt = (
 
   receipt += `\n\n${labels.paymentMethod}: ${data.paymentMethod}`;
 
-  if (data.amountPaid) {
-    receipt += `\n${padLine(labels.amountPaid + ":", fmtCurrency(data.amountPaid))}`;
-  }
+  if (data.isUnpaid) {
+    receipt += `\n${padLine(labels.amountDue + ":", fmtCurrency(data.amountDue ?? data.total))}`;
+    receipt += `\n\n${centerText(labels.unpaid)}`;
+  } else {
+    if (data.amountPaid) {
+      receipt += `\n${padLine(labels.amountPaid + ":", fmtCurrency(data.amountPaid))}`;
+    }
 
-  if (data.change && data.change > 0) {
-    receipt += `\n${padLine(labels.change + ":", fmtCurrency(data.change))}`;
+    if (data.change && data.change > 0) {
+      receipt += `\n${padLine(labels.change + ":", fmtCurrency(data.change))}`;
+    }
   }
 
   receipt += `\n\n${centerText(data.footer || labels.thankYou)}`;
@@ -394,12 +403,18 @@ const buildReceiptPDF = (data: ReceiptData, paperWidth: PaperWidth = "80mm", lab
   // Payment Information
   addTwoColumn(labels.paymentMethod + ":", data.paymentMethod, false, 5);
 
-  if (data.amountPaid) {
-    addTwoColumn(labels.amountPaid + ":", formatCurrencyRaw(data.amountPaid, data.currency), false, 5);
-  }
+  if (data.isUnpaid) {
+    addTwoColumn(labels.amountDue + ":", formatCurrencyRaw(data.amountDue ?? data.total, data.currency), true, 5);
+    addSpacing(2);
+    addText(labels.unpaid, "center", 10, true, 5);
+  } else {
+    if (data.amountPaid) {
+      addTwoColumn(labels.amountPaid + ":", formatCurrencyRaw(data.amountPaid, data.currency), false, 5);
+    }
 
-  if (data.change && data.change > 0) {
-    addTwoColumn(labels.change + ":", formatCurrencyRaw(data.change, data.currency), false, 5);
+    if (data.change && data.change > 0) {
+      addTwoColumn(labels.change + ":", formatCurrencyRaw(data.change, data.currency), false, 5);
+    }
   }
 
   // Footer

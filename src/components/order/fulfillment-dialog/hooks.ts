@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo, useRef } from "react";
+import { useState, useCallback, useMemo, useEffect } from "react";
 import { useTranslation } from "@/i18n";
 import { AdminOrder } from "@medusajs/types";
 import { toast } from "sonner";
@@ -40,8 +40,6 @@ export const useFulfillmentDialog = (
     useState<string>("");
   const stockLocationsQuery = useQueryStockLocation();
   const shippingOptionsQuery = useQueryShippingOption();
-  const preferredLocationIdRef = useRef<string | null>(null);
-  const hasInitializedRef = useRef(false);
 
   const [selectedItems, setSelectedItems] = useState<FulfillmentItem[]>(() => {
     return (
@@ -188,43 +186,46 @@ export const useFulfillmentDialog = (
     return selectedItems.reduce((sum, item) => sum + item.quantity, 0);
   }, [selectedItems]);
 
-  // Compute preferred location name directly from data and storage
+  // Load the preferred stock location from storage once the locations are
+  // available, defaulting the selection if none is set yet. The async setState
+  // keeps this off the synchronous render path.
+  useEffect(() => {
+    if (!stockLocationsQuery.data || selectedLocationId) {
+      return;
+    }
+    let cancelled = false;
+    storage
+      .getItem("stock_location_id")
+      .then((storedLocationId) => {
+        if (cancelled || !storedLocationId || !stockLocationsQuery.data) {
+          return;
+        }
+        const existsInList = stockLocationsQuery.data.some(
+          (loc) => String(loc.id) === storedLocationId
+        );
+        if (existsInList) {
+          setSelectedLocationId(storedLocationId);
+        }
+      })
+      .catch(() => {
+        // Silent failure
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [stockLocationsQuery.data, selectedLocationId]);
+
+  // Pure derivation of the selected location's name.
   const preferredLocationName = useMemo(() => {
     if (!stockLocationsQuery.data || stockLocationsQuery.isLoading) {
       return null;
     }
-
-    // Try to get preferred location ID from storage synchronously via ref
-    // If not loaded yet, trigger async load
-    if (!hasInitializedRef.current) {
-      hasInitializedRef.current = true;
-      storage.getItem("stock_location_id").then((storedLocationId) => {
-        if (storedLocationId && stockLocationsQuery.data) {
-          const existsInList = stockLocationsQuery.data.some(
-            (loc) => String(loc.id) === storedLocationId
-          );
-          if (existsInList && !selectedLocationId) {
-            preferredLocationIdRef.current = storedLocationId;
-            setSelectedLocationId(storedLocationId);
-          } else {
-            preferredLocationIdRef.current = storedLocationId;
-          }
-        }
-      }).catch(() => {
-        // Silent failure
-      });
-    }
-
-    // Use ref value if available, otherwise use selectedLocationId
-    const locationId = preferredLocationIdRef.current || selectedLocationId;
-    if (!locationId) {
+    if (!selectedLocationId) {
       return null;
     }
-
     const location = stockLocationsQuery.data.find(
-      (loc) => String(loc.id) === locationId
+      (loc) => String(loc.id) === selectedLocationId
     );
-
     return location?.name || null;
   }, [stockLocationsQuery.data, stockLocationsQuery.isLoading, selectedLocationId]);
 

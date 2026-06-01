@@ -1,0 +1,42 @@
+# CI gate — runs the frontend checks (lint, typecheck, production build) on every
+# push to and PR into `main`. This is the safety layer for releases: the tag-driven
+# Release workflow only runs after `main` is updated, so catching lint/type/build
+# errors here means a broken commit fails on the merge to `main` instead of midway
+# through the much heavier release/installer pipeline.
+
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Node 22 LTS
+        uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: yarn
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Lint
+        run: yarn lint
+
+      - name: Typecheck
+        run: yarn typecheck
+
+      - name: Build
+        run: yarn build

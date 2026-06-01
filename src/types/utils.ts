@@ -90,6 +90,10 @@ interface ReceiptData {
   paymentMethod: string;
   amountPaid?: number;
   change?: number;
+  /** When true, the order is delivered but payment is outstanding (pay later). */
+  isUnpaid?: boolean;
+  /** Outstanding balance shown on an unpaid receipt instead of Amount Paid/Change. */
+  amountDue?: number;
   footer?: string;
 }
 
@@ -126,6 +130,10 @@ interface DraftOrderMetadata extends Record<string, unknown> {
   payment_method?: PaymentMethod;
   order_discount?: OrderDiscount;
   order_comment?: string;
+  /** Set when the order is delivered but payment is deferred (capture later). */
+  pay_later?: boolean;
+  /** ISO date the goods were actually delivered offline (created_at is not backdatable). */
+  delivered_offline_on?: string;
 }
 
 type AddItemResult = {
