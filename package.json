@@ -37,7 +37,7 @@
     "test:env:logs": "docker compose -f integration-tests/docker-compose.yml logs -f medusa"
   },
   "dependencies": {
-    "@hookform/resolvers": "^5.2.2",
+    "@hookform/resolvers": "^5.4.0",
     "@medusajs/js-sdk": "^2.15.3",
     "@medusajs/types": "^2.15.3",
     "@radix-ui/react-avatar": "^1.1.11",
