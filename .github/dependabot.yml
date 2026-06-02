@@ -4,6 +4,13 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
+    # Wait until a release has aged before opening a PR. This batches updates and
+    # cuts noise without missing anything — effectively a ~2-week cadence per dep.
+    cooldown:
+      default-days: 14
+      semver-major-days: 30
+      semver-minor-days: 14
+      semver-patch-days: 7
     # Send all JS dependency PRs to the integration branch, not main
     target-branch: "develop"
     commit-message:
@@ -57,7 +64,7 @@ updates:
   - package-ecosystem: "cargo"
     directory: "/src-tauri"
     schedule:
-      interval: "weekly"
+      interval: "monthly"
     # Keep Rust dependency PRs on the integration branch, not main
     target-branch: "develop"
     open-pull-requests-limit: 5
@@ -65,7 +72,7 @@ updates:
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
-      interval: "weekly"
+      interval: "monthly"
     # Keep workflow dependency PRs on the integration branch, not main
     target-branch: "develop"
     open-pull-requests-limit: 5

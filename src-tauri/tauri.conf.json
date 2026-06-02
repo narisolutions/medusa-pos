@@ -42,6 +42,9 @@
   },
   "bundle": {
     "active": true,
+    "resources": {
+      "icons/icon.png": "icons/512x512.png"
+    },
     "publisher": "Nari Solutions",
     "copyright": "Copyright 2026 Nari Solutions",
     "createUpdaterArtifacts": true,
