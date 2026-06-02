@@ -22,6 +22,7 @@
     "fs:scope-download",
     "fs:scope-home",
     "dialog:allow-open",
+    "dialog:allow-message",
     "process:allow-restart",
     "updater:default",
     "core:window:allow-set-fullscreen",
@@ -31,9 +32,6 @@
       "allow": [
         {
           "url": "https://**"
-        },
-        {
-          "url": "http://localhost:*"
         }
       ],
       "identifier": "http:allow-fetch"

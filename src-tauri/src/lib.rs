@@ -11,6 +11,8 @@ use tauri_plugin_log::{Target, TargetKind};
 mod config;
 mod keyboard;
 mod winprint;
+#[cfg(target_os = "linux")]
+mod appimage_integrate;
 use config::AppConfig;
 
 /// Shared byte buffer for capturing ESC/POS output.
@@ -834,6 +836,17 @@ pub fn run() {
 
     tauri::Builder::default()
         .setup(|app| {
+            // On Linux AppImage builds, offer to integrate into the apps menu
+            // and relaunch from a stable install path on first run. No-ops when
+            // not running as an AppImage. Spawned so it never blocks startup.
+            #[cfg(target_os = "linux")]
+            {
+                let handle = app.handle().clone();
+                tauri::async_runtime::spawn(async move {
+                    appimage_integrate::maybe_integrate(&handle).await;
+                });
+            }
+
             let handle = app.handle().clone();
             std::thread::spawn(move || {
                 let mut last_state = keyboard::has_physical_keyboard();
