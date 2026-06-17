@@ -1,9 +1,10 @@
 import { createColumnHelper } from "@tanstack/react-table";
-import { useEffect, useMemo, useState, useCallback } from "react";
+import { useEffect, useMemo, useState, useCallback, useRef } from "react";
 import { useTranslation } from "@/i18n";
 import { formatDate, formatPrice } from "@/utils/helpers";
 import { AdminOrder } from "@medusajs/types";
 import { useQueryOrders } from "@/hooks/queries/useQueryOrders";
+import { useDebounce } from "@/hooks/ui/useDebounce";
 import storage from "@/utils/storage";
 import constants from "@/utils/constants";
 import { classifyOrderShippingMethod, getShippingMethodLabel } from "@/utils/pos/fulfillment";
@@ -245,6 +246,13 @@ const useOrdersWithData = () => {
   };
 
   const [filters, setFilters] = useState(defaultFilters);
+  // `filters` updates instantly (keeps the search input responsive); the expensive
+  // consumers — the 500-row table refilter and the Tauri Store write — run off this
+  // debounced value so they fire once the user pauses instead of per keystroke.
+  const debouncedFilters = useDebounce(filters, 250);
+  // Only persist filters the user actually changed — not the default on mount nor the
+  // value just hydrated from storage (which would echo a redundant write).
+  const userChangedFilters = useRef(false);
 
   const { data, isLoading, refetch, isFetching } = useQueryOrders({
     // Load a sufficiently large page so filtering & pagination can be handled on the client
@@ -259,10 +267,15 @@ const useOrdersWithData = () => {
       if (JSON.stringify(prev) === JSON.stringify(newFilters)) {
         return prev;
       }
+      userChangedFilters.current = true;
       return newFilters;
     });
-    void storage.setItem("orders_filters", newFilters);
   }, []);
+
+  useEffect(() => {
+    if (!userChangedFilters.current) return;
+    void storage.setItem("orders_filters", debouncedFilters);
+  }, [debouncedFilters]);
 
   useEffect(() => {
     let isMounted = true;
@@ -295,6 +308,7 @@ const useOrdersWithData = () => {
     data: orders,
     isLoading,
     filters,
+    debouncedFilters,
     columns,
     handleFiltersChange,
     refetch,

@@ -7,35 +7,22 @@ import { AdminOrder } from "@medusajs/types";
 const fetchUnfulfilledOrdersCount = async (): Promise<number> => {
   try {
     const sdk = getSdk();
-    let totalUnfulfilled = 0;
-    let offset = 0;
-    const limit = 1000; 
-    let hasMore = true;
 
-    // Paginate through all orders to count unfulfilled ones
-    while (hasMore) {
-      const { orders, count } = await sdk.admin.order.list({
-        fields: "fulfillment_status",
-        limit,
-        offset,
-        order: "-created_at",
-      });
+    // The admin order list endpoint cannot filter by fulfillment_status (it is a
+    // derived status, not a server-side filter), so the count is computed client-side.
+    // Rather than paginate the entire order history on every app load, scan only the
+    // most recent page: the sidebar badge caps at "99+", and unfulfilled orders are by
+    // nature recent (older orders get fulfilled), so a single request is sufficient.
+    const { orders } = await sdk.admin.order.list({
+      fields: "fulfillment_status",
+      limit: 1000,
+      offset: 0,
+      order: "-created_at",
+    });
 
-      // Filter and count unfulfilled orders in this batch
-      const unfulfilledInBatch = (orders as AdminOrder[]).filter(
-        (order) => order.fulfillment_status === "not_fulfilled"
-      ).length;
-
-      totalUnfulfilled += unfulfilledInBatch;
-
-      if (offset + limit >= count || orders.length < limit) {
-        hasMore = false;
-      } else {
-        offset += limit;
-      }
-    }
-
-    return totalUnfulfilled;
+    return (orders as AdminOrder[]).filter(
+      (order) => order.fulfillment_status === "not_fulfilled"
+    ).length;
   } catch (error) {
     handleErrorToast(error);
     return 0;

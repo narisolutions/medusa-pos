@@ -12,7 +12,11 @@ const fetchOrders = async (
     const baseParams = {
       fields:
         options?.fields ||
-        "display_id,status,total,created_at,currency_code,*items,customer.email,*sales_channel,payment_status,fulfillment_status,fulfillments.*,*shipping_methods,metadata,*payment_collections.payments.provider_id,*payment_collections.payment_sessions.provider_id",
+        // List view only: keep this to the fields the table columns actually read.
+        // Heavy relations (*items, fulfillments.*) are intentionally excluded — they
+        // dominate the payload and no column consumes them. The order-detail view
+        // fetches its own expanded data separately.
+        "display_id,status,total,created_at,currency_code,customer.email,sales_channel.name,payment_status,fulfillment_status,shipping_methods.name,metadata,payment_collections.payments.provider_id,payment_collections.payment_sessions.provider_id",
       limit: options?.limit || 10,
       offset: options?.offset || 0,
       order: "-created_at",
@@ -28,13 +32,10 @@ const fetchOrders = async (
     const { orders, count, limit, offset } =
       await sdk.admin.order.list(queryParams);
 
-    const sortedOrders = (orders as AdminOrder[]).sort(
-      (a, b) =>
-        new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-    );
-
+    // The API already returns orders sorted by `order: "-created_at"`, so a
+    // client-side re-sort is redundant work on every fetch.
     return {
-      orders: sortedOrders,
+      orders: orders as AdminOrder[],
       count,
       limit,
       offset,

@@ -32,6 +32,9 @@
       "allow": [
         {
           "url": "https://**"
+        },
+        {
+          "url": "http://localhost:*"
         }
       ],
       "identifier": "http:allow-fetch"

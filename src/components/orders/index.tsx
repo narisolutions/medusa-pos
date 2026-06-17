@@ -29,6 +29,7 @@ const Orders: React.FC = () => {
     data: orders,
     isLoading,
     filters,
+    debouncedFilters,
     columns,
     handleFiltersChange,
     refetch,
@@ -61,29 +62,32 @@ const Orders: React.FC = () => {
     onPaginationChange: setPagination,
   });
 
+  // Sync the table from the debounced filters so the 500-row refilter only runs once
+  // the user pauses. This effect is the single source of truth for table filter state —
+  // the header updates `filters` via its callbacks and never mutates the table directly.
   useEffect(() => {
-    setGlobalFilter(filters.search || "");
+    setGlobalFilter(debouncedFilters.search || "");
 
     const newColumnFilters: ColumnFiltersState = [];
 
-    if (filters.fulfillment_status) {
+    if (debouncedFilters.fulfillment_status) {
       newColumnFilters.push({
         id: "fulfillment_status",
-        value: filters.fulfillment_status,
+        value: debouncedFilters.fulfillment_status,
       });
     }
 
-    if (filters.sales_channel) {
+    if (debouncedFilters.sales_channel) {
       newColumnFilters.push({
         id: "sales_channel",
-        value: filters.sales_channel,
+        value: debouncedFilters.sales_channel,
       });
     }
 
-    if (filters.payment_status) {
+    if (debouncedFilters.payment_status) {
       newColumnFilters.push({
         id: "payment_status",
-        value: filters.payment_status,
+        value: debouncedFilters.payment_status,
       });
     }
 
@@ -98,14 +102,14 @@ const Orders: React.FC = () => {
 
     setPagination((prev) => {
       if (prev.pageIndex === 0) {
-        return prev; 
+        return prev;
       }
       return {
         ...prev,
         pageIndex: 0,
       };
     });
-  }, [filters]);
+  }, [debouncedFilters]);
 
   const handleRowClick = (orderId: string) => {
     navigate(`/orders/${orderId}`);
@@ -116,7 +120,6 @@ const Orders: React.FC = () => {
       <Header
         filters={filters}
         onFiltersChange={handleFiltersChange}
-        table={table}
         onRefresh={refetch}
         isRefreshing={isFetching}
       />
@@ -124,8 +127,11 @@ const Orders: React.FC = () => {
         className={`${isLoading ? "opacity-60 pointer-events-none" : ""} transition-opacity duration-200 flex-1 min-h-0`}
       >
         <div className="bg-surface rounded-lg border border-theme-border overflow-hidden shadow-sm h-full flex flex-col">
-          <Table className="h-full">
-            <TableHeader className="bg-surface-muted shrink-0">
+          {/* Single dedicated scroll region: only the rows scroll (header stays sticky),
+              so each scroll frame repaints just the rows instead of the whole card. */}
+          <div className="flex-1 min-h-0 overflow-y-auto">
+          <Table>
+            <TableHeader className="bg-surface-muted sticky top-0 z-10">
               {table.getHeaderGroups().map((headerGroup) => (
                 <TableRow
                   key={headerGroup.id}
@@ -147,12 +153,12 @@ const Orders: React.FC = () => {
                 </TableRow>
               ))}
             </TableHeader>
-            <TableBody className="flex-1 overflow-auto">
+            <TableBody>
               {table.getRowModel().rows?.length ? (
                 table.getRowModel().rows.map((row) => (
                   <Fragment key={row.id}>
                     <TableRow
-                      className="border-b border-theme-border hover:bg-surface-hover transition-colors duration-150 cursor-pointer"
+                      className="border-b border-theme-border hover:bg-surface-hover cursor-pointer"
                       onClick={() => handleRowClick(row.original.id)}
                     >
                       {row.getVisibleCells().map((cell) => (
@@ -191,6 +197,7 @@ const Orders: React.FC = () => {
               )}
             </TableBody>
           </Table>
+          </div>
         </div>
       </div>
       <Footer
