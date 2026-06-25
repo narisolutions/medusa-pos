@@ -201,7 +201,8 @@
     "deliver_pay_later_button": "Potwierdź — zapłać później",
     "pay_later_confirm_title": "Wydać bez płatności?",
     "pay_later_confirm_message": "Zamówienie zostanie utworzone i wydane teraz. Płatność pozostaje nieuregulowana i można ją zarejestrować później z poziomu zamówienia.",
-    "register_closed": "Otwórz kasę przed dokonaniem sprzedaży."
+    "register_closed": "Otwórz kasę przed dokonaniem sprzedaży.",
+    "rounded_from": "Zaokrąglono z"
   },
   "orders": {
     "search_placeholder": "Szukaj zamówień...",
@@ -347,7 +348,8 @@
     "change": "Reszta",
     "thank_you": "Dziękujemy za wizytę!",
     "amount_due": "Kwota do zapłaty",
-    "unpaid": "** NIEOPŁACONE — PŁATNOŚĆ OCZEKUJĄCA **"
+    "unpaid": "** NIEOPŁACONE — PŁATNOŚĆ OCZEKUJĄCA **",
+    "rounding": "Zaokrąglenie"
   },
   "settings": {
     "preferences": {
@@ -411,7 +413,10 @@
         "unlock_title": "Wprowadź PIN menedżera",
         "unlock_description": "Wprowadź PIN menedżera, aby edytować ustawienia kasy.",
         "unlock_failed": "Nieprawidłowy PIN"
-      }
+      },
+      "cash_rounding": "Zaokrąglanie gotówki",
+      "cash_rounding_description": "Zaokrągla płatności gotówkowe do najbliższego progu. Płatności kartą i inne pozostają dokładne.",
+      "cash_rounding_increment": "Próg zaokrąglenia"
     },
     "printer": {
       "title": "Drukarki",
@@ -643,7 +648,11 @@
       "print_failed": "Nie wydrukowano podsumowania",
       "success": "Kasa zamknięta",
       "submit": "Zamknij kasę",
-      "closing": "Zamykanie…"
+      "closing": "Zamykanie…",
+      "confirm_title": "Zamknąć kasę na dziś?",
+      "confirm_warning": "To kończy dzień roboczy. Nie będzie można sprzedawać do ponownego otwarcia kasy.",
+      "confirm_submit": "Tak, zamknij kasę",
+      "back": "Wstecz"
     },
     "status": {
       "expected": "Oczekiwane",
@@ -652,7 +661,14 @@
       "closed": "Kasa zamknięta",
       "open": "Kasa otwarta",
       "label": "Kasa",
-      "actions_description": "Wybierz czynność"
+      "actions_description": "Wybierz czynność",
+      "reopen": "Otwórz ponownie"
+    },
+    "reopen": {
+      "title": "Ponowne otwarcie kasy",
+      "description": "Wznawia bieżącą zmianę, aby kontynuować sprzedaż. Saldo początkowe i operacje gotówkowe zostają zachowane.",
+      "submit": "Otwórz kasę ponownie",
+      "pin_invalid": "Nieprawidłowy PIN"
     }
   }
 }

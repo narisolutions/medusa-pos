@@ -44,6 +44,10 @@ expected = openingFloat
   partly by cash contributes just its cash amount.
 - **Cancelled / voided** orders are excluded entirely.
 - **Refunds** of cash subtract.
+- **Cash rounding** (Swedish rounding): when enabled, checkout stamps the rounded
+  amount actually collected as `metadata.cash_collected`, and the contribution uses
+  that instead of the exact captured total — so expected cash matches the physical
+  drawer (no stray cents). Refunds still net out.
 - Movements are applied by **type**: `payin` adds, `drop` subtracts.
 
 ### Determining "is this sale cash?"

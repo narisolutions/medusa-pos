@@ -1,6 +1,24 @@
-import type { UserPreferences } from "@/types/preferences";
+import type {
+  UserPreferences,
+  DateTimePreferences,
+  DisplayPreferences,
+  CurrencyPreferences,
+  AppearancePreferences,
+  RegisterPreferences,
+  LanguageMode,
+} from "@/types/preferences";
 import storage from "@/utils/storage";
 import { DEFAULT_PREFERENCES } from "./defaults";
+
+/** A patch that may touch any subset of any preferences section. */
+export type PreferencesPatch = {
+  dateTime?: Partial<DateTimePreferences>;
+  display?: Partial<DisplayPreferences>;
+  currency?: Partial<CurrencyPreferences>;
+  appearance?: Partial<AppearancePreferences>;
+  language?: LanguageMode;
+  register?: Partial<RegisterPreferences>;
+};
 
 export { DEFAULT_PREFERENCES } from "./defaults";
 export { applyBootPreferences } from "./boot";
@@ -18,15 +36,18 @@ export {
   formatPrice,
   formatCurrencyRaw,
   getCurrencySymbol,
+  getCashRounding,
+  roundCashAmount,
 } from "./currency";
 
-function deepMerge(defaults: UserPreferences, partial: Partial<UserPreferences>): UserPreferences {
+function deepMerge(defaults: UserPreferences, partial: PreferencesPatch): UserPreferences {
   return {
     dateTime: { ...defaults.dateTime, ...partial.dateTime },
     display: { ...defaults.display, ...partial.display },
     currency: { ...defaults.currency, ...partial.currency },
     appearance: { ...defaults.appearance, ...partial.appearance },
     language: partial.language ?? defaults.language,
+    register: { ...defaults.register, ...partial.register },
   };
 }
 
@@ -53,7 +74,7 @@ export async function savePreferences(prefs: UserPreferences): Promise<void> {
 }
 
 export async function updatePreferences(
-  patch: Partial<UserPreferences>
+  patch: PreferencesPatch
 ): Promise<UserPreferences> {
   const current = await loadPreferences();
   const merged = deepMerge(current, patch);

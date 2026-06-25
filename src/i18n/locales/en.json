@@ -201,7 +201,8 @@
     "deliver_pay_later_button": "Confirm — pay later",
     "pay_later_confirm_title": "Deliver without payment?",
     "pay_later_confirm_message": "The order will be created and delivered now. Payment stays outstanding and can be recorded later from the order.",
-    "register_closed": "Open the register before making a sale."
+    "register_closed": "Open the register before making a sale.",
+    "rounded_from": "Rounded from"
   },
   "orders": {
     "search_placeholder": "Search orders...",
@@ -347,7 +348,8 @@
     "change": "Change",
     "thank_you": "Thank you for your visit!",
     "amount_due": "Amount Due",
-    "unpaid": "** UNPAID — PAYMENT PENDING **"
+    "unpaid": "** UNPAID — PAYMENT PENDING **",
+    "rounding": "Rounding"
   },
   "settings": {
     "preferences": {
@@ -411,7 +413,10 @@
         "unlock_title": "Enter manager PIN",
         "unlock_description": "Enter the manager PIN to edit register settings.",
         "unlock_failed": "Incorrect PIN"
-      }
+      },
+      "cash_rounding": "Cash rounding",
+      "cash_rounding_description": "Round cash payments to the nearest increment. Card and other payments stay exact.",
+      "cash_rounding_increment": "Rounding increment"
     },
     "printer": {
       "title": "Printers",
@@ -643,7 +648,11 @@
       "print_failed": "Summary did not print",
       "success": "Register closed",
       "submit": "Close register",
-      "closing": "Closing…"
+      "closing": "Closing…",
+      "confirm_title": "Close register for the day?",
+      "confirm_warning": "This ends the business day. You won't be able to sell until the register is reopened.",
+      "confirm_submit": "Yes, close register",
+      "back": "Back"
     },
     "status": {
       "expected": "Expected",
@@ -652,7 +661,14 @@
       "closed": "Register closed",
       "open": "Register open",
       "label": "Register",
-      "actions_description": "Choose an action"
+      "actions_description": "Choose an action",
+      "reopen": "Reopen"
+    },
+    "reopen": {
+      "title": "Reopen register",
+      "description": "Resume the current shift so you can keep selling. The opening float and cash movements are kept.",
+      "submit": "Reopen register",
+      "pin_invalid": "Incorrect PIN"
     }
   }
 }

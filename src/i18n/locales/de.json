@@ -201,7 +201,8 @@
     "deliver_pay_later_button": "Bestätigen – später zahlen",
     "pay_later_confirm_title": "Ohne Zahlung liefern?",
     "pay_later_confirm_message": "Die Bestellung wird jetzt erstellt und geliefert. Die Zahlung bleibt offen und kann später bei der Bestellung erfasst werden.",
-    "register_closed": "Öffnen Sie die Kasse, bevor Sie einen Verkauf tätigen."
+    "register_closed": "Öffnen Sie die Kasse, bevor Sie einen Verkauf tätigen.",
+    "rounded_from": "Gerundet von"
   },
   "orders": {
     "search_placeholder": "Bestellungen suchen...",
@@ -347,7 +348,8 @@
     "change": "Rückgeld",
     "thank_you": "Vielen Dank für Ihren Besuch!",
     "amount_due": "Fälliger Betrag",
-    "unpaid": "** UNBEZAHLT — ZAHLUNG AUSSTEHEND **"
+    "unpaid": "** UNBEZAHLT — ZAHLUNG AUSSTEHEND **",
+    "rounding": "Rundung"
   },
   "settings": {
     "preferences": {
@@ -411,7 +413,10 @@
         "unlock_title": "Manager-PIN eingeben",
         "unlock_description": "Geben Sie die Manager-PIN ein, um die Kasseneinstellungen zu bearbeiten.",
         "unlock_failed": "Falsche PIN"
-      }
+      },
+      "cash_rounding": "Bargeld-Rundung",
+      "cash_rounding_description": "Bargeldzahlungen auf den nächsten Schritt runden. Karten- und andere Zahlungen bleiben exakt.",
+      "cash_rounding_increment": "Rundungsschritt"
     },
     "printer": {
       "title": "Drucker",
@@ -643,7 +648,11 @@
       "print_failed": "Zusammenfassung wurde nicht gedruckt",
       "success": "Kasse geschlossen",
       "submit": "Kasse schließen",
-      "closing": "Wird geschlossen…"
+      "closing": "Wird geschlossen…",
+      "confirm_title": "Kasse für heute schließen?",
+      "confirm_warning": "Damit endet der Geschäftstag. Verkäufe sind erst nach erneutem Öffnen der Kasse möglich.",
+      "confirm_submit": "Ja, Kasse schließen",
+      "back": "Zurück"
     },
     "status": {
       "expected": "Erwartet",
@@ -652,7 +661,14 @@
       "closed": "Kasse geschlossen",
       "open": "Kasse offen",
       "label": "Kasse",
-      "actions_description": "Aktion wählen"
+      "actions_description": "Aktion wählen",
+      "reopen": "Erneut öffnen"
+    },
+    "reopen": {
+      "title": "Kasse erneut öffnen",
+      "description": "Setzt die aktuelle Schicht fort, damit Sie weiter verkaufen können. Anfangsbestand und Bargeldbewegungen bleiben erhalten.",
+      "submit": "Kasse erneut öffnen",
+      "pin_invalid": "Falsche PIN"
     }
   }
 }

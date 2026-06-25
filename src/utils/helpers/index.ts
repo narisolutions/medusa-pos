@@ -51,6 +51,34 @@ const getTauriInvokeErrorMessage = (error: unknown, fallback: string): string =>
   return fallback;
 };
 
+/**
+ * The patched Medusa SDK fetch (see `src/config/medusa.ts`) throws an `Error`
+ * whose `message` is only the status line (e.g. "HTTP 400: Bad Request") and
+ * attaches the parsed response body on `error.body`. Medusa surfaces the useful
+ * explanation in `body.message`, so prefer that when present.
+ */
+const getApiErrorMessage = (error: unknown, fallback: string): string => {
+  if (error && typeof error === "object" && "body" in error) {
+    const { body } = error as { body?: unknown };
+    if (typeof body === "string" && body.trim().length > 0) {
+      return body;
+    }
+    if (body && typeof body === "object" && "message" in body) {
+      const message = (body as { message?: unknown }).message;
+      if (typeof message === "string" && message.trim().length > 0) {
+        return message;
+      }
+    }
+  }
+  if (error instanceof Error && error.message.trim().length > 0) {
+    return error.message;
+  }
+  if (typeof error === "string" && error.trim().length > 0) {
+    return error;
+  }
+  return fallback;
+};
+
 const handleErrorToast = (
   error: unknown,
   options?: { posEndpointError?: boolean }
@@ -369,6 +397,7 @@ export {
   getRoutes,
   getAuthenticatedPages,
   getTauriInvokeErrorMessage,
+  getApiErrorMessage,
   handleErrorToast,
   formatDate,
   formatExactTime,

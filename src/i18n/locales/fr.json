@@ -201,7 +201,8 @@
     "deliver_pay_later_button": "Confirmer — payer plus tard",
     "pay_later_confirm_title": "Livrer sans paiement ?",
     "pay_later_confirm_message": "La commande sera créée et livrée maintenant. Le paiement reste dû et pourra être enregistré plus tard depuis la commande.",
-    "register_closed": "Ouvrez la caisse avant de réaliser une vente."
+    "register_closed": "Ouvrez la caisse avant de réaliser une vente.",
+    "rounded_from": "Arrondi de"
   },
   "orders": {
     "search_placeholder": "Rechercher des commandes...",
@@ -347,7 +348,8 @@
     "change": "Monnaie rendue",
     "thank_you": "Merci de votre visite !",
     "amount_due": "Montant dû",
-    "unpaid": "** IMPAYÉ — PAIEMENT EN ATTENTE **"
+    "unpaid": "** IMPAYÉ — PAIEMENT EN ATTENTE **",
+    "rounding": "Arrondi"
   },
   "settings": {
     "preferences": {
@@ -411,7 +413,10 @@
         "unlock_title": "Saisir le code responsable",
         "unlock_description": "Saisissez le code responsable pour modifier les paramètres de la caisse.",
         "unlock_failed": "Code incorrect"
-      }
+      },
+      "cash_rounding": "Arrondi des espèces",
+      "cash_rounding_description": "Arrondit les paiements en espèces au pas le plus proche. Les paiements par carte et autres restent exacts.",
+      "cash_rounding_increment": "Pas d'arrondi"
     },
     "printer": {
       "title": "Imprimantes",
@@ -643,7 +648,11 @@
       "print_failed": "Le résumé n'a pas été imprimé",
       "success": "Caisse clôturée",
       "submit": "Clôturer la caisse",
-      "closing": "Clôture…"
+      "closing": "Clôture…",
+      "confirm_title": "Fermer la caisse pour la journée ?",
+      "confirm_warning": "Cela termine la journée. Vous ne pourrez pas vendre tant que la caisse n'est pas rouverte.",
+      "confirm_submit": "Oui, fermer la caisse",
+      "back": "Retour"
     },
     "status": {
       "expected": "Attendu",
@@ -652,7 +661,14 @@
       "closed": "Caisse clôturée",
       "open": "Caisse ouverte",
       "label": "Caisse",
-      "actions_description": "Choisir une action"
+      "actions_description": "Choisir une action",
+      "reopen": "Rouvrir"
+    },
+    "reopen": {
+      "title": "Rouvrir la caisse",
+      "description": "Reprend le service en cours pour continuer à vendre. Le fonds de caisse et les mouvements d'espèces sont conservés.",
+      "submit": "Rouvrir la caisse",
+      "pin_invalid": "Code PIN incorrect"
     }
   }
 }

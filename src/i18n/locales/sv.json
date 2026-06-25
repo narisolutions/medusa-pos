@@ -201,7 +201,8 @@
     "deliver_pay_later_button": "Bekräfta — betala senare",
     "pay_later_confirm_title": "Leverera utan betalning?",
     "pay_later_confirm_message": "Ordern skapas och levereras nu. Betalningen kvarstår och kan registreras senare från ordern.",
-    "register_closed": "Öppna kassan innan du gör en försäljning."
+    "register_closed": "Öppna kassan innan du gör en försäljning.",
+    "rounded_from": "Avrundat från"
   },
   "orders": {
     "search_placeholder": "Sök order...",
@@ -347,7 +348,8 @@
     "change": "Växel",
     "thank_you": "Tack för ditt besök!",
     "amount_due": "Belopp att betala",
-    "unpaid": "** OBETALD — BETALNING VÄNTAR **"
+    "unpaid": "** OBETALD — BETALNING VÄNTAR **",
+    "rounding": "Avrundning"
   },
   "settings": {
     "preferences": {
@@ -411,7 +413,10 @@
         "unlock_title": "Ange chefskod",
         "unlock_description": "Ange chefskoden för att ändra kassainställningarna.",
         "unlock_failed": "Fel kod"
-      }
+      },
+      "cash_rounding": "Kontantavrundning",
+      "cash_rounding_description": "Avrundar kontantbetalningar till närmaste steg. Kort- och andra betalningar förblir exakta.",
+      "cash_rounding_increment": "Avrundningssteg"
     },
     "printer": {
       "title": "Skrivare",
@@ -643,7 +648,11 @@
       "print_failed": "Sammanfattningen skrevs inte ut",
       "success": "Kassan stängd",
       "submit": "Stäng kassan",
-      "closing": "Stänger…"
+      "closing": "Stänger…",
+      "confirm_title": "Stäng kassan för dagen?",
+      "confirm_warning": "Detta avslutar affärsdagen. Du kan inte sälja förrän kassan öppnas igen.",
+      "confirm_submit": "Ja, stäng kassan",
+      "back": "Tillbaka"
     },
     "status": {
       "expected": "Förväntat",
@@ -652,7 +661,14 @@
       "closed": "Kassan stängd",
       "open": "Kassan öppen",
       "label": "Kassa",
-      "actions_description": "Välj en åtgärd"
+      "actions_description": "Välj en åtgärd",
+      "reopen": "Öppna igen"
+    },
+    "reopen": {
+      "title": "Öppna kassan igen",
+      "description": "Återupptar det aktuella passet så att du kan fortsätta sälja. Växelkassan och kontantrörelserna behålls.",
+      "submit": "Öppna kassan igen",
+      "pin_invalid": "Felaktig PIN"
     }
   }
 }

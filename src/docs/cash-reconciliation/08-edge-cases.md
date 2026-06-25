@@ -4,6 +4,7 @@
 |---|---|
 | Feature disabled | All register surfaces dormant; POS behaves as if the feature doesn't exist |
 | Mid-day app restart | Open session stays open; **no** re-prompt |
+| Accidental / premature mid-shift close | **Reopen** (undo) resumes the same session; manager-PIN gated; checkout is blocked until then so no cash goes untracked |
 | Overnight / multi-day stale open session | Force-close (reconcile) the old business day before opening today's |
 | Day rollover while app backgrounded | `visibilitychange` re-checks the business day and prompts if needed |
 | Split payment | Only the **cash portion** counts toward expected |
@@ -15,7 +16,7 @@
 | Orders predating rollout (no `register_session_id`) | Fall back to a `created_at >= openedAt` window; the first session has a documented gap |
 | Late-night sales | Stay in the same session per the configurable cut-off |
 | Fraud — fake close count | Manager PIN + required reason over threshold + immutable expected snapshot |
-| Fraud — reopen to reset a discrepancy | Closed session archived to the bounded list **before** a new open; the over/short can't be erased |
+| Fraud — reopen to reset a discrepancy | Reopen is manager-PIN gated and only undoes the **most recent same-day** close; the close stays archived **flagged `voided`** (not deleted), so the over/short can't be erased. A new business-day open also archives before opening |
 
 ## Notes
 

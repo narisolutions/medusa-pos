@@ -13,7 +13,16 @@ export type StoreThemeCache = {
   brandName?: string;
 };
 
-type ObjectKeys = "printers" | "cart" | "orders_filters" | "store_theme" | "stores" | "user_preferences" | "date_time_preferences";
+type ObjectKeys =
+  | "printers"
+  | "cart"
+  | "orders_filters"
+  | "store_theme"
+  | "stores"
+  | "user_preferences"
+  | "date_time_preferences"
+  | "register_session"
+  | "closed_register_sessions";
 
 type Keys = StringKeys | NumberKeys | BooleanKeys | ObjectKeys;
 
@@ -63,7 +72,17 @@ async function clear(): Promise<void> {
     const store = await Store.load("pos-storage.json");
 
     // Preserve ObjectKeys and specific StringKeys during logout
-    const objectKeysToPreserve: ObjectKeys[] = ["printers", "cart", "store_theme", "stores", "user_preferences"];
+    // Register sessions are tied to the physical terminal/drawer, not the user —
+    // preserve them so a shift survives one cashier logging out and another in.
+    const objectKeysToPreserve: ObjectKeys[] = [
+      "printers",
+      "cart",
+      "store_theme",
+      "stores",
+      "user_preferences",
+      "register_session",
+      "closed_register_sessions",
+    ];
     const stringKeysToPreserve: StringKeys[] = [
       "draft_order_id",
       "sales_channel_id",

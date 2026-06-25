@@ -26,8 +26,14 @@ money use the numeric keypad pattern already used at checkout.
   - counted cash (single total, required).
   - reason — **required only** when `|counted − expected|` exceeds the threshold.
   - manager PIN — required when `requirePinToClose` is on.
+- **Two-step (normal close)**: after the count is validated, a **confirm step** restates
+  Expected / Counted / Over-Short and warns that closing **ends the business day and
+  blocks selling until the register is reopened**. The forced prior-day reconcile skips
+  this step (it is mandatory).
 - **On confirm**: snapshots `expectedCash`, writes `countedCash`, `difference`, `note`,
   `closedAt`; archives the session to history; optionally prints a close summary.
+- **After close**: the register is closed, so checkout is **blocked** (the open-modal gate
+  keys off `isOpen`, not just "needs a new day"). No post-close sale can go untracked.
 
 ### Close summary (optional print)
 
@@ -47,15 +53,31 @@ Over/Short:   -2.00  (SHORT)
 Reason: miscount on change
 ```
 
-## Register status (checkout bar)
+## Register sidebar item
 
-- A slim horizontal bar at the top of the checkout screen (above the product filter),
-  where it is most relevant during sales.
-- **Hidden entirely when the feature is disabled** (checkout looks unchanged).
-- When open: shows a status dot, "Register open", the live expected total, and exposes
-  **Cash drop / pay-in** and **Close register**.
-- When closed (already reconciled for the day): shows "Register closed". A new business
-  day surfaces the blocking open dialog rather than an inline prompt.
+The register lives as an item in the sidebar rail (`RegisterMenuItem`), with a status dot:
 
-> Placement is a host-app choice; the status component is self-contained and could
-> equally live in a global header. See [Portability](./09-portability.md).
+- **Hidden entirely when the feature is disabled** (the rail looks unchanged).
+- **Open (green dot)**: tapping opens a touch-friendly action chooser — **Cash drop /
+  pay-in** or **Close register**.
+- **Closed earlier today (amber dot, "Reopen")**: tapping opens the **Reopen** dialog
+  (manager PIN when `requirePinToClose` is on). See the Reopen flow below.
+- **Otherwise (inert)**: disabled; opening for a new business day is driven by the
+  blocking open dialog, not this item.
+
+## Reopen (undo a same-day close)
+
+- **When**: a session was closed earlier on the **current** business day (`canReopen`).
+  A session closed on a previous day is finished — the next-day open flow owns it.
+- **Why**: recover from an accidental / premature mid-shift close without losing data.
+- **Behavior**: resumes the **same** session (same `id`, `openingFloat`, `movements`),
+  so orders stamped during the shift stay attributed and expected cash continues
+  seamlessly — no re-entered float, no split day.
+- **Audit**: the archived close is **not** deleted; it is flagged `voided` (with
+  `voidedAt`) so the over/short stays on record. A later legitimate close appends a new
+  archive entry alongside it.
+- **Authority**: gated by the manager PIN whenever `requirePinToClose` is on (reopen is a
+  manager-level undo, same authority as closing).
+
+> Placement is a host-app choice; the register components are self-contained. See
+> [Portability](./09-portability.md).

@@ -23,6 +23,7 @@ export type ReceiptLabels = {
   discount: string;
   vat: string;
   total: string;
+  rounding: string;
   paymentMethod: string;
   amountPaid: string;
   change: string;
@@ -46,6 +47,7 @@ export const DEFAULT_RECEIPT_LABELS: ReceiptLabels = {
   discount: "Discount",
   vat: "VAT",
   total: "Total",
+  rounding: "Rounding",
   paymentMethod: "Payment Method",
   amountPaid: "Amount Paid",
   change: "Change",
@@ -204,6 +206,9 @@ const buildReceipt = (
 
   receipt += `\n${padLine(labels.vat + ":", fmtCurrency(data.tax))}`;
   receipt += `\n${padLine(labels.total + ":", fmtCurrency(data.total))}`;
+  if (data.cashRounding) {
+    receipt += `\n${padLine(labels.rounding + ":", fmtCurrency(data.cashRounding))}`;
+  }
 
   receipt += `\n\n${labels.paymentMethod}: ${data.paymentMethod}`;
 
@@ -398,6 +403,9 @@ const buildReceiptPDF = (data: ReceiptData, paperWidth: PaperWidth = "80mm", lab
   
   addSeparator("thin", 2, 4);
   addTwoColumn(labels.total.toUpperCase() + ":", formatCurrencyRaw(data.total, data.currency), true, 5);
+  if (data.cashRounding) {
+    addTwoColumn(labels.rounding + ":", formatCurrencyRaw(data.cashRounding, data.currency), false, 5);
+  }
   addSeparator("thin", 2, 4);
 
   // Payment Information

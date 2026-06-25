@@ -14,7 +14,10 @@ import {
   SelectTrigger,
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
+import { Input } from "@/components/ui/input";
 import { usePreferencesSettings } from "./hooks";
+import ManagerPin from "./manager-pin";
+import RegisterLock from "./register-lock";
 import type { ThemeMode, LanguageMode } from "@/types/preferences";
 import { useTranslation } from "@/i18n";
 
@@ -30,8 +33,21 @@ const LANGUAGE_OPTIONS: { value: LanguageMode; label: string }[] = [
 ];
 
 const PreferencesSettings: React.FC = () => {
-  const { form, isDirty, isSubmitting, handleSubmit, onSubmit, isTauri, handleThemeModeChange, handleLanguageChange } =
-    usePreferencesSettings();
+  const {
+    form,
+    isDirty,
+    isSubmitting,
+    handleSubmit,
+    onSubmit,
+    isTauri,
+    handleThemeModeChange,
+    handleLanguageChange,
+    hasManagerPin,
+    handleSetManagerPin,
+    handleClearManagerPin,
+    registerLocked,
+    unlockRegister,
+  } = usePreferencesSettings();
   const { t } = useTranslation();
 
   const THEME_OPTIONS: { value: ThemeMode; label: string }[] = [
@@ -42,6 +58,8 @@ const PreferencesSettings: React.FC = () => {
 
   const { control, watch } = form;
   const currentTheme = watch("themeMode");
+  const registerEnabled = watch("registerEnabled");
+  const cashRoundingEnabled = watch("cashRoundingEnabled");
 
   return (
     <div className="flex flex-col h-full min-h-0">
@@ -305,6 +323,188 @@ const PreferencesSettings: React.FC = () => {
                 </FormItem>
               )}
             />
+
+            <FormField
+              control={control}
+              name="cashRoundingEnabled"
+              render={({ field }) => (
+                <FormItem>
+                  <div className="flex items-center justify-between">
+                    <div className="space-y-0.5">
+                      <FormLabel className="text-base font-medium">
+                        {t("settings.preferences.cash_rounding")}
+                      </FormLabel>
+                      <p className="text-sm text-fg-muted">
+                        {t("settings.preferences.cash_rounding_description")}
+                      </p>
+                    </div>
+                    <FormControl>
+                      <Switch
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                      />
+                    </FormControl>
+                  </div>
+                </FormItem>
+              )}
+            />
+
+            {cashRoundingEnabled && (
+              <FormField
+                control={control}
+                name="cashRoundingIncrement"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-base font-medium">
+                      {t("settings.preferences.cash_rounding_increment")}
+                    </FormLabel>
+                    <Select
+                      value={String(field.value)}
+                      onValueChange={(v) => field.onChange(parseFloat(v))}
+                    >
+                      <FormControl>
+                        <SelectTrigger className="h-11 text-base px-4 max-w-[10rem]">
+                          <span>{String(field.value)}</span>
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="0.05">0.05</SelectItem>
+                        <SelectItem value="0.1">0.10</SelectItem>
+                        <SelectItem value="0.5">0.50</SelectItem>
+                        <SelectItem value="1">1.00</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </FormItem>
+                )}
+              />
+            )}
+          </fieldset>
+
+          <div className="border-t border-theme-border" />
+
+          {/* Register (cash reconciliation) — optional, off by default */}
+          <fieldset className="space-y-4">
+            <legend className="text-lg font-semibold text-fg">
+              {t("settings.preferences.register.title")}
+            </legend>
+
+            {registerLocked && <RegisterLock onUnlock={unlockRegister} />}
+
+            <FormField
+              control={control}
+              name="registerEnabled"
+              render={({ field }) => (
+                <FormItem>
+                  <div className="flex items-center justify-between">
+                    <div className="space-y-0.5">
+                      <FormLabel className="text-base font-medium">
+                        {t("settings.preferences.register.enable")}
+                      </FormLabel>
+                      <p className="text-sm text-fg-muted">
+                        {t("settings.preferences.register.enable_description")}
+                      </p>
+                    </div>
+                    <FormControl>
+                      <Switch
+                        checked={field.value}
+                        disabled={registerLocked}
+                        onCheckedChange={field.onChange}
+                      />
+                    </FormControl>
+                  </div>
+                </FormItem>
+              )}
+            />
+
+            {registerEnabled && (
+              <div className="space-y-4 pl-1">
+                <FormField
+                  control={control}
+                  name="registerCutoffHour"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-base font-medium">
+                        {t("settings.preferences.register.cutoff_hour")}
+                      </FormLabel>
+                      <p className="text-sm text-fg-muted">
+                        {t("settings.preferences.register.cutoff_hour_description")}
+                      </p>
+                      <FormControl>
+                        <Input
+                          type="number"
+                          min={0}
+                          max={23}
+                          step={1}
+                          disabled={registerLocked}
+                          value={field.value}
+                          onChange={(e) => field.onChange(e.target.value)}
+                          className="h-11 text-base max-w-[8rem]"
+                        />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={control}
+                  name="registerDiscrepancyThreshold"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-base font-medium">
+                        {t("settings.preferences.register.discrepancy_threshold")}
+                      </FormLabel>
+                      <p className="text-sm text-fg-muted">
+                        {t("settings.preferences.register.discrepancy_threshold_description")}
+                      </p>
+                      <FormControl>
+                        <Input
+                          type="number"
+                          min={0}
+                          step="0.01"
+                          disabled={registerLocked}
+                          value={field.value}
+                          onChange={(e) => field.onChange(e.target.value)}
+                          className="h-11 text-base max-w-[10rem]"
+                        />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={control}
+                  name="registerRequirePin"
+                  render={({ field }) => (
+                    <FormItem>
+                      <div className="flex items-center justify-between">
+                        <div className="space-y-0.5">
+                          <FormLabel className="text-base font-medium">
+                            {t("settings.preferences.register.require_pin")}
+                          </FormLabel>
+                          <p className="text-sm text-fg-muted">
+                            {t("settings.preferences.register.require_pin_description")}
+                          </p>
+                        </div>
+                        <FormControl>
+                          <Switch
+                            checked={field.value}
+                            disabled={registerLocked}
+                            onCheckedChange={field.onChange}
+                          />
+                        </FormControl>
+                      </div>
+                    </FormItem>
+                  )}
+                />
+
+                <ManagerPin
+                  hasPin={hasManagerPin}
+                  locked={registerLocked}
+                  onSet={handleSetManagerPin}
+                  onClear={handleClearManagerPin}
+                />
+              </div>
+            )}
           </fieldset>
 
           <div className="border-t border-theme-border pt-4 shrink-0">

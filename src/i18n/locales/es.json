@@ -201,7 +201,8 @@
     "deliver_pay_later_button": "Confirmar — pagar después",
     "pay_later_confirm_title": "¿Entregar sin pago?",
     "pay_later_confirm_message": "El pedido se creará y entregará ahora. El pago queda pendiente y podrá registrarse más tarde desde el pedido.",
-    "register_closed": "Abre la caja antes de realizar una venta."
+    "register_closed": "Abre la caja antes de realizar una venta.",
+    "rounded_from": "Redondeado desde"
   },
   "orders": {
     "search_placeholder": "Buscar pedidos...",
@@ -347,7 +348,8 @@
     "change": "Cambio",
     "thank_you": "¡Gracias por su visita!",
     "amount_due": "Importe pendiente",
-    "unpaid": "** SIN PAGAR — PAGO PENDIENTE **"
+    "unpaid": "** SIN PAGAR — PAGO PENDIENTE **",
+    "rounding": "Redondeo"
   },
   "settings": {
     "preferences": {
@@ -411,7 +413,10 @@
         "unlock_title": "Introduce el PIN del responsable",
         "unlock_description": "Introduce el PIN del responsable para editar los ajustes de la caja.",
         "unlock_failed": "PIN incorrecto"
-      }
+      },
+      "cash_rounding": "Redondeo de efectivo",
+      "cash_rounding_description": "Redondea los pagos en efectivo al incremento más cercano. Los pagos con tarjeta y otros se mantienen exactos.",
+      "cash_rounding_increment": "Incremento de redondeo"
     },
     "printer": {
       "title": "Impresoras",
@@ -643,7 +648,11 @@
       "print_failed": "No se imprimió el resumen",
       "success": "Caja cerrada",
       "submit": "Cerrar caja",
-      "closing": "Cerrando…"
+      "closing": "Cerrando…",
+      "confirm_title": "¿Cerrar la caja por hoy?",
+      "confirm_warning": "Esto finaliza la jornada. No podrás vender hasta que la caja se vuelva a abrir.",
+      "confirm_submit": "Sí, cerrar la caja",
+      "back": "Atrás"
     },
     "status": {
       "expected": "Esperado",
@@ -652,7 +661,14 @@
       "closed": "Caja cerrada",
       "open": "Caja abierta",
       "label": "Caja",
-      "actions_description": "Elige una acción"
+      "actions_description": "Elige una acción",
+      "reopen": "Reabrir"
+    },
+    "reopen": {
+      "title": "Reabrir la caja",
+      "description": "Reanuda el turno actual para seguir vendiendo. Se conservan el fondo inicial y los movimientos de efectivo.",
+      "submit": "Reabrir la caja",
+      "pin_invalid": "PIN incorrecto"
     }
   }
 }

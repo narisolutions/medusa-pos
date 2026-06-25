@@ -7,7 +7,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useQueryStockLocation } from "@/hooks/queries/useQueryStockLocation";
 import { useQueryShippingOption } from "@/hooks/queries/useQueryShippingOption";
 import storage from "@/utils/storage";
-import { handleErrorToast } from "@/utils/helpers";
+import { handleErrorToast, getApiErrorMessage } from "@/utils/helpers";
 
 interface FulfillmentItem {
   id: string;
@@ -150,7 +150,7 @@ export const useFulfillmentDialog = (
       console.error("Fulfillment error:", error);
       handleErrorToast(
         t("orders.failed_to_create_fulfillment", {
-          error: error instanceof Error ? error.message : t("common.error"),
+          error: getApiErrorMessage(error, t("common.error")),
         })
       );
     } finally {
