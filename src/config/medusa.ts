@@ -4,16 +4,35 @@ import type Medusa from "@medusajs/js-sdk";
 
 const AUTH_TOKEN_KEY = "medusa_auth_token";
 
+// In-memory cache for the auth token. Without this, every outgoing request pays a
+// dynamic import() + Store.load(".auth.dat") + IPC just to read the JWT. The token is
+// a static login JWT (no silent refresh), so caching is safe as long as it is updated
+// when a new token is stored (see login-response handler) and cleared on logout / SDK reset.
+let cachedAuthToken: string | null = null;
+
+export const setAuthTokenCache = (token: string | null): void => {
+  cachedAuthToken = token;
+};
+
+export const clearAuthTokenCache = (): void => {
+  cachedAuthToken = null;
+};
+
 export const getAuthToken = async (): Promise<string | null> => {
+  if (cachedAuthToken) return cachedAuthToken;
   try {
     const { Store } = await import("@tauri-apps/plugin-store");
     const store = await Store.load(".auth.dat");
     const token = await store.get<string>(AUTH_TOKEN_KEY);
-    if (token) return token;
+    if (token) {
+      cachedAuthToken = token;
+      return token;
+    }
     const localToken = localStorage.getItem(AUTH_TOKEN_KEY);
     if (localToken) {
       await store.set(AUTH_TOKEN_KEY, localToken);
       await store.save();
+      cachedAuthToken = localToken;
     }
     return localToken;
   } catch {
@@ -220,9 +239,12 @@ export const initializeSdk = async (baseUrl?: string) => {
                       const store = await Store.load(".auth.dat");
                       await store.set("medusa_auth_token", token);
                       await store.save();
-                      
+
                       // Then store in localStorage as fallback
                       localStorage.setItem("medusa_auth_token", token);
+
+                      // Keep the in-memory cache in sync with the freshly issued token.
+                      setAuthTokenCache(token);
                     } catch (error) {
                       console.error("Failed to store auth token:", error);
                       // If Tauri store fails, still try localStorage
@@ -279,4 +301,5 @@ export const resetSdk = () => {
   sdkInstance = null;
   sdkBaseUrl = null;
   sdkInitializing = false;
+  clearAuthTokenCache();
 };

@@ -13,4 +13,7 @@ export type Forms = {
   DateTimeSettings: zodInfer<typeof schemas.dateTimeSettings>;
   CurrencySettings: zodInfer<typeof schemas.currencySettings>;
   PreferencesSettings: zodInfer<typeof schemas.preferencesSettings>;
+  OpenRegister: zodInfer<typeof schemas.openRegister>;
+  CloseRegister: zodInfer<typeof schemas.closeRegister>;
+  CashMovement: zodInfer<typeof schemas.cashMovement>;
 };

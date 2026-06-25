@@ -10,8 +10,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Table as ReactTable } from "@tanstack/react-table";
-import type { AdminOrder } from "@medusajs/types";
 import { useQuerySalesChannel } from "@/hooks/queries/useQuerySalesChannel";
 import { useTranslation } from "@/i18n";
 
@@ -23,7 +21,6 @@ interface Props {
     payment_status: string;
   };
   onFiltersChange: (filters: Props["filters"]) => void;
-  table: ReactTable<AdminOrder>;
   onRefresh?: () => void;
   isRefreshing?: boolean;
 }
@@ -31,7 +28,6 @@ interface Props {
 const Header: React.FC<Props> = ({
   filters,
   onFiltersChange,
-  table,
   onRefresh,
   isRefreshing = false,
 }) => {
@@ -39,13 +35,13 @@ const Header: React.FC<Props> = ({
   const salesChannels = (rawChannels ?? []).filter((ch) => !ch.is_disabled);
   const { t } = useTranslation();
 
+  // These handlers only update `filters`; the table is synced from the debounced
+  // filters in the parent, so the expensive refilter is deferred until typing pauses.
   const onGlobalFilterChange = (value: string) => {
     onFiltersChange({
       ...filters,
       search: value,
     });
-
-    table.setGlobalFilter(value);
   };
 
   const onFulfillmentStatusChange = (value: string) => {
@@ -53,8 +49,6 @@ const Header: React.FC<Props> = ({
       ...filters,
       fulfillment_status: value,
     });
-
-    table.getColumn("fulfillment_status")?.setFilterValue(value || undefined);
   };
 
   const onSalesChannelChange = (value: string) => {
@@ -62,8 +56,6 @@ const Header: React.FC<Props> = ({
       ...filters,
       sales_channel: value,
     });
-
-    table.getColumn("sales_channel")?.setFilterValue(value || undefined);
   };
 
   const onPaymentStatusChange = (value: string) => {
@@ -71,8 +63,6 @@ const Header: React.FC<Props> = ({
       ...filters,
       payment_status: value,
     });
-
-    table.getColumn("payment_status")?.setFilterValue(value || undefined);
   };
 
   const clearAllFilters = () => {
@@ -82,9 +72,6 @@ const Header: React.FC<Props> = ({
       fulfillment_status: "",
       payment_status: "",
     });
-
-    table.setGlobalFilter("");
-    table.resetColumnFilters();
   };
 
   return (

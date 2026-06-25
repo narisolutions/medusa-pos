@@ -200,7 +200,9 @@
     "deliver_pay_later": "Deliver, pay later",
     "deliver_pay_later_button": "Confirm — pay later",
     "pay_later_confirm_title": "Deliver without payment?",
-    "pay_later_confirm_message": "The order will be created and delivered now. Payment stays outstanding and can be recorded later from the order."
+    "pay_later_confirm_message": "The order will be created and delivered now. Payment stays outstanding and can be recorded later from the order.",
+    "register_closed": "Open the register before making a sale.",
+    "rounded_from": "Rounded from"
   },
   "orders": {
     "search_placeholder": "Search orders...",
@@ -346,7 +348,8 @@
     "change": "Change",
     "thank_you": "Thank you for your visit!",
     "amount_due": "Amount Due",
-    "unpaid": "** UNPAID — PAYMENT PENDING **"
+    "unpaid": "** UNPAID — PAYMENT PENDING **",
+    "rounding": "Rounding"
   },
   "settings": {
     "preferences": {
@@ -381,7 +384,39 @@
       "decimal_dot": "Dot (e.g. 10.50)",
       "decimal_comma": "Comma (e.g. 10,50)",
       "saved": "Preferences saved",
-      "save_error": "Failed to save preferences"
+      "save_error": "Failed to save preferences",
+      "register": {
+        "title": "Register",
+        "enable": "Cash reconciliation",
+        "enable_description": "Track the cash drawer with a daily open/close. Off by default.",
+        "cutoff_hour": "Business-day cut-off hour",
+        "cutoff_hour_description": "Hour (0–23) when a new business day starts. Keeps late-night sales in one shift.",
+        "discrepancy_threshold": "Discrepancy threshold",
+        "discrepancy_threshold_description": "Over/short above this amount requires a reason at close.",
+        "require_pin": "Require manager PIN to close",
+        "require_pin_description": "Ask for the manager PIN before closing the register.",
+        "manager_pin": "Manager PIN",
+        "pin_set": "A PIN is set.",
+        "pin_not_set": "No PIN set.",
+        "set_pin": "Set PIN",
+        "change_pin": "Change PIN",
+        "clear_pin": "Clear PIN",
+        "new_pin": "New PIN",
+        "confirm_pin": "Confirm PIN",
+        "save_pin": "Save PIN",
+        "pin_too_short": "PIN must be at least 4 digits.",
+        "pin_mismatch": "PINs do not match.",
+        "pin_saved": "Manager PIN saved.",
+        "pin_cleared": "Manager PIN cleared.",
+        "locked_notice": "Manager PIN protects these settings. Unlock to make changes.",
+        "unlock": "Unlock",
+        "unlock_title": "Enter manager PIN",
+        "unlock_description": "Enter the manager PIN to edit register settings.",
+        "unlock_failed": "Incorrect PIN"
+      },
+      "cash_rounding": "Cash rounding",
+      "cash_rounding_description": "Round cash payments to the nearest increment. Card and other payments stay exact.",
+      "cash_rounding_increment": "Rounding increment"
     },
     "printer": {
       "title": "Printers",
@@ -574,5 +609,66 @@
     "installing": "Installing update…",
     "failed_title": "Update failed",
     "failed_description": "Failed to install the update."
+  },
+  "register": {
+    "open": {
+      "title": "Open register",
+      "description": "Enter the starting cash to begin the day.",
+      "opening_float": "Opening float",
+      "opening": "Opening…",
+      "submit": "Open register"
+    },
+    "movement": {
+      "title": "Cash movement",
+      "description": "Record cash removed from or added to the drawer.",
+      "type": "Type",
+      "drop": "Cash drop (remove)",
+      "payin": "Pay-in (add)",
+      "amount": "Amount",
+      "reason": "Reason",
+      "submit": "Record"
+    },
+    "close": {
+      "title": "Close register",
+      "description": "Count the drawer and enter the total.",
+      "reconcile_title": "Reconcile previous day",
+      "reconcile_description": "A register from an earlier day is still open. Close it before opening today.",
+      "expected": "Expected",
+      "counted": "Counted cash",
+      "difference": "Over / Short",
+      "balanced": "balanced",
+      "over": "over",
+      "short": "short",
+      "reason": "Reason",
+      "reason_required": "Reason required for this difference",
+      "reason_optional": "Optional",
+      "manager_pin": "Manager PIN",
+      "pin_invalid": "Incorrect PIN",
+      "print_summary": "Print summary",
+      "print_failed": "Summary did not print",
+      "success": "Register closed",
+      "submit": "Close register",
+      "closing": "Closing…",
+      "confirm_title": "Close register for the day?",
+      "confirm_warning": "This ends the business day. You won't be able to sell until the register is reopened.",
+      "confirm_submit": "Yes, close register",
+      "back": "Back"
+    },
+    "status": {
+      "expected": "Expected",
+      "movement": "Cash drop / pay-in",
+      "close": "Close register",
+      "closed": "Register closed",
+      "open": "Register open",
+      "label": "Register",
+      "actions_description": "Choose an action",
+      "reopen": "Reopen"
+    },
+    "reopen": {
+      "title": "Reopen register",
+      "description": "Resume the current shift so you can keep selling. The opening float and cash movements are kept.",
+      "submit": "Reopen register",
+      "pin_invalid": "Incorrect PIN"
+    }
   }
 }

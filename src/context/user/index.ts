@@ -63,6 +63,9 @@ function createUserStore() {
       resetPosPluginCache();
       const { queryClient } = await import("@/config/query");
       queryClient.clear();
+      // Drop the cached JWT so the next login doesn't reuse the previous session's token.
+      const { clearAuthTokenCache } = await import("@/config/medusa");
+      clearAuthTokenCache();
     },
     update: (admin) => {
       set({

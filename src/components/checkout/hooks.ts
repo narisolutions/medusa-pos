@@ -9,6 +9,7 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { useDraftOrder } from "@/hooks/draft-order/useDraftOrder";
 import { useCartStore } from "@/context/cart";
+import { useRegister } from "@/context/register";
 import { useQueryRegion } from "@/hooks/queries/useQueryRegion";
 import { useQueryStore } from "@/hooks/queries/useQueryStore";
 import { getPaymentMethods, getGuestCustomerEmail } from "@/utils/settings/store/metadata";
@@ -126,6 +127,7 @@ const useProvideCheckout = (): CheckoutContextValue => {
 
   const navigate = useNavigate();
   const { openCashDrawer, getDefaultPrinter } = usePrinterService();
+  const { enabled: registerEnabled, isOpen: registerOpen } = useRegister();
 
   const handleRemoveItem = useCallback(
     (itemId: string) => {
@@ -194,6 +196,10 @@ const useProvideCheckout = (): CheckoutContextValue => {
 
   const handleOpenModal = useCallback(async () => {
     try {
+      if (registerEnabled && !registerOpen) {
+        handleErrorToast(t("checkout.register_closed"));
+        return;
+      }
 
       if (!metadata.payment_method) {
         handleErrorToast(t("checkout.select_payment_method"));
@@ -271,6 +277,8 @@ const useProvideCheckout = (): CheckoutContextValue => {
     metadata,
     store,
     goToGuestEmailSetting,
+    registerEnabled,
+    registerOpen,
     t,
   ]);
 

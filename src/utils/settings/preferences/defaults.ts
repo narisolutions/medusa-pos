@@ -11,9 +11,19 @@ export const DEFAULT_PREFERENCES: UserPreferences = {
   currency: {
     symbolPosition: "before",
     decimalSeparator: "dot",
+    cashRounding: {
+      enabled: false,
+      increment: 0.05,
+    },
   },
   appearance: {
     themeMode: "system",
   },
   language: "system",
+  register: {
+    enabled: false,
+    dayCutoffHour: 0,
+    discrepancyThreshold: 5,
+    requirePinToClose: true,
+  },
 };

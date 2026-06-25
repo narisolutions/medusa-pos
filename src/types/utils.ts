@@ -90,6 +90,8 @@ interface ReceiptData {
   paymentMethod: string;
   amountPaid?: number;
   change?: number;
+  /** Signed cash-rounding adjustment (cash collected − exact total); cash only. */
+  cashRounding?: number;
   /** When true, the order is delivered but payment is outstanding (pay later). */
   isUnpaid?: boolean;
   /** Outstanding balance shown on an unpaid receipt instead of Amount Paid/Change. */

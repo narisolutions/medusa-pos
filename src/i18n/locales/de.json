@@ -200,7 +200,9 @@
     "deliver_pay_later": "Liefern, später zahlen",
     "deliver_pay_later_button": "Bestätigen – später zahlen",
     "pay_later_confirm_title": "Ohne Zahlung liefern?",
-    "pay_later_confirm_message": "Die Bestellung wird jetzt erstellt und geliefert. Die Zahlung bleibt offen und kann später bei der Bestellung erfasst werden."
+    "pay_later_confirm_message": "Die Bestellung wird jetzt erstellt und geliefert. Die Zahlung bleibt offen und kann später bei der Bestellung erfasst werden.",
+    "register_closed": "Öffnen Sie die Kasse, bevor Sie einen Verkauf tätigen.",
+    "rounded_from": "Gerundet von"
   },
   "orders": {
     "search_placeholder": "Bestellungen suchen...",
@@ -346,7 +348,8 @@
     "change": "Rückgeld",
     "thank_you": "Vielen Dank für Ihren Besuch!",
     "amount_due": "Fälliger Betrag",
-    "unpaid": "** UNBEZAHLT — ZAHLUNG AUSSTEHEND **"
+    "unpaid": "** UNBEZAHLT — ZAHLUNG AUSSTEHEND **",
+    "rounding": "Rundung"
   },
   "settings": {
     "preferences": {
@@ -381,7 +384,39 @@
       "decimal_dot": "Punkt (z. B. 10.50)",
       "decimal_comma": "Komma (z. B. 10,50)",
       "saved": "Präferenzen gespeichert",
-      "save_error": "Präferenzen konnten nicht gespeichert werden"
+      "save_error": "Präferenzen konnten nicht gespeichert werden",
+      "register": {
+        "title": "Kasse",
+        "enable": "Kassenabgleich",
+        "enable_description": "Überwachen Sie die Kassenlade mit täglichem Öffnen/Schließen. Standardmäßig aus.",
+        "cutoff_hour": "Geschäftstag-Grenzstunde",
+        "cutoff_hour_description": "Stunde (0–23), zu der ein neuer Geschäftstag beginnt. Hält Nachtverkäufe in einer Schicht.",
+        "discrepancy_threshold": "Differenzschwelle",
+        "discrepancy_threshold_description": "Eine Differenz über diesem Betrag erfordert beim Schließen einen Grund.",
+        "require_pin": "Manager-PIN zum Schließen verlangen",
+        "require_pin_description": "Vor dem Schließen der Kasse die Manager-PIN abfragen.",
+        "manager_pin": "Manager-PIN",
+        "pin_set": "Eine PIN ist festgelegt.",
+        "pin_not_set": "Keine PIN festgelegt.",
+        "set_pin": "PIN festlegen",
+        "change_pin": "PIN ändern",
+        "clear_pin": "PIN löschen",
+        "new_pin": "Neue PIN",
+        "confirm_pin": "PIN bestätigen",
+        "save_pin": "PIN speichern",
+        "pin_too_short": "Die PIN muss mindestens 4 Ziffern haben.",
+        "pin_mismatch": "Die PINs stimmen nicht überein.",
+        "pin_saved": "Manager-PIN gespeichert.",
+        "pin_cleared": "Manager-PIN gelöscht.",
+        "locked_notice": "Die Manager-PIN schützt diese Einstellungen. Zum Ändern entsperren.",
+        "unlock": "Entsperren",
+        "unlock_title": "Manager-PIN eingeben",
+        "unlock_description": "Geben Sie die Manager-PIN ein, um die Kasseneinstellungen zu bearbeiten.",
+        "unlock_failed": "Falsche PIN"
+      },
+      "cash_rounding": "Bargeld-Rundung",
+      "cash_rounding_description": "Bargeldzahlungen auf den nächsten Schritt runden. Karten- und andere Zahlungen bleiben exakt.",
+      "cash_rounding_increment": "Rundungsschritt"
     },
     "printer": {
       "title": "Drucker",
@@ -574,5 +609,66 @@
     "installing": "Update wird installiert…",
     "failed_title": "Update fehlgeschlagen",
     "failed_description": "Update konnte nicht installiert werden."
+  },
+  "register": {
+    "open": {
+      "title": "Kasse öffnen",
+      "description": "Geben Sie das Wechselgeld ein, um den Tag zu beginnen.",
+      "opening_float": "Wechselgeld",
+      "opening": "Wird geöffnet…",
+      "submit": "Kasse öffnen"
+    },
+    "movement": {
+      "title": "Bargeldbewegung",
+      "description": "Erfassen Sie aus der Lade entnommenes oder hinzugefügtes Bargeld.",
+      "type": "Art",
+      "drop": "Entnahme",
+      "payin": "Einlage",
+      "amount": "Betrag",
+      "reason": "Grund",
+      "submit": "Erfassen"
+    },
+    "close": {
+      "title": "Kasse schließen",
+      "description": "Zählen Sie die Lade und geben Sie die Summe ein.",
+      "reconcile_title": "Vortag abrechnen",
+      "reconcile_description": "Eine Kasse von einem früheren Tag ist noch offen. Schließen Sie sie, bevor Sie heute öffnen.",
+      "expected": "Erwartet",
+      "counted": "Gezähltes Bargeld",
+      "difference": "Differenz",
+      "balanced": "ausgeglichen",
+      "over": "Überschuss",
+      "short": "Fehlbetrag",
+      "reason": "Grund",
+      "reason_required": "Für diese Differenz ist ein Grund erforderlich",
+      "reason_optional": "Optional",
+      "manager_pin": "Manager-PIN",
+      "pin_invalid": "Falsche PIN",
+      "print_summary": "Zusammenfassung drucken",
+      "print_failed": "Zusammenfassung wurde nicht gedruckt",
+      "success": "Kasse geschlossen",
+      "submit": "Kasse schließen",
+      "closing": "Wird geschlossen…",
+      "confirm_title": "Kasse für heute schließen?",
+      "confirm_warning": "Damit endet der Geschäftstag. Verkäufe sind erst nach erneutem Öffnen der Kasse möglich.",
+      "confirm_submit": "Ja, Kasse schließen",
+      "back": "Zurück"
+    },
+    "status": {
+      "expected": "Erwartet",
+      "movement": "Entnahme / Einlage",
+      "close": "Kasse schließen",
+      "closed": "Kasse geschlossen",
+      "open": "Kasse offen",
+      "label": "Kasse",
+      "actions_description": "Aktion wählen",
+      "reopen": "Erneut öffnen"
+    },
+    "reopen": {
+      "title": "Kasse erneut öffnen",
+      "description": "Setzt die aktuelle Schicht fort, damit Sie weiter verkaufen können. Anfangsbestand und Bargeldbewegungen bleiben erhalten.",
+      "submit": "Kasse erneut öffnen",
+      "pin_invalid": "Falsche PIN"
+    }
   }
 }

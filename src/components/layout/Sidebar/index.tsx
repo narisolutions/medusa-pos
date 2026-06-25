@@ -14,6 +14,7 @@ import Payments from "@/assets/icons/payments";
 import Checkout from "@/assets/icons/checkout";
 import { useUnfulfilledOrdersCount } from "@/hooks/queries/useUnfulfilledOrdersCount";
 import { useTranslation } from "@/i18n";
+import RegisterMenuItem from "@/components/register/register-menu-item";
 
 const AppSidebar = () => {
   const sidebar = useSidebar();
@@ -90,6 +91,7 @@ const AppSidebar = () => {
         </SidebarMenu>
 
         <SidebarMenu className="px-2 pb-6 mt-auto">
+          <RegisterMenuItem />
           {bottomMenuItems.map((item) => (
             <SidebarMenuItem key={item.id}>
               {item.id === "logout" ? (

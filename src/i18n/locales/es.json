@@ -200,7 +200,9 @@
     "deliver_pay_later": "Entregar, pagar después",
     "deliver_pay_later_button": "Confirmar — pagar después",
     "pay_later_confirm_title": "¿Entregar sin pago?",
-    "pay_later_confirm_message": "El pedido se creará y entregará ahora. El pago queda pendiente y podrá registrarse más tarde desde el pedido."
+    "pay_later_confirm_message": "El pedido se creará y entregará ahora. El pago queda pendiente y podrá registrarse más tarde desde el pedido.",
+    "register_closed": "Abre la caja antes de realizar una venta.",
+    "rounded_from": "Redondeado desde"
   },
   "orders": {
     "search_placeholder": "Buscar pedidos...",
@@ -346,7 +348,8 @@
     "change": "Cambio",
     "thank_you": "¡Gracias por su visita!",
     "amount_due": "Importe pendiente",
-    "unpaid": "** SIN PAGAR — PAGO PENDIENTE **"
+    "unpaid": "** SIN PAGAR — PAGO PENDIENTE **",
+    "rounding": "Redondeo"
   },
   "settings": {
     "preferences": {
@@ -381,7 +384,39 @@
       "decimal_dot": "Punto (p. ej. 10.50)",
       "decimal_comma": "Coma (p. ej. 10,50)",
       "saved": "Preferencias guardadas",
-      "save_error": "Error al guardar las preferencias"
+      "save_error": "Error al guardar las preferencias",
+      "register": {
+        "title": "Caja",
+        "enable": "Conciliación de efectivo",
+        "enable_description": "Controla el cajón con una apertura/cierre diario. Desactivado por defecto.",
+        "cutoff_hour": "Hora de corte del día",
+        "cutoff_hour_description": "Hora (0–23) en que empieza un nuevo día. Mantiene las ventas nocturnas en un turno.",
+        "discrepancy_threshold": "Umbral de discrepancia",
+        "discrepancy_threshold_description": "Una diferencia mayor que este importe exige un motivo al cerrar.",
+        "require_pin": "Exigir PIN para cerrar",
+        "require_pin_description": "Pide el PIN del responsable antes de cerrar la caja.",
+        "manager_pin": "PIN del responsable",
+        "pin_set": "Hay un PIN configurado.",
+        "pin_not_set": "Sin PIN configurado.",
+        "set_pin": "Configurar PIN",
+        "change_pin": "Cambiar PIN",
+        "clear_pin": "Borrar PIN",
+        "new_pin": "Nuevo PIN",
+        "confirm_pin": "Confirmar PIN",
+        "save_pin": "Guardar PIN",
+        "pin_too_short": "El PIN debe tener al menos 4 dígitos.",
+        "pin_mismatch": "Los PIN no coinciden.",
+        "pin_saved": "PIN del responsable guardado.",
+        "pin_cleared": "PIN del responsable borrado.",
+        "locked_notice": "El PIN del responsable protege estos ajustes. Desbloquea para cambiarlos.",
+        "unlock": "Desbloquear",
+        "unlock_title": "Introduce el PIN del responsable",
+        "unlock_description": "Introduce el PIN del responsable para editar los ajustes de la caja.",
+        "unlock_failed": "PIN incorrecto"
+      },
+      "cash_rounding": "Redondeo de efectivo",
+      "cash_rounding_description": "Redondea los pagos en efectivo al incremento más cercano. Los pagos con tarjeta y otros se mantienen exactos.",
+      "cash_rounding_increment": "Incremento de redondeo"
     },
     "printer": {
       "title": "Impresoras",
@@ -574,5 +609,66 @@
     "installing": "Instalando actualización…",
     "failed_title": "Error de actualización",
     "failed_description": "No se ha podido instalar la actualización."
+  },
+  "register": {
+    "open": {
+      "title": "Abrir caja",
+      "description": "Introduce el efectivo inicial para empezar el día.",
+      "opening_float": "Fondo inicial",
+      "opening": "Abriendo…",
+      "submit": "Abrir caja"
+    },
+    "movement": {
+      "title": "Movimiento de efectivo",
+      "description": "Registra el efectivo retirado o añadido al cajón.",
+      "type": "Tipo",
+      "drop": "Retirada de efectivo",
+      "payin": "Ingreso de efectivo",
+      "amount": "Importe",
+      "reason": "Motivo",
+      "submit": "Registrar"
+    },
+    "close": {
+      "title": "Cerrar caja",
+      "description": "Cuenta el cajón e introduce el total.",
+      "reconcile_title": "Conciliar día anterior",
+      "reconcile_description": "Hay una caja de un día anterior aún abierta. Ciérrala antes de abrir hoy.",
+      "expected": "Esperado",
+      "counted": "Efectivo contado",
+      "difference": "Sobrante / Faltante",
+      "balanced": "cuadrado",
+      "over": "sobrante",
+      "short": "faltante",
+      "reason": "Motivo",
+      "reason_required": "Se requiere un motivo para esta diferencia",
+      "reason_optional": "Opcional",
+      "manager_pin": "PIN del responsable",
+      "pin_invalid": "PIN incorrecto",
+      "print_summary": "Imprimir resumen",
+      "print_failed": "No se imprimió el resumen",
+      "success": "Caja cerrada",
+      "submit": "Cerrar caja",
+      "closing": "Cerrando…",
+      "confirm_title": "¿Cerrar la caja por hoy?",
+      "confirm_warning": "Esto finaliza la jornada. No podrás vender hasta que la caja se vuelva a abrir.",
+      "confirm_submit": "Sí, cerrar la caja",
+      "back": "Atrás"
+    },
+    "status": {
+      "expected": "Esperado",
+      "movement": "Retirada / ingreso",
+      "close": "Cerrar caja",
+      "closed": "Caja cerrada",
+      "open": "Caja abierta",
+      "label": "Caja",
+      "actions_description": "Elige una acción",
+      "reopen": "Reabrir"
+    },
+    "reopen": {
+      "title": "Reabrir la caja",
+      "description": "Reanuda el turno actual para seguir vendiendo. Se conservan el fondo inicial y los movimientos de efectivo.",
+      "submit": "Reabrir la caja",
+      "pin_invalid": "PIN incorrecto"
+    }
   }
 }
