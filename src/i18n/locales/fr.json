@@ -200,7 +200,9 @@
     "deliver_pay_later": "Livrer, payer plus tard",
     "deliver_pay_later_button": "Confirmer — payer plus tard",
     "pay_later_confirm_title": "Livrer sans paiement ?",
-    "pay_later_confirm_message": "La commande sera créée et livrée maintenant. Le paiement reste dû et pourra être enregistré plus tard depuis la commande."
+    "pay_later_confirm_message": "La commande sera créée et livrée maintenant. Le paiement reste dû et pourra être enregistré plus tard depuis la commande.",
+    "register_closed": "Ouvrez la caisse avant de réaliser une vente.",
+    "rounded_from": "Arrondi de"
   },
   "orders": {
     "search_placeholder": "Rechercher des commandes...",
@@ -346,7 +348,8 @@
     "change": "Monnaie rendue",
     "thank_you": "Merci de votre visite !",
     "amount_due": "Montant dû",
-    "unpaid": "** IMPAYÉ — PAIEMENT EN ATTENTE **"
+    "unpaid": "** IMPAYÉ — PAIEMENT EN ATTENTE **",
+    "rounding": "Arrondi"
   },
   "settings": {
     "preferences": {
@@ -381,7 +384,39 @@
       "decimal_dot": "Point (ex. 10.50)",
       "decimal_comma": "Virgule (ex. 10,50)",
       "saved": "Préférences enregistrées",
-      "save_error": "Échec de l’enregistrement des préférences"
+      "save_error": "Échec de l’enregistrement des préférences",
+      "register": {
+        "title": "Caisse",
+        "enable": "Rapprochement des espèces",
+        "enable_description": "Suivez le tiroir-caisse avec une ouverture/clôture quotidienne. Désactivé par défaut.",
+        "cutoff_hour": "Heure de bascule de journée",
+        "cutoff_hour_description": "Heure (0–23) du début d'une nouvelle journée. Regroupe les ventes nocturnes dans un poste.",
+        "discrepancy_threshold": "Seuil d'écart",
+        "discrepancy_threshold_description": "Un écart supérieur à ce montant exige un motif à la clôture.",
+        "require_pin": "Exiger le code pour clôturer",
+        "require_pin_description": "Demander le code responsable avant de clôturer la caisse.",
+        "manager_pin": "Code responsable",
+        "pin_set": "Un code est défini.",
+        "pin_not_set": "Aucun code défini.",
+        "set_pin": "Définir le code",
+        "change_pin": "Modifier le code",
+        "clear_pin": "Effacer le code",
+        "new_pin": "Nouveau code",
+        "confirm_pin": "Confirmer le code",
+        "save_pin": "Enregistrer le code",
+        "pin_too_short": "Le code doit comporter au moins 4 chiffres.",
+        "pin_mismatch": "Les codes ne correspondent pas.",
+        "pin_saved": "Code responsable enregistré.",
+        "pin_cleared": "Code responsable effacé.",
+        "locked_notice": "Le code responsable protège ces paramètres. Déverrouillez pour les modifier.",
+        "unlock": "Déverrouiller",
+        "unlock_title": "Saisir le code responsable",
+        "unlock_description": "Saisissez le code responsable pour modifier les paramètres de la caisse.",
+        "unlock_failed": "Code incorrect"
+      },
+      "cash_rounding": "Arrondi des espèces",
+      "cash_rounding_description": "Arrondit les paiements en espèces au pas le plus proche. Les paiements par carte et autres restent exacts.",
+      "cash_rounding_increment": "Pas d'arrondi"
     },
     "printer": {
       "title": "Imprimantes",
@@ -574,5 +609,66 @@
     "installing": "Installation de la mise à jour…",
     "failed_title": "Échec de la mise à jour",
     "failed_description": "Échec de l’installation de la mise à jour."
+  },
+  "register": {
+    "open": {
+      "title": "Ouvrir la caisse",
+      "description": "Saisissez le fonds de caisse pour démarrer la journée.",
+      "opening_float": "Fonds de caisse",
+      "opening": "Ouverture…",
+      "submit": "Ouvrir la caisse"
+    },
+    "movement": {
+      "title": "Mouvement d'espèces",
+      "description": "Enregistrez les espèces retirées ou ajoutées au tiroir.",
+      "type": "Type",
+      "drop": "Retrait d'espèces",
+      "payin": "Apport d'espèces",
+      "amount": "Montant",
+      "reason": "Motif",
+      "submit": "Enregistrer"
+    },
+    "close": {
+      "title": "Clôturer la caisse",
+      "description": "Comptez le tiroir et saisissez le total.",
+      "reconcile_title": "Régulariser la journée précédente",
+      "reconcile_description": "Une caisse d'un jour précédent est encore ouverte. Clôturez-la avant d'ouvrir aujourd'hui.",
+      "expected": "Attendu",
+      "counted": "Espèces comptées",
+      "difference": "Écart",
+      "balanced": "équilibré",
+      "over": "excédent",
+      "short": "manquant",
+      "reason": "Motif",
+      "reason_required": "Un motif est requis pour cet écart",
+      "reason_optional": "Facultatif",
+      "manager_pin": "Code responsable",
+      "pin_invalid": "Code incorrect",
+      "print_summary": "Imprimer le résumé",
+      "print_failed": "Le résumé n'a pas été imprimé",
+      "success": "Caisse clôturée",
+      "submit": "Clôturer la caisse",
+      "closing": "Clôture…",
+      "confirm_title": "Fermer la caisse pour la journée ?",
+      "confirm_warning": "Cela termine la journée. Vous ne pourrez pas vendre tant que la caisse n'est pas rouverte.",
+      "confirm_submit": "Oui, fermer la caisse",
+      "back": "Retour"
+    },
+    "status": {
+      "expected": "Attendu",
+      "movement": "Retrait / apport",
+      "close": "Clôturer la caisse",
+      "closed": "Caisse clôturée",
+      "open": "Caisse ouverte",
+      "label": "Caisse",
+      "actions_description": "Choisir une action",
+      "reopen": "Rouvrir"
+    },
+    "reopen": {
+      "title": "Rouvrir la caisse",
+      "description": "Reprend le service en cours pour continuer à vendre. Le fonds de caisse et les mouvements d'espèces sont conservés.",
+      "submit": "Rouvrir la caisse",
+      "pin_invalid": "Code PIN incorrect"
+    }
   }
 }

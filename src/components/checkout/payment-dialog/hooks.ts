@@ -7,11 +7,13 @@ import { playErrorSound, playSuccessSound } from "@/utils/sounds";
 import { usePrinterService } from "@/hooks/printer/usePrinterService";
 import { AdminOrder, AdminDraftOrder } from "@medusajs/types";
 import { useCartStore } from "@/context/cart";
+import { useRegister } from "@/context/register";
 import { PaymentMethod } from "@/types/utils";
 import { useCheckout } from "../hooks";
 import { useQueryStore } from "@/hooks/queries/useQueryStore";
 import { useOrderProcessing } from "@/hooks/order/useOrderProcessing";
 import { getPaymentMethods, getMethodType } from "@/utils/settings/store/metadata";
+import { getCashRounding, roundCashAmount } from "@/utils/settings/preferences";
 import constants from "@/utils/constants";
 import { CreditCard, Banknote } from "lucide-react";
 import {
@@ -214,6 +216,10 @@ const usePaymentModal = (
   const { printOrderReceipt, openCashDrawer, getDefaultPrinter } = usePrinterService();
   const { clearItems, setDraftOrderId } = useCartStore();
   const { selectedPaymentMethod, setPaymentMethod } = useCheckout();
+  const { isOpen: registerOpen, session: registerSession } = useRegister();
+  // Stamp orders with the active register session so cash reconciliation can
+  // attribute them exactly (falls back to the created_at window when absent).
+  const registerSessionId = registerOpen ? registerSession?.id : undefined;
   const items = useCartStore((state) => state.items);
 
   // Get payment method display info
@@ -227,6 +233,17 @@ const usePaymentModal = (
     isOpen
   );
   const calculations = useOrderCalculations(draftOrder);
+
+  // Cash rounding (Swedish rounding): cash tenders are rounded to the configured
+  // increment so the amount collected matches the physical drawer. Card/other
+  // tenders stay exact. The order total in Medusa is untouched — the rounded cash
+  // figure drives the change calc and is stamped to metadata for reconciliation.
+  const roundingActive =
+    isCashType && getCashRounding().enabled;
+  const cashTotal = roundingActive
+    ? roundCashAmount(calculations.total)
+    : calculations.total;
+
   const {
     customerPaid,
     change,
@@ -238,13 +255,16 @@ const usePaymentModal = (
     resetCashState,
     billCounts,
     quickAmounts,
-  } = useCashPayment(calculations.total, isCashType);
+  } = useCashPayment(cashTotal, isCashType);
   const { processPaymentCollection, processFulfillment } = useOrderProcessing();
 
   // While processing, the draft order is cleared (so its total reads 0). Show the
   // frozen snapshot taken at submit time so the amount never flashes to 0.00.
   const displayTotal =
     isProcessing && frozenTotal != null ? frozenTotal : calculations.total;
+
+  // Rounded cash amount to collect (cash + rounding on); card shows exact total.
+  const cashDue = roundingActive ? roundCashAmount(displayTotal) : displayTotal;
 
   // Fire-and-forget: print receipt + open cash drawer after order succeeds.
   // Runs independently so it never blocks the modal from closing.
@@ -346,13 +366,25 @@ const usePaymentModal = (
       try {
         const sdk = getSdk();
 
-        // Step 1: Patch cash_paid into draft metadata (cash payments only)
+        // Step 1: Patch draft metadata — cash_paid (cash only) and register_session_id
+        // (whenever a register is open). Single round-trip when either applies.
+        const metadataPatch: Record<string, unknown> = {};
         if (isCashType && customerPaid) {
-          const cashPaidAmount = parseFloat(customerPaid) || 0;
+          metadataPatch.cash_paid = parseFloat(customerPaid) || 0;
+        }
+        // Stamp the rounded cash actually collected so reconciliation and the
+        // receipt use the drawer figure, not the exact (un-rounded) order total.
+        if (roundingActive) {
+          metadataPatch.cash_collected = roundCashAmount(calculations.total);
+        }
+        if (registerSessionId) {
+          metadataPatch.register_session_id = registerSessionId;
+        }
+        if (Object.keys(metadataPatch).length > 0) {
           const { draft_order } = await sdk.admin.draftOrder.retrieve(draftOrderId!);
           const currentMetadata = (draft_order.metadata || {}) as Record<string, unknown>;
           await sdk.admin.draftOrder.update(draftOrderId!, {
-            metadata: { ...currentMetadata, cash_paid: cashPaidAmount },
+            metadata: { ...currentMetadata, ...metadataPatch },
           });
         }
 
@@ -443,6 +475,7 @@ const usePaymentModal = (
       draftOrderId,
       canProcessPayment,
       isCashType,
+      roundingActive,
       selectedPaymentMethod,
       customerPaid,
       calculations.total,
@@ -450,6 +483,7 @@ const usePaymentModal = (
       processFulfillment,
       cleanupAfterOrder,
       setDraftOrderId,
+      registerSessionId,
       onClose,
     ]);
 
@@ -482,7 +516,11 @@ const usePaymentModal = (
           unknown
         >;
         await sdk.admin.draftOrder.update(draftOrderId, {
-          metadata: { ...currentMetadata, pay_later: true },
+          metadata: {
+            ...currentMetadata,
+            pay_later: true,
+            ...(registerSessionId ? { register_session_id: registerSessionId } : {}),
+          },
         });
 
         // Step 2: Convert draft → order, then clear the id immediately.
@@ -531,6 +569,7 @@ const usePaymentModal = (
       processFulfillment,
       cleanupAfterOrder,
       setDraftOrderId,
+      registerSessionId,
       onClose,
     ]);
 
@@ -602,6 +641,9 @@ const usePaymentModal = (
     ...calculations,
     // Keep the confirmed amount visible during submission instead of 0.00.
     total: displayTotal,
+    // Cash rounding: amount to collect (rounded) vs the exact total.
+    cashDue,
+    cashRoundingActive: roundingActive,
 
     // Computed values
     cartItemsCount: calculations.itemCount,

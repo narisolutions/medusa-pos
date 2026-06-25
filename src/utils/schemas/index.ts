@@ -82,6 +82,37 @@ export default {
     startFullscreen: z.boolean(),
     themeMode: z.enum(["light", "dark", "system"]),
     language: z.enum(["en", "ka", "pl", "es", "fr", "de", "sv", "system"]),
+    registerEnabled: z.boolean(),
+    registerCutoffHour: z.coerce.number().int().min(0).max(23),
+    registerDiscrepancyThreshold: z.coerce.number().min(0),
+    registerRequirePin: z.boolean(),
+    cashRoundingEnabled: z.boolean(),
+    cashRoundingIncrement: z.coerce.number().positive(),
+  }),
+
+  // Register (cash reconciliation) dialogs. Amounts arrive from numeric inputs as
+  // strings, so coerce. Conditional rules (reason required over threshold, PIN
+  // required) depend on runtime config and are enforced in the submit handlers.
+  openRegister: z.object({
+    openingFloat: z.coerce
+      .number()
+      .min(0, { message: "Enter a valid amount" }),
+  }),
+
+  closeRegister: z.object({
+    countedCash: z.coerce
+      .number()
+      .min(0, { message: "Enter a valid amount" }),
+    note: z.string().optional(),
+    managerPin: z.string().optional(),
+  }),
+
+  cashMovement: z.object({
+    type: z.enum(["drop", "payin"]),
+    amount: z.coerce
+      .number()
+      .positive({ message: "Amount must be greater than zero" }),
+    reason: z.string().min(1, { message: "Reason is required" }),
   }),
 
   storeSettings: z.object({

@@ -200,7 +200,9 @@
     "deliver_pay_later": "Leverera, betala senare",
     "deliver_pay_later_button": "Bekräfta — betala senare",
     "pay_later_confirm_title": "Leverera utan betalning?",
-    "pay_later_confirm_message": "Ordern skapas och levereras nu. Betalningen kvarstår och kan registreras senare från ordern."
+    "pay_later_confirm_message": "Ordern skapas och levereras nu. Betalningen kvarstår och kan registreras senare från ordern.",
+    "register_closed": "Öppna kassan innan du gör en försäljning.",
+    "rounded_from": "Avrundat från"
   },
   "orders": {
     "search_placeholder": "Sök order...",
@@ -346,7 +348,8 @@
     "change": "Växel",
     "thank_you": "Tack för ditt besök!",
     "amount_due": "Belopp att betala",
-    "unpaid": "** OBETALD — BETALNING VÄNTAR **"
+    "unpaid": "** OBETALD — BETALNING VÄNTAR **",
+    "rounding": "Avrundning"
   },
   "settings": {
     "preferences": {
@@ -381,7 +384,39 @@
       "decimal_dot": "Punkt (t.ex. 10.50)",
       "decimal_comma": "Komma (t.ex. 10,50)",
       "saved": "Inställningar sparade",
-      "save_error": "Det gick inte att spara inställningarna"
+      "save_error": "Det gick inte att spara inställningarna",
+      "register": {
+        "title": "Kassa",
+        "enable": "Kontantavstämning",
+        "enable_description": "Följ kassalådan med daglig öppning/stängning. Av som standard.",
+        "cutoff_hour": "Brytpunktstimme för affärsdag",
+        "cutoff_hour_description": "Timme (0–23) då en ny affärsdag börjar. Håller nattförsäljning i ett pass.",
+        "discrepancy_threshold": "Tröskel för differens",
+        "discrepancy_threshold_description": "En differens över detta belopp kräver en orsak vid stängning.",
+        "require_pin": "Kräv chefskod för att stänga",
+        "require_pin_description": "Be om chefskoden innan kassan stängs.",
+        "manager_pin": "Chefskod",
+        "pin_set": "En kod är inställd.",
+        "pin_not_set": "Ingen kod inställd.",
+        "set_pin": "Ställ in kod",
+        "change_pin": "Ändra kod",
+        "clear_pin": "Rensa kod",
+        "new_pin": "Ny kod",
+        "confirm_pin": "Bekräfta kod",
+        "save_pin": "Spara kod",
+        "pin_too_short": "Koden måste vara minst 4 siffror.",
+        "pin_mismatch": "Koderna matchar inte.",
+        "pin_saved": "Chefskod sparad.",
+        "pin_cleared": "Chefskod rensad.",
+        "locked_notice": "Chefskoden skyddar dessa inställningar. Lås upp för att ändra.",
+        "unlock": "Lås upp",
+        "unlock_title": "Ange chefskod",
+        "unlock_description": "Ange chefskoden för att ändra kassainställningarna.",
+        "unlock_failed": "Fel kod"
+      },
+      "cash_rounding": "Kontantavrundning",
+      "cash_rounding_description": "Avrundar kontantbetalningar till närmaste steg. Kort- och andra betalningar förblir exakta.",
+      "cash_rounding_increment": "Avrundningssteg"
     },
     "printer": {
       "title": "Skrivare",
@@ -574,5 +609,66 @@
     "installing": "Installerar uppdatering…",
     "failed_title": "Uppdateringen misslyckades",
     "failed_description": "Det gick inte att installera uppdateringen."
+  },
+  "register": {
+    "open": {
+      "title": "Öppna kassan",
+      "description": "Ange växelkassan för att börja dagen.",
+      "opening_float": "Växelkassa",
+      "opening": "Öppnar…",
+      "submit": "Öppna kassan"
+    },
+    "movement": {
+      "title": "Kontantrörelse",
+      "description": "Registrera kontanter som tagits ur eller lagts i lådan.",
+      "type": "Typ",
+      "drop": "Uttag",
+      "payin": "Insättning",
+      "amount": "Belopp",
+      "reason": "Orsak",
+      "submit": "Registrera"
+    },
+    "close": {
+      "title": "Stäng kassan",
+      "description": "Räkna lådan och ange summan.",
+      "reconcile_title": "Stäm av föregående dag",
+      "reconcile_description": "En kassa från en tidigare dag är fortfarande öppen. Stäng den innan du öppnar idag.",
+      "expected": "Förväntat",
+      "counted": "Räknade kontanter",
+      "difference": "Över / Under",
+      "balanced": "balanserat",
+      "over": "över",
+      "short": "under",
+      "reason": "Orsak",
+      "reason_required": "Orsak krävs för denna differens",
+      "reason_optional": "Valfritt",
+      "manager_pin": "Chefskod",
+      "pin_invalid": "Fel kod",
+      "print_summary": "Skriv ut sammanfattning",
+      "print_failed": "Sammanfattningen skrevs inte ut",
+      "success": "Kassan stängd",
+      "submit": "Stäng kassan",
+      "closing": "Stänger…",
+      "confirm_title": "Stäng kassan för dagen?",
+      "confirm_warning": "Detta avslutar affärsdagen. Du kan inte sälja förrän kassan öppnas igen.",
+      "confirm_submit": "Ja, stäng kassan",
+      "back": "Tillbaka"
+    },
+    "status": {
+      "expected": "Förväntat",
+      "movement": "Uttag / insättning",
+      "close": "Stäng kassan",
+      "closed": "Kassan stängd",
+      "open": "Kassan öppen",
+      "label": "Kassa",
+      "actions_description": "Välj en åtgärd",
+      "reopen": "Öppna igen"
+    },
+    "reopen": {
+      "title": "Öppna kassan igen",
+      "description": "Återupptar det aktuella passet så att du kan fortsätta sälja. Växelkassan och kontantrörelserna behålls.",
+      "submit": "Öppna kassan igen",
+      "pin_invalid": "Felaktig PIN"
+    }
   }
 }

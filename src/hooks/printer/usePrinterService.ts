@@ -186,9 +186,16 @@ const usePrinterService = () => {
     const tax = order.tax_total || 0;
     const total = order.total || 0;
     const discount = (order.discount_total || 0) + itemDiscountsTotal + orderDiscountAmount;
-    const cashPaid: number = typeof order.metadata?.cash_paid === "number" 
-      ? order.metadata.cash_paid 
+    const cashPaid: number = typeof order.metadata?.cash_paid === "number"
+      ? order.metadata.cash_paid
       : 0;
+    // Cash-rounding markets: the rounded amount actually collected (if stamped).
+    // Change and the rounding line are computed against this, not the exact total.
+    const cashCollected: number | null =
+      typeof order.metadata?.cash_collected === "number"
+        ? order.metadata.cash_collected
+        : null;
+    const cashDue = cashCollected ?? total;
     
     const paymentMethodLabel = getOrderPaymentMethodLabel(order, store) || "PP_CASH_POS";
     const isCashMethod = getOrderPaymentMethodType(order, store) === "cash";
@@ -210,8 +217,15 @@ const usePrinterService = () => {
 
     const change: number =
       !isUnpaid && isCashMethod && cashPaid > 0
-        ? Math.max(0, cashPaid - total)
+        ? Math.max(0, cashPaid - cashDue)
         : 0;
+
+    // Signed cash-rounding adjustment (cashDue − total); shown as its own receipt
+    // line so Total, Rounding, Amount Paid and Change reconcile exactly.
+    const cashRounding: number | undefined =
+      !isUnpaid && isCashMethod && cashCollected != null && cashCollected !== total
+        ? cashCollected - total
+        : undefined;
 
     return {
       storeName: store?.name ?? "POS",
@@ -236,6 +250,7 @@ const usePrinterService = () => {
       paymentMethod: paymentMethodLabel,
       amountPaid,
       change,
+      cashRounding,
       isUnpaid,
       amountDue: isUnpaid ? total : undefined,
       footer: "Thank you for your business!",
@@ -258,6 +273,7 @@ const usePrinterService = () => {
     discount: t("receipt.discount"),
     vat: t("receipt.vat"),
     total: t("receipt.total"),
+    rounding: t("receipt.rounding"),
     paymentMethod: t("receipt.payment_method"),
     amountPaid: t("receipt.amount_paid"),
     change: t("receipt.change"),

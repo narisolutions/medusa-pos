@@ -30,6 +30,8 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
     isProcessing,
     tax,
     total,
+    cashDue,
+    cashRoundingActive,
     change,
     canProcessPayment,
     quickAmounts,
@@ -142,8 +144,14 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
                       ) : (
                         <>
                           <div className="text-6xl font-bold text-fg">
-                            {formatPrice(total, currency)}
+                            {formatPrice(cashDue, currency)}
                           </div>
+                          {cashRoundingActive && (
+                            <div className="text-sm text-fg-subtle mt-2">
+                              {t("checkout.rounded_from")}{" "}
+                              {formatPrice(total, currency)}
+                            </div>
+                          )}
                           {tax > 0 && (
                             <div className="text-sm text-fg-subtle mt-2">
                               {t("checkout.including_vat")}{formatPrice(tax, currency)}

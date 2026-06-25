@@ -200,7 +200,9 @@
     "deliver_pay_later": "Wydaj, zapłać później",
     "deliver_pay_later_button": "Potwierdź — zapłać później",
     "pay_later_confirm_title": "Wydać bez płatności?",
-    "pay_later_confirm_message": "Zamówienie zostanie utworzone i wydane teraz. Płatność pozostaje nieuregulowana i można ją zarejestrować później z poziomu zamówienia."
+    "pay_later_confirm_message": "Zamówienie zostanie utworzone i wydane teraz. Płatność pozostaje nieuregulowana i można ją zarejestrować później z poziomu zamówienia.",
+    "register_closed": "Otwórz kasę przed dokonaniem sprzedaży.",
+    "rounded_from": "Zaokrąglono z"
   },
   "orders": {
     "search_placeholder": "Szukaj zamówień...",
@@ -346,7 +348,8 @@
     "change": "Reszta",
     "thank_you": "Dziękujemy za wizytę!",
     "amount_due": "Kwota do zapłaty",
-    "unpaid": "** NIEOPŁACONE — PŁATNOŚĆ OCZEKUJĄCA **"
+    "unpaid": "** NIEOPŁACONE — PŁATNOŚĆ OCZEKUJĄCA **",
+    "rounding": "Zaokrąglenie"
   },
   "settings": {
     "preferences": {
@@ -381,7 +384,39 @@
       "decimal_dot": "Kropka (np. 10.50)",
       "decimal_comma": "Przecinek (np. 10,50)",
       "saved": "Preferencje zapisane",
-      "save_error": "Nie udało się zapisać preferencji"
+      "save_error": "Nie udało się zapisać preferencji",
+      "register": {
+        "title": "Kasa",
+        "enable": "Uzgadnianie gotówki",
+        "enable_description": "Śledź szufladę kasy z codziennym otwarciem/zamknięciem. Domyślnie wyłączone.",
+        "cutoff_hour": "Godzina granicy dnia",
+        "cutoff_hour_description": "Godzina (0–23) rozpoczęcia nowego dnia. Utrzymuje sprzedaż nocną w jednej zmianie.",
+        "discrepancy_threshold": "Próg rozbieżności",
+        "discrepancy_threshold_description": "Różnica powyżej tej kwoty wymaga podania powodu przy zamykaniu.",
+        "require_pin": "Wymagaj PIN-u do zamknięcia",
+        "require_pin_description": "Pytaj o PIN menedżera przed zamknięciem kasy.",
+        "manager_pin": "PIN menedżera",
+        "pin_set": "PIN jest ustawiony.",
+        "pin_not_set": "Brak PIN-u.",
+        "set_pin": "Ustaw PIN",
+        "change_pin": "Zmień PIN",
+        "clear_pin": "Usuń PIN",
+        "new_pin": "Nowy PIN",
+        "confirm_pin": "Potwierdź PIN",
+        "save_pin": "Zapisz PIN",
+        "pin_too_short": "PIN musi mieć co najmniej 4 cyfry.",
+        "pin_mismatch": "PIN-y nie są zgodne.",
+        "pin_saved": "Zapisano PIN menedżera.",
+        "pin_cleared": "Usunięto PIN menedżera.",
+        "locked_notice": "PIN menedżera chroni te ustawienia. Odblokuj, aby je zmienić.",
+        "unlock": "Odblokuj",
+        "unlock_title": "Wprowadź PIN menedżera",
+        "unlock_description": "Wprowadź PIN menedżera, aby edytować ustawienia kasy.",
+        "unlock_failed": "Nieprawidłowy PIN"
+      },
+      "cash_rounding": "Zaokrąglanie gotówki",
+      "cash_rounding_description": "Zaokrągla płatności gotówkowe do najbliższego progu. Płatności kartą i inne pozostają dokładne.",
+      "cash_rounding_increment": "Próg zaokrąglenia"
     },
     "printer": {
       "title": "Drukarki",
@@ -574,5 +609,66 @@
     "installing": "Instalowanie...",
     "failed_title": "Aktualizacja nie powiodła się",
     "failed_description": "Nie udało się zainstalować aktualizacji."
+  },
+  "register": {
+    "open": {
+      "title": "Otwórz kasę",
+      "description": "Wprowadź gotówkę początkową, aby rozpocząć dzień.",
+      "opening_float": "Gotówka początkowa",
+      "opening": "Otwieranie…",
+      "submit": "Otwórz kasę"
+    },
+    "movement": {
+      "title": "Ruch gotówki",
+      "description": "Zarejestruj gotówkę wyjętą z szuflady lub do niej dodaną.",
+      "type": "Typ",
+      "drop": "Wypłata (wyjęcie)",
+      "payin": "Wpłata (dodanie)",
+      "amount": "Kwota",
+      "reason": "Powód",
+      "submit": "Zapisz"
+    },
+    "close": {
+      "title": "Zamknij kasę",
+      "description": "Przelicz szufladę i wprowadź sumę.",
+      "reconcile_title": "Rozlicz poprzedni dzień",
+      "reconcile_description": "Kasa z wcześniejszego dnia jest nadal otwarta. Zamknij ją przed otwarciem dzisiaj.",
+      "expected": "Oczekiwane",
+      "counted": "Policzona gotówka",
+      "difference": "Nadwyżka / Niedobór",
+      "balanced": "zgodne",
+      "over": "nadwyżka",
+      "short": "niedobór",
+      "reason": "Powód",
+      "reason_required": "Ta różnica wymaga podania powodu",
+      "reason_optional": "Opcjonalnie",
+      "manager_pin": "PIN menedżera",
+      "pin_invalid": "Nieprawidłowy PIN",
+      "print_summary": "Drukuj podsumowanie",
+      "print_failed": "Nie wydrukowano podsumowania",
+      "success": "Kasa zamknięta",
+      "submit": "Zamknij kasę",
+      "closing": "Zamykanie…",
+      "confirm_title": "Zamknąć kasę na dziś?",
+      "confirm_warning": "To kończy dzień roboczy. Nie będzie można sprzedawać do ponownego otwarcia kasy.",
+      "confirm_submit": "Tak, zamknij kasę",
+      "back": "Wstecz"
+    },
+    "status": {
+      "expected": "Oczekiwane",
+      "movement": "Wypłata / wpłata",
+      "close": "Zamknij kasę",
+      "closed": "Kasa zamknięta",
+      "open": "Kasa otwarta",
+      "label": "Kasa",
+      "actions_description": "Wybierz czynność",
+      "reopen": "Otwórz ponownie"
+    },
+    "reopen": {
+      "title": "Ponowne otwarcie kasy",
+      "description": "Wznawia bieżącą zmianę, aby kontynuować sprzedaż. Saldo początkowe i operacje gotówkowe zostają zachowane.",
+      "submit": "Otwórz kasę ponownie",
+      "pin_invalid": "Nieprawidłowy PIN"
+    }
   }
 }
