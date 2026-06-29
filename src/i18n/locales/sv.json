@@ -123,6 +123,7 @@
     "customer_remove_button": "Ta bort",
     "customer_removed_from_order": "Kund borttagen från ordern",
     "customer_attached_to_order": "Kund {{email}} kopplad till ordern",
+    "order_saved_unpaid": "Order #{{displayId}} sparad som obetald — ta betalt via Ordrar.",
     "customer_create_button": "Ny kund",
     "customer_create_title": "Skapa kund",
     "customer_create_submit_button": "Skapa",

@@ -10,7 +10,7 @@ import { AdminOrder } from "@medusajs/types";
 
 // Union of the fields both consumers read.
 const RECENT_ORDERS_FIELDS =
-  "id,status,total,refunded_total,created_at,metadata,fulfillment_status,payment_collections.payments.provider_id,payment_collections.payments.amount,payment_collections.payments.refunds.amount";
+  "id,status,total,refunded_total,created_at,metadata,fulfillment_status,payment_collections.payments.provider_id,payment_collections.payments.amount,payment_collections.payments.refunds.amount,payment_collections.payment_sessions.provider_id";
 
 const fetchRecentOrders = async (): Promise<AdminOrder[]> => {
   try {

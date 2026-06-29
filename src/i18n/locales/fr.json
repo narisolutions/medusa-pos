@@ -123,6 +123,7 @@
     "customer_remove_button": "Retirer",
     "customer_removed_from_order": "Client retiré de la commande",
     "customer_attached_to_order": "Client {{email}} associé à la commande",
+    "order_saved_unpaid": "Commande #{{displayId}} enregistrée comme impayée — encaissez le paiement depuis Commandes.",
     "customer_create_button": "Nouveau client",
     "customer_create_title": "Créer un client",
     "customer_create_submit_button": "Créer",

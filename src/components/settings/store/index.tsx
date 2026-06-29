@@ -62,7 +62,10 @@ const StoreSettings: React.FC = () => {
   });
 
   const { data: installedProviders, isError: providersError } = useQueryPaymentProviders();
-  const installedProviderIds = new Set((!providersError && installedProviders?.map((p) => p.id)) || []);
+  const installedProviderIds = React.useMemo(
+    () => new Set(providersError ? [] : installedProviders?.map((p) => p.id) ?? []),
+    [installedProviders, providersError]
+  );
 
   const {
     currentLogoUrl,
