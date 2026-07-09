@@ -105,7 +105,7 @@ export const useConnectionSettings = ({ form }: Props) => {
     };
 
     loadConfig();
-  }, [salesChannels, isLoadingSalesChannels, stockLocations, isLoadingStockLocations, reset]);
+  }, [salesChannels, isLoadingSalesChannels, stockLocations, isLoadingStockLocations, reset, t]);
 
   const onSubmit = useCallback(
     async (data: Forms["ApiSettings"]) => {

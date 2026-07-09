@@ -431,7 +431,7 @@ const buildReceiptPDF = (data: ReceiptData, paperWidth: PaperWidth = "80mm", lab
   addSpacing(3);
   addSeparator("thick", 0, 0);
 
-  return doc.output("arraybuffer") as unknown as Uint8Array;
+  return new Uint8Array(doc.output("arraybuffer"));
 };
 
 export { buildReceipt, buildReceiptPDF };

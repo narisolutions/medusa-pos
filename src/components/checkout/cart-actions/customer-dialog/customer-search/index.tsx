@@ -61,7 +61,7 @@ export const CustomerSearch: React.FC<CustomerSearchProps> = ({
 
     setSearchTerm(initialEmail);
     void searchCustomers(initialEmail);
-  }, [initialEmail, isOpen, resetSearch, searchCustomers, setSearchTerm]);
+  }, [initialEmail, isOpen, resetSearch, searchCustomers, setSearchTerm, selectedFromParent]);
 
   // Auto-select when exactly 1 result is returned from a search
   useEffect(() => {
@@ -70,7 +70,7 @@ export const CustomerSearch: React.FC<CustomerSearchProps> = ({
       setSelectedCustomer(customer);
       onCustomerSelect?.(customer);
     }
-  }, [customers, isSearching, hasSearched]);
+  }, [customers, isSearching, hasSearched, selectedCustomer, setSelectedCustomer, onCustomerSelect]);
 
   // When parent provides a selected customer (e.g., after creating one), sync it
   useEffect(() => {

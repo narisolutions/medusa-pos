@@ -153,30 +153,10 @@ async function clearOnBackendChange(): Promise<void> {
   }
 }
 
-async function logAllStorage(): Promise<void> {
-  try {
-    const store = await Store.load("pos-storage.json");
-    const allKeys = await store.keys();
-    const storageContents: Record<string, unknown> = {};
-
-    for (const key of allKeys) {
-      const value = await store.get(key);
-      if (value !== null && value !== undefined) {
-        storageContents[key] = value;
-      }
-    }
-
-    console.log("Storage", storageContents);
-  } catch (error) {
-    console.error("Failed to log storage contents:", error);
-  }
-}
-
 export default {
   getItem,
   setItem,
   removeItem,
   clear,
   clearOnBackendChange,
-  logAllStorage,
 };

@@ -1,5 +1,6 @@
 import { StateCreator } from "zustand";
 import { CartItem, DiscountBreakdown, DraftOrderMetadata } from "@/types/utils";
+import { orderDiscountAmount } from "@/utils/pos/pricing";
 
 export interface CartCalculationsSlice {
   getTotalItems: () => number;
@@ -66,17 +67,7 @@ export const createCartCalculationsSlice: StateCreator<
     }, 0);
 
     // Apply order-level discount
-    if (metadata.order_discount && metadata.order_discount.value) {
-      let orderDiscountAmount = 0;
-      
-      if (metadata.order_discount.type === "percent") {
-        orderDiscountAmount = (total * metadata.order_discount.value) / 100;
-      } else {
-        orderDiscountAmount = Math.min(metadata.order_discount.value, total);
-      }
-      
-      total -= orderDiscountAmount;
-    }
+    total -= orderDiscountAmount(metadata.order_discount, total);
 
     return Math.max(0, total);
   },
@@ -110,20 +101,12 @@ export const createCartCalculationsSlice: StateCreator<
       return sum + (discountPerUnit * item.quantity);
     }, 0);
 
-    // 3. Manual order-level discount (applied on current total)
-    let orderDiscount = 0;
-    if (metadata.order_discount && metadata.order_discount.value) {
-      // Calculate current total price (already includes item discounts in unit_price)
-      const currentTotal = items.reduce((sum, item) => {
-        return sum + (item.unit_price || 0) * item.quantity;
-      }, 0);
-
-      if (metadata.order_discount.type === "percent") {
-        orderDiscount = (currentTotal * metadata.order_discount.value) / 100;
-      } else {
-        orderDiscount = Math.min(metadata.order_discount.value, currentTotal);
-      }
-    }
+    // 3. Manual order-level discount (applied on the current total, which
+    // already includes item discounts in unit_price)
+    const currentTotal = items.reduce((sum, item) => {
+      return sum + (item.unit_price || 0) * item.quantity;
+    }, 0);
+    const orderDiscount = orderDiscountAmount(metadata.order_discount, currentTotal);
 
     return {
       backendDiscount,

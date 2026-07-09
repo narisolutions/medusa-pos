@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect, useMemo } from "react";
+import { useState, useCallback, useEffect, useMemo, useRef } from "react";
 import { useChange } from "@/hooks/utils/useChange";
 import { toast } from "sonner";
 import { queryClient } from "@/config/query";
@@ -42,8 +42,12 @@ const usePaymentMethodDisplay = (selectedPaymentMethod?: PaymentMethod) => {
 
 const useDraftOrderState = (draftOrderId?: string | null, isOpen?: boolean) => {
   const [draftOrder, setDraftOrder] = useState<AdminDraftOrder | null>(null);
+  // Monotonic sequence so a late-resolving fetch can't overwrite a newer result
+  // (fetchDraftOrder is also called directly, outside the effect below).
+  const fetchSeqRef = useRef(0);
 
-  const fetchDraftOrder = async () => {
+  const fetchDraftOrder = useCallback(async () => {
+    const seq = ++fetchSeqRef.current;
     if (!draftOrderId) {
       setDraftOrder(null);
       return null;
@@ -59,14 +63,14 @@ const useDraftOrderState = (draftOrderId?: string | null, isOpen?: boolean) => {
         }
       );
 
-      setDraftOrder(draft_order);
+      if (seq === fetchSeqRef.current) setDraftOrder(draft_order);
       return draft_order;
     } catch (error) {
       console.error("Failed to fetch draft order:", error);
-      setDraftOrder(null);
+      if (seq === fetchSeqRef.current) setDraftOrder(null);
       return null;
     }
-  };
+  }, [draftOrderId]);
 
   const shouldLoad = !!draftOrderId && !!isOpen;
   useChange(shouldLoad, () => {
@@ -85,8 +89,7 @@ const useDraftOrderState = (draftOrderId?: string | null, isOpen?: boolean) => {
     return () => {
       cancelled = true;
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isOpen, draftOrderId]);
+  }, [isOpen, draftOrderId, fetchDraftOrder]);
 
   return { draftOrder, fetchDraftOrder };
 };
@@ -205,6 +208,9 @@ const usePaymentModal = (
   isOpen?: boolean
 ) => {
   const [isProcessing, setIsProcessing] = useState(false);
+  // Single-flight guard for order submission. A ref (not state) so a double-tap
+  // that lands before the isProcessing re-render still can't convert the draft twice.
+  const submissionRef = useRef(false);
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [showPayLaterConfirmation, setShowPayLaterConfirmation] =
     useState(false);
@@ -340,6 +346,9 @@ const usePaymentModal = (
   // Main payment processing flow
   const handleProcessPayment =
     useCallback(async (): Promise<AdminOrder | null> => {
+      if (submissionRef.current) {
+        return null;
+      }
       if (!draftOrderId) {
         handleErrorToast("No order prepared. Please create order first.");
         playErrorSound();
@@ -356,6 +365,7 @@ const usePaymentModal = (
         return null;
       }
 
+      submissionRef.current = true;
       setFrozenTotal(calculations.total);
       setIsProcessing(true);
 
@@ -469,6 +479,7 @@ const usePaymentModal = (
 
         return null;
       } finally {
+        submissionRef.current = false;
         setIsProcessing(false);
       }
     }, [
@@ -492,12 +503,16 @@ const usePaymentModal = (
   // "outstanding payment" signal. Inventory is still decremented via fulfillment.
   const handleDeliverPayLater =
     useCallback(async (): Promise<AdminOrder | null> => {
+      if (submissionRef.current) {
+        return null;
+      }
       if (!draftOrderId) {
         handleErrorToast("No order prepared. Please create order first.");
         playErrorSound();
         return null;
       }
 
+      submissionRef.current = true;
       setFrozenTotal(calculations.total);
       setIsProcessing(true);
 
@@ -560,6 +575,7 @@ const usePaymentModal = (
 
         return null;
       } finally {
+        submissionRef.current = false;
         setIsProcessing(false);
       }
     }, [

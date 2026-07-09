@@ -1,6 +1,6 @@
 import React from "react";
 import { AdminOrder } from "@medusajs/types";
-import { formatTimeAgo, formatExactTime } from "@/utils/helpers";
+import { formatTimeAgo, formatDate } from "@/utils/helpers";
 import { Clock } from "lucide-react";
 import { useActivityEvents } from "./hooks";
 import { useTranslation } from "@/i18n";
@@ -32,7 +32,7 @@ const Activity: React.FC<Props> = ({ order }) => {
               <Clock className="w-4 h-4" />
               <span>{formatTimeAgo(event.timestamp)}</span>
               <span className="text-fg-subtle">•</span>
-              <span>{formatExactTime(event.timestamp)}</span>
+              <span>{formatDate(event.timestamp)}</span>
             </div>
           </div>
         ))}

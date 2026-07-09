@@ -141,17 +141,15 @@ export const useOrder = (order: AdminOrder) => {
         console.warn("Could not access auth token storage:", error);
       }
 
-      // Use native fetch with auth headers and cookies
-      // Native fetch in Tauri has access to the same cookie storage as the SDK
       const fetchHeaders: HeadersInit = {
         "Content-Type": "application/json",
         ...authHeaders,
       };
 
-      const response = await fetch(fullUrl, {
+      const { fetch: tauriFetch } = await import("@tauri-apps/plugin-http");
+      const response = await tauriFetch(fullUrl, {
         method: "GET",
         headers: fetchHeaders,
-        credentials: "include", // Include cookies for authentication
       });
 
       if (!response.ok) {

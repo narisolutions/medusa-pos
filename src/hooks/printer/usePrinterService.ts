@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { AdminOrder } from "@medusajs/types";
 import { buildReceipt, buildReceiptPDF, ReceiptData, DEFAULT_RECEIPT_LABELS } from "@/utils/pos/receipt";
+import { discountPerUnit, orderDiscountAmount } from "@/utils/pos/pricing";
 import { useTranslation } from "@/i18n";
 import { toast } from "sonner";
 import storage from "@/utils/storage";
@@ -147,14 +148,9 @@ const usePrinterService = () => {
         | undefined;
       let itemDiscountAmount = 0;
       if (itemMeta?.item_discount) {
-        const { type, value } = itemMeta.item_discount;
         const qty = item.quantity || 1;
-        if (type === "amount") {
-          itemDiscountAmount = value * qty;
-        } else {
-          const base = itemMeta.original_unit_price ?? item.unit_price ?? 0;
-          itemDiscountAmount = (base * value / 100) * qty;
-        }
+        const base = itemMeta.original_unit_price ?? item.unit_price ?? 0;
+        itemDiscountAmount = discountPerUnit(itemMeta.item_discount, base) * qty;
       }
       return {
         ...item,
@@ -173,19 +169,15 @@ const usePrinterService = () => {
       | { order_discount?: { type: "amount" | "percent"; value: number } }
       | null
       | undefined;
-    let orderDiscountAmount = 0;
-    if (orderMeta?.order_discount?.value) {
-      const { type, value } = orderMeta.order_discount;
-      const base = (order.subtotal || 0) - itemDiscountsTotal;
-      orderDiscountAmount = type === "percent"
-        ? (base * value) / 100
-        : Math.min(value, base);
-    }
+    const orderLevelDiscount = orderDiscountAmount(
+      orderMeta?.order_discount,
+      (order.subtotal || 0) - itemDiscountsTotal
+    );
 
     const subtotal = order.subtotal || 0;
     const tax = order.tax_total || 0;
     const total = order.total || 0;
-    const discount = (order.discount_total || 0) + itemDiscountsTotal + orderDiscountAmount;
+    const discount = (order.discount_total || 0) + itemDiscountsTotal + orderLevelDiscount;
     const cashPaid: number = typeof order.metadata?.cash_paid === "number"
       ? order.metadata.cash_paid
       : 0;

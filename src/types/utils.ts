@@ -1,5 +1,9 @@
 import { AdminAddDraftOrderItem, AdminOrder, AdminProduct } from "@medusajs/types";
-import { DateRange } from "react-day-picker";
+
+type DateRange = {
+  from?: Date;
+  to?: Date;
+};
 
 type Params = {
   orderId: string;

@@ -70,7 +70,13 @@ const sanitizeDraftOrderMetadata = (
 };
 
 const useDraftOrder = () => {
-  const [isLoading, setIsLoading] = useState(false);
+  // Pending-operation counter: overlapping calls each increment/decrement, so
+  // isLoading only clears when the LAST in-flight operation finishes (a plain
+  // boolean would be cleared by whichever finishes first).
+  const [pendingOps, setPendingOps] = useState(0);
+  const isLoading = pendingOps > 0;
+  const beginLoading = () => setPendingOps((count) => count + 1);
+  const endLoading = () => setPendingOps((count) => count - 1);
 
   const {
     items,
@@ -96,7 +102,7 @@ const useDraftOrder = () => {
       countryCode?: string
     ): Promise<string> => {
       const sdk = getSdk();
-      setIsLoading(true);
+      beginLoading();
 
       // Prefer a pickup-style option; otherwise attach the first available option so the
       // converted order has `shipping_methods` and admin fulfillments can resolve a provider.
@@ -167,7 +173,7 @@ const useDraftOrder = () => {
         console.error("Failed to create draft order:", error);
         throw new Error("Failed to create draft order");
       } finally {
-        setIsLoading(false);
+        endLoading();
       }
     },
     [setDraftOrderId, shippingOptions, metadata, guestEmail]
@@ -180,7 +186,7 @@ const useDraftOrder = () => {
       }
 
       const sdk = getSdk();
-      setIsLoading(true);
+      beginLoading();
 
       try {
         const { draft_order } =
@@ -217,7 +223,7 @@ const useDraftOrder = () => {
 
         return null;
       } finally {
-        setIsLoading(false);
+        endLoading();
       }
     }, [draftOrderId, setItems, setDraftOrderId, setCartMetadata]);
 
@@ -265,7 +271,7 @@ const useDraftOrder = () => {
     const sdk = getSdk();
 
     try {
-      setIsLoading(true);
+      beginLoading();
       await sdk.admin.draftOrder.delete(draftOrderId);
 
       setDraftOrderId(null);
@@ -275,7 +281,7 @@ const useDraftOrder = () => {
       setDraftOrderId(null);
       setItems([]);
     } finally {
-      setIsLoading(false);
+      endLoading();
     }
   }, [draftOrderId, setDraftOrderId, setItems]);
 
@@ -290,7 +296,7 @@ const useDraftOrder = () => {
       const sdk = getSdk();
 
       try {
-        setIsLoading(true);
+        beginLoading();
 
         if (!activeDraftOrderId) return;
 
@@ -397,7 +403,7 @@ const useDraftOrder = () => {
       } catch (error) {
         throw new Error("Failed to sync changes to draft order: " + error);
       } finally {
-        setIsLoading(false);
+        endLoading();
       }
     },
     [draftOrderId, items, metadata, markAsSynced]
@@ -410,7 +416,7 @@ const useDraftOrder = () => {
       email: string | null
     ): Promise<void> => {
       const sdk = getSdk();
-      setIsLoading(true);
+      beginLoading();
 
       try {
         // Begin edit if needed
@@ -459,7 +465,7 @@ const useDraftOrder = () => {
           (error instanceof Error ? error.message : String(error))
         );
       } finally {
-        setIsLoading(false);
+        endLoading();
       }
     },
     [guestEmail]

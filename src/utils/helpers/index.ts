@@ -1,6 +1,5 @@
 import { toast } from "sonner";
 import { formatDateTime, formatPrice } from "@/utils/settings/preferences";
-import router from "@/router/router";
 import constants from "@/utils/constants";
 import { queryClient } from "@/config/query";
 import { useCartStore } from "@/context/cart";
@@ -16,17 +15,6 @@ const getRoutes = () => {
     settings: "/settings",
   };
 };
-
-const getAuthenticatedPages = () => {
-  const path = router.state.location.pathname;
-
-  return {
-    orders: new RegExp(`^orders$`).test(path),
-    checkout: new RegExp(`^checkout$`).test(path),
-    settings: new RegExp(`^settings$`).test(path),
-  };
-};
-
 
 /**
  * Tauri `invoke` rejections are not always `Error` instances; normalize for UI and logging.
@@ -123,7 +111,6 @@ const handleErrorToast = (
 
 const formatDate = (date: Date | string): string => formatDateTime(date);
 
-const formatExactTime = (date: Date | string): string => formatDateTime(date);
 
 const formatTimeAgo = (date: Date | string): string => {
   if (!date || typeof date !== "string" || date.trim() === "") {
@@ -395,12 +382,10 @@ const printerIssueStaffHintSettings = (printerName: string): string => {
 
 export {
   getRoutes,
-  getAuthenticatedPages,
   getTauriInvokeErrorMessage,
   getApiErrorMessage,
   handleErrorToast,
   formatDate,
-  formatExactTime,
   formatTimeAgo,
   formatPrice,
   triggerFileDownload,

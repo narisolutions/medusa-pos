@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useForm, type SubmitHandler } from "react-hook-form";
 import schemas from "@/utils/schemas";
 import {
@@ -115,6 +115,26 @@ const PrinterDialog: React.FC<Props> = ({
   const [isLoadingSystemPrinters, setIsLoadingSystemPrinters] = useState(false);
   const [systemPrinterError, setSystemPrinterError] = useState<string | null>(null);
 
+  const loadSystemPrinters = useCallback(async () => {
+    setIsLoadingSystemPrinters(true);
+    setSystemPrinterError(null);
+    try {
+      const { invoke } = await import("@tauri-apps/api/core");
+      const printers = await invoke<SystemPrinterInfo[]>("list_system_printers");
+      setSystemPrinters(printers);
+      if (printers.length === 0) {
+        setSystemPrinterError(t("settings.printer.dialog_no_system_printers"));
+      }
+    } catch (error) {
+      setSystemPrinterError(
+        getTauriInvokeErrorMessage(error, t("settings.printer.dialog_list_system_printers_failed"))
+      );
+      setSystemPrinters([]);
+    } finally {
+      setIsLoadingSystemPrinters(false);
+    }
+  }, [t]);
+
   useEffect(() => {
     if (editingPrinter) {
       reset({
@@ -145,7 +165,7 @@ const PrinterDialog: React.FC<Props> = ({
         loadSystemPrinters();
       }
     }
-  }, [editingPrinter, isOpen, reset, clearErrors]);
+  }, [editingPrinter, isOpen, reset, clearErrors, loadSystemPrinters]);
 
   const scanUsbDevices = async () => {
     setIsScanning(true);
@@ -164,26 +184,6 @@ const PrinterDialog: React.FC<Props> = ({
       setUsbDevices([]);
     } finally {
       setIsScanning(false);
-    }
-  };
-
-  const loadSystemPrinters = async () => {
-    setIsLoadingSystemPrinters(true);
-    setSystemPrinterError(null);
-    try {
-      const { invoke } = await import("@tauri-apps/api/core");
-      const printers = await invoke<SystemPrinterInfo[]>("list_system_printers");
-      setSystemPrinters(printers);
-      if (printers.length === 0) {
-        setSystemPrinterError(t("settings.printer.dialog_no_system_printers"));
-      }
-    } catch (error) {
-      setSystemPrinterError(
-        getTauriInvokeErrorMessage(error, t("settings.printer.dialog_list_system_printers_failed"))
-      );
-      setSystemPrinters([]);
-    } finally {
-      setIsLoadingSystemPrinters(false);
     }
   };
 

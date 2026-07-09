@@ -42,22 +42,26 @@ export const getAuthToken = async (): Promise<string | null> => {
 
 let sdkInstance: InstanceType<typeof Medusa> | null = null;
 let sdkBaseUrl: string | null = null;
-let sdkInitializing = false;
+let sdkInitPromise: Promise<InstanceType<typeof Medusa>> | null = null;
 
-export const initializeSdk = async (baseUrl?: string) => {
+export const initializeSdk = (baseUrl?: string): Promise<InstanceType<typeof Medusa>> => {
   if (sdkInstance) {
-    return sdkInstance;
+    return Promise.resolve(sdkInstance);
   }
-  
-  if (sdkInitializing) {
-    while (sdkInitializing) {
-      await new Promise(resolve => setTimeout(resolve, 100));
-    }
-    return sdkInstance;
+
+  // Single-flight: concurrent callers share one init. A failure clears the memo so
+  // the next call can retry; waiters receive the rejection instead of a null instance.
+  if (!sdkInitPromise) {
+    sdkInitPromise = createSdk(baseUrl).catch((error) => {
+      sdkInitPromise = null;
+      throw error;
+    });
   }
-  
-  sdkInitializing = true;
-  
+
+  return sdkInitPromise;
+};
+
+const createSdk = async (baseUrl?: string) => {
   let url: string | undefined;
 
   if (baseUrl) {
@@ -270,11 +274,9 @@ export const initializeSdk = async (baseUrl?: string) => {
     }
     
     sdkBaseUrl = url;
-    sdkInitializing = false;
-    
+
     return sdkInstance;
   } catch (error) {
-    sdkInitializing = false;
     console.error("Error creating Medusa SDK instance:", error);
     throw new Error(`Failed to create Medusa SDK: ${error}`);
   }
@@ -300,6 +302,6 @@ export const getSdkBaseUrl = () => {
 export const resetSdk = () => {
   sdkInstance = null;
   sdkBaseUrl = null;
-  sdkInitializing = false;
+  sdkInitPromise = null;
   clearAuthTokenCache();
 };
