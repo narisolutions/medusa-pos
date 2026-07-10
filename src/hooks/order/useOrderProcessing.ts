@@ -1,5 +1,6 @@
 import { useCallback } from "react";
 import { getSdk } from "@/config/medusa";
+import { logger, safeStringify } from "@/utils/logger";
 import { AdminOrder } from "@medusajs/types";
 import storage from "@/utils/storage";
 import { handleErrorToast } from "@/utils/helpers";
@@ -64,11 +65,24 @@ const useOrderProcessing = () => {
         return;
       }
 
-      // Provider did not auto-authorize — fall back to markAsPaid.
-      // Fix: return PaymentSessionStatus.AUTHORIZED from initiatePayment() in the provider.
-      await sdk.admin.paymentCollection.markAsPaid(collectionId, {
-        order_id: order.id,
-      });
+      // Provider didn't auto-authorize — mark as paid. Try the real provider
+      // first; if it can't authorize (HTTP 422), retry under the system default.
+      // markAsPaid returns an empty body and only throws on a genuine rejection,
+      // so the retry can't double-pay. The real provider is still recoverable from
+      // the payment session via getOrderPaymentProviderId.
+      try {
+        await sdk.admin.paymentCollection.markAsPaid(collectionId, {
+          order_id: order.id,
+          provider_id: providerId,
+        });
+      } catch (markPaidError) {
+        void logger.error(
+          `markAsPaid with provider_id failed; retrying with system default: ${safeStringify(markPaidError)}`
+        );
+        await sdk.admin.paymentCollection.markAsPaid(collectionId, {
+          order_id: order.id,
+        });
+      }
     },
     []
   );

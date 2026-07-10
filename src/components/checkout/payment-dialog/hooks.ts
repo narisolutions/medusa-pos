@@ -1,4 +1,5 @@
 import { logger, safeStringify } from "@/utils/logger";
+import { t } from "@/i18n";
 import { useState, useCallback, useEffect, useMemo, useRef } from "react";
 import { useChange } from "@/hooks/utils/useChange";
 import { toast } from "sonner";
@@ -413,7 +414,9 @@ const usePaymentModal = (
         let finalOrder = order;
         try {
           await processPaymentCollection(order, selectedPaymentMethod);
-        } catch {
+        } catch (paymentError) {
+          // Surface the real backend error so capture failures are diagnosable.
+          void logger.error(`processPaymentCollection failed: ${safeStringify(paymentError)}`);
           // Re-fetch the order to check whether payment was captured on the backend
           // despite the frontend error (e.g. empty-body response).
           let paymentWasCaptured = false;
@@ -437,14 +440,22 @@ const usePaymentModal = (
           }
 
           if (!paymentWasCaptured) {
-            try {
-              await sdk.admin.order.cancel(order.id);
-            } catch {
-              throw new Error(
-                `Payment failed and order #${order.display_id} could not be cancelled. Please resolve it in the admin panel.`
-              );
-            }
-            throw new Error("Payment processing failed. Please try again.");
+            // Medusa guidance: cancelling an order is irreversible, so do NOT
+            // cancel on a failed capture. Keep it as a real unpaid/outstanding
+            // order — the operator captures payment later from the order's
+            // Record Payment flow. Clear the cart since a real order now exists
+            // (re-ringing would create a duplicate). Skip fulfillment/complete
+            // so the order stays not_fulfilled until it is paid.
+            clearItems();
+            setDraftOrderId(null);
+            resetCashState();
+            setPaymentMethod(undefined);
+            void queryClient.invalidateQueries({ queryKey: queryKeys.orders.all });
+            playErrorSound();
+            toast.warning(
+              t("checkout.order_saved_unpaid", { displayId: order.display_id })
+            );
+            return order;
           }
         }
 
@@ -490,6 +501,9 @@ const usePaymentModal = (
       processPaymentCollection,
       processFulfillment,
       cleanupAfterOrder,
+      clearItems,
+      resetCashState,
+      setPaymentMethod,
       setDraftOrderId,
       registerSessionId,
       onClose,
@@ -634,8 +648,11 @@ const usePaymentModal = (
   // Handle confirmation modal confirm
   const handleConfirmPayment = useCallback(async (): Promise<void> => {
     const result = await handleProcessPayment();
+    // Always dismiss the confirmation overlay — on failure handleProcessPayment
+    // returns null and closes the parent modal via onClose, which would otherwise
+    // leave this sibling dialog orphaned on screen.
+    setShowConfirmation(false);
     if (result) {
-      setShowConfirmation(false);
       handleClose();
     }
   }, [handleProcessPayment, handleClose]);

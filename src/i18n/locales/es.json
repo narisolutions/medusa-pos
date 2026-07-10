@@ -123,6 +123,7 @@
     "customer_remove_button": "Eliminar",
     "customer_removed_from_order": "Cliente eliminado del pedido",
     "customer_attached_to_order": "Cliente {{email}} asociado al pedido",
+    "order_saved_unpaid": "Pedido #{{displayId}} guardado como no pagado — capture el pago desde Pedidos.",
     "customer_create_button": "Nuevo cliente",
     "customer_create_title": "Crear cliente",
     "customer_create_submit_button": "Crear",

@@ -123,6 +123,7 @@
     "customer_remove_button": "Entfernen",
     "customer_removed_from_order": "Kunde aus der Bestellung entfernt",
     "customer_attached_to_order": "Kunde {{email}} der Bestellung zugeordnet",
+    "order_saved_unpaid": "Bestellung #{{displayId}} als unbezahlt gespeichert — Zahlung über Bestellungen erfassen.",
     "customer_create_button": "Neuer Kunde",
     "customer_create_title": "Kunden erstellen",
     "customer_create_submit_button": "Erstellen",

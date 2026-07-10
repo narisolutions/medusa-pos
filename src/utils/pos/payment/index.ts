@@ -5,10 +5,9 @@ import {
 } from "@/utils/settings/store/metadata";
 
 /**
- * Returns the canonical payment provider_id for a completed order.
- * Priority: payments[0].provider_id → payment_sessions[0].provider_id → metadata fallback.
- * The metadata fallback handles orders where the backend /process endpoint returned
- * pp_system_default instead of the chosen custom provider.
+ * Returns an order's payment provider_id: payments[0] → payment_sessions[0].
+ * The session keeps the real provider chosen at checkout, so it's used when the
+ * captured payment fell back to pp_system_default via markAsPaid.
  */
 export function getOrderPaymentProviderId(
   order: AdminOrder
@@ -25,12 +24,6 @@ export function getOrderPaymentProviderId(
   const sessionProviderId = collection?.payment_sessions?.[0]?.provider_id;
   if (sessionProviderId && sessionProviderId !== "pp_system_default") {
     return sessionProviderId;
-  }
-
-  // Legacy metadata fallback
-  const metadataProvider = order.metadata?.payment_method as string | undefined;
-  if (metadataProvider) {
-    return String(metadataProvider).toLowerCase();
   }
 
   return paymentProviderId; // pp_system_default or undefined

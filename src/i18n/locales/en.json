@@ -123,6 +123,7 @@
     "customer_remove_button": "Remove",
     "customer_removed_from_order": "Customer removed from order",
     "customer_attached_to_order": "Customer {{email}} attached to order",
+    "order_saved_unpaid": "Order #{{displayId}} saved as unpaid — capture payment from Orders.",
     "customer_create_button": "New customer",
     "customer_create_title": "Create customer",
     "customer_create_submit_button": "Create",
