@@ -1,5 +1,6 @@
 import { useQuery, UseQueryResult } from "@tanstack/react-query";
 import { getSdk } from "@/config/medusa";
+import { queryKeys } from "@/config/query";
 import { handleErrorToast } from "@/utils/helpers";
 import { useUser } from "@/context/user";
 import { AdminProduct, AdminProductVariant } from "@medusajs/types";
@@ -77,11 +78,10 @@ const useQueryInventoryKitItems = (
   const isAuthenticated = useUser((state) => state.isAuthenticated);
 
   return useQuery<InventoryKitVariant[], Error>({
-    queryKey: [
-      "inventory-kit-items",
+    queryKey: queryKeys.inventoryKitItems(
       inventoryItemIds,
-      kitVariantInventoryItems,
-    ],
+      kitVariantInventoryItems
+    ),
     queryFn: () =>
       fetchInventoryKitItems(inventoryItemIds!, kitVariantInventoryItems),
     enabled:

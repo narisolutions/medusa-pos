@@ -2,6 +2,7 @@ import { CartItem } from "@/types/utils";
 import { AdminProductVariant, AdminProduct } from "@medusajs/types";
 import { useQueryInventoryKitItems } from "@/hooks/queries/useQueryInventoryKitItems";
 import { getVariantAvailableQuantity, getVariantUnitPrice } from "@/utils/pos/cart";
+import { discountPerUnit } from "@/utils/pos/pricing";
 
 // Transform AdminProductVariant to standardized format
 const transformVariantToItem = (
@@ -129,14 +130,10 @@ const useItemDialog = (
   // Use original price as base for manual discount calculation, fallback to unit_price if no original price
   const basePriceForManualDiscount = originalPrice || unit_price || 0;
 
-  let manualDiscountAmount = 0;
-  if (hasManualDiscount && basePriceForManualDiscount) {
-    if (manualDiscount.type === "percent") {
-      manualDiscountAmount = (basePriceForManualDiscount * manualDiscount.value) / 100;
-    } else {
-      manualDiscountAmount = manualDiscount.value;
-    }
-  }
+  const manualDiscountAmount =
+    hasManualDiscount && basePriceForManualDiscount
+      ? discountPerUnit(manualDiscount, basePriceForManualDiscount)
+      : 0;
 
   const priceAfterManualDiscount =
     basePriceForManualDiscount && hasManualDiscount

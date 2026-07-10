@@ -1,3 +1,4 @@
+import { logger, safeStringify } from "@/utils/logger";
 import { useEffect } from "react";
 import { check } from "@tauri-apps/plugin-updater";
 import { relaunch } from "@tauri-apps/plugin-process";
@@ -53,7 +54,7 @@ export default function useUpdateCheck() {
           },
         });
       } catch (err) {
-        console.warn("Update check failed:", err);
+        void logger.warn(`Update check failed: ${safeStringify(err)}`);
       }
     }
 

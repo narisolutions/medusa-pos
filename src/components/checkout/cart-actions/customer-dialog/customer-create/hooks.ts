@@ -1,4 +1,5 @@
 // hooks/useCustomerCreate.ts
+import { logger, safeStringify } from "@/utils/logger";
 import { useState, useCallback } from "react";
 import { getSdk } from "@/config/medusa";
 import { AdminCustomer } from "@medusajs/types";
@@ -79,7 +80,7 @@ export const useCustomerCreate = () => {
         setCreatedCustomer(created);
         return created;
       } catch (error) {
-        console.error("Failed to create customer:", error);
+        void logger.error(`Failed to create customer: ${safeStringify(error)}`);
         const duplicateEmailMessage = getDuplicateCustomerEmailMessage(error);
 
         if (duplicateEmailMessage) {

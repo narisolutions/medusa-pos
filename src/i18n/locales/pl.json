@@ -121,6 +121,8 @@
     "customer_not_found_message": "Nie znaleziono zarejestrowanego klienta z tym e‑mailem. Wprowadź prawidłowy zarejestrowany e‑mail.",
     "customer_current": "Bieżący klient",
     "customer_remove_button": "Usuń",
+    "customer_removed_from_order": "Klient usunięty z zamówienia",
+    "customer_attached_to_order": "Klient {{email}} przypisany do zamówienia",
     "customer_create_button": "Nowy klient",
     "customer_create_title": "Utwórz klienta",
     "customer_create_submit_button": "Utwórz",

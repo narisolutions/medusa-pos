@@ -1,8 +1,9 @@
+import { logger, safeStringify } from "@/utils/logger";
 import { Forms } from "@/types/form";
-import { getSdk } from "@/config/medusa";
+import { getSdk, syncAuthTokenToStore } from "@/config/medusa";
 import { useUser } from "@/context/user";
 import { useNavigate } from "react-router-dom";
-import { getRoutes, handleErrorToast, syncAuthTokenToStore } from "@/utils/helpers";
+import { getRoutes, handleErrorToast } from "@/utils/helpers";
 import { AdminUser } from "@medusajs/types";
 import { runPostAuthInit } from "@/hooks/auth/useAppInit";
 
@@ -36,7 +37,7 @@ const useLogin = (isConfigured: boolean) => {
 
       navigate(routes.checkout);
     } catch (e: unknown) {
-      console.error("Login error:", e);
+      void logger.error(`Login error: ${safeStringify(e)}`);
 
       const status = (e as { status?: number })?.status;
       if (status === 401 || (e instanceof Error && e.message.includes("HTTP 401"))) {

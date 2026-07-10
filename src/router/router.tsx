@@ -1,4 +1,4 @@
-import React from "react";
+import React, { Suspense, lazy } from "react";
 import {
   createHashRouter,
   createRoutesFromElements,
@@ -6,19 +6,32 @@ import {
   Route,
 } from "react-router-dom";
 import { Layout } from "@/components/layout";
-import Login from "@/pages/login";
-import Orders from "@/pages/orders";
-import Checkout from "@/pages/checkout";
-import Settings from "@/pages/settings";
-import Order from "@/pages/order";
 import ProtectedRoute from "@/components/router";
 import Auth from "@/components/auth";
+import { LoadingSpinner } from "@/components/ui/loading-spinner";
+
+// Pages are lazy so each route ships as its own chunk, off the boot path.
+const Login = lazy(() => import("@/pages/login"));
+const Orders = lazy(() => import("@/pages/orders"));
+const Checkout = lazy(() => import("@/pages/checkout"));
+const Settings = lazy(() => import("@/pages/settings"));
+const Order = lazy(() => import("@/pages/order"));
+
+const PageFallback = () => (
+  <div className="flex h-full min-h-[50vh] items-center justify-center">
+    <LoadingSpinner size={36} />
+  </div>
+);
+
+const page = (element: React.ReactNode) => (
+  <Suspense fallback={<PageFallback />}>{element}</Suspense>
+);
 
 const router = createHashRouter(
   createRoutesFromElements(
     <React.Fragment>
       <Route element={<Auth />}>
-        <Route path="/sign-in" element={<Login />} />
+        <Route path="/sign-in" element={page(<Login />)} />
       </Route>
       <Route
         path="/"
@@ -29,10 +42,10 @@ const router = createHashRouter(
         }
       >
         <Route index element={<Navigate to="/checkout" replace />} />
-        <Route path="orders" element={<Orders />} />
-        <Route path="orders/:orderId" element={<Order />} />
-        <Route path="checkout" element={<Checkout />} />
-        <Route path="settings" element={<Settings />} />
+        <Route path="orders" element={page(<Orders />)} />
+        <Route path="orders/:orderId" element={page(<Order />)} />
+        <Route path="checkout" element={page(<Checkout />)} />
+        <Route path="settings" element={page(<Settings />)} />
       </Route>
 
       <Route path="*" element={<Navigate to="/" replace />} />

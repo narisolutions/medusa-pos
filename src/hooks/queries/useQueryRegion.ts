@@ -1,5 +1,6 @@
 import { useQuery, UseQueryResult } from "@tanstack/react-query";
 import { getSdk } from "@/config/medusa";
+import { queryKeys, STALE_TIME } from "@/config/query";
 import { handleErrorToast } from "@/utils/helpers";
 import { useUser } from "@/context/user";
 import { AdminRegion } from "@medusajs/types";
@@ -27,9 +28,10 @@ const useQueryRegion = (): UseQueryResult<RegionsResult, Error> => {
   const isAuthenticated = useUser((state) => state.isAuthenticated);
 
   return useQuery<RegionsResult, Error>({
-    queryKey: ["regions"],
+    queryKey: queryKeys.regions,
     queryFn: fetchRegions,
     enabled: isAuthenticated,
+    staleTime: STALE_TIME.static,
   });
 };
 

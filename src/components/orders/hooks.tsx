@@ -1,65 +1,23 @@
 import { createColumnHelper } from "@tanstack/react-table";
 import { useEffect, useMemo, useState, useCallback, useRef } from "react";
 import { useTranslation } from "@/i18n";
-import { formatDate, formatPrice } from "@/utils/helpers";
+import {
+  formatDate,
+  formatPrice,
+  getOrderStatusColor,
+  getOrderPaymentStatusColor,
+  getOrderFulfillmentStatusColor,
+  getOrderCurrency,
+} from "@/utils/helpers";
 import { AdminOrder } from "@medusajs/types";
 import { useQueryOrders } from "@/hooks/queries/useQueryOrders";
 import { useDebounce } from "@/hooks/ui/useDebounce";
 import storage from "@/utils/storage";
-import constants from "@/utils/constants";
 import { classifyOrderShippingMethod, getShippingMethodLabel } from "@/utils/pos/fulfillment";
 import { useQueryStore } from "@/hooks/queries/useQueryStore";
 import { getOrderPaymentMethodLabel } from "@/utils/pos/payment";
 
 const columnHelper = createColumnHelper<AdminOrder>();
-
-const paymentStatusColors: Record<string, string> = {
-  canceled: "bg-red-500",
-  not_paid: "bg-gray-500",
-  awaiting: "bg-yellow-500",
-  authorized: "bg-yellow-500",
-  partially_authorized: "bg-yellow-500",
-  captured: "bg-green-500",
-  partially_captured: "bg-green-400",
-  partially_refunded: "bg-orange-500",
-  refunded: "bg-red-500",
-  requires_action: "bg-orange-500",
-};
-
-const orderStatusColors: Record<string, string> = {
-  pending: "bg-yellow-500",
-  completed: "bg-green-500",
-  draft: "bg-gray-500",
-  archived: "bg-gray-600",
-  canceled: "bg-red-500",
-  requires_action: "bg-orange-500",
-};
-
-const fulfillmentStatusColors: Record<string, string> = {
-  canceled: "bg-red-500",
-  not_fulfilled: "bg-red-500",
-  partially_fulfilled: "bg-yellow-500",
-  fulfilled: "bg-green-500",
-  partially_shipped: "bg-blue-500",
-  shipped: "bg-blue-600",
-  partially_delivered: "bg-yellow-500",
-  delivered: "bg-green-600",
-};
-
-const getPaymentStatusColor = (status: string) => {
-  const normalized = status.toLowerCase();
-  return paymentStatusColors[normalized] || "bg-gray-400";
-};
-
-const getOrderStatusColor = (status: string) => {
-  const normalized = status.replace(/_/g, " ").toLowerCase();
-  return orderStatusColors[normalized] || "bg-gray-400";
-};
-
-const getFulfillmentStatusColor = (status: string) => {
-  const normalized = status.toLowerCase();
-  return fulfillmentStatusColors[normalized] || "bg-gray-400";
-};
 
 const useOrders = () => {
   const { t } = useTranslation();
@@ -165,7 +123,7 @@ const useOrders = () => {
           const value = info.getValue();
           const display =
             value.charAt(0).toUpperCase() + value.slice(1).replace(/_/g, " ");
-          const colorClass = getPaymentStatusColor(value);
+          const colorClass = getOrderPaymentStatusColor(value);
           return (
             <div className="flex items-center gap-2">
               <span
@@ -199,7 +157,7 @@ const useOrders = () => {
           const value = info.getValue();
           const display =
             value.charAt(0).toUpperCase() + value.slice(1).replace(/_/g, " ");
-          const colorClass = getFulfillmentStatusColor(value);
+          const colorClass = getOrderFulfillmentStatusColor(value);
           return (
             <div className="flex items-center gap-2">
               <span
@@ -221,7 +179,7 @@ const useOrders = () => {
         cell: (info) => {
           const value = info.getValue();
           const order = info.row.original;
-          const currency = order.currency_code || constants.CHECKOUT_CONFIG.CURRENCY;
+          const currency = getOrderCurrency(order);
 
           return (
             <span className="font-semibold text-fg text-base">

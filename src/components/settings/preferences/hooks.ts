@@ -1,10 +1,10 @@
 import { useState, useEffect, useCallback } from "react";
-import { useForm, Resolver } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { t } from "@/i18n";
 import { Forms } from "@/types/form";
 import schemas from "@/utils/schemas";
+import { coercedZodResolver } from "@/utils/schemas/resolver";
 import {
   initDateTimePrefs,
   initCurrencyPrefs,
@@ -43,9 +43,7 @@ const defaults: Forms["PreferencesSettings"] = {
 
 export const usePreferencesSettings = () => {
   const form = useForm<Forms["PreferencesSettings"]>({
-    resolver: zodResolver(schemas.preferencesSettings) as unknown as Resolver<
-      Forms["PreferencesSettings"]
-    >,
+    resolver: coercedZodResolver(schemas.preferencesSettings),
     defaultValues: defaults,
   });
 

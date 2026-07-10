@@ -8,6 +8,7 @@ import {
   getVariantUnitPrice,
   getVariantAvailableQuantity,
 } from "@/utils/pos/cart";
+import { applyDiscountToUnitPrice } from "@/utils/pos/pricing";
 
 export interface CartItemsSlice {
   items: CartItem[];
@@ -145,10 +146,7 @@ export const createCartItemsSlice: StateCreator<
         const originalUnitPrice = unitPrice;
         metadata.original_unit_price = originalUnitPrice;
         metadata.item_discount = pendingItemDiscount;
-        const discountAmount = pendingItemDiscount.type === "percent"
-          ? (originalUnitPrice * pendingItemDiscount.value) / 100
-          : pendingItemDiscount.value;
-        unitPrice = Math.max(0, originalUnitPrice - Math.min(discountAmount, originalUnitPrice));
+        unitPrice = applyDiscountToUnitPrice(pendingItemDiscount, originalUnitPrice);
       }
 
       if (pendingItemComment) {

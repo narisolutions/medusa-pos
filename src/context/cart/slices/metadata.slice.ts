@@ -2,6 +2,7 @@ import { StateCreator } from "zustand";
 import { CartItem, DraftOrderMetadata, OrderDiscount} from "@/types/utils";
 import { resolveSelectedItemId }  from "@/utils/pos/cart";
 import {DEFAULT_CART_METADATA } from "@/utils/pos/cart"
+import { applyDiscountToUnitPrice } from "@/utils/pos/pricing";
 
 export interface CartMetadataSlice {
   metadata: DraftOrderMetadata;
@@ -51,19 +52,7 @@ export const createCartMetadataSlice: StateCreator<
           let newUnitPrice = originalUnitPrice;
 
           if (discount && discount.value > 0) {
-            // Apply discount to original price
-            let discountAmount = 0;
-            
-            if (discount.type === "percent") {
-              discountAmount = (originalUnitPrice * discount.value) / 100;
-            } else {
-              // Amount discount per unit
-              discountAmount = discount.value;
-            }
-            
-            // Don't let discount exceed the price
-            discountAmount = Math.min(discountAmount, originalUnitPrice);
-            newUnitPrice = originalUnitPrice - discountAmount;
+            newUnitPrice = applyDiscountToUnitPrice(discount, originalUnitPrice);
           } else {
             // Discount removed or set to 0 - restore original price
             // Remove the discount metadata

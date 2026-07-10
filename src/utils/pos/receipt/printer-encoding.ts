@@ -1,3 +1,4 @@
+import { logger } from "@/utils/logger";
 import profiles from "../printer-profiles.json";
 
 export type PrinterEncoding = "ascii" | "utf8" | "cp852";
@@ -35,7 +36,7 @@ export function sanitizePrinterString(
       .map((ch) => {
         if (CP852_MAP[ch] !== undefined) return CP852_MAP[ch];
         if (ch.charCodeAt(0) > 127) {
-          console.warn(`[receipt] cp852: unmapped char U+${ch.charCodeAt(0).toString(16).padStart(4, "0")} '${ch}' replaced with '?'`);
+          void logger.warn(`[receipt] cp852: unmapped char U+${ch.charCodeAt(0).toString(16).padStart(4, "0")} '${ch}' replaced with '?'`);
           return "?";
         }
         return ch;

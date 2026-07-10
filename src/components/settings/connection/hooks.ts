@@ -3,6 +3,7 @@ import { invoke } from "@tauri-apps/api/core";
 import { toast } from "sonner";
 import { useTranslation } from "@/i18n";
 import { useQueryClient } from "@tanstack/react-query";
+import { queryKeys } from "@/config/query";
 import { useForm } from "react-hook-form";
 import { useQuerySalesChannel } from "@/hooks/queries/useQuerySalesChannel";
 import { useQueryStockLocation } from "@/hooks/queries/useQueryStockLocation";
@@ -105,7 +106,7 @@ export const useConnectionSettings = ({ form }: Props) => {
     };
 
     loadConfig();
-  }, [salesChannels, isLoadingSalesChannels, stockLocations, isLoadingStockLocations, reset]);
+  }, [salesChannels, isLoadingSalesChannels, stockLocations, isLoadingStockLocations, reset, t]);
 
   const onSubmit = useCallback(
     async (data: Forms["ApiSettings"]) => {
@@ -145,13 +146,13 @@ export const useConnectionSettings = ({ form }: Props) => {
           await storage.setItem("sales_channel_id", data.sales_channel);
           setSalesChannelId(data.sales_channel);
           setNeedsWarning(false);
-          queryClient.invalidateQueries({ queryKey: ["sales-channels"] });
+          queryClient.invalidateQueries({ queryKey: queryKeys.salesChannels });
         }
 
         // Update stock location if changed
         if (changes.hasStockLocationChanges && data.stock_location) {
           await storage.setItem("stock_location_id", data.stock_location);
-          queryClient.invalidateQueries({ queryKey: ["stock-locations"] });
+          queryClient.invalidateQueries({ queryKey: queryKeys.stockLocations });
         }
 
         // Reinitialize SDK if backend URL changed
@@ -161,8 +162,8 @@ export const useConnectionSettings = ({ form }: Props) => {
           // Re-detect the POS plugin against the new backend
           const { resetPosPluginCache } = await import("@/utils/pos/plugin");
           resetPosPluginCache();
-          queryClient.invalidateQueries({ queryKey: ["pos-plugin-installed"] });
-          queryClient.invalidateQueries({ queryKey: ["products"] });
+          queryClient.invalidateQueries({ queryKey: queryKeys.posPlugin });
+          queryClient.invalidateQueries({ queryKey: queryKeys.products.all });
         }
 
         // Update initial values after successful save

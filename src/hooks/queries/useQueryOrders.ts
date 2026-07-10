@@ -1,5 +1,6 @@
 import { useQuery, UseQueryResult } from "@tanstack/react-query";
 import { getSdk } from "@/config/medusa";
+import { queryKeys } from "@/config/query";
 import { handleErrorToast } from "@/utils/helpers";
 import { useUser } from "@/context/user";
 import { AdminOrder } from "@medusajs/types";
@@ -12,10 +13,7 @@ const fetchOrders = async (
     const baseParams = {
       fields:
         options?.fields ||
-        // List view only: keep this to the fields the table columns actually read.
-        // Heavy relations (*items, fulfillments.*) are intentionally excluded — they
-        // dominate the payload and no column consumes them. The order-detail view
-        // fetches its own expanded data separately.
+        // Table columns only — heavy relations (*items etc.) excluded; detail view fetches its own.
         "display_id,status,total,created_at,currency_code,customer.email,sales_channel.name,payment_status,fulfillment_status,shipping_methods.name,metadata,payment_collections.payments.provider_id,payment_collections.payment_sessions.provider_id",
       limit: options?.limit || 10,
       offset: options?.offset || 0,
@@ -55,19 +53,8 @@ const useQueryOrders = (
   const { refetchInterval, ...sdkOptions } = options || {};
 
   return useQuery<OrdersResult | undefined, Error>({
-    queryKey: [
-      "orders",
-      options?.fields,
-      options?.expand,
-      options?.limit,
-      options?.offset,
-      options?.q,
-      options?.status,
-      options?.customer_email,
-      options?.sales_channel,
-      options?.created_at,
-      options?.payment_status,
-    ],
+    // Whole options object as key — new filters automatically join the cache identity.
+    queryKey: queryKeys.orders.list(sdkOptions),
     queryFn: () => fetchOrders(sdkOptions),
     enabled: isAuthenticated,
     refetchInterval,

@@ -1,9 +1,11 @@
 import { useQuery, UseQueryResult } from "@tanstack/react-query";
 import { getSdk } from "@/config/medusa";
+import { queryKeys } from "@/config/query";
 import { handleErrorToast } from "@/utils/helpers";
 import { ApiProductResponse } from "@/types/utils";
 import { AdminProductVariant } from "@medusajs/types";
 import storage from "@/utils/storage";
+import { useUser } from "@/context/user";
 import { isPosPluginInstalled } from "@/utils/pos/plugin";
 import { toast } from "sonner";
 import { t } from "@/i18n";
@@ -60,10 +62,12 @@ const fetchProductByBarcode = async (
 const useQueryProductByBarcode = (
   barcode: string
 ): UseQueryResult<AdminProductVariant | null, Error> => {
+  const isAuthenticated = useUser((state) => state.isAuthenticated);
+
   return useQuery<AdminProductVariant | null, Error>({
-    queryKey: ["product-by-barcode", barcode],
+    queryKey: queryKeys.products.byBarcode(barcode),
     queryFn: () => fetchProductByBarcode(barcode),
-    enabled: !!barcode,
+    enabled: isAuthenticated && !!barcode,
   });
 };
 

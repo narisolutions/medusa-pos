@@ -1,3 +1,4 @@
+import { logger, safeStringify } from "@/utils/logger";
 import { useEffect, useState, useMemo, useCallback } from "react";
 import { AdminStore, AdminUser } from "@medusajs/types";
 import { AppConfig } from "@/types/utils";
@@ -9,8 +10,7 @@ import { useStoreManager } from "@/context/store-manager";
 import storage from "@/utils/storage";
 import { handleErrorToast } from "@/utils/helpers";
 import { initDateTimePrefs, initCurrencyPrefs, loadPreferences } from "@/utils/settings/preferences";
-import { queryClient } from "@/config/query";
-import { STORE_QUERY_KEY } from "@/hooks/queries/useQueryStore";
+import { queryClient, queryKeys } from "@/config/query";
 import {
   getPrimaryColor,
   getSecondaryColor,
@@ -20,14 +20,8 @@ import {
   hasPosMetadata,
 } from "@/utils/settings/store/metadata";
 
-/**
- * Runs post-authentication initialization: store metadata, theme, preferences,
- * setup check, and sales channel warning. Safe to call from both boot and login
- * flows — all state access goes through Zustand getState() / module imports.
- *
- * Each section is independently wrapped so a failure in one never prevents
- * subsequent sections from running. The sales channel check always executes.
- */
+// Post-auth init (store meta, theme, prefs, setup + sales-channel checks). Safe from
+// boot and login flows; each section is wrapped so one failure never blocks the rest.
 export async function runPostAuthInit() {
   try {
     const sdk = getSdk();
@@ -38,7 +32,7 @@ export async function runPostAuthInit() {
       const dismissed = await storage.getItem("store_setup_dismissed");
       useStore.getState().setNeedsSetup(!hasPosMetadata(store) && !dismissed);
 
-      queryClient.setQueryData(STORE_QUERY_KEY, store);
+      queryClient.setQueryData(queryKeys.store, store);
 
       await useStoreManager.getState().updateActiveName(store.name);
       await useStoreManager.getState().updateActiveLogo(getLogoUrl(store));
@@ -62,7 +56,7 @@ export async function runPostAuthInit() {
       });
     }
   } catch (storeErr) {
-    console.error("Store settings init failed:", storeErr);
+    void logger.error(`Store settings init failed: ${safeStringify(storeErr)}`);
   }
 
   try {
@@ -70,7 +64,7 @@ export async function runPostAuthInit() {
     initDateTimePrefs(prefs.dateTime);
     initCurrencyPrefs(prefs.currency);
   } catch (prefsErr) {
-    console.error("Preferences init failed:", prefsErr);
+    void logger.error(`Preferences init failed: ${safeStringify(prefsErr)}`);
   }
 
   try {
@@ -95,7 +89,7 @@ export async function runPostAuthInit() {
     useSalesChannel.getState().setSalesChannelId(validId);
     useSalesChannel.getState().setNeedsWarning(!validId);
   } catch (scErr) {
-    console.error("Sales channel init failed:", scErr);
+    void logger.error(`Sales channel init failed: ${safeStringify(scErr)}`);
     useSalesChannel.getState().setNeedsWarning(true);
   }
 }
@@ -163,7 +157,7 @@ const useAppInit = () => {
       setBootMessage("Loading store settings…");
       await runPostAuthInit();
     } catch (err) {
-      console.error("App initialization failed:", err);
+      void logger.error(`App initialization failed: ${safeStringify(err)}`);
       setBootMessage("Initialization failed");
       setConfig(null);
       update(null);
