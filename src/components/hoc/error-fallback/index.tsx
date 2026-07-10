@@ -1,6 +1,6 @@
 import { Frown, RefreshCcw } from "lucide-react";
 import { FallbackProps } from "react-error-boundary";
-import { Button } from "../ui/button";
+import { Button } from "@/components/ui/button";
 import { handleErrorToast } from "@/utils/helpers";
 import { useTranslation } from "@/i18n";
 

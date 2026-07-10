@@ -1,9 +1,11 @@
+import { logger, safeStringify } from "@/utils/logger";
 import { useState, useCallback, useMemo, useEffect } from "react";
 import { useTranslation } from "@/i18n";
 import { AdminOrder } from "@medusajs/types";
 import { toast } from "sonner";
 import { getSdk } from "@/config/medusa";
 import { useQueryClient } from "@tanstack/react-query";
+import { queryKeys } from "@/config/query";
 import { useQueryStockLocation } from "@/hooks/queries/useQueryStockLocation";
 import { useQueryShippingOption } from "@/hooks/queries/useQueryShippingOption";
 import storage from "@/utils/storage";
@@ -142,12 +144,12 @@ export const useFulfillmentDialog = (
       toast.success(t("orders.fulfillment_created_success"));
 
       // Invalidate order query to refetch updated order data
-      queryClient.invalidateQueries({ queryKey: ["order", order.id] });
-      queryClient.invalidateQueries({ queryKey: ["orders"] });
+      queryClient.invalidateQueries({ queryKey: queryKeys.orders.detail(order.id) });
+      queryClient.invalidateQueries({ queryKey: queryKeys.orders.all });
 
       onClose?.();
     } catch (error) {
-      console.error("Fulfillment error:", error);
+      void logger.error(`Fulfillment error: ${safeStringify(error)}`);
       handleErrorToast(
         t("orders.failed_to_create_fulfillment", {
           error: getApiErrorMessage(error, t("common.error")),
@@ -186,9 +188,7 @@ export const useFulfillmentDialog = (
     return selectedItems.reduce((sum, item) => sum + item.quantity, 0);
   }, [selectedItems]);
 
-  // Load the preferred stock location from storage once the locations are
-  // available, defaulting the selection if none is set yet. The async setState
-  // keeps this off the synchronous render path.
+  // Default the selection to the stored preferred stock location once locations load.
   useEffect(() => {
     if (!stockLocationsQuery.data || selectedLocationId) {
       return;

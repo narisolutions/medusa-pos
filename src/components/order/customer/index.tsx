@@ -5,7 +5,6 @@ import { isOrderGuestCustomer } from "@/utils/helpers";
 import { useQueryStore } from "@/hooks/queries/useQueryStore";
 import { getGuestCustomerEmail } from "@/utils/settings/store/metadata";
 import { useTranslation } from "@/i18n";
-// import CustomerDialog from "./customer-dialog";
 
 interface Props {
   order: AdminOrder;
@@ -16,8 +15,6 @@ const Customer: React.FC<Props> = ({ order }) => {
   const { customer, shipping_address, billing_address } = order;
   const { data: store } = useQueryStore();
   const guestEmail = getGuestCustomerEmail(store);
-  // const [isCustomerDialogOpen, setIsCustomerDialogOpen] = useState(false);
-  // const hasAccount = customer?.has_account || null;
 
   return (
     <div className="bg-surface rounded-lg border border-theme-border overflow-hidden shadow-sm flex flex-col h-full">
@@ -29,15 +26,6 @@ const Customer: React.FC<Props> = ({ order }) => {
               {t("orders.customer_address_header")}
             </h2>
           </div>
-          {/* <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setIsCustomerDialogOpen(true)}
-            className="flex items-center gap-2"
-          >
-            <UserPlus className="w-4 h-4" />
-            {hasAccount ? "Change customer" : "Attach customer"}
-          </Button> */}
         </div>
       </div>
       <div className="p-6 space-y-4 overflow-y-auto flex-1 min-h-0">
@@ -112,13 +100,6 @@ const Customer: React.FC<Props> = ({ order }) => {
           </>
         )}
       </div>
-
-      {/* TODO: Get back to this later and implement customer dialog */}
-      {/* <CustomerDialog
-        open={isCustomerDialogOpen}
-        onClose={() => setIsCustomerDialogOpen(false)}
-        order={order}
-      /> */}
     </div>
   );
 };

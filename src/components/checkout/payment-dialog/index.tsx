@@ -70,7 +70,7 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
   return (
     <Dialog open={isOpen} onOpenChange={handleDialogChange}>
       <DialogContent
-        className="max-w-6xl h-[85vh] p-0 flex flex-col overflow-hidden gap-0"
+        className="max-w-6xl h-[92vh] p-0 flex flex-col overflow-hidden gap-0"
         preventOutsideClose={true}
       >
         {/* Simple Header */}
@@ -128,8 +128,10 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
           {/* Right: Payment Interface */}
           <div className="flex-1 flex flex-col">
             {isCashPayment ? (
-              <div className="flex-1 p-8">
-                <div className="h-full flex flex-col">
+              <div className="flex-1 min-h-0 p-8 pb-6">
+                <div className="h-full flex flex-col min-h-0">
+                  {/* Scrolls on short screens; the actions below stay pinned and visible. */}
+                  <div className="flex-1 min-h-0 overflow-y-auto">
                   {/* Top: Total & Cash Tendered */}
                   <div className="grid grid-cols-2 gap-8 mb-6">
                     <div className="flex flex-col">
@@ -255,10 +257,11 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
                       </div>
                     </div>
                   </div>
+                  </div>
 
-                  {/* Bottom: Actions */}
-                  <div className="mt-auto space-y-4">
-                    <div className="h-20 flex items-center">
+                  {/* Bottom: Actions — pinned, never clipped */}
+                  <div className="mt-auto space-y-3 pt-3 shrink-0">
+                    <div className="h-16 flex items-center">
                       {customerPaid && parseFloat(customerPaid) > 0 && (
                         <div
                           className={`w-full p-4 rounded-lg flex items-center justify-between ${
@@ -310,7 +313,7 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
                       variant="outline"
                       onClick={handleDeliverPayLaterClick}
                       disabled={isLoading || isProcessing}
-                      className="w-full h-12 text-base font-medium border-theme-border text-fg-muted hover:text-fg hover:bg-surface-hover"
+                      className="w-full h-14 text-base font-medium border-theme-border text-fg-muted hover:text-fg hover:bg-surface-hover"
                     >
                       {t("checkout.deliver_pay_later")}
                     </Button>
@@ -319,7 +322,7 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
               </div>
             ) : (
               /* CARD PAYMENT  */
-              <div className="flex-1 flex items-center justify-center p-8">
+              <div className="flex-1 min-h-0 overflow-y-auto flex items-center justify-center p-8">
                 <div className="max-w-lg w-full text-center space-y-8">
                   <div>
                     <div className="text-xs font-semibold text-fg-subtle uppercase tracking-wider mb-3">
@@ -375,7 +378,7 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
                     variant="outline"
                     onClick={handleDeliverPayLaterClick}
                     disabled={isLoading || isProcessing}
-                    className="w-full h-12 text-base font-medium border-theme-border text-fg-muted hover:text-fg hover:bg-surface-hover"
+                    className="w-full h-14 text-base font-medium border-theme-border text-fg-muted hover:text-fg hover:bg-surface-hover"
                   >
                     {t("checkout.deliver_pay_later")}
                   </Button>

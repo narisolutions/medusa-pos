@@ -2,7 +2,7 @@ import { create } from "zustand";
 import { invoke } from "@tauri-apps/api/core";
 import { StoreConfig } from "@/types/utils";
 import storage from "@/utils/storage";
-import { resetOnBackendChange } from "@/utils/helpers";
+import { resetOnBackendChange } from "@/utils/reset";
 
 type StoredStore = { id: string; name: string; logo?: string };
 

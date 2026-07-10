@@ -161,6 +161,7 @@ const CheckoutCustomerDialog: React.FC<CheckoutCustomerDialogProps> = ({
   open,
   onClose,
 }) => {
+  const { t } = useTranslation();
   const { customerEmail, attachCustomerToDraftOrder } = useCheckout();
 
   return (
@@ -170,11 +171,11 @@ const CheckoutCustomerDialog: React.FC<CheckoutCustomerDialogProps> = ({
       initialEmail={customerEmail}
       onApply={async (customerId, email) => {
         await attachCustomerToDraftOrder(customerId, email);
-        toast.success(`Customer ${email} attached to order`);
+        toast.success(t("checkout.customer_attached_to_order", { email }));
       }}
       onRemove={async () => {
         await attachCustomerToDraftOrder(null, null);
-        toast.success("Customer removed from order");
+        toast.success(t("checkout.customer_removed_from_order"));
       }}
     />
   );

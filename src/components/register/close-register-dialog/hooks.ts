@@ -1,8 +1,8 @@
 import { useCallback, useState } from "react";
-import { useForm, Resolver } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import schemas from "@/utils/schemas";
+import { coercedZodResolver } from "@/utils/schemas/resolver";
 import { Forms } from "@/types/form";
 import { t as translate } from "@/i18n";
 import { useRegister } from "@/context/register";
@@ -59,9 +59,7 @@ export const useCloseRegister = (onDone: () => void) => {
   const [printSummary, setPrintSummary] = useState(true);
 
   const form = useForm<Forms["CloseRegister"]>({
-    resolver: zodResolver(schemas.closeRegister) as unknown as Resolver<
-      Forms["CloseRegister"]
-    >,
+    resolver: coercedZodResolver(schemas.closeRegister),
     defaultValues: { countedCash: 0, note: "", managerPin: "" },
   });
 

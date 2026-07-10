@@ -6,7 +6,7 @@ import { useCartStore } from "@/context/cart";
 import { toast } from "sonner";
 import { handleErrorToast } from "@/utils/helpers";
 import { playErrorSound, playSuccessSound } from "@/utils/sounds";
-import { queryClient } from "@/config/query";
+import { queryClient, queryKeys } from "@/config/query";
 import { AdminProduct, AdminProductVariant } from "@medusajs/types";
 import constants from "@/utils/constants";
 import { fetchProductByBarcode } from "@/hooks/queries/useQueryProductByBarcode";
@@ -46,7 +46,7 @@ const useCheckoutFilter = (props?: Props) => {
     isProcessing: false,
   });
 
-  const { addItem: addItemToCart } = useCartStore();
+  const addItemToCart = useCartStore((state) => state.addItem);
 
   // Helper function to update state partially
   const updateFilterState = useCallback((updates: Partial<FilterState>) => {
@@ -147,7 +147,7 @@ const useCheckoutFilter = (props?: Props) => {
 
         let productVariant = null;
         productVariant = await queryClient.fetchQuery({
-          queryKey: ["product-by-barcode", barcode],
+          queryKey: queryKeys.products.byBarcode(barcode),
           queryFn: () => fetchProductByBarcode(barcode),
         });
 

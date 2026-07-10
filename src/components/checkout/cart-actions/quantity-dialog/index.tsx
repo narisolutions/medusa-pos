@@ -17,13 +17,11 @@ type Props = {
 
 const QuantityModal: React.FC<Props> = ({ open, onClose }) => {
   const { t } = useTranslation();
-  const {
-    items,
-    updateItemQuantity,
-    selectedItemId,
-    itemQuantity,
-    setItemQuantity,
-  } = useCartStore();
+  const items = useCartStore((state) => state.items);
+  const updateItemQuantity = useCartStore((state) => state.updateItemQuantity);
+  const selectedItemId = useCartStore((state) => state.selectedItemId);
+  const itemQuantity = useCartStore((state) => state.itemQuantity);
+  const setItemQuantity = useCartStore((state) => state.setItemQuantity);
   const [input, setInput] = useState<string>("");
   const [showNumpad, setShowNumpad] = useState(false);
 

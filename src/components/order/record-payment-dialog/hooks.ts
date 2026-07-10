@@ -2,6 +2,7 @@ import { useState, useMemo, useCallback } from "react";
 import { AdminOrder } from "@medusajs/types";
 import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
+import { queryKeys } from "@/config/query";
 import { getSdk } from "@/config/medusa";
 import { useTranslation } from "@/i18n";
 import { useQueryStore } from "@/hooks/queries/useQueryStore";
@@ -10,12 +11,8 @@ import { getPaymentMethods } from "@/utils/settings/store/metadata";
 import { getOrderPaymentProviderId } from "@/utils/pos/payment";
 import { handleErrorToast } from "@/utils/helpers";
 
-/**
- * Drives the order-detail "Record payment" dialog: capture an outstanding
- * payment on an already-existing (typically delivered, pay-later) order.
- * Reuses the shared processPaymentCollection (markAsPaid fallback) and completes
- * the order once it is both paid and fulfilled.
- */
+// "Record payment" dialog: captures an outstanding payment on an existing (pay-later)
+// order and completes it once both paid and fulfilled.
 export const useRecordPayment = (order: AdminOrder, onClose?: () => void) => {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
@@ -47,9 +44,7 @@ export const useRecordPayment = (order: AdminOrder, onClose?: () => void) => {
       // Capture the outstanding amount with the chosen provider.
       await processPaymentCollection(order, selectedMethod);
 
-      // If the goods are already delivered, completing the order reaches the
-      // normal end state now that it is paid. Skip when the backend already
-      // auto-completed it on delivery. Non-fatal either way.
+      // Delivered + now paid → complete (skip if backend auto-completed; non-fatal).
       const isFulfilled =
         order.fulfillment_status === "fulfilled" ||
         order.fulfillment_status === "shipped" ||
@@ -62,8 +57,8 @@ export const useRecordPayment = (order: AdminOrder, onClose?: () => void) => {
         }
       }
 
-      void queryClient.invalidateQueries({ queryKey: ["order", order.id] });
-      void queryClient.invalidateQueries({ queryKey: ["orders"] });
+      void queryClient.invalidateQueries({ queryKey: queryKeys.orders.detail(order.id) });
+      void queryClient.invalidateQueries({ queryKey: queryKeys.orders.all });
 
       toast.success(t("orders.record_payment_success"));
       onClose?.();

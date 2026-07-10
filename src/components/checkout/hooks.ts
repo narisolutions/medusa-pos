@@ -268,7 +268,6 @@ const useProvideCheckout = (): CheckoutContextValue => {
       handleErrorToast(t("checkout.failed_to_prepare_checkout", { error: (error as Error).message }));
     }
   }, [
-    items,
     draftOrderId,
     isSynced,
     syncLocalChangesToDraftOrder,

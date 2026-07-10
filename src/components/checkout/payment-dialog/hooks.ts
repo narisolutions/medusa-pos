@@ -1,7 +1,9 @@
-import { useState, useCallback, useEffect, useMemo } from "react";
+import { logger, safeStringify } from "@/utils/logger";
+import { t } from "@/i18n";
+import { useState, useCallback, useEffect, useMemo, useRef } from "react";
 import { useChange } from "@/hooks/utils/useChange";
 import { toast } from "sonner";
-import { queryClient } from "@/config/query";
+import { queryClient, queryKeys } from "@/config/query";
 import { getSdk } from "@/config/medusa";
 import { playErrorSound, playSuccessSound } from "@/utils/sounds";
 import { usePrinterService } from "@/hooks/printer/usePrinterService";
@@ -42,8 +44,12 @@ const usePaymentMethodDisplay = (selectedPaymentMethod?: PaymentMethod) => {
 
 const useDraftOrderState = (draftOrderId?: string | null, isOpen?: boolean) => {
   const [draftOrder, setDraftOrder] = useState<AdminDraftOrder | null>(null);
+  // Monotonic sequence so a late-resolving fetch can't overwrite a newer result
+  // (fetchDraftOrder is also called directly, outside the effect below).
+  const fetchSeqRef = useRef(0);
 
-  const fetchDraftOrder = async () => {
+  const fetchDraftOrder = useCallback(async () => {
+    const seq = ++fetchSeqRef.current;
     if (!draftOrderId) {
       setDraftOrder(null);
       return null;
@@ -59,14 +65,14 @@ const useDraftOrderState = (draftOrderId?: string | null, isOpen?: boolean) => {
         }
       );
 
-      setDraftOrder(draft_order);
+      if (seq === fetchSeqRef.current) setDraftOrder(draft_order);
       return draft_order;
     } catch (error) {
-      console.error("Failed to fetch draft order:", error);
-      setDraftOrder(null);
+      void logger.error(`Failed to fetch draft order: ${safeStringify(error)}`);
+      if (seq === fetchSeqRef.current) setDraftOrder(null);
       return null;
     }
-  };
+  }, [draftOrderId]);
 
   const shouldLoad = !!draftOrderId && !!isOpen;
   useChange(shouldLoad, () => {
@@ -85,8 +91,7 @@ const useDraftOrderState = (draftOrderId?: string | null, isOpen?: boolean) => {
     return () => {
       cancelled = true;
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isOpen, draftOrderId]);
+  }, [isOpen, draftOrderId, fetchDraftOrder]);
 
   return { draftOrder, fetchDraftOrder };
 };
@@ -205,16 +210,17 @@ const usePaymentModal = (
   isOpen?: boolean
 ) => {
   const [isProcessing, setIsProcessing] = useState(false);
+  // Single-flight guard: a ref (not state) so a double-tap can't convert the draft twice.
+  const submissionRef = useRef(false);
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [showPayLaterConfirmation, setShowPayLaterConfirmation] =
     useState(false);
-  // Snapshot of the order total taken when processing starts. Once the order is
-  // submitted we clear draftOrderId, which nulls the draft order and would drop
-  // the displayed total to 0.00 mid-flow. We show this frozen value instead.
+  // Total snapshotted at submit — clearing draftOrderId mid-flow would show 0.00 otherwise.
   const [frozenTotal, setFrozenTotal] = useState<number | null>(null);
 
   const { printOrderReceipt, openCashDrawer, getDefaultPrinter } = usePrinterService();
-  const { clearItems, setDraftOrderId } = useCartStore();
+  const clearItems = useCartStore((state) => state.clearItems);
+  const setDraftOrderId = useCartStore((state) => state.setDraftOrderId);
   const { selectedPaymentMethod, setPaymentMethod } = useCheckout();
   const { isOpen: registerOpen, session: registerSession } = useRegister();
   // Stamp orders with the active register session so cash reconciliation can
@@ -234,10 +240,8 @@ const usePaymentModal = (
   );
   const calculations = useOrderCalculations(draftOrder);
 
-  // Cash rounding (Swedish rounding): cash tenders are rounded to the configured
-  // increment so the amount collected matches the physical drawer. Card/other
-  // tenders stay exact. The order total in Medusa is untouched — the rounded cash
-  // figure drives the change calc and is stamped to metadata for reconciliation.
+  // Swedish rounding: cash tenders round to the configured increment (card stays exact);
+  // Medusa's total is untouched — the rounded figure drives change + reconciliation metadata.
   const roundingActive =
     isCashType && getCashRounding().enabled;
   const cashTotal = roundingActive
@@ -273,7 +277,7 @@ const usePaymentModal = (
       const defaultPrinter = getDefaultPrinter();
 
       printOrderReceipt(order).catch((printError) => {
-        console.warn("Auto-print failed:", printError);
+        void logger.warn(`Auto-print failed: ${safeStringify(printError)}`);
         if (defaultPrinter) {
           toast.error("The receipt did not print", {
             description: printerIssueStaffHintToast(defaultPrinter.name),
@@ -294,7 +298,7 @@ const usePaymentModal = (
           (isCard && defaultPrinter.openCashDrawerOnCard)
         ) {
           openCashDrawer(defaultPrinter).catch((drawerError) => {
-            console.warn("Auto cash drawer failed:", drawerError);
+            void logger.warn(`Auto cash drawer failed: ${safeStringify(drawerError)}`);
             toast.error("The cash drawer did not open", {
               description: cashDrawerIssueStaffHintToast(defaultPrinter.name),
             });
@@ -315,7 +319,7 @@ const usePaymentModal = (
     ): Promise<void> => {
       clearItems();
       setDraftOrderId(null);
-      void queryClient.invalidateQueries({ queryKey: ["orders"] });
+      void queryClient.invalidateQueries({ queryKey: queryKeys.orders.all });
 
       resetCashState();
       setPaymentMethod(undefined);
@@ -340,6 +344,9 @@ const usePaymentModal = (
   // Main payment processing flow
   const handleProcessPayment =
     useCallback(async (): Promise<AdminOrder | null> => {
+      if (submissionRef.current) {
+        return null;
+      }
       if (!draftOrderId) {
         handleErrorToast("No order prepared. Please create order first.");
         playErrorSound();
@@ -356,6 +363,7 @@ const usePaymentModal = (
         return null;
       }
 
+      submissionRef.current = true;
       setFrozenTotal(calculations.total);
       setIsProcessing(true);
 
@@ -406,7 +414,9 @@ const usePaymentModal = (
         let finalOrder = order;
         try {
           await processPaymentCollection(order, selectedPaymentMethod);
-        } catch {
+        } catch (paymentError) {
+          // Surface the real backend error so capture failures are diagnosable.
+          void logger.error(`processPaymentCollection failed: ${safeStringify(paymentError)}`);
           // Re-fetch the order to check whether payment was captured on the backend
           // despite the frontend error (e.g. empty-body response).
           let paymentWasCaptured = false;
@@ -430,14 +440,22 @@ const usePaymentModal = (
           }
 
           if (!paymentWasCaptured) {
-            try {
-              await sdk.admin.order.cancel(order.id);
-            } catch {
-              throw new Error(
-                `Payment failed and order #${order.display_id} could not be cancelled. Please resolve it in the admin panel.`
-              );
-            }
-            throw new Error("Payment processing failed. Please try again.");
+            // Medusa guidance: cancelling an order is irreversible, so do NOT
+            // cancel on a failed capture. Keep it as a real unpaid/outstanding
+            // order — the operator captures payment later from the order's
+            // Record Payment flow. Clear the cart since a real order now exists
+            // (re-ringing would create a duplicate). Skip fulfillment/complete
+            // so the order stays not_fulfilled until it is paid.
+            clearItems();
+            setDraftOrderId(null);
+            resetCashState();
+            setPaymentMethod(undefined);
+            void queryClient.invalidateQueries({ queryKey: queryKeys.orders.all });
+            playErrorSound();
+            toast.warning(
+              t("checkout.order_saved_unpaid", { displayId: order.display_id })
+            );
+            return order;
           }
         }
 
@@ -469,6 +487,7 @@ const usePaymentModal = (
 
         return null;
       } finally {
+        submissionRef.current = false;
         setIsProcessing(false);
       }
     }, [
@@ -482,22 +501,28 @@ const usePaymentModal = (
       processPaymentCollection,
       processFulfillment,
       cleanupAfterOrder,
+      clearItems,
+      resetCashState,
+      setPaymentMethod,
       setDraftOrderId,
       registerSessionId,
       onClose,
     ]);
 
-  // Deliver now, pay later: create + fulfill the order but SKIP payment capture.
-  // Never cancels on failure and never completes — the uncaptured order is the
-  // "outstanding payment" signal. Inventory is still decremented via fulfillment.
+  // Pay later: fulfill but skip capture — the uncaptured order IS the "outstanding" signal,
+  // so never cancel on failure and never complete.
   const handleDeliverPayLater =
     useCallback(async (): Promise<AdminOrder | null> => {
+      if (submissionRef.current) {
+        return null;
+      }
       if (!draftOrderId) {
         handleErrorToast("No order prepared. Please create order first.");
         playErrorSound();
         return null;
       }
 
+      submissionRef.current = true;
       setFrozenTotal(calculations.total);
       setIsProcessing(true);
 
@@ -560,6 +585,7 @@ const usePaymentModal = (
 
         return null;
       } finally {
+        submissionRef.current = false;
         setIsProcessing(false);
       }
     }, [
@@ -622,8 +648,11 @@ const usePaymentModal = (
   // Handle confirmation modal confirm
   const handleConfirmPayment = useCallback(async (): Promise<void> => {
     const result = await handleProcessPayment();
+    // Always dismiss the confirmation overlay — on failure handleProcessPayment
+    // returns null and closes the parent modal via onClose, which would otherwise
+    // leave this sibling dialog orphaned on screen.
+    setShowConfirmation(false);
     if (result) {
-      setShowConfirmation(false);
       handleClose();
     }
   }, [handleProcessPayment, handleClose]);

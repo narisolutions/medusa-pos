@@ -1,8 +1,15 @@
 import { useQuery, UseQueryResult } from "@tanstack/react-query";
 import { getSdk, initializeSdk } from "@/config/medusa";
+import { queryKeys } from "@/config/query";
 import { handleErrorToast } from "@/utils/helpers";
 import { useUser } from "@/context/user";
 import { AdminOrder } from "@medusajs/types";
+
+// Dev HMR can reset the SDK singleton mid-session — retry these instead of toasting.
+const isSdkNotInitializedError = (error: unknown): boolean => {
+  const message = error instanceof Error ? error.message : String(error);
+  return message.includes("SDK not initialized");
+};
 
 const fetchOrder = async (orderId: string): Promise<AdminOrder | null> => {
   if (!orderId) {
@@ -18,12 +25,10 @@ const fetchOrder = async (orderId: string): Promise<AdminOrder | null> => {
 
     return order as AdminOrder;
   } catch (error) {
-    // Don't show toast for SDK initialization errors during HMR
-    const errorMessage = error instanceof Error ? error.message : String(error);
-    if (!errorMessage.includes("SDK not initialized")) {
+    if (!isSdkNotInitializedError(error)) {
       handleErrorToast(error);
     }
-    // Re-throw the error so React Query can handle it properly
+    // Re-throw so React Query owns the error state (and the retry policy below).
     throw error;
   }
 };
@@ -34,38 +39,34 @@ const useQueryOrder = (
   const isAuthenticated = useUser((state) => state.isAuthenticated);
 
   return useQuery<AdminOrder | null, Error>({
-    queryKey: ["order", orderId],
+    queryKey: queryKeys.orders.detail(orderId),
     queryFn: async () => {
-      // Try to initialize SDK if it's not ready (HMR issue)
+      // Recover the SDK singleton if HMR reset it (see isSdkNotInitializedError).
       try {
-        getSdk(); // Check if SDK is initialized
+        getSdk();
       } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : String(error);
-        if (errorMessage.includes("SDK not initialized")) {
-          // Try to initialize SDK
+        if (isSdkNotInitializedError(error)) {
           try {
             const { invoke } = await import("@tauri-apps/api/core");
             const config = await invoke<{ backend_url: string }>("load_config");
             await initializeSdk(config.backend_url);
           } catch {
             // If initialization fails, wait a bit and try fetching anyway
-            await new Promise(resolve => setTimeout(resolve, 1000));
+            await new Promise((resolve) => setTimeout(resolve, 1000));
           }
         }
       }
-      
+
       return await fetchOrder(orderId);
     },
     enabled: isAuthenticated && !!orderId,
     retry: (failureCount, error) => {
-      // Retry if SDK not initialized (HMR issue)
-      const errorMessage = error instanceof Error ? error.message : String(error);
-      if (errorMessage.includes("SDK not initialized")) {
-        return failureCount < 3; // Retry up to 3 times
+      if (isSdkNotInitializedError(error)) {
+        return failureCount < 3;
       }
-      return failureCount < 1; // Otherwise retry once
+      return failureCount < 1;
     },
-    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 3000), // Exponential backoff
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 3000),
   });
 };
 

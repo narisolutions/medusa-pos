@@ -1,8 +1,7 @@
 import React from "react";
 import { AdminOrder } from "@medusajs/types";
 import { Calendar } from "lucide-react";
-import { formatPrice, formatDate } from "@/utils/helpers";
-import constants from "@/utils/constants";
+import { formatPrice, formatDate, getOrderCurrency } from "@/utils/helpers";
 import { useTranslation } from "@/i18n";
 import { useQueryStore } from "@/hooks/queries/useQueryStore";
 import { getOrderPaymentMethodLabel } from "@/utils/pos/payment";
@@ -31,7 +30,7 @@ const Details: React.FC<DetailsProps> = ({
 
   const paymentMethodLabel = getOrderPaymentMethodLabel(order, store);
 
-  const currency = currency_code || constants.CHECKOUT_CONFIG.CURRENCY;
+  const currency = getOrderCurrency(order);
 
   return (
     <div className="bg-surface rounded-lg border border-theme-border overflow-hidden shadow-sm">

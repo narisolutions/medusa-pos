@@ -63,8 +63,10 @@ export const Numpad: React.FC<NumpadProps> = ({
           );
         }
         
+        // Fixed height (not aspect-square): keys stay large for touch without the
+        // numpad growing past the dialog on shorter screens.
         let btnClass =
-          "aspect-square w-full rounded-lg flex items-center justify-center text-2xl transition min-h-[60px] ";
+          "h-20 w-full rounded-lg flex items-center justify-center text-2xl transition min-h-[60px] ";
         if (btn === "Done") {
           btnClass += "font-bold bg-green-600 text-white hover:bg-green-700 active:bg-green-800";
         } else if (btn === "Cancel") {

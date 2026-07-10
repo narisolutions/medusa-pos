@@ -1,6 +1,6 @@
 import { ComponentType } from "react";
 import { ErrorBoundary } from "react-error-boundary";
-import ErrorFallback from "./error-fallback";
+import ErrorFallback from "../error-fallback";
 
 type Config = {
   component: string;

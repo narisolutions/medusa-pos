@@ -1,8 +1,8 @@
 import { useRef, useLayoutEffect } from "react";
 import { Outlet, useLocation } from "react-router-dom";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
-import AppSidebar from "./Sidebar";
-import Header from "./Header";
+import AppSidebar from "./sidebar";
+import Header from "./header";
 import StoreSetupModal from "@/components/base/store-setup-dialog";
 import SalesChannelWarningDialog from "@/components/base/sales-channel-dialog";
 import { RegisterProvider } from "@/context/register";

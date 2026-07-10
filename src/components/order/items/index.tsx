@@ -2,8 +2,7 @@ import React from "react";
 import { AdminOrder } from "@medusajs/types";
 import { Button } from "@/components/ui/button";
 import { Package } from "lucide-react";
-import { formatPrice } from "@/utils/helpers";
-import constants from "@/utils/constants";
+import { formatPrice, getOrderCurrency } from "@/utils/helpers";
 import { getOrderContactEmail } from "../hooks";
 import { useTranslation } from "@/i18n";
 
@@ -19,9 +18,9 @@ const Items: React.FC<ItemsProps> = ({
   onOpenFulfillmentDialog,
 }) => {
   const { t } = useTranslation();
-  const { items, currency_code } = order;
+  const { items } = order;
   const currency =
-    currency_code || constants.CHECKOUT_CONFIG.CURRENCY;
+    getOrderCurrency(order);
 
   const contactEmail = getOrderContactEmail(order);
   const showFulfillButton =

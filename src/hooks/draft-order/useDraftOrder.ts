@@ -1,3 +1,4 @@
+import { logger, safeStringify } from "@/utils/logger";
 import { useState, useCallback } from "react";
 import { getSdk } from "@/config/medusa";
 import { AdminDraftOrder } from "@medusajs/types";
@@ -8,15 +9,16 @@ import {
   DraftOrderMetadata,
   DraftOrderUpdatePayload,
   OrderDiscount,
-  PaymentMethod,
 } from "@/types/utils";
 import { useQueryShippingOption } from "../queries/useQueryShippingOption";
 import { isEmpty } from "@/utils/helpers";
 import { useQueryStore } from "@/hooks/queries/useQueryStore";
 import { getGuestCustomerEmail } from "@/utils/settings/store/metadata";
 
+// payment_method is deliberately absent: the provider is recorded on the payment
+// session / markAsPaid now, so it never goes to backend metadata. The cashier's
+// selection lives only in local cart metadata.
 const DEFAULT_DRAFT_ORDER_METADATA: DraftOrderMetadata = {
-  payment_method: undefined,
   order_discount: null,
   order_comment: "",
 };
@@ -25,17 +27,12 @@ const sanitizeDraftOrderMetadata = (
   metadata: Record<string, unknown> | null | undefined,
   removeEmpty: boolean = false
 ): DraftOrderMetadata => {
-  const paymentMethod = metadata?.payment_method as PaymentMethod | undefined;
   const orderDiscount = metadata?.order_discount as OrderDiscount | undefined;
   const orderComment = metadata?.order_comment;
 
   if (removeEmpty) {
     // For writing to API: only include keys with actual values, no defaults
     const sanitized: Record<string, unknown> = {};
-
-    if (paymentMethod && !isEmpty(paymentMethod)) {
-      sanitized.payment_method = paymentMethod;
-    }
 
     if (!isEmpty(orderDiscount)) {
       sanitized.order_discount = orderDiscount;
@@ -54,8 +51,6 @@ const sanitizeDraftOrderMetadata = (
 
   // For reading from API: normalize with defaults
   const normalized: Record<string, unknown> = {
-    payment_method:
-      paymentMethod || DEFAULT_DRAFT_ORDER_METADATA.payment_method,
     order_discount:
       typeof orderDiscount === "object" || orderDiscount === null
         ? (orderDiscount as OrderDiscount | null)
@@ -70,18 +65,20 @@ const sanitizeDraftOrderMetadata = (
 };
 
 const useDraftOrder = () => {
-  const [isLoading, setIsLoading] = useState(false);
+  // Op counter, not a boolean — isLoading must stay true until the LAST overlapping call ends.
+  const [pendingOps, setPendingOps] = useState(0);
+  const isLoading = pendingOps > 0;
+  const beginLoading = () => setPendingOps((count) => count + 1);
+  const endLoading = () => setPendingOps((count) => count - 1);
 
-  const {
-    items,
-    setItems,
-    draftOrderId,
-    setDraftOrderId,
-    getDraftOrderId,
-    metadata,
-    setCartMetadata,
-    markAsSynced,
-  } = useCartStore();
+  const items = useCartStore((state) => state.items);
+  const setItems = useCartStore((state) => state.setItems);
+  const draftOrderId = useCartStore((state) => state.draftOrderId);
+  const setDraftOrderId = useCartStore((state) => state.setDraftOrderId);
+  const getDraftOrderId = useCartStore((state) => state.getDraftOrderId);
+  const metadata = useCartStore((state) => state.metadata);
+  const setCartMetadata = useCartStore((state) => state.setCartMetadata);
+  const markAsSynced = useCartStore((state) => state.markAsSynced);
 
   const { data: shippingOptions } = useQueryShippingOption();
   const { data: store } = useQueryStore();
@@ -96,11 +93,9 @@ const useDraftOrder = () => {
       countryCode?: string
     ): Promise<string> => {
       const sdk = getSdk();
-      setIsLoading(true);
+      beginLoading();
 
-      // Prefer a pickup-style option; otherwise attach the first available option so the
-      // converted order has `shipping_methods` and admin fulfillments can resolve a provider.
-      // Vanilla Medusa seeds often have "Standard Shipping" but nothing named "pickup".
+      // Prefer a pickup option, else the first — the converted order needs shipping_methods.
       const shippingOptionForDraft =
         shippingOptions?.find((option) =>
           option.name.toLowerCase().includes("pickup")
@@ -164,10 +159,10 @@ const useDraftOrder = () => {
 
         return draft_order.id;
       } catch (error) {
-        console.error("Failed to create draft order:", error);
+        void logger.error(`Failed to create draft order: ${safeStringify(error)}`);
         throw new Error("Failed to create draft order");
       } finally {
-        setIsLoading(false);
+        endLoading();
       }
     },
     [setDraftOrderId, shippingOptions, metadata, guestEmail]
@@ -180,7 +175,7 @@ const useDraftOrder = () => {
       }
 
       const sdk = getSdk();
-      setIsLoading(true);
+      beginLoading();
 
       try {
         const { draft_order } =
@@ -206,18 +201,22 @@ const useDraftOrder = () => {
           metadataUpdates.customer_email = draft_order.email;
         }
 
+        // Selection is UI-local (not on the backend) — carry it through the hydration.
+        metadataUpdates.payment_method =
+          useCartStore.getState().metadata.payment_method;
+
         setCartMetadata(metadataUpdates as DraftOrderMetadata);
 
         return draft_order;
       } catch (error) {
-        console.error("Failed to retrieve draft order:", error);
+        void logger.error(`Failed to retrieve draft order: ${safeStringify(error)}`);
 
         setItems([]);
         setDraftOrderId(null);
 
         return null;
       } finally {
-        setIsLoading(false);
+        endLoading();
       }
     }, [draftOrderId, setItems, setDraftOrderId, setCartMetadata]);
 
@@ -265,17 +264,17 @@ const useDraftOrder = () => {
     const sdk = getSdk();
 
     try {
-      setIsLoading(true);
+      beginLoading();
       await sdk.admin.draftOrder.delete(draftOrderId);
 
       setDraftOrderId(null);
       setItems([]);
     } catch (error) {
-      console.error("Failed to delete draft order:", error);
+      void logger.error(`Failed to delete draft order: ${safeStringify(error)}`);
       setDraftOrderId(null);
       setItems([]);
     } finally {
-      setIsLoading(false);
+      endLoading();
     }
   }, [draftOrderId, setDraftOrderId, setItems]);
 
@@ -290,7 +289,7 @@ const useDraftOrder = () => {
       const sdk = getSdk();
 
       try {
-        setIsLoading(true);
+        beginLoading();
 
         if (!activeDraftOrderId) return;
 
@@ -307,7 +306,7 @@ const useDraftOrder = () => {
         } catch (error) {
           const errorMessage =
             error instanceof Error ? error.message : String(error);
-          console.error(`beginEditIfNeeded: ${errorMessage}`);
+          void logger.error(`beginEditIfNeeded: ${errorMessage}`);
         }
 
         const { draft_order: currDraftOrder } =
@@ -397,7 +396,7 @@ const useDraftOrder = () => {
       } catch (error) {
         throw new Error("Failed to sync changes to draft order: " + error);
       } finally {
-        setIsLoading(false);
+        endLoading();
       }
     },
     [draftOrderId, items, metadata, markAsSynced]
@@ -410,7 +409,7 @@ const useDraftOrder = () => {
       email: string | null
     ): Promise<void> => {
       const sdk = getSdk();
-      setIsLoading(true);
+      beginLoading();
 
       try {
         // Begin edit if needed
@@ -427,7 +426,7 @@ const useDraftOrder = () => {
         } catch (error) {
           const errorMessage =
             error instanceof Error ? error.message : String(error);
-          console.error(`beginEditIfNeeded: ${errorMessage}`);
+          void logger.error(`beginEditIfNeeded: ${errorMessage}`);
         }
 
         // Update draft order with customer_id and email
@@ -453,13 +452,13 @@ const useDraftOrder = () => {
         // Confirm edit
         await sdk.admin.draftOrder.confirmEdit(targetDraftOrderId);
       } catch (error) {
-        console.error("Failed to update draft order customer:", error);
+        void logger.error(`Failed to update draft order customer: ${safeStringify(error)}`);
         throw new Error(
           "Failed to update draft order customer: " +
           (error instanceof Error ? error.message : String(error))
         );
       } finally {
-        setIsLoading(false);
+        endLoading();
       }
     },
     [guestEmail]

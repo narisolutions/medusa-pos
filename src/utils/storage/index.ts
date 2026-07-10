@@ -1,3 +1,4 @@
+import { logger, safeStringify } from "@/utils/logger";
 import { Store } from "@tauri-apps/plugin-store";
 
 type NumberKeys = "last_login";
@@ -37,7 +38,7 @@ async function getItem<D>(key: Keys): Promise<D | undefined> {
     const value = await store.get<D>(key);
     return value || undefined;
   } catch (error) {
-    console.error(`Failed to get item "${key}" from storage:`, error);
+    void logger.error(`Failed to get item "${key}" from storage: ${safeStringify(error)}`);
     return undefined;
   }
 }
@@ -53,7 +54,7 @@ async function setItem<D>(key: Keys, value: D): Promise<void> {
     await store.set(key, value);
     await store.save();
   } catch (error) {
-    console.error(`Failed to set item "${key}" in storage:`, error);
+    void logger.error(`Failed to set item "${key}" in storage: ${safeStringify(error)}`);
   }
 }
 
@@ -63,7 +64,7 @@ async function removeItem(key: Keys): Promise<void> {
     await store.delete(key);
     await store.save();
   } catch (error) {
-    console.error(`Failed to remove item "${key}" from storage:`, error);
+    void logger.error(`Failed to remove item "${key}" from storage: ${safeStringify(error)}`);
   }
 }
 
@@ -71,9 +72,8 @@ async function clear(): Promise<void> {
   try {
     const store = await Store.load("pos-storage.json");
 
-    // Preserve ObjectKeys and specific StringKeys during logout
-    // Register sessions are tied to the physical terminal/drawer, not the user —
-    // preserve them so a shift survives one cashier logging out and another in.
+    // Preserve terminal-scoped keys on logout (register sessions belong to the
+    // drawer, not the user — a shift must survive a cashier switch).
     const objectKeysToPreserve: ObjectKeys[] = [
       "printers",
       "cart",
@@ -113,7 +113,7 @@ async function clear(): Promise<void> {
 
     await store.save();
   } catch (error) {
-    console.error("Failed to clear storage:", error);
+    void logger.error(`Failed to clear storage: ${safeStringify(error)}`);
   }
 }
 
@@ -149,26 +149,7 @@ async function clearOnBackendChange(): Promise<void> {
 
     await store.save();
   } catch (error) {
-    console.error("Failed to clear storage on backend change:", error);
-  }
-}
-
-async function logAllStorage(): Promise<void> {
-  try {
-    const store = await Store.load("pos-storage.json");
-    const allKeys = await store.keys();
-    const storageContents: Record<string, unknown> = {};
-
-    for (const key of allKeys) {
-      const value = await store.get(key);
-      if (value !== null && value !== undefined) {
-        storageContents[key] = value;
-      }
-    }
-
-    console.log("Storage", storageContents);
-  } catch (error) {
-    console.error("Failed to log storage contents:", error);
+    void logger.error(`Failed to clear storage on backend change: ${safeStringify(error)}`);
   }
 }
 
@@ -178,5 +159,4 @@ export default {
   removeItem,
   clear,
   clearOnBackendChange,
-  logAllStorage,
 };

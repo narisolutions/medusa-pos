@@ -6,8 +6,10 @@ import Order from "@/components/order";
 import Backdrop from "@/components/base/backdrop";
 import { Button } from "@/components/ui/button";
 import { RefreshCw, ArrowLeft } from "lucide-react";
+import { useTranslation } from "@/i18n";
 
 const OrderPage = () => {
+  const { t } = useTranslation();
   const { orderId } = useParams<Params>();
   const navigate = useNavigate();
   const { data: order, isLoading, error, refetch, isFetching } = useQueryOrder(orderId || "");
@@ -23,11 +25,11 @@ const OrderPage = () => {
     return (
       <div className="bg-surface p-10 rounded-lg space-y-6 h-full flex flex-col items-center justify-center">
         <div className="text-center max-w-md">
-          <h2 className="text-2xl font-bold text-fg mb-2">Order Not Found</h2>
+          <h2 className="text-2xl font-bold text-fg mb-2">{t("orders.order_not_found_title")}</h2>
           <p className="text-fg-muted mb-6">
-            {isSdkError 
-              ? "The system is initializing. Please try refreshing."
-              : "The order you're looking for doesn't exist or has been removed."}
+            {isSdkError
+              ? t("orders.sdk_initializing")
+              : t("orders.order_not_found_message")}
           </p>
           <div className="flex items-center justify-center gap-3">
             <Button
@@ -36,7 +38,7 @@ const OrderPage = () => {
               className="px-6"
             >
               <ArrowLeft className="w-4 h-4 mr-2" />
-              Back to Orders
+              {t("common.back_to_orders")}
             </Button>
             <Button
               variant="default"
@@ -45,7 +47,7 @@ const OrderPage = () => {
               className="px-6"
             >
               <RefreshCw className={`w-4 h-4 mr-2 ${isFetching ? "animate-spin" : ""}`} />
-              {isFetching ? "Refreshing..." : "Refresh"}
+              {isFetching ? t("common.refreshing") : t("common.refresh")}
             </Button>
           </div>
         </div>

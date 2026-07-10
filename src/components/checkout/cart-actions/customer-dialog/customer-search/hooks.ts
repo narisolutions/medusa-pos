@@ -1,4 +1,5 @@
 // hooks/useCustomerSearch.ts
+import { logger, safeStringify } from "@/utils/logger";
 import { useState, useCallback } from "react";
 import { getSdk } from "@/config/medusa";
 import { AdminCustomer } from "@medusajs/types";
@@ -32,7 +33,7 @@ export const useCustomerSearch = () => {
       const normalized = (results || []) as AdminCustomer[];
       setCustomers(normalized);
     } catch (error) {
-      console.error("Failed to search customers:", error);
+      void logger.error(`Failed to search customers: ${safeStringify(error)}`);
       handleErrorToast(
         error instanceof Error ? error.message : "Failed to search for customer"
       );

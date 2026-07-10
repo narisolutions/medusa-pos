@@ -1,7 +1,7 @@
+import { getOrderCurrency } from "@/utils/helpers";
 import { useMemo } from "react";
 import { AdminOrder, AdminPaymentCollection, AdminPayment, AdminOrderFulfillment } from "@medusajs/types";
 import { ActivityEvent } from "@/types/utils";
-import constants from "@/utils/constants";
 import { classifyFulfillment } from "@/utils/pos/fulfillment";
 import { useTranslation } from "@/i18n";
 
@@ -42,7 +42,7 @@ export const useActivityEvents = (order: AdminOrder) => {
       order.created_at,
       {
         amount: order.total,
-        currency: order.currency_code || constants.CHECKOUT_CONFIG.CURRENCY,
+        currency: getOrderCurrency(order),
       }
     );
     if (orderPlaced) activityEvents.push(orderPlaced);
@@ -59,7 +59,7 @@ export const useActivityEvents = (order: AdminOrder) => {
             {
               amount: payment.amount || collection.amount || order.total,
               currency:
-                order.currency_code || constants.CHECKOUT_CONFIG.CURRENCY,
+                getOrderCurrency(order),
             }
           );
           if (event) activityEvents.push(event);
@@ -72,7 +72,7 @@ export const useActivityEvents = (order: AdminOrder) => {
             {
               amount: payment.amount || collection.amount || order.total,
               currency:
-                order.currency_code || constants.CHECKOUT_CONFIG.CURRENCY,
+                getOrderCurrency(order),
             }
           );
           if (event) activityEvents.push(event);
@@ -92,7 +92,7 @@ export const useActivityEvents = (order: AdminOrder) => {
             {
               amount: collection.amount || order.total,
               currency:
-                order.currency_code || constants.CHECKOUT_CONFIG.CURRENCY,
+                getOrderCurrency(order),
             }
           );
           if (event) activityEvents.push(event);
@@ -118,7 +118,7 @@ export const useActivityEvents = (order: AdminOrder) => {
         order.created_at,
         {
           amount: order.total,
-          currency: order.currency_code || constants.CHECKOUT_CONFIG.CURRENCY,
+          currency: getOrderCurrency(order),
         }
       );
       if (awaitingEvent) activityEvents.push(awaitingEvent);

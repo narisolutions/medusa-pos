@@ -1,3 +1,4 @@
+import { logger, safeStringify } from "@/utils/logger";
 import { useState, useEffect, useCallback } from "react";
 import { Forms } from "@/types/form";
 import { Wifi, Usb, Bluetooth, Monitor } from "lucide-react";
@@ -36,7 +37,7 @@ const usePrinterSettings = (editingPrinter: Printer | null) => {
         setPrinters(stored);
       }
     } catch (error) {
-      console.error("Failed to load printers:", error);
+      void logger.error(`Failed to load printers: ${safeStringify(error)}`);
     } finally {
       setIsLoading(false);
     }
@@ -57,7 +58,7 @@ const usePrinterSettings = (editingPrinter: Printer | null) => {
       await storage.setItem("printers", newPrinters);
       setPrinters(newPrinters);
     } catch (error) {
-      console.error("Failed to save printers:", error);
+      void logger.error(`Failed to save printers: ${safeStringify(error)}`);
     }
   };
 
@@ -115,7 +116,7 @@ const usePrinterSettings = (editingPrinter: Printer | null) => {
       }));
     } catch (error) {
       const detail = getTauriInvokeErrorMessage(error, "Test failed");
-      console.error("Printer test failed:", { printer: printer.name, detail });
+      void logger.error(`Printer test failed: ${safeStringify({ printer: printer.name, detail })}`);
       toast.error(t("settings.printer.print_issue"), {
         description: detail || printerIssueStaffHintSettings(printer.name),
       });
@@ -151,7 +152,7 @@ const usePrinterSettings = (editingPrinter: Printer | null) => {
         error,
         "Failed to open cash drawer"
       );
-      console.error("Cash drawer test failed:", { printer: printer.name, detail });
+      void logger.error(`Cash drawer test failed: ${safeStringify({ printer: printer.name, detail })}`);
       toast.error(t("settings.printer.drawer_issue"), {
         description: detail || printerIssueStaffHintSettings(printer.name),
       });

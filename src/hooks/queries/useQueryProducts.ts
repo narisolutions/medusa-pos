@@ -1,5 +1,6 @@
 import { useQuery, UseQueryResult } from "@tanstack/react-query";
 import { getSdk } from "@/config/medusa";
+import { queryKeys } from "@/config/query";
 import { handleErrorToast } from "@/utils/helpers";
 import { useUser } from "@/context/user";
 import { AdminProduct } from "@medusajs/types";
@@ -64,7 +65,7 @@ const useQueryProducts = (
   const isAuthenticated = useUser((state) => state.isAuthenticated);
 
   return useQuery<AdminProduct[], Error>({
-    queryKey: ["products", salesChannelId],
+    queryKey: queryKeys.products.list(salesChannelId),
     queryFn: () => fetchProducts(salesChannelId!),
     enabled: isAuthenticated && !!salesChannelId,
   });

@@ -89,8 +89,3 @@ export const formatTimeOnly = (date: Date | string): string => {
   if (isInvalidInput(date)) return "Invalid Date";
   return formatTimeStr(toDate(date));
 };
-
-export const previewDateTime = (prefs: DateTimePreferences): string => {
-  const now = new Date();
-  return `${formatDateStr(now, prefs)} ${formatTimeStr(now, prefs)}`;
-};

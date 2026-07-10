@@ -1,3 +1,4 @@
+import { logger, safeStringify } from "@/utils/logger";
 import { Button } from "@/components/ui/button";
 import {
   Sidebar,
@@ -38,7 +39,7 @@ const AppSidebar = () => {
       await logout();
       navigate("/sign-in");
     } catch (error) {
-      console.error("Logout failed:", error);
+      void logger.error(`Logout failed: ${safeStringify(error)}`);
     }
   };
 

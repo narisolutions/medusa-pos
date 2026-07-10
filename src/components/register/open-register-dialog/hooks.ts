@@ -1,7 +1,7 @@
 import { useCallback, useState } from "react";
-import { useForm, Resolver } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
 import schemas from "@/utils/schemas";
+import { coercedZodResolver } from "@/utils/schemas/resolver";
 import { Forms } from "@/types/form";
 import { useRegister } from "@/context/register";
 
@@ -10,9 +10,7 @@ export const useOpenRegister = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const form = useForm<Forms["OpenRegister"]>({
-    resolver: zodResolver(schemas.openRegister) as unknown as Resolver<
-      Forms["OpenRegister"]
-    >,
+    resolver: coercedZodResolver(schemas.openRegister),
     defaultValues: { openingFloat: 0 },
   });
 
