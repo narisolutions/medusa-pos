@@ -9,15 +9,16 @@ import {
   DraftOrderMetadata,
   DraftOrderUpdatePayload,
   OrderDiscount,
-  PaymentMethod,
 } from "@/types/utils";
 import { useQueryShippingOption } from "../queries/useQueryShippingOption";
 import { isEmpty } from "@/utils/helpers";
 import { useQueryStore } from "@/hooks/queries/useQueryStore";
 import { getGuestCustomerEmail } from "@/utils/settings/store/metadata";
 
+// payment_method is deliberately absent: the provider is recorded on the payment
+// session / markAsPaid now, so it never goes to backend metadata. The cashier's
+// selection lives only in local cart metadata.
 const DEFAULT_DRAFT_ORDER_METADATA: DraftOrderMetadata = {
-  payment_method: undefined,
   order_discount: null,
   order_comment: "",
 };
@@ -26,17 +27,12 @@ const sanitizeDraftOrderMetadata = (
   metadata: Record<string, unknown> | null | undefined,
   removeEmpty: boolean = false
 ): DraftOrderMetadata => {
-  const paymentMethod = metadata?.payment_method as PaymentMethod | undefined;
   const orderDiscount = metadata?.order_discount as OrderDiscount | undefined;
   const orderComment = metadata?.order_comment;
 
   if (removeEmpty) {
     // For writing to API: only include keys with actual values, no defaults
     const sanitized: Record<string, unknown> = {};
-
-    if (paymentMethod && !isEmpty(paymentMethod)) {
-      sanitized.payment_method = paymentMethod;
-    }
 
     if (!isEmpty(orderDiscount)) {
       sanitized.order_discount = orderDiscount;
@@ -55,8 +51,6 @@ const sanitizeDraftOrderMetadata = (
 
   // For reading from API: normalize with defaults
   const normalized: Record<string, unknown> = {
-    payment_method:
-      paymentMethod || DEFAULT_DRAFT_ORDER_METADATA.payment_method,
     order_discount:
       typeof orderDiscount === "object" || orderDiscount === null
         ? (orderDiscount as OrderDiscount | null)
@@ -206,6 +200,10 @@ const useDraftOrder = () => {
         if (draft_order?.email) {
           metadataUpdates.customer_email = draft_order.email;
         }
+
+        // Selection is UI-local (not on the backend) — carry it through the hydration.
+        metadataUpdates.payment_method =
+          useCartStore.getState().metadata.payment_method;
 
         setCartMetadata(metadataUpdates as DraftOrderMetadata);
 
