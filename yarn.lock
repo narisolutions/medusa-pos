@@ -2568,10 +2568,10 @@ human-signals@^8.0.1:
   resolved "https://registry.yarnpkg.com/human-signals/-/human-signals-8.0.1.tgz#f08bb593b6d1db353933d06156cedec90abe51fb"
   integrity sha512-eKCa6bwnJhvxj14kZk5NCPc6Hb6BdsU9DZcOnmQKSnO1VKrfV0zCvtttPZUsBvjmNDn8rpcJfpwSYnHBjc95MQ==
 
-i18next@^26.3.1:
-  version "26.3.1"
-  resolved "https://registry.yarnpkg.com/i18next/-/i18next-26.3.1.tgz#94762857f5aae0c6282d87f8f0039cbbc9f7b42d"
-  integrity sha512-txQqd5EULsqEh9OJqRH15aCaOuy/nLJyhw5EHCSKLKJE1aBbb3Zve2+uQIxgWhPm1QqUQoWyQBm2kfmmIrzkcQ==
+i18next@^26.3.4:
+  version "26.3.4"
+  resolved "https://registry.yarnpkg.com/i18next/-/i18next-26.3.4.tgz#a2e8540b0a1a6004eba525c05faa89c256fb57c8"
+  integrity sha512-pa7m0d7pBDqGHZxljT+WPFeyFgQ7P7SciPPo1tTqYuO0z4sqADYhwnBESmmGp/wEof1inwdls/k8ZgTg8rxFHA==
 
 iconv-lite@0.6.3:
   version "0.6.3"
