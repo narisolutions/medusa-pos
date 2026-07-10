@@ -1,3 +1,4 @@
+import { logger, safeStringify } from "@/utils/logger";
 import storage from "@/utils/storage";
 
 export enum ScanSoundType {
@@ -23,7 +24,7 @@ const initializeAudioContext = async (): Promise<void> => {
       await audioContext.resume();
     }
   } catch (error) {
-    console.warn("AudioContext initialization failed:", error);
+    void logger.warn(`AudioContext initialization failed: ${safeStringify(error)}`);
     isEnabled = false;
   }
 };
@@ -34,7 +35,7 @@ const loadSettings = async (): Promise<void> => {
     const savedEnabled = await storage.getItem("sound_enabled");
     isEnabled = savedEnabled ?? true;
   } catch (error) {
-    console.warn("Failed to load sound settings:", error);
+    void logger.warn(`Failed to load sound settings: ${safeStringify(error)}`);
   }
 };
 
@@ -85,7 +86,7 @@ export const playSuccessSound = async (): Promise<void> => {
       playBeep(1000, 0.1, 0.1); // Second beep: 1000Hz, 100ms
     }, 120);
   } catch (error) {
-    console.warn("Failed to play success sound:", error);
+    void logger.warn(`Failed to play success sound: ${safeStringify(error)}`);
   }
 };
 
@@ -99,7 +100,7 @@ export const playErrorSound = async (): Promise<void> => {
     // Create error sound: lower frequency buzz
     await playBeep(400, 0.3, 0.15); // Low buzz: 400Hz, 300ms
   } catch (error) {
-    console.warn("Failed to play error sound:", error);
+    void logger.warn(`Failed to play error sound: ${safeStringify(error)}`);
   }
 };
 

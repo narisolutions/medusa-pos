@@ -1,5 +1,12 @@
 import { z } from "zod";
 
+/** Backend URL with the trailing slash stripped — one definition for all three config forms. */
+const urlSchema = (message: string) =>
+  z
+    .string()
+    .url({ message })
+    .transform((url) => (url.endsWith("/") ? url.slice(0, -1) : url));
+
 export default {
   login: z.object({
     email: z.string().email({ message: "Invalid email address" }),
@@ -9,12 +16,7 @@ export default {
   }),
 
   configSchema: z.object({
-    backend_url: z
-      .string()
-      .url({ message: "Please enter a valid URL" })
-      .transform((url) => {
-        return url.endsWith("/") ? url.slice(0, -1) : url;
-      }),
+    backend_url: urlSchema("Please enter a valid URL"),
   }),
 
   customerSchema: z.object({
@@ -45,12 +47,7 @@ export default {
   }),
 
   apiSettings: z.object({
-    backend_url: z
-      .string()
-      .url({ message: "Please enter a valid API URL" })
-      .transform((url) => {
-        return url.endsWith("/") ? url.slice(0, -1) : url;
-      })
+    backend_url: urlSchema("Please enter a valid API URL")
       .optional()
       .or(z.literal("")),
     sales_channel: z.string().min(1, { message: "Sales channel is required" }),
@@ -58,10 +55,7 @@ export default {
   }),
 
   storeConfig: z.object({
-    backendUrl: z
-      .string()
-      .url({ message: "Please enter a valid URL" })
-      .transform((url) => (url.endsWith("/") ? url.slice(0, -1) : url)),
+    backendUrl: urlSchema("Please enter a valid URL"),
   }),
 
   dateTimeSettings: z.object({

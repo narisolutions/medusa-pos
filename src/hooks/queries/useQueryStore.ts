@@ -7,10 +7,9 @@ import {
 } from "@tanstack/react-query";
 import { AdminStore } from "@medusajs/types";
 import { getSdk } from "@/config/medusa";
+import { queryKeys } from "@/config/query";
 import { handleErrorToast } from "@/utils/helpers";
 import { useUser } from "@/context/user";
-
-export const STORE_QUERY_KEY = ["store"] as const;
 
 const fetchStore = async (): Promise<AdminStore | null> => {
   try {
@@ -27,7 +26,7 @@ const useQueryStore = (): UseQueryResult<AdminStore | null, Error> => {
   const isAuthenticated = useUser((state) => state.isAuthenticated);
 
   return useQuery<AdminStore | null, Error>({
-    queryKey: STORE_QUERY_KEY,
+    queryKey: queryKeys.store,
     queryFn: fetchStore,
     enabled: isAuthenticated,
     staleTime: 30 * 1000,
@@ -49,12 +48,11 @@ const useUpdateStore = (): UseMutationResult<
   return useMutation({
     mutationFn: async ({ storeId, payload }) => {
       const sdk = getSdk();
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const { store } = await sdk.admin.store.update(storeId, payload as any);
+      const { store } = await sdk.admin.store.update(storeId, payload);
       return store as AdminStore;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: STORE_QUERY_KEY });
+      queryClient.invalidateQueries({ queryKey: queryKeys.store });
     },
     onError: (error) => handleErrorToast(error),
   });

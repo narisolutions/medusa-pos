@@ -1,5 +1,5 @@
 import { ReceiptData } from "@/types/utils";
-import { jsPDF } from "jspdf";
+import { toNumber } from "@/utils/pos/pricing";
 import { formatDateOnly, formatTimeOnly, formatCurrencyRaw } from "@/utils/settings/preferences";
 import { sanitizePrinterString, type PrinterEncoding } from "./printer-encoding";
 
@@ -130,31 +130,6 @@ const buildReceipt = (
 
   // Add items with quantity
   data.items.forEach((item) => {
-    const toNumber = (val: unknown): number => {
-      if (val === null || val === undefined) return 0;
-      if (typeof val === "number") return val;
-      if (typeof val === "string") return parseFloat(val) || 0;
-
-      // Handle BigNumber-like objects
-      if (val && typeof val === "object") {
-        // Type guard for objects with toNumber method
-        if (
-          "toNumber" in val &&
-          typeof (val as Record<string, unknown>).toNumber === "function"
-        ) {
-          return (val as Record<string, () => number>).toNumber();
-        }
-        // Type guard for objects with valueOf method
-        if (
-          "valueOf" in val &&
-          typeof (val as Record<string, unknown>).valueOf === "function"
-        ) {
-          return Number((val as Record<string, () => unknown>).valueOf()) || 0;
-        }
-      }
-      return Number(val) || 0;
-    };
-
     const itemTotal =
       item.total !== undefined
         ? toNumber(item.total)
@@ -181,14 +156,6 @@ const buildReceipt = (
   });
 
   receipt += `\n${thinSeparator}`;
-
-  // Helper to convert discount to number
-  const toNumber = (val: unknown): number => {
-    if (val === null || val === undefined) return 0;
-    if (typeof val === "number") return val;
-    if (typeof val === "string") return parseFloat(val) || 0;
-    return Number(val) || 0;
-  };
 
   const discountAmount = toNumber(data.discount);
   const hasDiscount = discountAmount > 0;
@@ -231,7 +198,9 @@ const buildReceipt = (
   return receipt;
 };
 
-const buildReceiptPDF = (data: ReceiptData, paperWidth: PaperWidth = "80mm", labels: ReceiptLabels = DEFAULT_RECEIPT_LABELS): Uint8Array => {
+const buildReceiptPDF = async (data: ReceiptData, paperWidth: PaperWidth = "80mm", labels: ReceiptLabels = DEFAULT_RECEIPT_LABELS): Promise<Uint8Array> => {
+  // jsPDF is heavy — load it only when a PDF is actually exported.
+  const { jsPDF } = await import("jspdf");
   const { pdfPageWidth, pdfMargin, maxItemTitleLen } = PAPER_CONFIG[paperWidth];
   const doc = new jsPDF({
     orientation: "portrait",
@@ -287,22 +256,6 @@ const buildReceiptPDF = (data: ReceiptData, paperWidth: PaperWidth = "80mm", lab
   // Helper to add spacing
   const addSpacing = (spacing: number) => {
     yPosition += spacing;
-  };
-
-  // Helper function to convert values to numbers
-  const toNumber = (val: unknown): number => {
-    if (val === null || val === undefined) return 0;
-    if (typeof val === "number") return val;
-    if (typeof val === "string") return parseFloat(val) || 0;
-    if (val && typeof val === "object") {
-      if ("toNumber" in val && typeof (val as Record<string, unknown>).toNumber === "function") {
-        return (val as Record<string, () => number>).toNumber();
-      }
-      if ("valueOf" in val && typeof (val as Record<string, unknown>).valueOf === "function") {
-        return Number((val as Record<string, () => unknown>).valueOf()) || 0;
-      }
-    }
-    return Number(val) || 0;
   };
 
   // Header Section

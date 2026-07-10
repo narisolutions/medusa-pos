@@ -1,7 +1,8 @@
+import { logger, safeStringify } from "@/utils/logger";
 import { useState, useCallback, useEffect, useMemo, useRef } from "react";
 import { useChange } from "@/hooks/utils/useChange";
 import { toast } from "sonner";
-import { queryClient } from "@/config/query";
+import { queryClient, queryKeys } from "@/config/query";
 import { getSdk } from "@/config/medusa";
 import { playErrorSound, playSuccessSound } from "@/utils/sounds";
 import { usePrinterService } from "@/hooks/printer/usePrinterService";
@@ -66,7 +67,7 @@ const useDraftOrderState = (draftOrderId?: string | null, isOpen?: boolean) => {
       if (seq === fetchSeqRef.current) setDraftOrder(draft_order);
       return draft_order;
     } catch (error) {
-      console.error("Failed to fetch draft order:", error);
+      void logger.error(`Failed to fetch draft order: ${safeStringify(error)}`);
       if (seq === fetchSeqRef.current) setDraftOrder(null);
       return null;
     }
@@ -208,19 +209,17 @@ const usePaymentModal = (
   isOpen?: boolean
 ) => {
   const [isProcessing, setIsProcessing] = useState(false);
-  // Single-flight guard for order submission. A ref (not state) so a double-tap
-  // that lands before the isProcessing re-render still can't convert the draft twice.
+  // Single-flight guard: a ref (not state) so a double-tap can't convert the draft twice.
   const submissionRef = useRef(false);
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [showPayLaterConfirmation, setShowPayLaterConfirmation] =
     useState(false);
-  // Snapshot of the order total taken when processing starts. Once the order is
-  // submitted we clear draftOrderId, which nulls the draft order and would drop
-  // the displayed total to 0.00 mid-flow. We show this frozen value instead.
+  // Total snapshotted at submit — clearing draftOrderId mid-flow would show 0.00 otherwise.
   const [frozenTotal, setFrozenTotal] = useState<number | null>(null);
 
   const { printOrderReceipt, openCashDrawer, getDefaultPrinter } = usePrinterService();
-  const { clearItems, setDraftOrderId } = useCartStore();
+  const clearItems = useCartStore((state) => state.clearItems);
+  const setDraftOrderId = useCartStore((state) => state.setDraftOrderId);
   const { selectedPaymentMethod, setPaymentMethod } = useCheckout();
   const { isOpen: registerOpen, session: registerSession } = useRegister();
   // Stamp orders with the active register session so cash reconciliation can
@@ -240,10 +239,8 @@ const usePaymentModal = (
   );
   const calculations = useOrderCalculations(draftOrder);
 
-  // Cash rounding (Swedish rounding): cash tenders are rounded to the configured
-  // increment so the amount collected matches the physical drawer. Card/other
-  // tenders stay exact. The order total in Medusa is untouched — the rounded cash
-  // figure drives the change calc and is stamped to metadata for reconciliation.
+  // Swedish rounding: cash tenders round to the configured increment (card stays exact);
+  // Medusa's total is untouched — the rounded figure drives change + reconciliation metadata.
   const roundingActive =
     isCashType && getCashRounding().enabled;
   const cashTotal = roundingActive
@@ -279,7 +276,7 @@ const usePaymentModal = (
       const defaultPrinter = getDefaultPrinter();
 
       printOrderReceipt(order).catch((printError) => {
-        console.warn("Auto-print failed:", printError);
+        void logger.warn(`Auto-print failed: ${safeStringify(printError)}`);
         if (defaultPrinter) {
           toast.error("The receipt did not print", {
             description: printerIssueStaffHintToast(defaultPrinter.name),
@@ -300,7 +297,7 @@ const usePaymentModal = (
           (isCard && defaultPrinter.openCashDrawerOnCard)
         ) {
           openCashDrawer(defaultPrinter).catch((drawerError) => {
-            console.warn("Auto cash drawer failed:", drawerError);
+            void logger.warn(`Auto cash drawer failed: ${safeStringify(drawerError)}`);
             toast.error("The cash drawer did not open", {
               description: cashDrawerIssueStaffHintToast(defaultPrinter.name),
             });
@@ -321,7 +318,7 @@ const usePaymentModal = (
     ): Promise<void> => {
       clearItems();
       setDraftOrderId(null);
-      void queryClient.invalidateQueries({ queryKey: ["orders"] });
+      void queryClient.invalidateQueries({ queryKey: queryKeys.orders.all });
 
       resetCashState();
       setPaymentMethod(undefined);
@@ -498,9 +495,8 @@ const usePaymentModal = (
       onClose,
     ]);
 
-  // Deliver now, pay later: create + fulfill the order but SKIP payment capture.
-  // Never cancels on failure and never completes — the uncaptured order is the
-  // "outstanding payment" signal. Inventory is still decremented via fulfillment.
+  // Pay later: fulfill but skip capture — the uncaptured order IS the "outstanding" signal,
+  // so never cancel on failure and never complete.
   const handleDeliverPayLater =
     useCallback(async (): Promise<AdminOrder | null> => {
       if (submissionRef.current) {

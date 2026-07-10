@@ -1,11 +1,10 @@
+import { logger, safeStringify } from "@/utils/logger";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { useTranslation } from "@/i18n";
 import { AdminOrder } from "@medusajs/types";
 import { toast } from "sonner";
 import {
-  triggerFileDownload,
-  openDownloadsFolder,
   handleErrorToast,
   formatOrderStatusText,
   getOrderStatusColor,
@@ -13,8 +12,10 @@ import {
   getOrderPaymentStatusColor,
   printerIssueStaffHintToast,
 } from "@/utils/helpers";
+import { triggerFileDownload, openDownloadsFolder } from "@/utils/downloads";
 import { getSdkBaseUrl, getSdk, getAuthToken } from "@/config/medusa";
 import { useQueryClient } from "@tanstack/react-query";
+import { queryKeys } from "@/config/query";
 import { usePrinterService } from "@/hooks/printer/usePrinterService";
 import { classifyFulfillment, classifyOrderShippingMethod } from "@/utils/pos/fulfillment";
 
@@ -69,8 +70,8 @@ export const useOrder = (order: AdminOrder) => {
 
   // Helper to invalidate order queries
   const invalidateOrderQueries = () => {
-    queryClient.invalidateQueries({ queryKey: ["order", order.id] });
-    queryClient.invalidateQueries({ queryKey: ["orders"] });
+    queryClient.invalidateQueries({ queryKey: queryKeys.orders.detail(order.id) });
+    queryClient.invalidateQueries({ queryKey: queryKeys.orders.all });
   };
 
   const handleBackToOrders = () => {
@@ -132,13 +133,11 @@ export const useOrder = (order: AdminOrder) => {
         if (token) {
           authHeaders["Authorization"] = `Bearer ${token}`;
         } else {
-          console.warn(
-            "No auth token found in store or localStorage, relying on cookies"
-          );
+          void logger.warn("No auth token found in store or localStorage, relying on cookies");
         }
       } catch (error) {
         // If we can't access token storage, continue without token and rely on cookies
-        console.warn("Could not access auth token storage:", error);
+        void logger.warn(`Could not access auth token storage: ${safeStringify(error)}`);
       }
 
       const fetchHeaders: HeadersInit = {

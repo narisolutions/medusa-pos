@@ -13,7 +13,10 @@ type Props = {
 };
 
 const CommentModal: React.FC<Props> = ({ open, onClose }) => {
-  const { selectedItemId, setItemMetadata, pendingItemComment, setPendingItemComment } = useCartStore();
+  const selectedItemId = useCartStore((state) => state.selectedItemId);
+  const setItemMetadata = useCartStore((state) => state.setItemMetadata);
+  const pendingItemComment = useCartStore((state) => state.pendingItemComment);
+  const setPendingItemComment = useCartStore((state) => state.setPendingItemComment);
   const { items, orderComment, setOrderComment } = useCheckout();
   const { t } = useTranslation();
   const [scope, setScope] = useState<"order" | "item">("order");
@@ -51,9 +54,19 @@ const CommentModal: React.FC<Props> = ({ open, onClose }) => {
         <DialogTitle className="text-2xl font-semibold">{t("checkout.comment_dialog_title")}</DialogTitle>
         <div className="space-y-6">
           <Tabs value={scope} onValueChange={handleScopeChange}>
-            <TabsList>
-              <TabsTrigger value="order">{t("checkout.comment_scope_order")}</TabsTrigger>
-              <TabsTrigger value="item">{t("checkout.comment_scope_item")}</TabsTrigger>
+            <TabsList className="grid h-auto w-full grid-cols-2 gap-1 rounded-lg p-1">
+              <TabsTrigger
+                value="order"
+                className="h-12 rounded-md text-base data-[state=active]:bg-primary data-[state=active]:text-white"
+              >
+                {t("checkout.comment_scope_order")}
+              </TabsTrigger>
+              <TabsTrigger
+                value="item"
+                className="h-12 rounded-md text-base data-[state=active]:bg-primary data-[state=active]:text-white"
+              >
+                {t("checkout.comment_scope_item")}
+              </TabsTrigger>
             </TabsList>
           </Tabs>
 

@@ -1,3 +1,4 @@
+import { logger, safeStringify } from "@/utils/logger";
 import { StateCreator } from "zustand";
 import storage from "@/utils/storage";
 import { CartItem, DraftOrderMetadata } from "@/types/utils";
@@ -27,7 +28,7 @@ export const createCartStorageSlice: StateCreator<
     const { draftOrderId, items, metadata, isSynced } = get();
     storage
       .setItem("cart", { draftOrderId, items, metadata, isSynced })
-      .catch(console.error);
+      .catch((error) => void logger.error(`Failed to save cart to storage: ${safeStringify(error)}`));
   };
 
   const loadFromStorage = async () => {
@@ -62,7 +63,7 @@ export const createCartStorageSlice: StateCreator<
         });
       }
     } catch (error) {
-      console.error("Failed to load cart from storage:", error);
+      void logger.error(`Failed to load cart from storage: ${safeStringify(error)}`);
     }
   };
 

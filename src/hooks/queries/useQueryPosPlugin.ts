@@ -1,16 +1,14 @@
 import { useQuery, UseQueryResult } from "@tanstack/react-query";
+import { queryKeys } from "@/config/query";
 import { useUser } from "@/context/user";
 import { isPosPluginInstalled } from "@/utils/pos/plugin";
 
-/**
- * Reactive wrapper around {@link isPosPluginInstalled} for UI that needs to know
- * whether the Medusa POS plugin (`/pos/*` routes) is available on the backend.
- */
+/** Reactive wrapper around isPosPluginInstalled (backend `/pos/*` availability). */
 const useQueryPosPlugin = (): UseQueryResult<boolean, Error> => {
   const isAuthenticated = useUser((state) => state.isAuthenticated);
 
   return useQuery<boolean, Error>({
-    queryKey: ["pos-plugin-installed"],
+    queryKey: queryKeys.posPlugin,
     queryFn: isPosPluginInstalled,
     enabled: isAuthenticated,
     staleTime: Infinity,

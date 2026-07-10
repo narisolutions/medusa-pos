@@ -20,7 +20,7 @@ import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useCloseRegister } from "./hooks";
-import { formatPrice } from "@/utils/settings/preferences";
+import { formatPrice } from "@/utils/helpers";
 import { useTranslation } from "@/i18n";
 
 type Props = {

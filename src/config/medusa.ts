@@ -1,13 +1,12 @@
+import { logger, safeStringify } from "@/utils/logger";
 import { invoke } from "@tauri-apps/api/core";
 import constants from "@/utils/constants";
 import type Medusa from "@medusajs/js-sdk";
 
 const AUTH_TOKEN_KEY = "medusa_auth_token";
 
-// In-memory cache for the auth token. Without this, every outgoing request pays a
-// dynamic import() + Store.load(".auth.dat") + IPC just to read the JWT. The token is
-// a static login JWT (no silent refresh), so caching is safe as long as it is updated
-// when a new token is stored (see login-response handler) and cleared on logout / SDK reset.
+// In-memory token cache — spares every request a Store.load + IPC round-trip.
+// Safe: the JWT is static per login; updated on token store, cleared on logout/reset.
 let cachedAuthToken: string | null = null;
 
 export const setAuthTokenCache = (token: string | null): void => {
@@ -71,7 +70,7 @@ const createSdk = async (baseUrl?: string) => {
       const config = await invoke<{ backend_url: string }>("load_config");
       url = config.backend_url;
     } catch (error) {
-      console.error("Failed to load config:", error);
+      void logger.error(`Failed to load config: ${safeStringify(error)}`);
       
       if (constants.PROD) {
         throw new Error(
@@ -250,12 +249,12 @@ const createSdk = async (baseUrl?: string) => {
                       // Keep the in-memory cache in sync with the freshly issued token.
                       setAuthTokenCache(token);
                     } catch (error) {
-                      console.error("Failed to store auth token:", error);
+                      void logger.error(`Failed to store auth token: ${safeStringify(error)}`);
                       // If Tauri store fails, still try localStorage
                       try {
                         localStorage.setItem("medusa_auth_token", token);
                       } catch (localError) {
-                        console.error("Failed to store auth token in localStorage:", localError);
+                        void logger.error(`Failed to store auth token in localStorage: ${safeStringify(localError)}`);
                       }
                     }
                   }
@@ -270,14 +269,14 @@ const createSdk = async (baseUrl?: string) => {
         })();
       }) as typeof sdkInstance.client.fetch;
     } catch (fetchError) {
-      console.warn("Failed to patch SDK fetch with Tauri HTTP, using browser fetch:", fetchError);
+      void logger.warn(`Failed to patch SDK fetch with Tauri HTTP, using browser fetch: ${safeStringify(fetchError)}`);
     }
     
     sdkBaseUrl = url;
 
     return sdkInstance;
   } catch (error) {
-    console.error("Error creating Medusa SDK instance:", error);
+    void logger.error(`Error creating Medusa SDK instance: ${safeStringify(error)}`);
     throw new Error(`Failed to create Medusa SDK: ${error}`);
   }
 };
@@ -296,9 +295,22 @@ export const getSdkBaseUrl = () => {
   return sdkBaseUrl;
 };
 
-/**
- * Resets the SDK instance - used when backend URL changes
- */
+/** Copies a localStorage-held token into the Tauri store (post-login migration). */
+export const syncAuthTokenToStore = async (): Promise<void> => {
+  try {
+    const token = localStorage.getItem(AUTH_TOKEN_KEY);
+    if (token) {
+      const { Store } = await import("@tauri-apps/plugin-store");
+      const store = await Store.load(".auth.dat");
+      await store.set(AUTH_TOKEN_KEY, token);
+      await store.save();
+    }
+  } catch (error) {
+    void logger.warn(`Failed to sync auth token to Tauri store: ${safeStringify(error)}`);
+  }
+};
+
+/** Resets the SDK instance — used when the backend URL changes. */
 export const resetSdk = () => {
   sdkInstance = null;
   sdkBaseUrl = null;

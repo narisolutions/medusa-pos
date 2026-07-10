@@ -1,10 +1,7 @@
+import { logger, safeStringify } from "@/utils/logger";
 import { toast } from "sonner";
 import { formatDateTime, formatPrice } from "@/utils/settings/preferences";
 import constants from "@/utils/constants";
-import { queryClient } from "@/config/query";
-import { useCartStore } from "@/context/cart";
-import { useUser } from "@/context/user";
-import storage from "@/utils/storage";
 
 const getRoutes = () => {
   return {
@@ -16,9 +13,7 @@ const getRoutes = () => {
   };
 };
 
-/**
- * Tauri `invoke` rejections are not always `Error` instances; normalize for UI and logging.
- */
+/** Tauri `invoke` rejections are not always `Error` instances; normalize for UI and logging. */
 const getTauriInvokeErrorMessage = (error: unknown, fallback: string): string => {
   if (typeof error === "string" && error.trim().length > 0) {
     return error;
@@ -35,16 +30,12 @@ const getTauriInvokeErrorMessage = (error: unknown, fallback: string): string =>
       return record.error;
     }
   }
-  console.error("Tauri invoke error (unparsed):", error);
+  void logger.error(`Tauri invoke error (unparsed): ${safeStringify(error)}`);
   return fallback;
 };
 
-/**
- * The patched Medusa SDK fetch (see `src/config/medusa.ts`) throws an `Error`
- * whose `message` is only the status line (e.g. "HTTP 400: Bad Request") and
- * attaches the parsed response body on `error.body`. Medusa surfaces the useful
- * explanation in `body.message`, so prefer that when present.
- */
+// The patched SDK fetch puts the status line in error.message and the parsed body
+// on error.body — Medusa's useful explanation lives in body.message, prefer it.
 const getApiErrorMessage = (error: unknown, fallback: string): string => {
   if (error && typeof error === "object" && "body" in error) {
     const { body } = error as { body?: unknown };
@@ -144,110 +135,6 @@ const formatTimeAgo = (date: Date | string): string => {
   }
 };
 
-const generateRandomFilename = () => {
-  const now = new Date();
-  const timestamp = now.toISOString().replace(/[-:T]/g, "").slice(0, 15); // YYYYMMDDHHMMSS
-
-  const random = Math.floor(Math.random() * 100000)
-    .toString()
-    .padStart(5, "0");
-
-  return `${timestamp}-${random}`;
-};
-
-const triggerFileDownload = async (
-  res: Response
-): Promise<{ filename: string; fullPath: string }> => {
-  const fs = await import("@tauri-apps/plugin-fs");
-
-  const blob = await res.blob();
-  const arrayBuffer = await blob.arrayBuffer();
-
-  const disposition = res.headers.get("Content-Disposition");
-  let filename = generateRandomFilename();
-
-  if (disposition && disposition.includes("filename=")) {
-    const match = disposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
-    if (match && match[1]) {
-      filename = match[1].replace(/['"]/g, "");
-    }
-  }
-
-  await fs.writeFile(filename, new Uint8Array(arrayBuffer), {
-    baseDir: fs.BaseDirectory.Download,
-  });
-
-  // Return filename - fullPath will be resolved in openDownloadsFolder
-  const fullPath = filename;
-
-  return { filename, fullPath };
-};
-
-const openDownloadsFolder = async (
-  downloadedFilename?: string
-): Promise<void> => {
-  try {
-    const { revealItemInDir } = await import("@tauri-apps/plugin-opener");
-    const fs = await import("@tauri-apps/plugin-fs");
-
-    // Get a file in Downloads to use for revealing the folder
-    let fileToUse = downloadedFilename;
-
-    if (!fileToUse) {
-      const files = await fs.readDir(".", {
-        baseDir: fs.BaseDirectory.Download,
-      });
-      if (files.length > 0 && files[0].name) {
-        fileToUse = files[0].name;
-      }
-    }
-
-    if (!fileToUse) {
-      throw new Error("No files found in Downloads folder");
-    }
-
-    // Try to get the full path of the file
-    // For Tauri v2, we need to construct the full path to the Downloads folder
-    // and then append the filename
-    try {
-      // Try using the file directly - revealItemInDir might handle base directories
-      await revealItemInDir(fileToUse);
-    } catch {
-      // If that fails, try to construct the full path
-      // Get the Downloads directory path using platform-specific methods
-      const { homeDir } = await import("@tauri-apps/api/path");
-      const home = await homeDir();
-
-      // Construct the full path to the file
-      const isWindows = navigator.platform.toLowerCase().includes("win");
-      const separator = isWindows ? "\\" : "/";
-      const downloadsDir = isWindows ? `${home}Downloads` : `${home}/Downloads`;
-      const fullPath = `${downloadsDir}${separator}${fileToUse}`;
-
-      await revealItemInDir(fullPath);
-    }
-  } catch (error) {
-    console.error("Failed to open Downloads folder:", error);
-    handleErrorToast("Failed to open Downloads folder");
-  }
-};
-
-const AUTH_TOKEN_KEY = "medusa_auth_token";
-
-const syncAuthTokenToStore = async (): Promise<void> => {
-  try {
-    const token = localStorage.getItem(AUTH_TOKEN_KEY);
-    if (token) {
-      const { Store } = await import("@tauri-apps/plugin-store");
-      const store = await Store.load(".auth.dat");
-      await store.set(AUTH_TOKEN_KEY, token);
-      await store.save();
-    }
-  } catch (error) {
-    console.warn("Failed to sync auth token to Tauri store:", error);
-  }
-};
-
 const isEmpty = (value: unknown): boolean => {
   return (
     value === undefined ||
@@ -290,6 +177,10 @@ const getOrderPaymentStatusColor = (status: string): string => {
   );
 };
 
+/** Order currency with the store default as fallback. */
+const getOrderCurrency = (order: { currency_code?: string | null }): string =>
+  order.currency_code || constants.CHECKOUT_CONFIG.CURRENCY;
+
 const isOrderGuestCustomer = (
   email?: string | null,
   guestEmail?: string | null
@@ -297,35 +188,6 @@ const isOrderGuestCustomer = (
   if (!email) return true;
   if (!guestEmail) return false;
   return guestEmail === email;
-};
-
-/**
- * Comprehensive reset function when backend URL changes
- * Clears all cached data, state, and storage to prevent cross-environment issues
- */
-const resetOnBackendChange = async (): Promise<void> => {
-  const { resetSdk } = await import("@/config/medusa");
-  resetSdk();
-
-  queryClient.clear();
-
-  document.documentElement.style.removeProperty("--color-primary");
-  document.documentElement.style.removeProperty("--color-secondary");
-  document.documentElement.style.removeProperty("--font-scale");
-  document.title = "POS";
-
-  useCartStore.getState().clearItems();
-  useCartStore.getState().setDraftOrderId(null);
-
-  await storage.clearOnBackendChange();
-
-  await storage.removeItem("cart").catch(() => {});
-
-  useUser.getState().update(null);
-
-  const { useSalesChannel } = await import("@/context/sales-channel");
-  useSalesChannel.getState().setSalesChannelId(undefined);
-  useSalesChannel.getState().setNeedsWarning(true);
 };
 
 const checkBackendHealth = async (
@@ -388,19 +250,16 @@ export {
   formatDate,
   formatTimeAgo,
   formatPrice,
-  triggerFileDownload,
-  openDownloadsFolder,
   isEmpty,
   formatOrderStatusText,
   getOrderStatusColorFromMapping,
   getOrderStatusColor,
   getOrderFulfillmentStatusColor,
   getOrderPaymentStatusColor,
+  getOrderCurrency,
   isOrderGuestCustomer,
-  resetOnBackendChange,
   checkBackendHealth,
   printerIssueStaffHintToast,
   cashDrawerIssueStaffHintToast,
   printerIssueStaffHintSettings,
-  syncAuthTokenToStore,
 };

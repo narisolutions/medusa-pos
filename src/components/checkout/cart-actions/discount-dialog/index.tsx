@@ -13,7 +13,10 @@ type Props = {
 };
 
 const DiscountModal: React.FC<Props> = ({ open, onClose }) => {
-  const { selectedItemId, setItemMetadata, pendingItemDiscount, setPendingItemDiscount } = useCartStore();
+  const selectedItemId = useCartStore((state) => state.selectedItemId);
+  const setItemMetadata = useCartStore((state) => state.setItemMetadata);
+  const pendingItemDiscount = useCartStore((state) => state.pendingItemDiscount);
+  const setPendingItemDiscount = useCartStore((state) => state.setPendingItemDiscount);
   const { items } = useCheckout();
   const { t } = useTranslation();
 

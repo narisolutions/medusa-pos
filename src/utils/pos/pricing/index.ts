@@ -1,17 +1,27 @@
 import { OrderDiscount } from "@/types/utils";
 
-/**
- * Single home for the POS discount rules. Cart slices, the payment dialog,
- * receipts and item dialogs must all derive prices through these functions —
- * a drift between two hand-rolled copies of this math is a till-doesn't-balance
- * bug, so do not re-implement it at call sites.
- *
- * Conventions encoded here:
- * - "percent" discounts are a percentage of the base price; "amount" discounts
- *   are an absolute value in the order currency.
- * - A discount never exceeds the base it applies to (clamped), and a
- *   discounted price is never negative.
- */
+// Single home for POS discount math — never re-implement at call sites (drift here is a
+// till-doesn't-balance bug). Discounts clamp to their base; prices never go negative.
+
+/** Coerces Medusa numeric values (number | string | BigNumber-like) to a finite number. */
+const toNumber = (val: unknown): number => {
+  if (val === null || val === undefined) return 0;
+  if (typeof val === "number") return Number.isFinite(val) ? val : 0;
+  if (typeof val === "string") {
+    const parsed = parseFloat(val);
+    return Number.isFinite(parsed) ? parsed : 0;
+  }
+  if (typeof val === "object") {
+    const record = val as Record<string, unknown>;
+    if (typeof record.toNumber === "function") {
+      return toNumber((record.toNumber as () => unknown)());
+    }
+    const primitive = (record as { valueOf(): unknown }).valueOf();
+    if (primitive !== val) return toNumber(primitive);
+  }
+  const coerced = Number(val);
+  return Number.isFinite(coerced) ? coerced : 0;
+};
 
 /** Per-unit discount amount for a manual item discount, clamped to the base unit price. */
 const discountPerUnit = (
@@ -34,10 +44,7 @@ const applyDiscountToUnitPrice = (
   return Math.max(0, baseUnitPrice - discountPerUnit(discount, baseUnitPrice));
 };
 
-/**
- * Order-level discount amount against the current total (post item discounts).
- * "amount" discounts clamp to the total; "percent" is taken of the total.
- */
+/** Order-level discount amount against the current total (post item discounts). */
 const orderDiscountAmount = (
   discount: OrderDiscount | undefined,
   currentTotal: number
@@ -48,4 +55,4 @@ const orderDiscountAmount = (
     : Math.min(discount.value, currentTotal);
 };
 
-export { discountPerUnit, applyDiscountToUnitPrice, orderDiscountAmount };
+export { toNumber, discountPerUnit, applyDiscountToUnitPrice, orderDiscountAmount };

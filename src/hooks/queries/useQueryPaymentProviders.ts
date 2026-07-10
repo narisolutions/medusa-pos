@@ -1,25 +1,35 @@
 import { useQuery, UseQueryResult } from "@tanstack/react-query";
 import { AdminPaymentProvider } from "@medusajs/types";
 import { getSdk } from "@/config/medusa";
+import { queryKeys, STALE_TIME } from "@/config/query";
+import { handleErrorToast } from "@/utils/helpers";
 import { useUser } from "@/context/user";
 
-const useQueryPaymentProviders = (): UseQueryResult<AdminPaymentProvider[], Error> => {
+const fetchPaymentProviders = async (): Promise<AdminPaymentProvider[]> => {
+  try {
+    const sdk = getSdk();
+    const { payment_providers } = await sdk.admin.payment.listPaymentProviders({
+      limit: 100,
+    });
+    return payment_providers as AdminPaymentProvider[];
+  } catch (error) {
+    handleErrorToast(error);
+    return [];
+  }
+};
+
+const useQueryPaymentProviders = (): UseQueryResult<
+  AdminPaymentProvider[],
+  Error
+> => {
   const isAuthenticated = useUser((state) => state.isAuthenticated);
 
   return useQuery<AdminPaymentProvider[], Error>({
-    queryKey: ["payment-providers"],
-    queryFn: async () => {
-      const sdk = getSdk();
-      const { payment_providers } = await sdk.admin.payment.listPaymentProviders({
-        limit: 100,
-      });
-      return payment_providers as AdminPaymentProvider[];
-    },
+    queryKey: queryKeys.paymentProviders,
+    queryFn: fetchPaymentProviders,
     enabled: isAuthenticated,
-    staleTime: 5 * 60 * 1000,
-    retry: false,
-    throwOnError: false,
+    staleTime: STALE_TIME.static,
   });
 };
 
-export { useQueryPaymentProviders };
+export { useQueryPaymentProviders, fetchPaymentProviders };

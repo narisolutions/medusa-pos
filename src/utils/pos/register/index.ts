@@ -1,3 +1,4 @@
+import { toNumber } from "@/utils/pos/pricing";
 import { AdminOrder, AdminStore } from "@medusajs/types";
 import { getMethodType } from "@/utils/settings/store/metadata";
 import { getOrderPaymentMethodType } from "@/utils/pos/payment";
@@ -8,11 +9,6 @@ import type { RegisterSession } from "@/types/register";
  * Medusa-aware seam is `orderCashContribution`, which reads payment collections.
  * See src/docs/cash-reconciliation/09-portability.md.
  */
-
-function toNum(v: unknown): number {
-  const n = typeof v === "string" ? parseFloat(v) : Number(v);
-  return Number.isFinite(n) ? n : 0;
-}
 
 /**
  * Stable business-day key ("YYYY-MM-DD") for a timestamp, shifted by `cutoffHour`
@@ -81,9 +77,9 @@ export function orderCashContribution(
     for (const payment of collection.payments ?? []) {
       if (getMethodType(store, payment.provider_id) === "cash") {
         cashPaymentSeen = true;
-        cashPayments += toNum(payment.amount);
+        cashPayments += toNumber(payment.amount);
         const refunds = (payment as { refunds?: { amount?: unknown }[] }).refunds ?? [];
-        for (const refund of refunds) cashRefunds += toNum(refund.amount);
+        for (const refund of refunds) cashRefunds += toNumber(refund.amount);
       }
     }
   }
@@ -96,8 +92,8 @@ export function orderCashContribution(
   if (cashPaymentSeen) return cashPayments - cashRefunds;
 
   if (getOrderPaymentMethodType(order, store) === "cash") {
-    const refunded = toNum((order as { refunded_total?: unknown }).refunded_total);
-    return toNum(order.total) - refunded;
+    const refunded = toNumber((order as { refunded_total?: unknown }).refunded_total);
+    return toNumber(order.total) - refunded;
   }
 
   return 0;

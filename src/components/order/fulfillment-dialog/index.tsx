@@ -4,9 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { AdminOrder } from "@medusajs/types";
 import { useFulfillmentDialog } from "./hooks";
-import constants from "@/utils/constants";
 import { Package, Plus, Minus, MapPin, Truck } from "lucide-react";
-import { formatPrice } from "@/utils/helpers";
+import { formatPrice, getOrderCurrency } from "@/utils/helpers";
 import { useTranslation } from "@/i18n";
 
 interface FulfillmentDialogProps {
@@ -35,7 +34,7 @@ const FulfillmentDialog: React.FC<FulfillmentDialogProps> = ({
 
   const { t } = useTranslation();
   const currency =
-    order.currency_code || constants.CHECKOUT_CONFIG.CURRENCY;
+    getOrderCurrency(order);
 
   return (
     <Dialog open={isOpen} onOpenChange={handleDialogChange}>

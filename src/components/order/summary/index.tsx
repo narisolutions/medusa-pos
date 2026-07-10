@@ -1,9 +1,8 @@
 import React from "react";
 import { AdminOrder } from "@medusajs/types";
 import { Receipt } from "lucide-react";
-import { formatPrice } from "@/utils/helpers";
+import { formatPrice, getOrderCurrency } from "@/utils/helpers";
 import { discountPerUnit, orderDiscountAmount } from "@/utils/pos/pricing";
-import constants from "@/utils/constants";
 import { useTranslation } from "@/i18n";
 
 interface SummaryProps {
@@ -18,7 +17,6 @@ const Summary: React.FC<SummaryProps> = ({ order }) => {
     shipping_total,
     tax_total,
     total,
-    currency_code,
     items,
     metadata,
   } = order;
@@ -43,8 +41,7 @@ const Summary: React.FC<SummaryProps> = ({ order }) => {
 
   const displayed_discount = (discount_total ?? 0) + itemDiscountsTotal + orderLevelDiscount;
 
-  const currency =
-    currency_code || constants.CHECKOUT_CONFIG.CURRENCY;
+  const currency = getOrderCurrency(order);
 
   return (
     <div className="bg-surface rounded-lg border border-theme-border overflow-hidden shadow-sm">

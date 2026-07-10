@@ -1,3 +1,4 @@
+import { logger, safeStringify } from "@/utils/logger";
 import { useState, useEffect, useCallback } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -131,7 +132,7 @@ const useStoreSettings = ({ form }: Props): UseStoreSettingsReturn => {
             });
           }
         } catch (err) {
-          console.warn("Failed to save logo for printer:", err);
+          void logger.warn(`Failed to save logo for printer: ${safeStringify(err)}`);
         }
       } else {
         try {

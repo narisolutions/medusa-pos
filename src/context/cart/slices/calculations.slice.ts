@@ -47,12 +47,7 @@ export const createCartCalculationsSlice: StateCreator<
     }, 0);
   },
 
-  /**
-   * Calculate total discount amount from all sources:
-   * 1. Backend discounts (original_price vs unit_price)
-   * 2. Manual item-level discounts (from discount dialog)
-   * 3. Manual order-level discount (from discount dialog, applied after item discounts)
-   */
+  /** Total discount from all sources: backend, manual item-level, manual order-level. */
   getDiscountAmount: () => {
     const breakdown = get().getDiscountBreakdown();
     return breakdown.total;
