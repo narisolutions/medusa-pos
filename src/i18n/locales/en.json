@@ -568,6 +568,11 @@
       "pick_logo_dialog_title": "Select Store Logo",
       "pick_logo_filter_name": "Image",
       "logo_too_large": "Logo image must be smaller than 256 KB"
+    },
+    "plugins": {
+      "title": "Plugins",
+      "description": "Connected POS plugins. Each plugin manages its own connection and preferences here.",
+      "empty": "No plugins installed."
     }
   },
   "errors": {

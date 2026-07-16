@@ -568,6 +568,11 @@
       "pick_logo_dialog_title": "Wybierz logo sklepu",
       "pick_logo_filter_name": "Obraz",
       "logo_too_large": "Obraz logo musi być mniejszy niż 256 KB"
+    },
+    "plugins": {
+      "title": "Wtyczki",
+      "description": "Podłączone wtyczki POS. Każda wtyczka zarządza tutaj własnym połączeniem i preferencjami.",
+      "empty": "Brak zainstalowanych wtyczek."
     }
   },
   "errors": {

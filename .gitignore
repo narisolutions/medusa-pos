@@ -29,3 +29,9 @@ dist-ssr
 
 CLAUDE.md
 .claude/
+
+# Plugin mounts (see src/plugins/index.ts): everything here is machine-local
+# except the registry seam itself — never commit mounted plugins
+src/plugins/*
+!src/plugins/index.ts
+!src/plugins/providers.tsx

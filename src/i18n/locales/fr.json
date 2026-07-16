@@ -568,6 +568,11 @@
       "pick_logo_dialog_title": "Sélectionner le logo du magasin",
       "pick_logo_filter_name": "Image",
       "logo_too_large": "L’image du logo doit faire moins de 256 Ko"
+    },
+    "plugins": {
+      "title": "Plugins",
+      "description": "Plugins POS connectés. Chaque plugin gère ici sa connexion et ses préférences.",
+      "empty": "Aucun plugin installé."
     }
   },
   "errors": {

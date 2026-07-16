@@ -2,7 +2,33 @@ import { defineConfig } from "vite";
 import tailwindcss from '@tailwindcss/vite';
 import react from "@vitejs/plugin-react";
 import path from "path";
+import fs from "fs";
 import { execSync } from "child_process";
+
+/**
+ * src/plugins/ entries may be symlinks to out-of-repo plugin checkouts (see
+ * src/plugins/index.ts); Vite's dev-server fs guard needs their REAL paths.
+ */
+function pluginRealPaths(): string[] {
+  const roots = [
+    path.resolve(__dirname, "src/plugins"),
+    // linked (yarn link) workspace deps plugins build against
+    path.resolve(__dirname, "node_modules/@narisolutions"),
+  ];
+  const real: string[] = [];
+  for (const root of roots) {
+    if (!fs.existsSync(root)) continue;
+    for (const entry of fs.readdirSync(root)) {
+      try {
+        const resolved = fs.realpathSync(path.join(root, entry));
+        if (!resolved.startsWith(__dirname)) real.push(resolved);
+      } catch {
+        /* dangling symlink — ignore */
+      }
+    }
+  }
+  return real;
+}
 
 const host = process.env.TAURI_DEV_HOST;
 
@@ -45,6 +71,23 @@ export default defineConfig(() => ({
     alias: {
       "@": path.resolve(__dirname, "./src"),
     },
+    // Symlinked plugin sources (src/plugins/*) and linked packages resolve bare
+    // imports from their REAL location — force host-app copies for everything
+    // that must be a singleton here (React tree, query/router/i18n contexts,
+    // Tauri plugin bindings, form state).
+    dedupe: [
+      "react",
+      "react-dom",
+      "react-router-dom",
+      "@tanstack/react-query",
+      "i18next",
+      "react-i18next",
+      "lucide-react",
+      "react-hook-form",
+      "@hookform/resolvers",
+      "@tauri-apps/plugin-http",
+      "@tauri-apps/plugin-store",
+    ],
   },
   define: {
     'import.meta.env.VITE_APP_VERSION': JSON.stringify(getGitVersion()),
@@ -57,6 +100,9 @@ export default defineConfig(() => ({
     hmr: host ? { protocol: "ws", host, port: 1421 } : undefined,
     watch: {
       ignored: ["**/src-tauri/**"],
+    },
+    fs: {
+      allow: [".", ...pluginRealPaths()],
     },
   },
 }));

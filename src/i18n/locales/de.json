@@ -568,6 +568,11 @@
       "pick_logo_dialog_title": "Filiallogo auswählen",
       "pick_logo_filter_name": "Bild",
       "logo_too_large": "Das Logo-Bild muss kleiner als 256 KB sein"
+    },
+    "plugins": {
+      "title": "Plugins",
+      "description": "Verbundene POS-Plugins. Jedes Plugin verwaltet hier seine eigene Verbindung und Einstellungen.",
+      "empty": "Keine Plugins installiert."
     }
   },
   "errors": {

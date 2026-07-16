@@ -164,6 +164,9 @@ export const useConnectionSettings = ({ form }: Props) => {
           resetPosPluginCache();
           queryClient.invalidateQueries({ queryKey: queryKeys.posPlugin });
           queryClient.invalidateQueries({ queryKey: queryKeys.products.all });
+          // Registered plugins may hold backend-scoped caches too
+          const { plugins } = await import("@/plugins");
+          for (const plugin of plugins) plugin.resetBackendCaches?.(queryClient);
         }
 
         // Update initial values after successful save

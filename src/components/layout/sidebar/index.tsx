@@ -14,6 +14,7 @@ import { ChevronLeft, LogOut, Settings } from "lucide-react";
 import Payments from "@/assets/icons/payments";
 import Checkout from "@/assets/icons/checkout";
 import { useUnfulfilledOrdersCount } from "@/hooks/queries/useUnfulfilledOrdersCount";
+import { plugins } from "@/plugins";
 import { useTranslation } from "@/i18n";
 import RegisterMenuItem from "@/components/register/register-menu-item";
 
@@ -81,7 +82,7 @@ const AppSidebar = () => {
                         </span>
                       )}
                     </div>
-                    <span className="block w-full text-sm font-medium leading-tight text-center truncate">
+                    <span className="block w-full text-sm font-medium leading-tight text-center whitespace-normal break-words">
                       {item.label}
                     </span>
                   </>
@@ -89,6 +90,9 @@ const AppSidebar = () => {
               </NavLink>
             </SidebarMenuItem>
           ))}
+          {plugins.map(
+            (plugin) => plugin.NavItem && <plugin.NavItem key={plugin.id} />,
+          )}
         </SidebarMenu>
 
         <SidebarMenu className="px-2 pb-6 mt-auto">

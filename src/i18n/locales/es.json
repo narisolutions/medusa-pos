@@ -568,6 +568,11 @@
       "pick_logo_dialog_title": "Seleccionar logotipo de la tienda",
       "pick_logo_filter_name": "Imagen",
       "logo_too_large": "La imagen del logotipo debe ser menor de 256 KB"
+    },
+    "plugins": {
+      "title": "Plugins",
+      "description": "Plugins de POS conectados. Cada plugin gestiona aquí su conexión y preferencias.",
+      "empty": "No hay plugins instalados."
     }
   },
   "errors": {

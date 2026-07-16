@@ -568,6 +568,11 @@
       "pick_logo_dialog_title": "Välj butikslogotyp",
       "pick_logo_filter_name": "Bild",
       "logo_too_large": "Logotypbilden måste vara mindre än 256 KB"
+    },
+    "plugins": {
+      "title": "Plugin",
+      "description": "Anslutna POS-plugin. Varje plugin hanterar sin egen anslutning och sina inställningar här.",
+      "empty": "Inga plugin installerade."
     }
   },
   "errors": {

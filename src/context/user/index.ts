@@ -33,6 +33,8 @@ function createUserStore() {
       resetPosPluginCache();
       const { queryClient, queryKeys } = await import("@/config/query");
       queryClient.removeQueries({ queryKey: queryKeys.posPlugin });
+      const { plugins } = await import("@/plugins");
+      for (const plugin of plugins) plugin.resetSessionCaches?.(queryClient);
 
       set({ admin, isAuthenticated: true });
       await storage.setItem("last_login", Date.now());
@@ -55,6 +57,8 @@ function createUserStore() {
       const { resetPosPluginCache } = await import("@/utils/pos/plugin");
       resetPosPluginCache();
       const { queryClient } = await import("@/config/query");
+      const { plugins } = await import("@/plugins");
+      for (const plugin of plugins) plugin.resetSessionCaches?.(queryClient);
       queryClient.clear();
       // Drop the cached JWT so the next login doesn't reuse the previous session's token.
       const { clearAuthTokenCache } = await import("@/config/medusa");
