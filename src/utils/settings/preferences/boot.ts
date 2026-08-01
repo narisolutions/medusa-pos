@@ -29,11 +29,8 @@ export const applyBootPreferences = async () => {
 
     applyStoredTheme(prefs?.appearance?.themeMode);
 
-    const { i18next, resolveLocale } = await import("@/i18n");
-    const locale = resolveLocale(prefs?.language ?? "system");
-    if (i18next.language !== locale) {
-      await i18next.changeLanguage(locale);
-    }
+    const { setLocale } = await import("@/i18n");
+    await setLocale(prefs?.language ?? "system");
   } catch {
     // No preference saved yet — keep native defaults
   }

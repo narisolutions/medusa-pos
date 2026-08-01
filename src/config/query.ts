@@ -41,7 +41,10 @@ export const queryKeys = {
     list: (options?: UseQueryOrdersOptions) =>
       ["orders", "list", options ?? {}] as const,
     detail: (orderId: string) => ["order", orderId] as const,
-    recent: ["orders", "recent"] as const,
+    // Keyed by payload shape so the light badge scan and the cash-detail scan
+    // never overwrite each other in the cache.
+    recent: (withCashDetail: boolean) =>
+      ["orders", "recent", withCashDetail ? "cash" : "badge"] as const,
   },
   inventoryKitItems: (
     inventoryItemIds?: string[],

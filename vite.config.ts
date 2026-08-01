@@ -35,12 +35,8 @@ const host = process.env.TAURI_DEV_HOST;
 function getGitVersion(): string {
   // CI sets APP_VERSION to the release version
   if (process.env.APP_VERSION) return process.env.APP_VERSION;
-  try {
-    execSync('git fetch --tags --quiet', { encoding: 'utf-8', stdio: 'ignore' });
-  } catch {
-    void 0;
-  }
-  
+  // Local tags only — fetching here blocked every dev start on the network.
+
   try {
     const tags = execSync('git tag -l "v*.*.*"', { encoding: 'utf-8' }).trim();
     if (!tags) return 'dev';
@@ -91,6 +87,25 @@ export default defineConfig(() => ({
   },
   define: {
     'import.meta.env.VITE_APP_VERSION': JSON.stringify(getGitVersion()),
+  },
+  build: {
+    // Tauri ships its own WebView — no need to downlevel for legacy browsers.
+    target: "esnext",
+    chunkSizeWarningLimit: 700,
+    rollupOptions: {
+      output: {
+        // Vendor code changes far less often than app code; splitting it keeps
+        // the big dependency chunks cached across releases.
+        manualChunks(id: string) {
+          if (!id.includes("node_modules")) return;
+          if (/[\\/](react|react-dom|react-router|react-router-dom)[\\/]/.test(id))
+            return "vendor-react";
+          if (id.includes("@tanstack")) return "vendor-query";
+          if (id.includes("@medusajs")) return "vendor-medusa";
+          if (/(react-hook-form|@hookform|zod)/.test(id)) return "vendor-forms";
+        },
+      },
+    },
   },
   clearScreen: false,
   server: {

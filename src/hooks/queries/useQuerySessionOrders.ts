@@ -24,6 +24,7 @@ const useQuerySessionOrders = (
   return useQueryRecentOrders({
     enabled: !!session && session.status === "open",
     select: selectSessionWindow,
+    withCashDetail: true,
   });
 };
 
