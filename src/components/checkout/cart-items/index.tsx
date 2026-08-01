@@ -141,7 +141,7 @@ const CartItems: React.FC = () => {
                           <Button
                             variant="outline"
                             size="sm"
-                            className="w-8 h-8 p-0"
+                            className="w-12 h-12 p-0"
                             onClick={() =>
                               handleQuantityChange(variant_id!, -1)
                             }
@@ -160,7 +160,7 @@ const CartItems: React.FC = () => {
                           <Button
                             variant="outline"
                             size="sm"
-                            className="w-8 h-8 p-0"
+                            className="w-12 h-12 p-0"
                             title={
                               isOutOfStock
                                 ? "Out of stock"

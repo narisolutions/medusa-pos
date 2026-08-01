@@ -6,6 +6,10 @@
   /* Neutral fallback when store theme is not configured */
   --color-primary: oklch(55% 0.02 0);
   --color-secondary: oklch(35% 0.02 0);
+  /* Text on primary-bg surfaces (buttons): always white — brand primaries are
+     dark enough in both themes; without this the token was undefined and
+     text-primary-foreground inherited the body color (black in light mode) */
+  --color-primary-foreground: #ffffff;
 
   /* Fonts */
   --font-sans: "Firago", sans-serif;
@@ -92,6 +96,7 @@
   /* Brand colors — overridden at runtime from store settings via API */
   --color-primary: oklch(55% 0.02 0);
   --color-secondary: oklch(35% 0.02 0);
+  --color-primary-foreground: #ffffff;
 
   /* Base font size (px) from store settings; used by html for rem scaling */
   --font-scale: 16;
