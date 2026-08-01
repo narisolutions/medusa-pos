@@ -93,7 +93,7 @@
     "tailwindcss": "^4.3.3",
     "typescript": "~6.0.3",
     "typescript-eslint": "^8.61.1",
-    "vite": "^8.0.16",
+    "vite": "^8.1.5",
     "vitest": "^4.1.10"
   },
   "resolutions": {
