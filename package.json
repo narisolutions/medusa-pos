@@ -1,6 +1,6 @@
 {
   "name": "medusa-pos",
-  "version": "0.0.14",
+  "version": "0.3.1",
   "private": false,
   "author": "Nari Solutions",
   "license": "Apache-2.0",
@@ -34,7 +34,9 @@
     "test:env:up": "docker compose -f integration-tests/docker-compose.yml --env-file integration-tests/.env up --build -d --wait",
     "test:env:down": "docker compose -f integration-tests/docker-compose.yml down",
     "test:env:reset": "docker compose -f integration-tests/docker-compose.yml down -v",
-    "test:env:logs": "docker compose -f integration-tests/docker-compose.yml logs -f medusa"
+    "test:env:logs": "docker compose -f integration-tests/docker-compose.yml logs -f medusa",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.4.0",
@@ -84,16 +86,17 @@
     "@types/react": "^18.3.1",
     "@types/react-dom": "^18.3.1",
     "@vitejs/plugin-react": "^6.0.2",
-    "dotenv-cli": "^11.0.0",
     "eslint": "^10.5.0",
     "eslint-plugin-react-hooks": "^7.1.1",
     "eslint-plugin-react-refresh": "^0.5.3",
     "globals": "^17.6.0",
-    "prettier": "^3.8.4",
-    "shadcn": "^4.11.0",
     "tailwindcss": "^4.3.1",
     "typescript": "~6.0.3",
     "typescript-eslint": "^8.61.1",
-    "vite": "^8.0.16"
+    "vite": "^8.0.16",
+    "vitest": "^4.1.10"
+  },
+  "resolutions": {
+    "vitest/vite": "8.0.16"
   }
 }

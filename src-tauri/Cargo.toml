@@ -1,6 +1,6 @@
 [package]
 name = "medusa-pos"
-version = "0.1.0"
+version = "0.3.1"
 description = "Point of Sale application for MedusaJS"
 authors = ["Nari Solutions"]
 edition = "2021"
