@@ -9,7 +9,8 @@ import { useRegister } from "@/context/register";
 import { useExpectedCash } from "@/hooks/register/useExpectedCash";
 import { useQueryRegion } from "@/hooks/queries/useQueryRegion";
 import { usePrinterService } from "@/hooks/printer/usePrinterService";
-import { movementTotals, verifyPin } from "@/utils/pos/register";
+import { movementTotals } from "@/utils/pos/register";
+import { verifyManagerPin } from "@/utils/settings/preferences/pin";
 import type { RegisterSession } from "@/types/register";
 
 function buildSummary(
@@ -84,7 +85,7 @@ export const useCloseRegister = (onDone: () => void) => {
       }
       if (pinRequired) {
         const ok = data.managerPin
-          ? await verifyPin(data.managerPin, managerPinHash as string)
+          ? await verifyManagerPin(data.managerPin, managerPinHash as string)
           : false;
         if (!ok) {
           form.setError("managerPin", {

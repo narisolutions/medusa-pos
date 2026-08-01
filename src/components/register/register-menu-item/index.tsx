@@ -12,7 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { SidebarMenuItem } from "@/components/ui/sidebar";
 import { useRegister } from "@/context/register";
-import { verifyPin } from "@/utils/pos/register";
+import { verifyManagerPin } from "@/utils/settings/preferences/pin";
 import { useTranslation } from "@/i18n";
 import CashMovementDialog from "../cash-movement-dialog";
 import CloseRegisterDialog from "../close-register-dialog";
@@ -45,7 +45,7 @@ const RegisterMenuItem: React.FC = () => {
     try {
       if (reopenPinRequired) {
         const ok = reopenPin
-          ? await verifyPin(reopenPin, managerPinHash as string)
+          ? await verifyManagerPin(reopenPin, managerPinHash as string)
           : false;
         if (!ok) {
           setReopenError(true);

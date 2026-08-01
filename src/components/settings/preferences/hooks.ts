@@ -14,8 +14,9 @@ import {
 } from "@/utils/settings/preferences";
 import { useTheme } from "@/context/theme";
 import type { ThemeMode, LanguageMode } from "@/types/preferences";
-import { i18next, resolveLocale } from "@/i18n";
-import { hashPin, verifyPin } from "@/utils/pos/register";
+import { setLocale } from "@/i18n";
+import { hashPin } from "@/utils/pos/register";
+import { verifyManagerPin } from "@/utils/settings/preferences/pin";
 import { REGISTER_CONFIG_CHANGED_EVENT } from "@/context/register";
 
 const isTauri = "__TAURI_INTERNALS__" in window;
@@ -107,7 +108,7 @@ export const usePreferencesSettings = () => {
   const unlockRegister = useCallback(
     async (rawPin: string): Promise<boolean> => {
       if (!managerPinHash) return false;
-      const ok = await verifyPin(rawPin, managerPinHash);
+      const ok = await verifyManagerPin(rawPin, managerPinHash);
       if (ok) setUnlocked(true);
       return ok;
     },
@@ -125,7 +126,7 @@ export const usePreferencesSettings = () => {
   const handleLanguageChange = useCallback(
     (mode: LanguageMode) => {
       form.setValue("language", mode, { shouldDirty: true });
-      i18next.changeLanguage(resolveLocale(mode));
+      void setLocale(mode);
     },
     [form],
   );
@@ -160,7 +161,7 @@ export const usePreferencesSettings = () => {
         initDateTimePrefs(dateTime);
         initCurrencyPrefs(currency);
         setThemeMode(data.themeMode);
-        i18next.changeLanguage(resolveLocale(language));
+        await setLocale(language);
         // Let the live RegisterProvider pick up the new config immediately.
         window.dispatchEvent(new Event(REGISTER_CONFIG_CHANGED_EVENT));
 
