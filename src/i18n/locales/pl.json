@@ -607,7 +607,14 @@
     "saved_to_downloads": "Zapisano w folderze Pobrane",
     "open_folder_button": "Otwórz folder",
     "save_pdf_error_title": "Nie można zapisać paragonu PDF",
-    "save_pdf_error_message": "Sprawdź, czy urządzenie ma wolne miejsce i czy zapis do Pobranych jest dozwolony. Jeśli problem będzie się powtarzał, skontaktuj się z pomocą techniczną."
+    "save_pdf_error_message": "Sprawdź, czy urządzenie ma wolne miejsce i czy zapis do Pobranych jest dozwolony. Jeśli problem będzie się powtarzał, skontaktuj się z pomocą techniczną.",
+    "hint_check_connected": "Sprawdź, czy drukarka \"{{printer}}\" jest włączona i podłączona.",
+    "hint_restart": "Jeśli nadal nie odpowiada, uruchom drukarkę ponownie.",
+    "hint_review_default": "Domyślną drukarkę możesz sprawdzić lub zmienić w Ustawienia → Drukarki.",
+    "hint_verify_connection": "Otwórz Edytuj przy tej drukarce, aby sprawdzić typ połączenia i adres. W systemie Windows opcja Lokalna (drukarka systemowa) często działa, gdy bezpośrednie USB nie działa.",
+    "hint_drawer_test": "Otwórz Ustawienia → Drukarki i dotknij Test szuflady dla \"{{printer}}\".",
+    "hint_drawer_check_cable": "Jeśli test nie otwiera szuflady, sprawdź, czy drukarka jest włączona i podłączona oraz czy kabel szuflady jest wpięty do drukarki.",
+    "hint_drawer_restart": "Jeśli nadal się nie udaje, uruchom drukarkę ponownie lub otwórz Edytuj, aby sprawdzić typ połączenia i adres (w systemie Windows Lokalna / drukarka systemowa często działa, gdy bezpośrednie USB nie działa)."
   },
   "update": {
     "available_title": "Dostępna aktualizacja v{{version}}",

@@ -607,7 +607,14 @@
     "saved_to_downloads": "შენახულია ჩამოტვირთვების საქაღალდეში",
     "open_folder_button": "საქაღალდის გახსნა",
     "save_pdf_error_title": "ქვითრის PDF ვერ შეინახა",
-    "save_pdf_error_message": "REVIEW: Check that your device has free storage space and that saving to Downloads is allowed. If this keeps happening, contact support."
+    "save_pdf_error_message": "REVIEW: Check that your device has free storage space and that saving to Downloads is allowed. If this keeps happening, contact support.",
+    "hint_check_connected": "დარწმუნდით, რომ \"{{printer}}\" ჩართულია და დაკავშირებულია.",
+    "hint_restart": "თუ პრინტერი კვლავ არ პასუხობს, გადატვირთეთ იგი.",
+    "hint_review_default": "ნაგულისხმევი პრინტერის ნახვა ან შეცვლა შეგიძლიათ განყოფილებაში პარამეტრები → პრინტერები.",
+    "hint_verify_connection": "გახსენით ამ პრინტერის რედაქტირება კავშირის ტიპისა და მისამართის შესამოწმებლად. Windows-ზე ხშირად მუშაობს ლოკალური (სისტემური პრინტერი), როცა პირდაპირი USB არა.",
+    "hint_drawer_test": "გახსენით პარამეტრები → პრინტერები და შეეხეთ „უჯრის ტესტს“ პრინტერისთვის \"{{printer}}\".",
+    "hint_drawer_check_cable": "თუ ტესტი უჯრას არ ხსნის, შეამოწმეთ, რომ პრინტერი ჩართულია, დაკავშირებულია და უჯრის კაბელი ჩართულია პრინტერში.",
+    "hint_drawer_restart": "თუ კვლავ ვერ ხერხდება, გადატვირთეთ პრინტერი ან გახსენით მისი რედაქტირება კავშირის ტიპისა და მისამართის შესამოწმებლად (Windows-ზე ლოკალური / სისტემური პრინტერი ხშირად მუშაობს, როცა პირდაპირი USB არა)."
   },
   "update": {
     "available_title": "განახლება v{{version}} ხელმისაწვდომია",

@@ -2,6 +2,7 @@ import { logger, safeStringify } from "@/utils/logger";
 import { toast } from "sonner";
 import { formatDateTime, formatPrice } from "@/utils/settings/preferences";
 import constants from "@/utils/constants";
+import { t } from "@/i18n";
 
 const getRoutes = () => {
   return {
@@ -96,7 +97,7 @@ const handleErrorToast = (
   } else if (typeof error === "string") {
     toast.error(error);
   } else {
-    toast.error("An unknown error occurred.");
+    toast.error(t("errors.something_went_wrong_toast"));
   }
 };
 
@@ -217,27 +218,27 @@ const checkBackendHealth = async (
 /** Plain-language hints for staff; technical errors belong in console logs only. */
 const printerIssueStaffHintToast = (printerName: string): string => {
   return [
-    `Check that "${printerName}" is turned on and connected.`,
-    "Restart the printer if it still does not respond.",
-    "You can review or change the default printer under Settings → Printers.",
+    t("printer_service.hint_check_connected", { printer: printerName }),
+    t("printer_service.hint_restart"),
+    t("printer_service.hint_review_default"),
   ].join(" ");
 }
 
 /** Same connection guidance as print errors, plus Test drawer in Settings → Printers. */
 const cashDrawerIssueStaffHintToast = (printerName: string): string => {
   return [
-    `Open Settings → Printers and tap Test drawer for "${printerName}".`,
-    "If the test does not open the drawer, check that the printer is on, connected, and that the drawer cable is plugged into the printer.",
-    "Restart the printer if it still fails, or open Edit on that printer to verify the connection type and address (on Windows, Local / system printer often works when direct USB does not).",
+    t("printer_service.hint_drawer_test", { printer: printerName }),
+    t("printer_service.hint_drawer_check_cable"),
+    t("printer_service.hint_drawer_restart"),
   ].join(" ");
 }
 
 /** Used on the Printers settings screen — users are already in Settings. */
 const printerIssueStaffHintSettings = (printerName: string): string => {
   return [
-    `Check that "${printerName}" is turned on and connected.`,
-    "Restart the printer if it still does not respond.",
-    "Open Edit on this printer to verify the connection type and address. On Windows, Local (system printer) often works when direct USB does not.",
+    t("printer_service.hint_check_connected", { printer: printerName }),
+    t("printer_service.hint_restart"),
+    t("printer_service.hint_verify_connection"),
   ].join(" ");
 }
 

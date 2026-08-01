@@ -607,7 +607,14 @@
     "saved_to_downloads": "Im Downloads-Ordner gespeichert",
     "open_folder_button": "Ordner öffnen",
     "save_pdf_error_title": "Beleg-PDF konnte nicht gespeichert werden",
-    "save_pdf_error_message": "Stellen Sie sicher, dass Ihr Gerät über freien Speicherplatz verfügt und das Speichern in Downloads erlaubt ist. Wenn das Problem weiterhin besteht, wenden Sie sich an den Support."
+    "save_pdf_error_message": "Stellen Sie sicher, dass Ihr Gerät über freien Speicherplatz verfügt und das Speichern in Downloads erlaubt ist. Wenn das Problem weiterhin besteht, wenden Sie sich an den Support.",
+    "hint_check_connected": "Prüfen Sie, ob \"{{printer}}\" eingeschaltet und verbunden ist.",
+    "hint_restart": "Starten Sie den Drucker neu, wenn er weiterhin nicht reagiert.",
+    "hint_review_default": "Den Standarddrucker können Sie unter Einstellungen → Drucker prüfen oder ändern.",
+    "hint_verify_connection": "Öffnen Sie bei diesem Drucker Bearbeiten, um Verbindungstyp und Adresse zu prüfen. Unter Windows funktioniert Lokal (Systemdrucker) oft, wenn direktes USB nicht funktioniert.",
+    "hint_drawer_test": "Öffnen Sie Einstellungen → Drucker und tippen Sie für \"{{printer}}\" auf Schublade testen.",
+    "hint_drawer_check_cable": "Öffnet der Test die Schublade nicht, prüfen Sie, ob der Drucker eingeschaltet und verbunden ist und das Schubladenkabel am Drucker steckt.",
+    "hint_drawer_restart": "Schlägt es weiterhin fehl, starten Sie den Drucker neu oder öffnen Sie Bearbeiten, um Verbindungstyp und Adresse zu prüfen (unter Windows funktioniert Lokal / Systemdrucker oft, wenn direktes USB nicht funktioniert)."
   },
   "update": {
     "available_title": "Update v{{version}} verfügbar",

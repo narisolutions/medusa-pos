@@ -607,7 +607,14 @@
     "saved_to_downloads": "Saved to your Downloads folder",
     "open_folder_button": "Open Folder",
     "save_pdf_error_title": "Could not save the receipt PDF",
-    "save_pdf_error_message": "Check that your device has free storage space and that saving to Downloads is allowed. If this keeps happening, contact support."
+    "save_pdf_error_message": "Check that your device has free storage space and that saving to Downloads is allowed. If this keeps happening, contact support.",
+    "hint_check_connected": "Check that \"{{printer}}\" is turned on and connected.",
+    "hint_restart": "Restart the printer if it still does not respond.",
+    "hint_review_default": "You can review or change the default printer under Settings → Printers.",
+    "hint_verify_connection": "Open Edit on this printer to verify the connection type and address. On Windows, Local (system printer) often works when direct USB does not.",
+    "hint_drawer_test": "Open Settings → Printers and tap Test drawer for \"{{printer}}\".",
+    "hint_drawer_check_cable": "If the test does not open the drawer, check that the printer is on, connected, and that the drawer cable is plugged into the printer.",
+    "hint_drawer_restart": "Restart the printer if it still fails, or open Edit on that printer to verify the connection type and address (on Windows, Local / system printer often works when direct USB does not)."
   },
   "update": {
     "available_title": "Update v{{version}} available",

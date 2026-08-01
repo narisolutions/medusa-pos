@@ -607,7 +607,14 @@
     "saved_to_downloads": "Guardado en tu carpeta de Descargas",
     "open_folder_button": "Abrir carpeta",
     "save_pdf_error_title": "No se ha podido guardar el PDF del recibo",
-    "save_pdf_error_message": "Comprueba que tu dispositivo tiene espacio de almacenamiento libre y que se permite guardar en Descargas. Si el problema persiste, contacta con soporte."
+    "save_pdf_error_message": "Comprueba que tu dispositivo tiene espacio de almacenamiento libre y que se permite guardar en Descargas. Si el problema persiste, contacta con soporte.",
+    "hint_check_connected": "Comprueba que \"{{printer}}\" esté encendida y conectada.",
+    "hint_restart": "Reinicia la impresora si sigue sin responder.",
+    "hint_review_default": "Puedes revisar o cambiar la impresora predeterminada en Ajustes → Impresoras.",
+    "hint_verify_connection": "Abre Editar en esta impresora para verificar el tipo de conexión y la dirección. En Windows, Local (impresora del sistema) suele funcionar cuando el USB directo no lo hace.",
+    "hint_drawer_test": "Abre Ajustes → Impresoras y toca Probar cajón para \"{{printer}}\".",
+    "hint_drawer_check_cable": "Si la prueba no abre el cajón, comprueba que la impresora esté encendida y conectada, y que el cable del cajón esté enchufado a la impresora.",
+    "hint_drawer_restart": "Si sigue fallando, reinicia la impresora o abre Editar para verificar el tipo de conexión y la dirección (en Windows, Local / impresora del sistema suele funcionar cuando el USB directo no lo hace)."
   },
   "update": {
     "available_title": "Actualización v{{version}} disponible",
