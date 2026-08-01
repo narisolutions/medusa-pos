@@ -97,6 +97,6 @@
     "vitest": "^4.1.10"
   },
   "resolutions": {
-    "vitest/vite": "8.0.16"
+    "vitest/vite": "8.1.5"
   }
 }
