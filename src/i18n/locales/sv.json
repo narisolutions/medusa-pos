@@ -568,6 +568,11 @@
       "pick_logo_dialog_title": "Välj butikslogotyp",
       "pick_logo_filter_name": "Bild",
       "logo_too_large": "Logotypbilden måste vara mindre än 256 KB"
+    },
+    "plugins": {
+      "title": "Plugin",
+      "description": "Anslutna POS-plugin. Varje plugin hanterar sin egen anslutning och sina inställningar här.",
+      "empty": "Inga plugin installerade."
     }
   },
   "errors": {
@@ -602,7 +607,14 @@
     "saved_to_downloads": "Sparat i mappen Hämtade filer",
     "open_folder_button": "Öppna mapp",
     "save_pdf_error_title": "Det gick inte att spara kvitto-PDF:en",
-    "save_pdf_error_message": "Kontrollera att enheten har ledigt lagringsutrymme och att det är tillåtet att spara i Hämtade filer. Kontakta supporten om problemet kvarstår."
+    "save_pdf_error_message": "Kontrollera att enheten har ledigt lagringsutrymme och att det är tillåtet att spara i Hämtade filer. Kontakta supporten om problemet kvarstår.",
+    "hint_check_connected": "Kontrollera att \"{{printer}}\" är påslagen och ansluten.",
+    "hint_restart": "Starta om skrivaren om den fortfarande inte svarar.",
+    "hint_review_default": "Du kan se eller ändra standardskrivaren under Inställningar → Skrivare.",
+    "hint_verify_connection": "Öppna Redigera på den här skrivaren för att kontrollera anslutningstyp och adress. I Windows fungerar Lokal (systemskrivare) ofta när direkt USB inte gör det.",
+    "hint_drawer_test": "Öppna Inställningar → Skrivare och tryck på Testa kassalåda för \"{{printer}}\".",
+    "hint_drawer_check_cable": "Om testet inte öppnar lådan, kontrollera att skrivaren är påslagen och ansluten och att lådans kabel sitter i skrivaren.",
+    "hint_drawer_restart": "Om det fortfarande misslyckas, starta om skrivaren eller öppna Redigera för att kontrollera anslutningstyp och adress (i Windows fungerar Lokal / systemskrivare ofta när direkt USB inte gör det)."
   },
   "update": {
     "available_title": "Uppdatering v{{version}} tillgänglig",

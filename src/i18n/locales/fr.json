@@ -568,6 +568,11 @@
       "pick_logo_dialog_title": "Sélectionner le logo du magasin",
       "pick_logo_filter_name": "Image",
       "logo_too_large": "L’image du logo doit faire moins de 256 Ko"
+    },
+    "plugins": {
+      "title": "Plugins",
+      "description": "Plugins POS connectés. Chaque plugin gère ici sa connexion et ses préférences.",
+      "empty": "Aucun plugin installé."
     }
   },
   "errors": {
@@ -602,7 +607,14 @@
     "saved_to_downloads": "Enregistré dans votre dossier Téléchargements",
     "open_folder_button": "Ouvrir le dossier",
     "save_pdf_error_title": "Impossible d’enregistrer le PDF du reçu",
-    "save_pdf_error_message": "Vérifiez que votre appareil dispose d’espace de stockage libre et que l’enregistrement dans Téléchargements est autorisé. Si le problème persiste, contactez le support."
+    "save_pdf_error_message": "Vérifiez que votre appareil dispose d’espace de stockage libre et que l’enregistrement dans Téléchargements est autorisé. Si le problème persiste, contactez le support.",
+    "hint_check_connected": "Vérifiez que « {{printer}} » est allumée et connectée.",
+    "hint_restart": "Redémarrez l'imprimante si elle ne répond toujours pas.",
+    "hint_review_default": "Vous pouvez consulter ou modifier l'imprimante par défaut dans Paramètres → Imprimantes.",
+    "hint_verify_connection": "Ouvrez Modifier sur cette imprimante pour vérifier le type de connexion et l'adresse. Sous Windows, l'option Locale (imprimante système) fonctionne souvent lorsque l'USB direct échoue.",
+    "hint_drawer_test": "Ouvrez Paramètres → Imprimantes et appuyez sur Tester le tiroir pour « {{printer}} ».",
+    "hint_drawer_check_cable": "Si le test n'ouvre pas le tiroir, vérifiez que l'imprimante est allumée et connectée, et que le câble du tiroir est branché sur l'imprimante.",
+    "hint_drawer_restart": "Si cela échoue encore, redémarrez l'imprimante ou ouvrez Modifier pour vérifier le type de connexion et l'adresse (sous Windows, Locale / imprimante système fonctionne souvent lorsque l'USB direct échoue)."
   },
   "update": {
     "available_title": "Mise à jour v{{version}} disponible",

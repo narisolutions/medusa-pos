@@ -4,10 +4,11 @@ import PrinterSettings from "./printer";
 import ConnectionSettings from "./connection";
 import StoreSettings from "./store";
 import PreferencesSettings from "./preferences";
+import PluginsSettings from "./plugins";
 import storage from "@/utils/storage";
 import { useTranslation } from "@/i18n";
 
-type SettingsTabs = "printer" | "connection" | "store" | "preferences";
+type SettingsTabs = "printer" | "connection" | "store" | "preferences" | "plugins";
 
 const Settings: React.FC = () => {
   const { t } = useTranslation();
@@ -64,6 +65,12 @@ const Settings: React.FC = () => {
           >
             {t("settings.preferences.title")}
           </TabsTrigger>
+          <TabsTrigger
+            value="plugins"
+            className="text-lg px-6 py-4 border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:text-primary text-fg-muted bg-transparent rounded-none min-h-[48px]"
+          >
+            {t("settings.plugins.title")}
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="printer" className="flex flex-col">
@@ -80,6 +87,10 @@ const Settings: React.FC = () => {
 
         <TabsContent value="preferences" className="flex flex-col">
           <PreferencesSettings />
+        </TabsContent>
+
+        <TabsContent value="plugins" className="flex flex-col">
+          <PluginsSettings />
         </TabsContent>
       </Tabs>
     </div>

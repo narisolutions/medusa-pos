@@ -7,6 +7,7 @@ import StoreSetupModal from "@/components/base/store-setup-dialog";
 import SalesChannelWarningDialog from "@/components/base/sales-channel-dialog";
 import { RegisterProvider } from "@/context/register";
 import RegisterDialogs from "@/components/register/register-dialogs";
+import { PluginProviders } from "@/plugins/providers";
 
 export function Layout() {
   const mainRef = useRef<HTMLElement>(null);
@@ -18,6 +19,7 @@ export function Layout() {
 
   return (
     <RegisterProvider>
+      <PluginProviders>
       <SidebarProvider>
         <AppSidebar />
         <SidebarInset className="flex flex-col h-screen">
@@ -31,6 +33,7 @@ export function Layout() {
         <StoreSetupModal />
         <SalesChannelWarningDialog />
       </SidebarProvider>
+      </PluginProviders>
       <RegisterDialogs />
     </RegisterProvider>
   );

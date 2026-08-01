@@ -278,16 +278,11 @@ const usePaymentModal = (
 
       printOrderReceipt(order).catch((printError) => {
         void logger.warn(`Auto-print failed: ${safeStringify(printError)}`);
-        if (defaultPrinter) {
-          toast.error("The receipt did not print", {
-            description: printerIssueStaffHintToast(defaultPrinter.name),
-          });
-        } else {
-          toast.error("The receipt did not print", {
-            description:
-              "No default printer is set. Add one under Settings → Printers.",
-          });
-        }
+        toast.error(t("orders.receipt_did_not_print"), {
+          description: defaultPrinter
+            ? printerIssueStaffHintToast(defaultPrinter.name)
+            : t("checkout.no_default_printer"),
+        });
       });
 
       if (defaultPrinter?.openCashDrawer) {
@@ -299,7 +294,7 @@ const usePaymentModal = (
         ) {
           openCashDrawer(defaultPrinter).catch((drawerError) => {
             void logger.warn(`Auto cash drawer failed: ${safeStringify(drawerError)}`);
-            toast.error("The cash drawer did not open", {
+            toast.error(t("checkout.cash_drawer_error_title"), {
               description: cashDrawerIssueStaffHintToast(defaultPrinter.name),
             });
           });

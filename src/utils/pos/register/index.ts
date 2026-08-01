@@ -143,17 +143,89 @@ export function computeExpectedCash(
   return session.openingFloat + sales + payins - drops;
 }
 
-/** SHA-256 hex digest of a PIN. The raw PIN is never stored. */
-export async function hashPin(raw: string): Promise<string> {
-  const data = new TextEncoder().encode(raw);
-  const digest = await crypto.subtle.digest("SHA-256", data);
+/*
+ * Manager PIN hashing.
+ *
+ * A 4-6 digit PIN has a keyspace a plain digest walks through instantly, so the
+ * stored form is PBKDF2-SHA256 with a per-PIN salt: `pbkdf2$<iters>$<salt>$<hash>`.
+ * Bare 64-char hex is the legacy unsalted SHA-256 — still verified so existing
+ * installs keep working, and upgraded in place on first successful use (see
+ * verifyManagerPin in utils/preferences/pin).
+ */
+const PIN_ITERATIONS = 210_000; // OWASP 2023 guidance for PBKDF2-SHA256
+const PIN_SALT_BYTES = 16;
+const PIN_KEY_BITS = 256;
+const LEGACY_PIN_HASH = /^[0-9a-f]{64}$/i;
+
+const toBase64 = (bytes: Uint8Array): string =>
+  btoa(String.fromCharCode(...bytes));
+
+const fromBase64 = (value: string): Uint8Array<ArrayBuffer> =>
+  Uint8Array.from(atob(value), (c) => c.charCodeAt(0));
+
+/** Length-independent compare so a wrong PIN can't be narrowed by timing. */
+const timingSafeEqual = (a: Uint8Array, b: Uint8Array): boolean => {
+  if (a.length !== b.length) return false;
+  let diff = 0;
+  for (let i = 0; i < a.length; i++) diff |= a[i] ^ b[i];
+  return diff === 0;
+};
+
+const derivePin = async (
+  raw: string,
+  salt: Uint8Array<ArrayBuffer>,
+  iterations: number
+): Promise<Uint8Array> => {
+  const key = await crypto.subtle.importKey(
+    "raw",
+    new TextEncoder().encode(raw),
+    "PBKDF2",
+    false,
+    ["deriveBits"]
+  );
+  const bits = await crypto.subtle.deriveBits(
+    { name: "PBKDF2", hash: "SHA-256", salt, iterations },
+    key,
+    PIN_KEY_BITS
+  );
+  return new Uint8Array(bits);
+};
+
+const legacySha256Hex = async (raw: string): Promise<string> => {
+  const digest = await crypto.subtle.digest(
+    "SHA-256",
+    new TextEncoder().encode(raw)
+  );
   return Array.from(new Uint8Array(digest))
     .map((b) => b.toString(16).padStart(2, "0"))
     .join("");
+};
+
+/** True when `stored` is the pre-PBKDF2 unsalted digest and should be re-hashed. */
+export function isLegacyPinHash(stored: string): boolean {
+  return LEGACY_PIN_HASH.test(stored);
 }
 
-export async function verifyPin(raw: string, hash: string): Promise<boolean> {
-  return (await hashPin(raw)) === hash;
+/** Salted PBKDF2 digest of a PIN. The raw PIN is never stored. */
+export async function hashPin(raw: string): Promise<string> {
+  const salt = crypto.getRandomValues(new Uint8Array(PIN_SALT_BYTES));
+  const hash = await derivePin(raw, salt, PIN_ITERATIONS);
+  return `pbkdf2$${PIN_ITERATIONS}$${toBase64(salt)}$${toBase64(hash)}`;
+}
+
+export async function verifyPin(raw: string, stored: string): Promise<boolean> {
+  if (isLegacyPinHash(stored)) {
+    return timingSafeEqual(
+      new TextEncoder().encode(await legacySha256Hex(raw)),
+      new TextEncoder().encode(stored.toLowerCase())
+    );
+  }
+
+  const [scheme, iterations, salt, hash] = stored.split("$");
+  if (scheme !== "pbkdf2" || !iterations || !salt || !hash) return false;
+
+  const derived = await derivePin(raw, fromBase64(salt), Number(iterations));
+  return timingSafeEqual(derived, fromBase64(hash));
 }
 
 export function newSessionId(): string {

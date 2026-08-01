@@ -3,6 +3,7 @@ import { useEffect } from "react";
 import { check } from "@tauri-apps/plugin-updater";
 import { relaunch } from "@tauri-apps/plugin-process";
 import { toast } from "sonner";
+import { t } from "@/i18n";
 
 export default function useUpdateCheck() {
   useEffect(() => {
@@ -14,15 +15,17 @@ export default function useUpdateCheck() {
         const update = await check();
         if (cancelled || !update) return;
 
-        toast.info(`Update v${update.version} available`, {
-          description: "A new version is ready to install.",
+        toast.info(t("update.available_title", { version: update.version }), {
+          description: t("update.available_description"),
           duration: Infinity,
           action: {
-            label: "Install & restart",
+            label: t("update.install_restart_button"),
             onClick: async () => {
               let contentLength = 0;
               let downloaded = 0;
-              const installing = toast.loading("Downloading update… 0%");
+              const installing = toast.loading(
+                t("update.downloading_progress", { pct: 0 }),
+              );
               try {
                 await update.downloadAndInstall((event) => {
                   if (event.event === "Started" && event.data.contentLength) {
@@ -34,19 +37,19 @@ export default function useUpdateCheck() {
                         100,
                         Math.round((downloaded / contentLength) * 100),
                       );
-                      toast.loading(`Downloading update… ${pct}%`, {
+                      toast.loading(t("update.downloading_progress", { pct }), {
                         id: installing,
                       });
                     }
                   } else if (event.event === "Finished") {
-                    toast.loading("Installing update…", { id: installing });
+                    toast.loading(t("update.installing"), { id: installing });
                   }
                 });
                 toast.dismiss(installing);
                 await relaunch();
               } catch (err) {
                 toast.dismiss(installing);
-                toast.error("Update failed", {
+                toast.error(t("update.failed_title"), {
                   description: String(err),
                 });
               }

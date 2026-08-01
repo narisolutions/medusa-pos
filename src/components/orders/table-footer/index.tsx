@@ -102,7 +102,8 @@ const Footer: React.FC<FooterProps> = ({
           >
             <SelectValue />
           </SelectTrigger>
-          <SelectContent>
+          {/* Footer sits at the viewport bottom — open upward so options stay on screen */}
+          <SelectContent side="top">
             {[10, 20, 30, 40, 50].map((size) => (
               <SelectItem key={size} value={size.toString()}>
                 {size}

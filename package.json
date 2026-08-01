@@ -1,6 +1,6 @@
 {
   "name": "medusa-pos",
-  "version": "0.0.14",
+  "version": "0.3.1",
   "private": false,
   "author": "Nari Solutions",
   "license": "Apache-2.0",
@@ -34,7 +34,9 @@
     "test:env:up": "docker compose -f integration-tests/docker-compose.yml --env-file integration-tests/.env up --build -d --wait",
     "test:env:down": "docker compose -f integration-tests/docker-compose.yml down",
     "test:env:reset": "docker compose -f integration-tests/docker-compose.yml down -v",
-    "test:env:logs": "docker compose -f integration-tests/docker-compose.yml logs -f medusa"
+    "test:env:logs": "docker compose -f integration-tests/docker-compose.yml logs -f medusa",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.4.0",
@@ -48,17 +50,17 @@
     "@radix-ui/react-switch": "^1.3.2",
     "@radix-ui/react-tabs": "^1.1.16",
     "@radix-ui/react-tooltip": "^1.2.11",
-    "@tailwindcss/vite": "^4.3.1",
+    "@tailwindcss/vite": "^4.3.3",
     "@tanstack/react-query": "^5.101.2",
     "@tanstack/react-table": "^8.21.3",
     "@tauri-apps/api": "^2.11.1",
-    "@tauri-apps/plugin-dialog": "^2.7.1",
+    "@tauri-apps/plugin-dialog": "^2.7.2",
     "@tauri-apps/plugin-fs": "^2.5.1",
     "@tauri-apps/plugin-http": "^2.5.9",
-    "@tauri-apps/plugin-log": "^2.8.0",
+    "@tauri-apps/plugin-log": "^2.9.0",
     "@tauri-apps/plugin-opener": "^2.5.4",
     "@tauri-apps/plugin-process": "^2.3.1",
-    "@tauri-apps/plugin-store": "^2.4.3",
+    "@tauri-apps/plugin-store": "^2.4.4",
     "@tauri-apps/plugin-updater": "^2.10.1",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
@@ -70,7 +72,7 @@
     "react-dom": "^18.3.1",
     "react-error-boundary": "^6.1.2",
     "react-hook-form": "^7.80.0",
-    "react-i18next": "^17.0.8",
+    "react-i18next": "^17.0.11",
     "react-router-dom": "^7.18.0",
     "sonner": "^2.0.7",
     "tailwind-merge": "^3.6.0",
@@ -80,20 +82,21 @@
   "devDependencies": {
     "@eslint/js": "^9.39.3",
     "@tauri-apps/cli": "^2.11.4",
-    "@types/node": "^25.9.3",
+    "@types/node": "^26.0.1",
     "@types/react": "^18.3.1",
     "@types/react-dom": "^18.3.1",
-    "@vitejs/plugin-react": "^6.0.2",
-    "dotenv-cli": "^11.0.0",
+    "@vitejs/plugin-react": "^6.0.4",
     "eslint": "^10.5.0",
     "eslint-plugin-react-hooks": "^7.1.1",
     "eslint-plugin-react-refresh": "^0.5.3",
-    "globals": "^17.6.0",
-    "prettier": "^3.8.4",
-    "shadcn": "^4.11.0",
-    "tailwindcss": "^4.3.1",
+    "globals": "^17.7.0",
+    "tailwindcss": "^4.3.3",
     "typescript": "~6.0.3",
     "typescript-eslint": "^8.61.1",
-    "vite": "^8.0.16"
+    "vite": "^8.1.5",
+    "vitest": "^4.1.10"
+  },
+  "resolutions": {
+    "vitest/vite": "8.1.5"
   }
 }

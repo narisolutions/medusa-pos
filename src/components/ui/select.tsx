@@ -72,7 +72,7 @@ function SelectTrigger({
     <button
       type="button"
       className={cn(
-        "flex h-9 w-full items-center justify-between rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-xs transition-colors",
+        "flex h-12 w-full items-center justify-between rounded-md border border-input bg-transparent px-3 py-1 text-base shadow-xs transition-colors",
         "file:border-0 file:bg-transparent file:text-sm file:font-medium",
         "placeholder:text-muted-foreground",
         "focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring",
@@ -98,8 +98,12 @@ function SelectValue({ placeholder }: { placeholder?: string }) {
 function SelectContent({
   className,
   children,
+  side = "bottom",
   ...props
-}: React.ComponentProps<"div">) {
+}: React.ComponentProps<"div"> & {
+  /** Which way the list opens relative to the trigger (mirrors the Radix API). */
+  side?: "top" | "bottom"
+}) {
   const context = React.useContext(SelectContext)
   if (!context) throw new Error("SelectContent must be used within Select")
 
@@ -108,7 +112,8 @@ function SelectContent({
   return (
     <div
       className={cn(
-        "absolute top-full z-50 mt-1 max-h-60 w-full overflow-auto rounded-md border bg-surface text-fg shadow-md",
+        "absolute z-50 max-h-60 w-full overflow-auto rounded-md border bg-surface text-fg shadow-md",
+        side === "top" ? "bottom-full mb-1" : "top-full mt-1",
         "data-[state=open]:animate-in data-[state=closed]:animate-out",
         "data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
         "data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95",
@@ -135,7 +140,7 @@ function SelectItem({
   return (
     <div
       className={cn(
-        "relative flex w-full cursor-default select-none items-center rounded-sm py-1.5 pl-2 pr-8 text-sm outline-none",
+        "relative flex min-h-12 w-full cursor-default select-none items-center rounded-sm py-3 pl-3 pr-8 text-base outline-none",
         "hover:bg-accent hover:text-accent-foreground",
         "focus:bg-accent focus:text-accent-foreground",
         "data-[disabled]:pointer-events-none data-[disabled]:opacity-50",

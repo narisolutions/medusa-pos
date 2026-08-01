@@ -9,6 +9,7 @@ import { Layout } from "@/components/layout";
 import ProtectedRoute from "@/components/router";
 import Auth from "@/components/auth";
 import { LoadingSpinner } from "@/components/ui/loading-spinner";
+import { plugins } from "@/plugins";
 
 // Pages are lazy so each route ships as its own chunk, off the boot path.
 const Login = lazy(() => import("@/pages/login"));
@@ -46,6 +47,16 @@ const router = createHashRouter(
         <Route path="orders/:orderId" element={page(<Order />)} />
         <Route path="checkout" element={page(<Checkout />)} />
         <Route path="settings" element={page(<Settings />)} />
+        {plugins.map(
+          (plugin) =>
+            plugin.route && (
+              <Route
+                key={plugin.id}
+                path={plugin.route.path}
+                element={page(<plugin.route.Page />)}
+              />
+            ),
+        )}
       </Route>
 
       <Route path="*" element={<Navigate to="/" replace />} />

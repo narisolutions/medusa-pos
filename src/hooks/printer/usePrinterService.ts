@@ -316,10 +316,10 @@ const usePrinterService = () => {
           baseDir: fs.BaseDirectory.Download,
         });
 
-        toast.success(`Receipt saved as ${filename}`, {
-          description: "Saved to your Downloads folder",
+        toast.success(t("printer_service.receipt_saved_success", { filename }), {
+          description: t("printer_service.saved_to_downloads"),
           action: {
-            label: "Open Folder",
+            label: t("printer_service.open_folder_button"),
             onClick: () => openDownloadsFolder(filename),
           },
         });
@@ -327,14 +327,13 @@ const usePrinterService = () => {
         const errorMessage =
           error instanceof Error ? error.message : "Failed to download receipt";
         void logger.error(`Failed to download receipt as PDF: ${errorMessage} ${safeStringify(error)}`);
-        toast.error("Could not save the receipt PDF", {
-          description:
-            "Check that your device has free storage space and that saving to Downloads is allowed. If this keeps happening, contact support.",
+        toast.error(t("printer_service.save_pdf_error_title"), {
+          description: t("printer_service.save_pdf_error_message"),
         });
         throw error;
       }
     },
-    [buildReceiptDataFromOrder, getDefaultPrinter, getReceiptLabels]
+    [buildReceiptDataFromOrder, getDefaultPrinter, getReceiptLabels, t]
   );
 
   return {
