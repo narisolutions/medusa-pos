@@ -430,6 +430,7 @@
       "encoding_ascii": "ASCII (ძირითადი — არა-ASCII სიმბოლოები იჭრება)",
       "encoding_utf8": "UTF-8 (Unicode — ყველა სიმბოლო გადის)",
       "encoding_cp852": "REVIEW: CP852 (Central European mapping)",
+      "encoding_translit": "ლათინურად ტრანსლიტერაცია",
       "loading": "პრინტერები იტვირთება...",
       "testing_print": "ბეჭდვის ტესტი...",
       "testing_drawer": "სალაროს ტესტი...",
@@ -497,6 +498,7 @@
       "dialog_encoding_ascii_desc": "უსაფრთხოა ყველა პრინტერისთვის. არა-ASCII სიმბოლოები იშლება.",
       "dialog_encoding_utf8_desc": "საჭიროა UTF-8 firmware. ყველა სიმბოლო გადის.",
       "dialog_encoding_cp852_desc": "პოლონური/ცენტრალური ევროპული სიმბოლოები ASCII-ში გარდაქმნება.",
+      "dialog_encoding_translit_desc": "ქართულს, კირილიცას, ბერძნულს, სომხურსა და ებრაულს ლათინურად გარდაქმნის, შემდეგ ASCII-ზე გადადის. გამოიყენეთ, თუ პრინტერს ადგილობრივი დამწერლობის კოდური გვერდი არ აქვს.",
       "dialog_update_button": "განახლება"
     },
     "connection": {

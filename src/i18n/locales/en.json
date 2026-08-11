@@ -430,6 +430,7 @@
       "encoding_ascii": "ASCII (Default — strips non-ASCII)",
       "encoding_utf8": "UTF-8 (Unicode — pass-through)",
       "encoding_cp852": "CP852 (Central European mapping)",
+      "encoding_translit": "Transliterate to Latin",
       "loading": "Loading printers...",
       "testing_print": "Testing print…",
       "testing_drawer": "Testing drawer…",
@@ -497,6 +498,7 @@
       "dialog_encoding_ascii_desc": "Safe for all printers. Non-ASCII characters are removed.",
       "dialog_encoding_utf8_desc": "Requires printer firmware with UTF-8 support. All characters pass through.",
       "dialog_encoding_cp852_desc": "Maps Polish/Central European characters to closest ASCII equivalents.",
+      "dialog_encoding_translit_desc": "Romanizes Georgian, Cyrillic, Greek, Armenian and Hebrew, then falls back to ASCII. Use when the printer has no codepage for the local script.",
       "dialog_update_button": "Update Printer"
     },
     "connection": {

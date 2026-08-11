@@ -430,6 +430,7 @@
       "encoding_ascii": "ASCII (par défaut — supprime les caractères non ASCII)",
       "encoding_utf8": "UTF-8 (Unicode — transmission directe)",
       "encoding_cp852": "CP852 (mappage pour l’Europe centrale)",
+      "encoding_translit": "Translittérer en alphabet latin",
       "loading": "Chargement des imprimantes...",
       "testing_print": "Test d’impression…",
       "testing_drawer": "Test du tiroir…",
@@ -497,6 +498,7 @@
       "dialog_encoding_ascii_desc": "Compatible avec toutes les imprimantes. Les caractères non ASCII sont supprimés.",
       "dialog_encoding_utf8_desc": "Nécessite un firmware d’imprimante compatible UTF-8. Tous les caractères passent.",
       "dialog_encoding_cp852_desc": "Mappe les caractères polonais et d’Europe centrale vers leurs équivalents ASCII les plus proches.",
+      "dialog_encoding_translit_desc": "Romanise le géorgien, le cyrillique, le grec, l’arménien et l’hébreu, puis se rabat sur l’ASCII. Pour les imprimantes sans page de codes pour l’écriture locale.",
       "dialog_update_button": "Mettre à jour l’imprimante"
     },
     "connection": {

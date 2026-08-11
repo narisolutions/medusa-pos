@@ -430,6 +430,7 @@
       "encoding_ascii": "ASCII (Standard — entfernt Nicht-ASCII)",
       "encoding_utf8": "UTF-8 (Unicode — Durchreichen)",
       "encoding_cp852": "CP852 (Mitteleuropäische Zuordnung)",
+      "encoding_translit": "Transliteration ins Lateinische",
       "loading": "Drucker werden geladen...",
       "testing_print": "Druck wird getestet…",
       "testing_drawer": "Schublade wird getestet…",
@@ -497,6 +498,7 @@
       "dialog_encoding_ascii_desc": "Sicher für alle Drucker. Nicht-ASCII-Zeichen werden entfernt.",
       "dialog_encoding_utf8_desc": "Erfordert Druckerfirmware mit UTF-8-Unterstützung. Alle Zeichen werden durchgereicht.",
       "dialog_encoding_cp852_desc": "Ordnet polnische/mitteleuropäische Zeichen den nächstgelegenen ASCII-Entsprechungen zu.",
+      "dialog_encoding_translit_desc": "Wandelt Georgisch, Kyrillisch, Griechisch, Armenisch und Hebräisch in lateinische Schrift um und fällt dann auf ASCII zurück. Für Drucker ohne Codepage für die lokale Schrift.",
       "dialog_update_button": "Drucker aktualisieren"
     },
     "connection": {

@@ -43,7 +43,8 @@ export default {
     openCashDrawerOnCash: z.boolean().optional().default(false),
     openCashDrawerOnCard: z.boolean().optional().default(false),
     paperWidth: z.enum(["80mm", "57mm"]).optional().default("80mm"),
-    encoding: z.enum(["ascii", "utf8", "cp852"]).optional().default("ascii"),
+    // "translit" romanizes rather than stripping, so it is never worse than "ascii".
+    encoding: z.enum(["ascii", "utf8", "cp852", "translit"]).optional().default("translit"),
   }),
 
   apiSettings: z.object({

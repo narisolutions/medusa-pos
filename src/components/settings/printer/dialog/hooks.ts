@@ -31,7 +31,7 @@ type PrinterFormValues = {
   openCashDrawerOnCash: boolean;
   openCashDrawerOnCard: boolean;
   paperWidth: "80mm" | "57mm";
-  encoding: "ascii" | "utf8" | "cp852";
+  encoding: "ascii" | "utf8" | "cp852" | "translit";
 };
 
 const initialFormData: PrinterFormValues = {
@@ -47,7 +47,7 @@ const initialFormData: PrinterFormValues = {
   openCashDrawerOnCash: false,
   openCashDrawerOnCard: false,
   paperWidth: "80mm",
-  encoding: "ascii",
+  encoding: "translit",
 };
 
 function formatVidPid(vendorId: number, productId: number): string {
@@ -133,7 +133,7 @@ const usePrinterDialog = (
         openCashDrawerOnCash: editingPrinter.openCashDrawerOnCash ?? false,
         openCashDrawerOnCard: editingPrinter.openCashDrawerOnCard ?? false,
         paperWidth: editingPrinter.paperWidth ?? "80mm",
-        encoding: (editingPrinter as PrinterFormValues).encoding ?? "ascii",
+        encoding: (editingPrinter as PrinterFormValues).encoding ?? "translit",
       });
     } else {
       reset(initialFormData);

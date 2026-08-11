@@ -282,7 +282,7 @@ const usePrinterService = () => {
       try {
         const receiptData = buildReceiptDataFromOrder(order);
         const paperWidth = printer.paperWidth ?? "80mm";
-        const encoding = (printer as Printer & { encoding?: string }).encoding as import("@/utils/pos/receipt/printer-encoding").PrinterEncoding ?? "ascii";
+        const encoding = (printer as Printer & { encoding?: string }).encoding as import("@/utils/pos/receipt/printer-encoding").PrinterEncoding ?? "translit";
         const receiptText = buildReceipt(receiptData, paperWidth, getReceiptLabels(), encoding);
         await printReceiptText(receiptText, printer);
 

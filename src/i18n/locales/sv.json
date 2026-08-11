@@ -430,6 +430,7 @@
       "encoding_ascii": "ASCII (standard — tar bort icke-ASCII-tecken)",
       "encoding_utf8": "UTF-8 (Unicode — passerar oförändrat)",
       "encoding_cp852": "CP852 (mappning för Centraleuropa)",
+      "encoding_translit": "Translitterera till latinska tecken",
       "loading": "Laddar skrivare...",
       "testing_print": "Testar utskrift…",
       "testing_drawer": "Testar låda…",
@@ -497,6 +498,7 @@
       "dialog_encoding_ascii_desc": "Säker för alla skrivare. Icke-ASCII-tecken tas bort.",
       "dialog_encoding_utf8_desc": "Kräver skrivarprogramvara med UTF-8-stöd. Alla tecken passerar.",
       "dialog_encoding_cp852_desc": "Mappar polska/centraleuropeiska tecken till närmaste ASCII-motsvarigheter.",
+      "dialog_encoding_translit_desc": "Romaniserar georgiska, kyrilliska, grekiska, armeniska och hebreiska och faller sedan tillbaka på ASCII. För skrivare utan teckentabell för det lokala skriftspråket.",
       "dialog_update_button": "Uppdatera skrivare"
     },
     "connection": {

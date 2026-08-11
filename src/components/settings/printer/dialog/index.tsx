@@ -460,7 +460,7 @@ const PrinterDialog: React.FC<Props> = ({
                 <FormItem>
                   <FormLabel className="text-lg font-medium">{t("settings.printer.encoding")}</FormLabel>
                   <FormControl>
-                    <Select onValueChange={field.onChange} value={field.value ?? "ascii"}>
+                    <Select onValueChange={field.onChange} value={field.value ?? "translit"}>
                       <SelectTrigger className="h-12 text-lg px-4">
                         <SelectValue />
                       </SelectTrigger>
@@ -468,6 +468,7 @@ const PrinterDialog: React.FC<Props> = ({
                         <SelectItem value="ascii">{t("settings.printer.encoding_ascii")}</SelectItem>
                         <SelectItem value="utf8">{t("settings.printer.encoding_utf8")}</SelectItem>
                         <SelectItem value="cp852">{t("settings.printer.encoding_cp852")}</SelectItem>
+                        <SelectItem value="translit">{t("settings.printer.encoding_translit")}</SelectItem>
                       </SelectContent>
                     </Select>
                   </FormControl>
@@ -475,6 +476,7 @@ const PrinterDialog: React.FC<Props> = ({
                     {field.value === "ascii" && t("settings.printer.dialog_encoding_ascii_desc")}
                     {field.value === "utf8" && t("settings.printer.dialog_encoding_utf8_desc")}
                     {field.value === "cp852" && t("settings.printer.dialog_encoding_cp852_desc")}
+                    {field.value === "translit" && t("settings.printer.dialog_encoding_translit_desc")}
                   </p>
                   <FormMessage className="text-base" />
                 </FormItem>
