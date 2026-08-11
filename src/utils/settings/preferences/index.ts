@@ -5,6 +5,7 @@ import type {
   CurrencyPreferences,
   AppearancePreferences,
   RegisterPreferences,
+  ScannerPreferences,
   LanguageMode,
 } from "@/types/preferences";
 import storage from "@/utils/storage";
@@ -18,6 +19,7 @@ export type PreferencesPatch = {
   appearance?: Partial<AppearancePreferences>;
   language?: LanguageMode;
   register?: Partial<RegisterPreferences>;
+  scanner?: Partial<ScannerPreferences>;
 };
 
 export { DEFAULT_PREFERENCES } from "./defaults";
@@ -47,6 +49,7 @@ function deepMerge(defaults: UserPreferences, partial: PreferencesPatch): UserPr
     appearance: { ...defaults.appearance, ...partial.appearance },
     language: partial.language ?? defaults.language,
     register: { ...defaults.register, ...partial.register },
+    scanner: { ...defaults.scanner, ...partial.scanner },
   };
 }
 
