@@ -109,6 +109,15 @@ export default {
     reason: z.string().min(1, { message: "Reason is required" }),
   }),
 
+  refund: z.object({
+    amount: z.coerce
+      .number()
+      .positive({ message: "Refund amount must be greater than zero" }),
+    refundReasonId: z.string().optional(),
+    note: z.string().optional(),
+    managerPin: z.string().optional(),
+  }),
+
   storeSettings: z.object({
     storeName: z.string().min(1, { message: "Store name is required" }),
     brandName: z.string().min(1, { message: "Brand name is required" }),

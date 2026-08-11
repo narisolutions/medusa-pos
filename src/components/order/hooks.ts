@@ -18,6 +18,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { queryKeys } from "@/config/query";
 import { usePrinterService } from "@/hooks/printer/usePrinterService";
 import { classifyFulfillment, classifyOrderShippingMethod } from "@/utils/pos/fulfillment";
+import { getOrderRefundableTotal } from "@/utils/pos/payment";
 
 // Type for fulfillment with extended properties
 type ExtendedFulfillment = Record<string, unknown> & {
@@ -54,6 +55,7 @@ export const useOrder = (order: AdminOrder) => {
   const [isPickupConfirmationOpen, setIsPickupConfirmationOpen] =
     useState(false);
   const [isRecordPaymentOpen, setIsRecordPaymentOpen] = useState(false);
+  const [isRefundOpen, setIsRefundOpen] = useState(false);
 
   const fulfillmentStatus = order.fulfillment_status;
   const isNegativeFulfillmentStatus =
@@ -273,6 +275,11 @@ export const useOrder = (order: AdminOrder) => {
       paymentStatus === "partially_authorized" ||
       paymentStatus === "partially_captured");
 
+  // Only captured money can be given back — Medusa caps a refund at
+  // (captures - refunds), so an unpaid order has nothing refundable.
+  const refundableTotal = getOrderRefundableTotal(order);
+  const canRefund = order.status !== "canceled" && refundableTotal > 0;
+
   return {
     getStatusColor,
     getFulfillmentStatusColor,
@@ -300,6 +307,10 @@ export const useOrder = (order: AdminOrder) => {
     setIsPickupConfirmationOpen,
     isRecordPaymentOpen,
     setIsRecordPaymentOpen,
+    canRefund,
+    refundableTotal,
+    isRefundOpen,
+    setIsRefundOpen,
     handleDownloadReceiptPDF,
   };
 };

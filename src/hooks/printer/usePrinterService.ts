@@ -20,6 +20,7 @@ import {
 import {
   getOrderPaymentMethodLabel,
   getOrderPaymentMethodType,
+  getOrderSaleTotal,
 } from "@/utils/pos/payment";
 
 const usePrinterService = () => {
@@ -171,7 +172,8 @@ const usePrinterService = () => {
 
     const subtotal = order.subtotal || 0;
     const tax = order.tax_total || 0;
-    const total = order.total || 0;
+    // Sale value, not order.total — a refund credit line drives that to 0.
+    const total = getOrderSaleTotal(order);
     const discount = (order.discount_total || 0) + itemDiscountsTotal + orderLevelDiscount;
     const cashPaid: number = typeof order.metadata?.cash_paid === "number"
       ? order.metadata.cash_paid
