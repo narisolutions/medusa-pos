@@ -1,12 +1,18 @@
 import { ReceiptData } from "@/types/utils";
 import { toNumber } from "@/utils/pos/pricing";
 import { formatDateOnly, formatTimeOnly, formatCurrencyRaw } from "@/utils/settings/preferences";
-import { sanitizePrinterString, type PrinterEncoding } from "./printer-encoding";
+import {
+  buildReceiptText,
+  type MoneyRow,
+  type PaperWidth,
+  type ReceiptDoc,
+  type ReceiptItem,
+} from "@narisolutions/pos-toolkit/receipt-builder";
+import { type PrinterEncoding } from "./printer-encoding";
 
 export type { ReceiptData };
 export type { PrinterEncoding };
-
-export type PaperWidth = "80mm" | "57mm";
+export type { PaperWidth };
 
 export type ReceiptLabels = {
   title: string;
@@ -56,9 +62,121 @@ export const DEFAULT_RECEIPT_LABELS: ReceiptLabels = {
   thankYou: "Thank you for your visit!",
 };
 
-const PAPER_CONFIG: Record<PaperWidth, { lineWidth: number; maxItemTitleLen: number; pdfPageWidth: number; pdfMargin: number }> = {
-  "80mm": { lineWidth: 48, maxItemTitleLen: 30, pdfPageWidth: 80, pdfMargin: 5 },
-  "57mm": { lineWidth: 32, maxItemTitleLen: 18, pdfPageWidth: 58, pdfMargin: 3 },
+// Text layout widths come from the toolkit; only the PDF sizing is local.
+const PAPER_CONFIG: Record<PaperWidth, { maxItemTitleLen: number; pdfPageWidth: number; pdfMargin: number }> = {
+  "80mm": { maxItemTitleLen: 30, pdfPageWidth: 80, pdfMargin: 5 },
+  "57mm": { maxItemTitleLen: 18, pdfPageWidth: 58, pdfMargin: 3 },
+};
+
+/**
+ * Medusa order data → a paper-agnostic receipt document. All the POS-specific
+ * math (metadata discounts, cash rounding, pay-later) has already happened in
+ * `buildReceiptDataFromOrder`; this only decides which lines exist.
+ */
+const buildReceiptDoc = (
+  data: ReceiptData,
+  labels: ReceiptLabels = DEFAULT_RECEIPT_LABELS
+): ReceiptDoc => {
+  const fmtCurrency = (amount: number): string =>
+    formatCurrencyRaw(amount, data.currency);
+
+  const currentDate = new Date();
+
+  const headerLines = [
+    data.companyName,
+    data.storeName,
+    data.storeAddress,
+    data.storeAddress2,
+    data.storePhone ? `Tel: ${data.storePhone}` : undefined,
+  ].filter((line): line is string => Boolean(line));
+
+  const metaRows = [
+    { label: labels.date, value: formatDateOnly(currentDate) },
+    { label: labels.time, value: formatTimeOnly(currentDate) },
+    { label: labels.order, value: `#${data.orderDisplayId}` },
+  ];
+
+  if (data.customerName || data.customerEmail) {
+    if (data.guestEmail && data.customerEmail === data.guestEmail) {
+      metaRows.push({ label: labels.customer, value: labels.customerGuest });
+    } else {
+      if (data.customerName) {
+        metaRows.push({ label: labels.name, value: data.customerName });
+      }
+      if (data.customerEmail) {
+        metaRows.push({ label: labels.email, value: data.customerEmail });
+      }
+    }
+  }
+
+  // The payment method is a label, not an amount, so it cannot sit in the
+  // payment block with Amount Paid / Change the way it used to.
+  metaRows.push({ label: labels.paymentMethod, value: data.paymentMethod });
+
+  const items: ReceiptItem[] = data.items.map((item) => {
+    const discount = toNumber(item.discount_total);
+    return {
+      title: item.title,
+      qty: toNumber(item.quantity),
+      unitPrice: toNumber(item.unit_price),
+      total:
+        item.total !== undefined
+          ? toNumber(item.total)
+          : toNumber(item.unit_price) * toNumber(item.quantity),
+      sublines:
+        discount > 0
+          ? [{ text: `${labels.discount}: -${fmtCurrency(discount)}` }]
+          : undefined,
+    };
+  });
+
+  const discountAmount = toNumber(data.discount);
+  const totalRows: MoneyRow[] = [];
+
+  // Subtotal only means something next to a discount line.
+  if (discountAmount > 0) {
+    totalRows.push({
+      label: labels.subtotal,
+      amount: data.subtotal + data.tax + discountAmount,
+    });
+    totalRows.push({ label: labels.discount, amount: discountAmount });
+  }
+
+  totalRows.push({ label: labels.vat, amount: data.tax });
+  totalRows.push({ label: labels.total, amount: data.total });
+  if (data.cashRounding) {
+    totalRows.push({ label: labels.rounding, amount: data.cashRounding });
+  }
+
+  const paymentRows: MoneyRow[] = [];
+  const messages: string[] = [];
+
+  if (data.isUnpaid) {
+    paymentRows.push({
+      label: labels.amountDue,
+      amount: data.amountDue ?? data.total,
+    });
+    messages.push(labels.unpaid);
+  } else {
+    if (data.amountPaid) {
+      paymentRows.push({ label: labels.amountPaid, amount: data.amountPaid });
+    }
+    if (data.change && data.change > 0) {
+      paymentRows.push({ label: labels.change, amount: data.change });
+    }
+  }
+
+  return {
+    headerLines,
+    title: labels.title,
+    metaRows,
+    itemsHeading: labels.items,
+    items,
+    totalRows,
+    paymentRows,
+    messages,
+    footerLines: [data.footer || labels.thankYou],
+  };
 };
 
 const buildReceipt = (
@@ -66,137 +184,12 @@ const buildReceipt = (
   paperWidth: PaperWidth = "80mm",
   labels: ReceiptLabels = DEFAULT_RECEIPT_LABELS,
   encoding: PrinterEncoding = "ascii"
-): string => {
-  const { lineWidth, maxItemTitleLen } = PAPER_CONFIG[paperWidth];
-  const currentDate = new Date();
-  const dateStr = formatDateOnly(currentDate);
-  const timeStr = formatTimeOnly(currentDate);
-
-  const padLine = (
-    left: string,
-    right: string,
-    totalWidth: number = lineWidth
-  ): string => {
-    const padding = totalWidth - left.length - right.length;
-    return left + " ".repeat(Math.max(1, padding)) + right;
-  };
-
-  const centerText = (text: string, totalWidth: number = lineWidth): string => {
-    const padding = Math.floor((totalWidth - text.length) / 2);
-    return " ".repeat(Math.max(0, padding)) + text;
-  };
-
-  const fmtCurrency = (amount: number): string =>
-    formatCurrencyRaw(amount, data.currency);
-
-
-  const separator = "=".repeat(lineWidth);
-  const thinSeparator = "-".repeat(lineWidth);
-
-  let receipt = `${centerText(data.companyName)}
-  ${centerText(data.storeName)}
-  ${centerText(data.storeAddress)}`;
-
-  if (data.storeAddress2) {
-    receipt += `\n${centerText(data.storeAddress2)}`;
-  }
-
-  if (data.storePhone) {
-    receipt += `\n${centerText(`Tel: ${data.storePhone}`)}`;
-  }
-
-  receipt += `\n\n${separator}\n${centerText(labels.title)}\n${separator}\n${labels.date}: ${dateStr}                ${labels.time}: ${timeStr}`;
-
-  receipt += `\n${labels.order}: #${data.orderDisplayId}`;
-
-  const guestEmail = data.guestEmail;
-
-  if (data.customerName || data.customerEmail) {
-    receipt += `\n${thinSeparator}`;
-    if (guestEmail && data.customerEmail === guestEmail) {
-      receipt += `\n${labels.customer}: ${labels.customerGuest}`;
-    } else {
-      receipt += `\n${labels.customer}:`;
-      if (data.customerName) {
-        receipt += `\n${labels.name}: ${data.customerName}`;
-      }
-      if (data.customerEmail) {
-        receipt += `\n${labels.email}: ${data.customerEmail}`;
-      }
-    }
-  }
-
-  receipt += `\n\n${thinSeparator}\n${labels.items}:\n${thinSeparator}`;
-
-  // Add items with quantity
-  data.items.forEach((item) => {
-    const itemTotal =
-      item.total !== undefined
-        ? toNumber(item.total)
-        : toNumber(item.unit_price) * toNumber(item.quantity);
-
-    // Sanitize and truncate item title to fit the paper width
-    const sanitizedTitle = sanitizePrinterString(item.title, encoding);
-    const itemName =
-      sanitizedTitle.length > maxItemTitleLen
-        ? sanitizedTitle.substring(0, maxItemTitleLen)
-        : sanitizedTitle;
-
-    // Item name and total on first line
-    receipt += `\n${padLine(itemName, fmtCurrency(itemTotal))}`;
-
-    // Quantity and unit price on line (indented)
-    const qtyLine = `  ${toNumber(item.quantity)} x ${fmtCurrency(toNumber(item.unit_price))}`;
-    receipt += `\n${qtyLine}`;
-
-    // Item discount if any
-    if (item.discount_total && toNumber(item.discount_total) > 0) {
-      receipt += `\n  ${labels.discount}: -${fmtCurrency(toNumber(item.discount_total))}`;
-    }
+): string =>
+  buildReceiptText(buildReceiptDoc(data, labels), {
+    formatAmount: (amount) => formatCurrencyRaw(amount, data.currency),
+    paperWidth,
+    encoding,
   });
-
-  receipt += `\n${thinSeparator}`;
-
-  const discountAmount = toNumber(data.discount);
-  const hasDiscount = discountAmount > 0;
-
-  // Order Totals section
-  receipt += `\n${labels.orderTotals}:`;
-
-  // Only show Subtotal and Discount if there is a discount
-  if (hasDiscount) {
-    // Subtotal before discount is applied (includes VAT and discount amount)
-    const subtotalBeforeDiscount = data.subtotal + data.tax + discountAmount;
-    receipt += `\n${padLine(labels.subtotal + ":", fmtCurrency(subtotalBeforeDiscount))}`;
-    receipt += `\n${padLine(labels.discount + ":", fmtCurrency(discountAmount))}`;
-  }
-
-  receipt += `\n${padLine(labels.vat + ":", fmtCurrency(data.tax))}`;
-  receipt += `\n${padLine(labels.total + ":", fmtCurrency(data.total))}`;
-  if (data.cashRounding) {
-    receipt += `\n${padLine(labels.rounding + ":", fmtCurrency(data.cashRounding))}`;
-  }
-
-  receipt += `\n\n${labels.paymentMethod}: ${data.paymentMethod}`;
-
-  if (data.isUnpaid) {
-    receipt += `\n${padLine(labels.amountDue + ":", fmtCurrency(data.amountDue ?? data.total))}`;
-    receipt += `\n\n${centerText(labels.unpaid)}`;
-  } else {
-    if (data.amountPaid) {
-      receipt += `\n${padLine(labels.amountPaid + ":", fmtCurrency(data.amountPaid))}`;
-    }
-
-    if (data.change && data.change > 0) {
-      receipt += `\n${padLine(labels.change + ":", fmtCurrency(data.change))}`;
-    }
-  }
-
-  receipt += `\n\n${centerText(data.footer || labels.thankYou)}`;
-  receipt += `\n\n${separator}\n`;
-
-  return receipt;
-};
 
 const buildReceiptPDF = async (data: ReceiptData, paperWidth: PaperWidth = "80mm", labels: ReceiptLabels = DEFAULT_RECEIPT_LABELS): Promise<Uint8Array> => {
   // jsPDF is heavy — load it only when a PDF is actually exported.

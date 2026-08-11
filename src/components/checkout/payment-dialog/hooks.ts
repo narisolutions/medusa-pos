@@ -17,7 +17,7 @@ import { useOrderProcessing } from "@/hooks/order/useOrderProcessing";
 import { getPaymentMethods, getMethodType } from "@/utils/settings/store/metadata";
 import { getCashRounding, roundCashAmount } from "@/utils/settings/preferences";
 import constants from "@/utils/constants";
-import { CreditCard, Banknote } from "lucide-react";
+import { CreditCard, Banknote, ArrowLeftRight } from "lucide-react";
 import {
   cashDrawerIssueStaffHintToast,
   handleErrorToast,
@@ -27,6 +27,7 @@ import {
 const iconByType = {
   cash: Banknote,
   card: CreditCard,
+  transfer: ArrowLeftRight,
 } as const;
 
 const usePaymentMethodDisplay = (selectedPaymentMethod?: PaymentMethod) => {
@@ -231,7 +232,8 @@ const usePaymentModal = (
   // Get payment method display info
   const paymentMethodInfo = usePaymentMethodDisplay(selectedPaymentMethod);
   const { data: store } = useQueryStore();
-  const isCashType = getMethodType(store, selectedPaymentMethod) === "cash";
+  const methodType = getMethodType(store, selectedPaymentMethod);
+  const isCashType = methodType === "cash";
 
   // Compose sub-hooks
   const { draftOrder, fetchDraftOrder } = useDraftOrderState(
@@ -286,8 +288,11 @@ const usePaymentModal = (
       });
 
       if (defaultPrinter?.openCashDrawer) {
-        const isCash = getMethodType(store, paymentMethod) === "cash";
-        const isCard = !isCash && paymentMethod !== undefined;
+        const type = getMethodType(store, paymentMethod);
+        const isCash = type === "cash";
+        // Explicitly "card", not "not cash" — a transfer moves no money at the
+        // till, so the drawer must stay shut for it.
+        const isCard = type === "card" && paymentMethod !== undefined;
         if (
           (isCash && defaultPrinter.openCashDrawerOnCash) ||
           (isCard && defaultPrinter.openCashDrawerOnCard)
@@ -619,9 +624,12 @@ const usePaymentModal = (
 
   // Handle complete button click
   const handleCompleteClick = useCallback(() => {
-    const isCardPayment = !isCashType;
+    // Cash needs no confirmation — counting the money out is the confirmation.
+    // Card confirms the terminal went through; transfer confirms an internal
+    // settlement that takes no money at all and cannot be undone at the till.
+    const needsConfirmation = methodType !== "cash";
 
-    if (isCardPayment) {
+    if (needsConfirmation) {
       setShowConfirmation(true);
     } else {
       handleProcessPayment().then((result) => {
@@ -630,7 +638,7 @@ const usePaymentModal = (
         }
       });
     }
-  }, [isCashType, handleProcessPayment, handleClose]);
+  }, [methodType, handleProcessPayment, handleClose]);
 
   // Handle complete payment with modal close (legacy, kept for backwards compatibility)
   const handleCompletePayment = useCallback(async (): Promise<void> => {

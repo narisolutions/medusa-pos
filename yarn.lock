@@ -395,6 +395,10 @@
   dependencies:
     "@tybys/wasm-util" "^0.10.3"
 
+"@narisolutions/pos-toolkit@github:narisolutions/pos-toolkit":
+  version "0.1.0"
+  resolved "https://codeload.github.com/narisolutions/pos-toolkit/tar.gz/f8e92747afaf02883cb70344de04f32675481eb3"
+
 "@oxc-project/types@=0.139.0":
   version "0.139.0"
   resolved "https://registry.yarnpkg.com/@oxc-project/types/-/types-0.139.0.tgz#38d76b9dbf934c2a02be174fb32ceebf182fe742"

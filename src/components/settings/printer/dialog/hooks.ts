@@ -6,16 +6,16 @@ import { getTauriInvokeErrorMessage } from "@/utils/helpers";
 import { useTranslation } from "@/i18n";
 
 interface UsbDeviceInfo {
-  vendor_id: number;
-  product_id: number;
+  vendorId: number;
+  productId: number;
   description: string;
 }
 
 interface SystemPrinterInfo {
   name: string;
-  driver_name: string;
-  port_name: string;
-  is_default: boolean;
+  driverName: string;
+  portName: string;
+  isDefault: boolean;
 }
 
 type PrinterFormValues = {
@@ -31,7 +31,7 @@ type PrinterFormValues = {
   openCashDrawerOnCash: boolean;
   openCashDrawerOnCard: boolean;
   paperWidth: "80mm" | "57mm";
-  encoding: "ascii" | "utf8" | "cp852";
+  encoding: "ascii" | "utf8" | "cp852" | "translit";
 };
 
 const initialFormData: PrinterFormValues = {
@@ -47,7 +47,7 @@ const initialFormData: PrinterFormValues = {
   openCashDrawerOnCash: false,
   openCashDrawerOnCard: false,
   paperWidth: "80mm",
-  encoding: "ascii",
+  encoding: "translit",
 };
 
 function formatVidPid(vendorId: number, productId: number): string {
@@ -133,7 +133,7 @@ const usePrinterDialog = (
         openCashDrawerOnCash: editingPrinter.openCashDrawerOnCash ?? false,
         openCashDrawerOnCard: editingPrinter.openCashDrawerOnCard ?? false,
         paperWidth: editingPrinter.paperWidth ?? "80mm",
-        encoding: (editingPrinter as PrinterFormValues).encoding ?? "ascii",
+        encoding: (editingPrinter as PrinterFormValues).encoding ?? "translit",
       });
     } else {
       reset(initialFormData);
@@ -180,12 +180,12 @@ const usePrinterDialog = (
 
   const handleUsbDeviceSelect = (value: string) => {
     const device = usbDevices.find(
-      (d) => `${d.vendor_id}:${d.product_id}` === value
+      (d) => `${d.vendorId}:${d.productId}` === value
     );
     if (device) {
-      setValue("vendorId", device.vendor_id);
-      setValue("productId", device.product_id);
-      setValue("address", `${device.description} (${formatVidPid(device.vendor_id, device.product_id)})`);
+      setValue("vendorId", device.vendorId);
+      setValue("productId", device.productId);
+      setValue("address", `${device.description} (${formatVidPid(device.vendorId, device.productId)})`);
     }
   };
 

@@ -1,6 +1,8 @@
 import { useState, useCallback, useMemo } from "react";
 import { useTranslation } from "@/i18n";
 import { useBarcodeBackgroundPaste } from "@/hooks/barcode/useBarcodePaste";
+import { useSerialScanner } from "@/hooks/barcode/useSerialScanner";
+import { useScannerPreferences } from "@/hooks/barcode/useScannerPreferences";
 import { useDebounce } from "@/hooks/ui/useDebounce";
 import { useCartStore } from "@/context/cart";
 import { toast } from "sonner";
@@ -196,6 +198,17 @@ const useCheckoutFilter = (props?: Props) => {
       t,
     ]
   );
+
+  // Serial delivers framed messages, so it skips both the keystroke-timing
+  // heuristic and the digits-only guard the wedge path needs. The wedge stays
+  // listening either way: a scanner in COM mode emits no keystrokes, so there
+  // is nothing to double-handle, and typing still focuses the search box.
+  const scanner = useScannerPreferences();
+  useSerialScanner({
+    scanner,
+    onScan: handleBarcodeSubmit,
+    enabled: !isProcessing,
+  });
 
   useBarcodeBackgroundPaste({
     onBarcodePaste: handleBarcodeSubmit,
