@@ -2,6 +2,7 @@ import { AdminOrder, AdminStore } from "@medusajs/types";
 import {
   getPaymentMethodsForSettings,
   getMethodType,
+  type PaymentMethodType,
 } from "@/utils/settings/store/metadata";
 
 /**
@@ -49,11 +50,11 @@ export function getOrderPaymentMethodLabel(
 }
 
 /**
- * Returns the behavioral type ("cash" or "card") for the payment method used in an order.
+ * Returns the behavioral type for the payment method used in an order.
  */
 export function getOrderPaymentMethodType(
   order: AdminOrder,
   store: AdminStore | null | undefined
-): "cash" | "card" {
+): PaymentMethodType {
   return getMethodType(store, getOrderPaymentProviderId(order));
 }

@@ -1,12 +1,18 @@
 import { AdminStore } from "@medusajs/types";
 
+/**
+ * "transfer" settles an order against an internal counterparty rather than a
+ * customer — no money is taken at the till, so no numpad, no change, no drawer.
+ */
+export type PaymentMethodType = "cash" | "card" | "transfer";
+
 export type PaymentMethodConfig = {
   id: string;
   label: string;
   enabled: boolean;
-  icon?: "cash" | "card";
+  icon?: "cash" | "card" | "transfer";
   /** Drives payment processing behavior (numpad, change calc, confirmation dialog). */
-  type?: "cash" | "card";
+  type?: PaymentMethodType;
 };
 
 /** POS-specific store settings, nested under metadata.pos */
@@ -180,7 +186,7 @@ export function buildStoreMetadataPayload(
 export function getMethodType(
   store: AdminStore | null | undefined,
   providerId: string | undefined
-): "cash" | "card" {
+): PaymentMethodType {
   if (!providerId) return "card";
   const configured = getStoreMetadata(store).payment_methods;
   const all = configured?.length ? configured : DEFAULT_PAYMENT_METHODS;

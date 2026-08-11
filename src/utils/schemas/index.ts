@@ -110,6 +110,33 @@ export default {
     reason: z.string().min(1, { message: "Reason is required" }),
   }),
 
+  /**
+   * The QR hand-off payload. Owned by Tamada's docs/22-external-items-qr.md —
+   * raise changes there first, not here.
+   */
+  handoffPayload: z.object({
+    v: z.literal(1),
+    src: z.literal("medusa"),
+    ref: z.string().min(1),
+    ts: z.string(),
+    currency: z.string().length(3),
+    items: z
+      .array(
+        z.object({
+          sku: z.string().min(1),
+          name: z.string().min(1),
+          nameKa: z.string().optional(),
+          qty: z.number().int().min(1),
+          // Integer tetri, gross of VAT. Tamada never parses decimals.
+          priceTetri: z.number().int().nonnegative(),
+          vatBp: z.number().int().nonnegative().optional(),
+          minimumAge: z.number().int().positive().optional(),
+          meta: z.record(z.string(), z.unknown()).optional(),
+        })
+      )
+      .min(1),
+  }),
+
   storeSettings: z.object({
     storeName: z.string().min(1, { message: "Store name is required" }),
     brandName: z.string().min(1, { message: "Brand name is required" }),
@@ -130,8 +157,8 @@ export default {
           id: z.string().min(1),
           label: z.string().min(1),
           enabled: z.boolean(),
-          icon: z.enum(["cash", "card"]).optional(),
-          type: z.enum(["cash", "card"]).optional(),
+          icon: z.enum(["cash", "card", "transfer"]).optional(),
+          type: z.enum(["cash", "card", "transfer"]).optional(),
         })
       )
       .optional(),
