@@ -208,8 +208,8 @@ const PrinterDialog: React.FC<Props> = ({
                               <div className="flex flex-col">
                                 <span>{printer.name}</span>
                                 <span className="text-sm text-fg-muted">
-                                  {printer.port_name}
-                                  {printer.is_default && ` ${t("settings.printer.dialog_default_badge")}`}
+                                  {printer.portName}
+                                  {printer.isDefault && ` ${t("settings.printer.dialog_default_badge")}`}
                                 </span>
                               </div>
                             </SelectItem>
@@ -260,7 +260,7 @@ const PrinterDialog: React.FC<Props> = ({
                             <span className="truncate">
                               {usbDevices.find(
                                 (d) =>
-                                  `${d.vendor_id}:${d.product_id}` ===
+                                  `${d.vendorId}:${d.productId}` ===
                                   selectedUsbKey
                               )?.description ||
                                 watch("address") ||
@@ -280,13 +280,13 @@ const PrinterDialog: React.FC<Props> = ({
                           )}
                           {usbDevices.map((device) => (
                             <SelectItem
-                              key={`${device.vendor_id}:${device.product_id}`}
-                              value={`${device.vendor_id}:${device.product_id}`}
+                              key={`${device.vendorId}:${device.productId}`}
+                              value={`${device.vendorId}:${device.productId}`}
                             >
                               <div className="flex flex-col">
                                 <span>{device.description}</span>
                                 <span className="text-sm text-fg-muted">
-                                  {formatVidPid(device.vendor_id, device.product_id)}
+                                  {formatVidPid(device.vendorId, device.productId)}
                                 </span>
                               </div>
                             </SelectItem>
