@@ -3,7 +3,7 @@ use std::collections::HashMap;
 
 use tauri::{Emitter, Manager};
 use tauri_plugin_log::{Target, TargetKind};
-use tauri_plugin_pos_hardware::printing::{self, Align, PrintOp, PrinterTarget};
+use tauri_plugin_pos_hardware::printing::{self, Align, PrintOp, PrinterTarget, QrEcc};
 use tauri_plugin_pos_hardware::{keyboard, serial, usb, winprint};
 
 mod config;
@@ -13,6 +13,9 @@ use config::AppConfig;
 
 /// Logo raster width in dots — 384 is the printable width of an 80mm head.
 const LOGO_MAX_WIDTH: u32 = 384;
+/// QR module size in dots. At 6, a few-hundred-byte payload stays inside the
+/// 384-dot printable width of 80mm paper and a phone still resolves it.
+const QR_MODULE_SIZE: u8 = 6;
 
 fn parse_usb_ids(vendor_id: Option<u16>, product_id: Option<u16>) -> Result<(u16, u16), String> {
     match (vendor_id, product_id) {
@@ -250,6 +253,40 @@ async fn print_receipt(
 
     let body = vec![
         text(&receipt_data),
+        PrintOp::Feed { lines: 2 },
+        PrintOp::Cut,
+    ];
+
+    print_job_with_logo_fallback(&target, header, &header_ops(&app_handle, header), body)
+}
+
+/// Hand-off ticket: the human-readable section, then the QR the receiving till
+/// scans. It can't reuse `print_receipt`, which cuts straight after the body and
+/// leaves nowhere to put the code.
+#[allow(clippy::too_many_arguments)]
+#[tauri::command]
+async fn print_handoff_ticket(
+    app_handle: tauri::AppHandle<tauri::Wry>,
+    connection_type: String,
+    address: String,
+    port: Option<String>,
+    vendor_id: Option<u16>,
+    product_id: Option<u16>,
+    ticket_text: String,
+    qr_payload: String,
+    company_name: Option<String>,
+) -> Result<(), String> {
+    let header = get_company_header(company_name.as_deref());
+    let target = printer_target(&connection_type, &address, port, vendor_id, product_id)?;
+
+    let body = vec![
+        text(&ticket_text),
+        PrintOp::Feed { lines: 1 },
+        PrintOp::QrCode {
+            data: qr_payload,
+            size: Some(QR_MODULE_SIZE),
+            correction: Some(QrEcc::M),
+        },
         PrintOp::Feed { lines: 2 },
         PrintOp::Cut,
     ];
@@ -604,6 +641,7 @@ pub fn run() {
             print_test,
             open_cash_drawer,
             print_receipt,
+            print_handoff_ticket,
             list_usb_devices,
             list_system_printers,
             check_config_exists,

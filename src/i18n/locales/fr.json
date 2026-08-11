@@ -354,6 +354,15 @@
     "unpaid": "** IMPAYÉ — PAIEMENT EN ATTENTE **",
     "rounding": "Arrondi"
   },
+  "handoff": {
+    "title": "TICKET DE TRANSFERT",
+    "banner": "** TRANSFERT - PAIEMENT AU RESTAURANT **",
+    "counterparty": "Transfert vers",
+    "footer": "Remettez ce ticket avec les articles.",
+    "print_action": "Imprimer le ticket de transfert",
+    "print_success": "Ticket de transfert imprimé",
+    "print_error": "Le ticket de transfert n’a pas été imprimé"
+  },
   "settings": {
     "preferences": {
       "title": "Préférences",

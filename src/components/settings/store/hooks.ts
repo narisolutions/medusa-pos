@@ -8,6 +8,7 @@ import { useQueryStore, useUpdateStore } from "@/hooks/queries/useQueryStore";
 import { useStore } from "@/context/store";
 import {
   getStoreMetadata,
+  getTransferCounterparty,
   DEFAULT_PAYMENT_METHODS,
   buildStoreMetadataPayload,
 } from "@/utils/settings/store/metadata";
@@ -105,6 +106,8 @@ const useStoreSettings = ({ form }: Props): UseStoreSettingsReturn => {
         store_phone: data.storePhone,
         payment_methods: data.paymentMethods ?? undefined,
         guest_customer_email: data.guestCustomerEmail || undefined,
+        // No UI for this yet; carry it through so a save doesn't drop it.
+        transfer_counterparty: getTransferCounterparty(store),
       };
       await updateStore({
         storeId: store.id,

@@ -354,6 +354,15 @@
     "unpaid": "** UNBEZAHLT — ZAHLUNG AUSSTEHEND **",
     "rounding": "Rundung"
   },
+  "handoff": {
+    "title": "TRANSFERBELEG",
+    "banner": "** TRANSFER - ZAHLUNG IM RESTAURANT **",
+    "counterparty": "Transfer an",
+    "footer": "Diesen Beleg zusammen mit den Artikeln übergeben.",
+    "print_action": "Transferbeleg drucken",
+    "print_success": "Transferbeleg gedruckt",
+    "print_error": "Transferbeleg wurde nicht gedruckt"
+  },
   "settings": {
     "preferences": {
       "title": "Präferenzen",
