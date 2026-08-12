@@ -13,9 +13,38 @@ use config::AppConfig;
 
 /// Logo raster width in dots — 384 is the printable width of an 80mm head.
 const LOGO_MAX_WIDTH: u32 = 384;
-/// QR module size in dots. At 6, a few-hundred-byte payload stays inside the
-/// 384-dot printable width of 80mm paper and a phone still resolves it.
-const QR_MODULE_SIZE: u8 = 6;
+/// QR byte-mode capacity at error-correction level M, by symbol version.
+/// Payloads here are always a few hundred bytes, so the table starts at 9.
+const QR_CAPACITY_M: [(u32, usize); 22] = [
+    (9, 180), (10, 213), (11, 251), (12, 287), (13, 331), (14, 362),
+    (15, 412), (16, 450), (17, 504), (18, 560), (19, 624), (20, 666),
+    (21, 711), (22, 779), (23, 857), (24, 911), (25, 997), (26, 1059),
+    (27, 1125), (28, 1190), (29, 1264), (30, 1370),
+];
+
+/// Printable dots across the paper: 48 or 32 columns of a 12-dot font.
+fn paper_dots(paper_width: Option<&str>) -> u32 {
+    match paper_width {
+        Some("57mm") => 384,
+        _ => 576,
+    }
+}
+
+/// The largest module size whose symbol still fits the paper.
+///
+/// A fixed size cannot work: a version-v symbol is 17 + 4v modules wide and the
+/// payload grows with every item on the ticket, so one bottle and six bottles
+/// need different modules. Bigger modules scan more easily, so take the biggest
+/// that fits rather than a small one that always would.
+fn qr_module_size(payload_len: usize, paper_dots: u32) -> u8 {
+    let version = QR_CAPACITY_M
+        .iter()
+        .find(|(_, capacity)| *capacity >= payload_len)
+        .map(|(version, _)| *version)
+        .unwrap_or(40);
+    let modules = 17 + 4 * version;
+    (paper_dots / modules).clamp(2, 8) as u8
+}
 
 fn parse_usb_ids(vendor_id: Option<u16>, product_id: Option<u16>) -> Result<(u16, u16), String> {
     match (vendor_id, product_id) {
@@ -274,19 +303,28 @@ async fn print_handoff_ticket(
     product_id: Option<u16>,
     ticket_text: String,
     qr_payload: String,
+    paper_width: Option<String>,
     company_name: Option<String>,
 ) -> Result<(), String> {
     let header = get_company_header(company_name.as_deref());
     let target = printer_target(&connection_type, &address, port, vendor_id, product_id)?;
 
+    let size = qr_module_size(qr_payload.len(), paper_dots(paper_width.as_deref()));
+    log::info!("Hand-off QR: {} bytes at module size {size}", qr_payload.len());
+
     let body = vec![
         text(&ticket_text),
         PrintOp::Feed { lines: 1 },
+        // The QR op carries no alignment and the plugin has no standalone align
+        // op, so the justify bytes are set around it directly: ESC a 1 centers,
+        // ESC a 0 restores left for whatever follows.
+        PrintOp::Raw { bytes: vec![0x1B, 0x61, 0x01] },
         PrintOp::QrCode {
             data: qr_payload,
-            size: Some(QR_MODULE_SIZE),
+            size: Some(size),
             correction: Some(QrEcc::M),
         },
+        PrintOp::Raw { bytes: vec![0x1B, 0x61, 0x00] },
         PrintOp::Feed { lines: 2 },
         PrintOp::Cut,
     ];
