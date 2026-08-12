@@ -354,6 +354,15 @@
     "unpaid": "** SIN PAGAR — PAGO PENDIENTE **",
     "rounding": "Redondeo"
   },
+  "handoff": {
+    "title": "TICKET DE TRANSFERENCIA",
+    "banner": "** TRANSFERENCIA - PAGO EN EL RESTAURANTE **",
+    "counterparty": "Transferir a",
+    "footer": "Entregue este ticket junto con los artículos.",
+    "print_action": "Imprimir ticket de transferencia",
+    "print_success": "Ticket de transferencia impreso",
+    "print_error": "El ticket de transferencia no se imprimió"
+  },
   "settings": {
     "preferences": {
       "title": "Preferencias",

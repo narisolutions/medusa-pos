@@ -219,7 +219,8 @@ const usePaymentModal = (
   // Total snapshotted at submit — clearing draftOrderId mid-flow would show 0.00 otherwise.
   const [frozenTotal, setFrozenTotal] = useState<number | null>(null);
 
-  const { printOrderReceipt, openCashDrawer, getDefaultPrinter } = usePrinterService();
+  const { printOrderReceipt, printHandoffTicket, openCashDrawer, getDefaultPrinter } =
+    usePrinterService();
   const clearItems = useCartStore((state) => state.clearItems);
   const setDraftOrderId = useCartStore((state) => state.setDraftOrderId);
   const { selectedPaymentMethod, setPaymentMethod } = useCheckout();
@@ -287,6 +288,19 @@ const usePaymentModal = (
         });
       });
 
+      // A transfer takes no money, so the paper is the whole transaction: the
+      // items travel to the other till on this ticket.
+      if (getMethodType(store, paymentMethod) === "transfer") {
+        printHandoffTicket(order).catch((ticketError) => {
+          void logger.warn(`Hand-off ticket print failed: ${safeStringify(ticketError)}`);
+          toast.error(t("handoff.print_error"), {
+            description: defaultPrinter
+              ? printerIssueStaffHintToast(defaultPrinter.name)
+              : t("checkout.no_default_printer"),
+          });
+        });
+      }
+
       if (defaultPrinter?.openCashDrawer) {
         const type = getMethodType(store, paymentMethod);
         const isCash = type === "cash";
@@ -306,7 +320,7 @@ const usePaymentModal = (
         }
       }
     },
-    [store, printOrderReceipt, openCashDrawer, getDefaultPrinter]
+    [store, printOrderReceipt, printHandoffTicket, openCashDrawer, getDefaultPrinter]
   );
 
   // Clean up after successful order — synchronous-ish: clears cart, resets

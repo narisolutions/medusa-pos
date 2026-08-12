@@ -354,6 +354,15 @@
     "unpaid": "** UNPAID — PAYMENT PENDING **",
     "rounding": "Rounding"
   },
+  "handoff": {
+    "title": "TRANSFER TICKET",
+    "banner": "** TRANSFER - PAY AT RESTAURANT **",
+    "counterparty": "Transfer to",
+    "footer": "Hand this ticket over with the items.",
+    "print_action": "Print transfer ticket",
+    "print_success": "Transfer ticket printed",
+    "print_error": "Transfer ticket did not print"
+  },
   "settings": {
     "preferences": {
       "title": "Preferences",

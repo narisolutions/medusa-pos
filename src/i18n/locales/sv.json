@@ -354,6 +354,15 @@
     "unpaid": "** OBETALD — BETALNING VÄNTAR **",
     "rounding": "Avrundning"
   },
+  "handoff": {
+    "title": "ÖVERFÖRINGSKVITTO",
+    "banner": "** ÖVERFÖRING - BETALA PÅ RESTAURANGEN **",
+    "counterparty": "Överföring till",
+    "footer": "Lämna detta kvitto tillsammans med varorna.",
+    "print_action": "Skriv ut överföringskvitto",
+    "print_success": "Överföringskvitto utskrivet",
+    "print_error": "Överföringskvittot skrevs inte ut"
+  },
   "settings": {
     "preferences": {
       "title": "Inställningar",

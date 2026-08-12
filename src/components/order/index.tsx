@@ -9,6 +9,7 @@ import {
   Printer,
   FileDown,
   Banknote,
+  QrCode,
 } from "lucide-react";
 import { formatDate } from "@/utils/helpers";
 import constants from "@/utils/constants";
@@ -36,11 +37,14 @@ const Order: React.FC<Props> = ({ order }) => {
     formatStatusText,
     handleBackToOrders,
     handleReprintReceipt,
+    handlePrintHandoffTicket,
     handleDownloadShippingLabel,
     handleCreateShipment,
     handleOpenPickupConfirmation,
     handleMarkAsPickedUp,
     isPrinting,
+    isPrintingTicket,
+    isTransferOrder,
     isDownloading,
     isDownloadingPDF,
     isCreatingShipment,
@@ -153,6 +157,18 @@ const Order: React.FC<Props> = ({ order }) => {
               <FileDown className="w-5 h-5 mr-3" />
               {isDownloadingPDF ? t("common.downloading") : t("orders.download_pdf_button")}
             </Button>
+            {isTransferOrder && (
+              <Button
+                variant="outline"
+                size="lg"
+                onClick={handlePrintHandoffTicket}
+                disabled={isPrintingTicket || isPrinting || isDownloadingPDF}
+                className={`border-theme-border text-fg-muted hover:text-fg hover:bg-surface-hover ${constants.ORDER_BUTTON_BASE_CLASSES} min-w-[200px]`}
+              >
+                <QrCode className="w-5 h-5 mr-3" />
+                {isPrintingTicket ? t("orders.printing") : t("handoff.print_action")}
+              </Button>
+            )}
           </div>
           <div className="flex items-center gap-2">
             <span
