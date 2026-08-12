@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { AdminOrder } from "@medusajs/types";
-import { buildHandoffPayload, toMinorUnits } from ".";
+import { buildHandoffPayload, encodeHandoffUrl, toMinorUnits } from ".";
 import schemas from "@/utils/schemas";
 
 /** A completed transfer order, shaped like what the orders API returns. */
@@ -57,7 +57,7 @@ describe("buildHandoffPayload", () => {
     expect(item.sku).toBe("wine-tsinandali-2019");
     expect(item.name).toBe("Tsinandali 2019, Shumi");
     expect(item.qty).toBe(2);
-    expect(item.priceTetri).toBe(4500);
+    expect(item.priceMinor).toBe(4500);
     expect(item.vatBp).toBe(1800);
     expect(item.minimumAge).toBe(18);
     expect(item.meta).toEqual({ vintage: "2019" });
@@ -112,5 +112,32 @@ describe("buildHandoffPayload", () => {
     } as unknown as AdminOrder;
 
     expect(buildHandoffPayload(unrestricted).items[0].minimumAge).toBeUndefined();
+  });
+});
+
+describe("encodeHandoffUrl", () => {
+  it("produces the URL form Tamada's recognizer expects", () => {
+    const url = encodeHandoffUrl(buildHandoffPayload(order));
+
+    expect(url.startsWith("https://wineland.ge/tamada/handoff/v1?d=")).toBe(true);
+    // base64url alphabet only — a wedge scanner must not mangle it
+    expect(url.split("?d=")[1]).toMatch(/^[A-Za-z0-9_-]+$/);
+  });
+
+  it("round-trips back to the same payload", () => {
+    const payload = buildHandoffPayload(order);
+    const d = encodeHandoffUrl(payload).split("?d=")[1];
+    const json = Buffer.from(d.replace(/-/g, "+").replace(/_/g, "/"), "base64").toString();
+
+    expect(JSON.parse(json)).toEqual(payload);
+  });
+
+  it("survives a Georgian name without losing bytes", () => {
+    const payload = { ...buildHandoffPayload(order) };
+    payload.items[0].nameKa = "წინანდალი";
+    const d = encodeHandoffUrl(payload).split("?d=")[1];
+    const json = Buffer.from(d.replace(/-/g, "+").replace(/_/g, "/"), "base64").toString();
+
+    expect(JSON.parse(json).items[0].nameKa).toBe("წინანდალი");
   });
 });

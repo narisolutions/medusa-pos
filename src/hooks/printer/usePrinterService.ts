@@ -18,7 +18,7 @@ import {
   getGuestCustomerEmail,
   getTransferCounterparty,
 } from "@/utils/settings/store/metadata";
-import { buildHandoffPayload } from "@/utils/pos/handoff";
+import { buildHandoffPayload, encodeHandoffUrl } from "@/utils/pos/handoff";
 import { buildHandoffTicketText } from "@/utils/pos/handoff/ticket";
 import type { PrinterEncoding } from "@/utils/pos/receipt/printer-encoding";
 import {
@@ -351,7 +351,10 @@ const usePrinterService = () => {
           vendorId: targetPrinter.vendorId ?? null,
           productId: targetPrinter.productId ?? null,
           ticketText,
-          qrPayload: JSON.stringify(payload),
+          // URL form, not raw JSON: base64url is ASCII, so a wedge scanner
+          // cannot mangle a Georgian name on the way in.
+          qrPayload: encodeHandoffUrl(payload),
+          paperWidth: targetPrinter.paperWidth ?? "80mm",
           companyName: getBrandName(store) || "POS",
         });
 

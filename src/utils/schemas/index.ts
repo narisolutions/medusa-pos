@@ -127,8 +127,8 @@ export default {
           name: z.string().min(1),
           nameKa: z.string().optional(),
           qty: z.number().int().min(1),
-          // Integer tetri, gross of VAT. Tamada never parses decimals.
-          priceTetri: z.number().int().nonnegative(),
+          // Integer minor units, gross of VAT. Tamada never parses decimals.
+          priceMinor: z.number().int().nonnegative(),
           vatBp: z.number().int().nonnegative().optional(),
           minimumAge: z.number().int().positive().optional(),
           meta: z.record(z.string(), z.unknown()).optional(),

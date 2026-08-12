@@ -64,7 +64,7 @@ export function buildHandoffPayload(order: AdminOrder): HandoffPayload {
       name: item.title ?? "",
       qty: Math.max(1, Math.round(toNumber(item.quantity))),
       // Prices are tax-inclusive here and the contract wants gross of VAT.
-      priceTetri: toMinorUnits(toNumber(item.unit_price)),
+      priceMinor: toMinorUnits(toNumber(item.unit_price)),
       ...(vatBp !== undefined ? { vatBp } : {}),
       ...(age !== undefined ? { minimumAge: age } : {}),
       ...(meta ? { meta } : {}),
@@ -79,4 +79,31 @@ export function buildHandoffPayload(order: AdminOrder): HandoffPayload {
     currency: (order.currency_code ?? "").toUpperCase(),
     items,
   };
+}
+
+/**
+ * Cosmetic host naming the source. The URL is never resolved — the moment
+ * anything fetches it, this feature has the runtime coupling it exists to avoid.
+ */
+const HANDOFF_HOST = "wineland.ge";
+const HANDOFF_PATH = "/tamada/handoff/v1";
+
+/** base64url, matching pos-toolkit-side `encodeBase64Url` byte for byte. */
+function encodeBase64Url(input: string): string {
+  const bytes = new TextEncoder().encode(input);
+  let binary = "";
+  for (const b of bytes) binary += String.fromCharCode(b);
+  return btoa(binary).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+}
+
+/**
+ * The printable form of the payload. Tamada accepts raw JSON too, but a
+ * keyboard-wedge scanner cannot be assumed to transmit non-ASCII, so `nameKa`
+ * would be at risk; base64url is ASCII by construction.
+ */
+export function encodeHandoffUrl(
+  payload: HandoffPayload,
+  host: string = HANDOFF_HOST
+): string {
+  return `https://${host}${HANDOFF_PATH}?d=${encodeBase64Url(JSON.stringify(payload))}`;
 }
