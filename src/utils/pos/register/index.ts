@@ -7,7 +7,7 @@ import type { RegisterSession } from "@/types/register";
 /**
  * Cash-reconciliation helpers. Pure and (mostly) backend-agnostic — the only
  * Medusa-aware seam is `orderCashContribution`, which reads payment collections.
- * See src/docs/cash-reconciliation/09-portability.md.
+ * See docs/cash-reconciliation/09-portability.md.
  */
 
 /**

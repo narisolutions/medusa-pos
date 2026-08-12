@@ -15,7 +15,7 @@ type Props = {
 /**
  * Set / change / clear the manager PIN. The raw PIN never leaves this component —
  * it is hashed by the parent before storage. See
- * src/docs/cash-reconciliation/07-security-manager-pin.md.
+ * docs/cash-reconciliation/07-security-manager-pin.md.
  */
 const ManagerPin: React.FC<Props> = ({ hasPin, locked = false, onSet, onClear }) => {
   const { t } = useTranslation();

@@ -20,7 +20,7 @@ type Props = {
 /**
  * Banner shown when the register settings are locked behind the manager PIN.
  * Tapping "Unlock" prompts for the PIN; a correct PIN unlocks the section for the
- * current Settings visit. See src/docs/cash-reconciliation/07-security-manager-pin.md.
+ * current Settings visit. See docs/cash-reconciliation/07-security-manager-pin.md.
  */
 const RegisterLock: React.FC<Props> = ({ onUnlock }) => {
   const { t } = useTranslation();
