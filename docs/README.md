@@ -29,6 +29,7 @@ Each feature lives in its own subdirectory. Within a feature, docs are split int
 | Feature | Status | Docs |
 |---|---|---|
 | [Cash Reconciliation](./cash-reconciliation/README.md) | v1 (in development) | Register open/close, expected-cash tracking, discrepancy reporting |
+| [Role Management](./role-management/README.md) | planned (design only) | Staff roles, permissions, manager approval — replaces the register-scoped manager PIN |
 
 > More feature subdirectories will be added here over time.
 

@@ -30,6 +30,7 @@ export const queryKeys = {
   shippingOptions: ["shipping-options"] as const,
   stockLocations: ["stock-locations"] as const,
   paymentProviders: ["payment-providers"] as const,
+  refundReasons: ["refund-reasons"] as const,
   posPlugin: ["pos-plugin-installed"] as const,
   products: {
     all: ["products"] as const,

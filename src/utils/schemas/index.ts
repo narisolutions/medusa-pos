@@ -108,6 +108,14 @@ export default {
     reason: z.string().min(1, { message: "Reason is required" }),
   }),
 
+  refund: z.object({
+    amount: z.coerce
+      .number()
+      .positive({ message: "Refund amount must be greater than zero" }),
+    refundReasonId: z.string().optional(),
+    note: z.string().optional(),
+  }),
+
   /**
    * The QR hand-off payload. Owned by Tamada's docs/22-external-items-qr.md —
    * raise changes there first, not here.

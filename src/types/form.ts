@@ -16,4 +16,5 @@ export type Forms = {
   OpenRegister: zodInfer<typeof schemas.openRegister>;
   CloseRegister: zodInfer<typeof schemas.closeRegister>;
   CashMovement: zodInfer<typeof schemas.cashMovement>;
+  Refund: zodInfer<typeof schemas.refund>;
 };

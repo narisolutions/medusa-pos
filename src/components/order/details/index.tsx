@@ -4,7 +4,11 @@ import { Calendar } from "lucide-react";
 import { formatPrice, formatDate, getOrderCurrency } from "@/utils/helpers";
 import { useTranslation } from "@/i18n";
 import { useQueryStore } from "@/hooks/queries/useQueryStore";
-import { getOrderPaymentMethodLabel } from "@/utils/pos/payment";
+import {
+  getOrderPaymentMethodLabel,
+  getOrderRefundedTotal,
+  getOrderSaleTotal,
+} from "@/utils/pos/payment";
 
 interface DetailsProps {
   order: AdminOrder;
@@ -24,11 +28,12 @@ const Details: React.FC<DetailsProps> = ({
     created_at,
     currency_code,
     payment_status,
-    total,
     sales_channel,
   } = order;
 
   const paymentMethodLabel = getOrderPaymentMethodLabel(order, store);
+  const refundedTotal = getOrderRefundedTotal(order);
+  const saleTotal = getOrderSaleTotal(order);
 
   const currency = getOrderCurrency(order);
 
@@ -76,12 +81,17 @@ const Details: React.FC<DetailsProps> = ({
           <div className="flex justify-between text-base">
             <span className="text-fg-muted">{t("orders.payment_amount_label")}</span>
             <span className="font-medium text-fg">
-              {formatPrice(
-                total,
-                currency
-              )}
+              {formatPrice(saleTotal, currency)}
             </span>
           </div>
+          {refundedTotal > 0 && (
+            <div className="flex justify-between text-base">
+              <span className="text-fg-muted">{t("orders.refunded_label")}</span>
+              <span className="font-medium text-red-600">
+                -{formatPrice(refundedTotal, currency)}
+              </span>
+            </div>
+          )}
           {sales_channel && (
             <div className="flex justify-between text-base">
               <span className="text-fg-muted">{t("orders.sales_channel_label")}</span>

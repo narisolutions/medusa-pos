@@ -9,6 +9,7 @@ import {
   Printer,
   FileDown,
   Banknote,
+  RotateCcw,
   QrCode,
 } from "lucide-react";
 import { formatDate } from "@/utils/helpers";
@@ -18,6 +19,7 @@ import { useTranslation } from "@/i18n";
 import FulfillmentDialog from "./fulfillment-dialog";
 import PickupConfirmationDialog from "./confirmation-dialog";
 import RecordPaymentDialog from "./record-payment-dialog";
+import RefundDialog from "./refund-dialog";
 import Activity from "./activity";
 import Summary from "./summary";
 import Details from "./details";
@@ -60,6 +62,9 @@ const Order: React.FC<Props> = ({ order }) => {
     setIsPickupConfirmationOpen,
     isRecordPaymentOpen,
     setIsRecordPaymentOpen,
+    canRefund,
+    isRefundOpen,
+    setIsRefundOpen,
     handleDownloadReceiptPDF,
   } = useOrder(order);
 
@@ -98,6 +103,17 @@ const Order: React.FC<Props> = ({ order }) => {
             >
               <Banknote className="w-5 h-5 mr-3" />
               {t("orders.record_payment")}
+            </Button>
+          )}
+          {canRefund && (
+            <Button
+              variant="default"
+              size="lg"
+              onClick={() => setIsRefundOpen(true)}
+              className={`bg-red-600 hover:bg-red-700 text-white ${constants.ORDER_BUTTON_BASE_CLASSES} min-w-[180px]`}
+            >
+              <RotateCcw className="w-5 h-5 mr-3" />
+              {t("orders.refund")}
             </Button>
           )}
           {canCreateShipment && (
@@ -243,6 +259,12 @@ const Order: React.FC<Props> = ({ order }) => {
       <RecordPaymentDialog
         isOpen={isRecordPaymentOpen}
         onClose={() => setIsRecordPaymentOpen(false)}
+        order={order}
+      />
+
+      <RefundDialog
+        isOpen={isRefundOpen}
+        onClose={() => setIsRefundOpen(false)}
         order={order}
       />
     </div>

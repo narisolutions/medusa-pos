@@ -3,6 +3,7 @@ import { AdminOrder } from "@medusajs/types";
 import { Receipt } from "lucide-react";
 import { formatPrice, getOrderCurrency } from "@/utils/helpers";
 import { discountPerUnit, orderDiscountAmount } from "@/utils/pos/pricing";
+import { getOrderSaleTotal } from "@/utils/pos/payment";
 import { useTranslation } from "@/i18n";
 
 interface SummaryProps {
@@ -16,10 +17,11 @@ const Summary: React.FC<SummaryProps> = ({ order }) => {
     discount_total,
     shipping_total,
     tax_total,
-    total,
     items,
     metadata,
   } = order;
+
+  const total = getOrderSaleTotal(order);
 
   const itemDiscountsTotal = (items ?? []).reduce((acc, item) => {
     const meta = item.metadata as {
