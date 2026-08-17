@@ -10,31 +10,27 @@ The POS has no concept of *who* is operating it, only *whether someone is logged
 Nothing in `src/` reads a role, an actor type, or a permission claim. Route protection
 is authentication-only.
 
-The one privilege boundary that exists is the **manager PIN**, and it was built as part
-of cash reconciliation:
+There is currently **no privilege boundary at all**. An on-device manager PIN existed and
+was **removed on 2026-08-12** (`0e258de`) — closing the register, reopening a same-day
+close, editing register settings and issuing a refund are all open to whoever is standing
+at the terminal.
 
-| Concern | Where |
-|---|---|
-| PBKDF2 hashing, `verifyPin`, `isLegacyPinHash` | `src/utils/pos/register/index.ts` |
-| `verifyManagerPin` (verify + legacy re-hash) | `src/utils/settings/preferences/pin.ts` |
-| `requirePinToClose`, `managerPinHash` | `RegisterPreferences` in `src/types/preferences.ts` |
-| Exposed to the app | `src/context/register/index.tsx` |
+It was removed rather than extended because of what it was, not merely where it lived:
 
-That produces three problems.
+**1. It was a shared secret, not an identity.** A PIN kept on the terminal is learned by
+every cashier who watches it typed. It authorizes an action and records nobody.
 
-**1. Unrelated features borrow a register setting.** Reopening the register already
-reuses `requirePinToClose` ("reopen is a manager-authority undo, so it reuses the close
-PIN gate"). The refund flow now does the same. Neither has anything to do with closing a
-register, and the setting's name and its home in `RegisterPreferences` both say otherwise.
+**2. It leaked across unrelated features.** Reopening the register reused
+`requirePinToClose`, and so did the refund flow — a setting named after closing a register
+was quietly the authorization primitive for refunding money.
 
-**2. Turning the register off silently removes the gate.** `register.enabled` defaults to
-`false`. With the register disabled there is no UI to set a manager PIN — the
-`ManagerPin` component lives inside the `registerEnabled` branch of the preferences form.
-So `managerPinHash` is undefined, `pinRequired` evaluates to `false`, and **refunds
-proceed with no authorization at all**. A store that never turns on cash reconciliation
-has an unguarded refund button. This is the concrete trigger for this work.
+**3. It vanished when the register was off.** `register.enabled` defaults to `false`, and
+the PIN field lived inside the `registerEnabled` branch of the preferences form. A store
+that never switched on cash reconciliation had an unguarded refund button and no way to
+guard it. That was the concrete trigger for this work, and removing the PIN generalised
+the hole rather than closing it: **every** install is now in that state.
 
-**3. A PIN is not an identity.** It authorizes an action but records nobody. Medusa stamps
+**4. Medusa stamps
 `created_by` on every refund — but with the device's shared admin user, so every refund in
 a store is attributed to the same person regardless of who actually pressed the button.
 There is no answer to "who approved this refund?"
@@ -43,7 +39,7 @@ There is no answer to "who approved this refund?"
 
 In scope: an identity and permission model for POS operators, a single authorization
 primitive that every privileged action goes through, and a step-up ("manager approval")
-flow. Migration of the existing manager PIN onto it.
+flow.
 
 Out of scope: changing how the *device* authenticates to Medusa, and any customer-facing
 account concept.
@@ -77,7 +73,7 @@ type StaffMember = {
   id: string;
   name: string;
   role: StaffRole;
-  pinHash: string;      // PBKDF2, reusing the existing hashPin/verifyPin primitives
+  pinHash: string;      // PBKDF2; the previous implementation is in 0e258de's parent if useful
   active: boolean;
   createdAt: string;
 };
@@ -139,7 +135,7 @@ await authorize("refund.create");     // resolves with the approving staff membe
 resolves immediately; otherwise it opens a shared `<AuthorizationDialog>` asking a
 sufficiently-privileged staff member for their PIN, and resolves with *that* person's
 record. This is the real retail requirement — a cashier starts a refund and a supervisor
-walks over and approves it — and it is what the current per-dialog PIN field is a crude
+walks over and approves it — and it is what the removed per-dialog PIN field was a crude
 stand-in for.
 
 Every privileged action returns the approver so it can be recorded.
@@ -163,26 +159,27 @@ surface without touching call sites.
 
 ---
 
-## Migration from the manager PIN
+## There is nothing to migrate from
 
-1. Keep `hashPin` / `verifyPin` / `isLegacyPinHash` in `src/utils/pos/register/` exactly as
-   they are, including the legacy unsalted-SHA-256 path and the transparent re-hash in
-   `verifyManagerPin`. They are correct and already handle upgrades.
-2. On first run after the feature ships, if `register.managerPinHash` exists, seed a single
-   staff member `{ name: "Manager", role: "manager", pinHash: <existing> }`. No one has to
-   re-enter a PIN.
-3. Replace `requirePinToClose` with the `register.close` permission. Retire the field from
-   `RegisterPreferences` after the seed migration has run.
-4. Move the PIN UI out of the `registerEnabled` branch of the preferences form into its own
-   Staff section, so it is reachable with cash reconciliation off.
-5. Migrate the two existing call sites (`close-register-dialog/hooks.ts`,
-   `register-menu-item/index.tsx`) and the refund dialog
-   (`src/components/order/refund-dialog/hooks.ts`) onto `authorize()`, deleting their
-   bespoke `pinRequired` / `form.setError("managerPin", …)` logic.
+The manager PIN and everything under it — the PBKDF2 hashing, the legacy unsalted-SHA-256
+upgrade path, `verifyManagerPin`, `requirePinToClose`, `managerPinHash`, the settings UI
+and the lock over register preferences — was deleted in `0e258de`. A `managerPinHash` may
+still sit in `pos-storage.json` on an install that predates that commit; nothing reads it,
+and it should not be revived as a seed. Staff records start empty.
 
-**Interim risk.** Until step 4 lands, a store with the register disabled can refund without
-any authorization. If this feature is not imminent, consider a stopgap: surface the manager
-PIN setting unconditionally, or default `refund.create` to blocked when no PIN is configured.
+The four call sites that used to carry their own `pinRequired` logic are already stripped
+and are the ones to wire onto `authorize()`:
+
+- `close-register-dialog/hooks.ts` — closing the register
+- `register-menu-item/index.tsx` — reopening a same-day close
+- `order/refund-dialog/hooks.ts` — issuing a refund
+- `settings/preferences` — editing register configuration
+
+**Interim risk, and it is live now.** Every one of those actions is unauthenticated on
+every install, not just on stores with the register disabled. That is a deliberate,
+recorded trade — see `docs/pos-toolkit-and-handoff-status.md` §2.4 — made on the basis
+that a device-local secret was never real authorization. It does mean this work is the
+only thing standing between the current state and an audited one.
 
 ---
 
@@ -191,12 +188,12 @@ PIN setting unconditionally, or default `refund.create` to blocked when no PIN i
 | Phase | Contents |
 |---|---|
 | 1 | Types, `ROLE_PERMISSIONS` table, storage, `useAuthorization` with `can()` only. No UI change. |
-| 2 | Staff management UI (list, add, edit role, set PIN, deactivate) under Settings. Seed migration from `managerPinHash`. |
+| 2 | Staff management UI (list, add, edit role, set PIN, deactivate) under Settings. |
 | 3 | Shared `<AuthorizationDialog>` + `authorize()` step-up. Migrate refund, register close, register reopen onto it. |
 | 4 | Operator sign-in — who is on shift; attribute orders and register sessions to them. |
 | 5 | Audit log surface, and backend enforcement via the POS plugin. |
 
-Phases 1–3 remove the defect that prompted this document. 4–5 are the payoff.
+Phases 1–3 restore an authorization boundary, which no longer exists at all. 4–5 are the payoff.
 
 ---
 
