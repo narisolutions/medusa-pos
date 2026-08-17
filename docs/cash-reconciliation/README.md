@@ -23,7 +23,6 @@ float, a counted closing total, and a recorded **over/short** difference.
 | 4 | [State & persistence](./04-state-and-persistence.md) | The session state machine and where it is stored |
 | 5 | [UI flows](./05-ui-flows.md) | Open / movement / close dialogs and the sidebar status |
 | 6 | [Settings & configuration](./06-settings-and-configuration.md) | The enable toggle and per-terminal options |
-| 7 | [Security: manager PIN](./07-security-manager-pin.md) | The interim on-device PIN and its end-state |
 | 8 | [Edge cases](./08-edge-cases.md) | Restarts, stale days, refunds, fraud, corrupt storage |
 | 9 | [Portability](./09-portability.md) | Reusing this in a non-Medusa restaurant POS |
 

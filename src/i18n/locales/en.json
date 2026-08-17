@@ -341,7 +341,6 @@
     "refund_confirm_submit": "Refund now",
     "refund_irreversible_warning": "This cannot be undone.",
     "refund_exceeds_refundable": "Amount is higher than what is available to refund",
-    "refund_pin_invalid": "Incorrect manager PIN",
     "refund_processing": "Refunding...",
     "refund_success": "Refunded {{amount}}",
     "refund_failed": "Refund failed",
@@ -376,6 +375,15 @@
     "amount_due": "Amount Due",
     "unpaid": "** UNPAID — PAYMENT PENDING **",
     "rounding": "Rounding"
+  },
+  "handoff": {
+    "title": "TRANSFER TICKET",
+    "banner": "** TRANSFER - PAY AT RESTAURANT **",
+    "counterparty": "Transfer to",
+    "footer": "Hand this ticket over with the items.",
+    "print_action": "Print transfer ticket",
+    "print_success": "Transfer ticket printed",
+    "print_error": "Transfer ticket did not print"
   },
   "settings": {
     "preferences": {
@@ -418,27 +426,7 @@
         "cutoff_hour": "Business-day cut-off hour",
         "cutoff_hour_description": "Hour (0–23) when a new business day starts. Keeps late-night sales in one shift.",
         "discrepancy_threshold": "Discrepancy threshold",
-        "discrepancy_threshold_description": "Over/short above this amount requires a reason at close.",
-        "require_pin": "Require manager PIN to close",
-        "require_pin_description": "Ask for the manager PIN before closing the register.",
-        "manager_pin": "Manager PIN",
-        "pin_set": "A PIN is set.",
-        "pin_not_set": "No PIN set.",
-        "set_pin": "Set PIN",
-        "change_pin": "Change PIN",
-        "clear_pin": "Clear PIN",
-        "new_pin": "New PIN",
-        "confirm_pin": "Confirm PIN",
-        "save_pin": "Save PIN",
-        "pin_too_short": "PIN must be at least 4 digits.",
-        "pin_mismatch": "PINs do not match.",
-        "pin_saved": "Manager PIN saved.",
-        "pin_cleared": "Manager PIN cleared.",
-        "locked_notice": "Manager PIN protects these settings. Unlock to make changes.",
-        "unlock": "Unlock",
-        "unlock_title": "Enter manager PIN",
-        "unlock_description": "Enter the manager PIN to edit register settings.",
-        "unlock_failed": "Incorrect PIN"
+        "discrepancy_threshold_description": "Over/short above this amount requires a reason at close."
       },
       "cash_rounding": "Cash rounding",
       "cash_rounding_description": "Round cash payments to the nearest increment. Card and other payments stay exact.",
@@ -453,6 +441,7 @@
       "encoding_ascii": "ASCII (Default — strips non-ASCII)",
       "encoding_utf8": "UTF-8 (Unicode — pass-through)",
       "encoding_cp852": "CP852 (Central European mapping)",
+      "encoding_translit": "Transliterate to Latin",
       "loading": "Loading printers...",
       "testing_print": "Testing print…",
       "testing_drawer": "Testing drawer…",
@@ -520,6 +509,7 @@
       "dialog_encoding_ascii_desc": "Safe for all printers. Non-ASCII characters are removed.",
       "dialog_encoding_utf8_desc": "Requires printer firmware with UTF-8 support. All characters pass through.",
       "dialog_encoding_cp852_desc": "Maps Polish/Central European characters to closest ASCII equivalents.",
+      "dialog_encoding_translit_desc": "Romanizes Georgian, Cyrillic, Greek, Armenian and Hebrew, then falls back to ASCII. Use when the printer has no codepage for the local script.",
       "dialog_update_button": "Update Printer"
     },
     "connection": {
@@ -572,9 +562,11 @@
       "icon_label": "Icon",
       "icon_cash": "Cash",
       "icon_card": "Card",
+      "icon_transfer": "Transfer",
       "type_label": "Type",
       "type_cash": "Cash",
       "type_card": "Card",
+      "type_transfer": "Transfer",
       "provider_id_not_installed": "This provider ID is not installed in your Medusa backend.",
       "add_payment_method_button": "Add payment method",
       "font_size_label": "Base Font Size (px)",
@@ -591,6 +583,35 @@
       "pick_logo_dialog_title": "Select Store Logo",
       "pick_logo_filter_name": "Image",
       "logo_too_large": "Logo image must be smaller than 256 KB"
+    },
+    "scanner": {
+      "title": "Scanner",
+      "description": "How the barcode scanner reaches the app. Keyboard mode needs no setup; serial mode reads the scanner's COM port directly and is the only way to read 2D codes reliably.",
+      "transport_label": "Input mode",
+      "transport_wedge": "Keyboard (default)",
+      "transport_serial": "Serial (Virtual COM)",
+      "transport_wedge_hint": "The scanner types what it reads. No setup needed, but the keyboard layout can rewrite punctuation and only numeric barcodes are recognised.",
+      "transport_serial_hint": "The scanner sends bytes on a COM port. Switch the scanner to Virtual COM mode with the configuration barcode in its manual first.",
+      "port_label": "Port",
+      "port_none": "No port selected",
+      "scan_ports": "Scan for ports",
+      "scanning": "Scanning...",
+      "no_ports": "No serial ports found. Check the scanner is plugged in and switched to Virtual COM mode.",
+      "show_all_ports": "Show all ports ({{count}} hidden)",
+      "baud_label": "Baud rate",
+      "idle_label": "Idle timeout (ms)",
+      "idle_hint": "Leave at 0 unless the scanner sends no terminator. Any other value adds that delay to every scan.",
+      "test_label": "Test scan",
+      "test_hint": "Shows exactly what arrives, so a mis-configured scanner can be told apart from a mis-configured app.",
+      "test_start": "Start test",
+      "test_stop": "Stop test",
+      "test_waiting": "Waiting for a scan...",
+      "test_idle": "Start the test, then scan something.",
+      "test_bytes": "bytes",
+      "test_terminator": "ended by",
+      "open_failed": "Could not open the scanner port",
+      "reader_stopped": "Scanner disconnected",
+      "save_failed": "Failed to save scanner settings"
     },
     "plugins": {
       "title": "Plugins",
@@ -680,8 +701,6 @@
       "reason": "Reason",
       "reason_required": "Reason required for this difference",
       "reason_optional": "Optional",
-      "manager_pin": "Manager PIN",
-      "pin_invalid": "Incorrect PIN",
       "print_summary": "Print summary",
       "print_failed": "Summary did not print",
       "success": "Register closed",
@@ -705,8 +724,7 @@
     "reopen": {
       "title": "Reopen register",
       "description": "Resume the current shift so you can keep selling. The opening float and cash movements are kept.",
-      "submit": "Reopen register",
-      "pin_invalid": "Incorrect PIN"
+      "submit": "Reopen register"
     }
   }
 }

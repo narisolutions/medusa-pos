@@ -17,6 +17,8 @@ import { getSdkBaseUrl, getSdk, getAuthToken } from "@/config/medusa";
 import { useQueryClient } from "@tanstack/react-query";
 import { queryKeys } from "@/config/query";
 import { usePrinterService } from "@/hooks/printer/usePrinterService";
+import { useQueryStore } from "@/hooks/queries/useQueryStore";
+import { getOrderPaymentMethodType } from "@/utils/pos/payment";
 import { classifyFulfillment, classifyOrderShippingMethod } from "@/utils/pos/fulfillment";
 import { getOrderRefundableTotal } from "@/utils/pos/payment";
 
@@ -44,9 +46,13 @@ export const useOrder = (order: AdminOrder) => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { t } = useTranslation();
-  const { printOrderReceipt, downloadReceiptAsPDF, getDefaultPrinter } =
+  const { printOrderReceipt, printHandoffTicket, downloadReceiptAsPDF, getDefaultPrinter } =
     usePrinterService();
   const [isPrinting, setIsPrinting] = useState(false);
+  const [isPrintingTicket, setIsPrintingTicket] = useState(false);
+  const { data: store } = useQueryStore();
+  // The hand-off ticket only means anything for an internal transfer.
+  const isTransferOrder = getOrderPaymentMethodType(order, store) === "transfer";
   const [isDownloading, setIsDownloading] = useState(false);
   const [isDownloadingPDF, setIsDownloadingPDF] = useState(false);
   const [isCreatingShipment, setIsCreatingShipment] = useState(false);
@@ -99,6 +105,24 @@ export const useOrder = (order: AdminOrder) => {
       }
     } finally {
       setIsPrinting(false);
+    }
+  };
+
+  const handlePrintHandoffTicket = async () => {
+    if (isPrintingTicket) return;
+    setIsPrintingTicket(true);
+    try {
+      await printHandoffTicket(order);
+      toast.success(t("handoff.print_success"));
+    } catch {
+      const printer = getDefaultPrinter();
+      toast.error(t("handoff.print_error"), {
+        description: printer
+          ? printerIssueStaffHintToast(printer.name)
+          : t("checkout.no_default_printer"),
+      });
+    } finally {
+      setIsPrintingTicket(false);
     }
   };
 
@@ -287,11 +311,14 @@ export const useOrder = (order: AdminOrder) => {
     formatStatusText: formatOrderStatusText,
     handleBackToOrders,
     handleReprintReceipt,
+    handlePrintHandoffTicket,
     handleDownloadShippingLabel,
     handleCreateShipment,
     handleOpenPickupConfirmation,
     handleMarkAsPickedUp,
     isPrinting,
+    isPrintingTicket,
+    isTransferOrder,
     isDownloading,
     isDownloadingPDF,
     isCreatingShipment,

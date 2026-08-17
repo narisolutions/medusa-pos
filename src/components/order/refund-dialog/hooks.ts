@@ -20,8 +20,6 @@ import { logger, safeStringify } from "@/utils/logger";
 import { useQueryStore } from "@/hooks/queries/useQueryStore";
 import { useQueryRefundReasons } from "@/hooks/queries/useQueryRefundReasons";
 import { usePrinterService } from "@/hooks/printer/usePrinterService";
-import { useRegister } from "@/context/register";
-import { verifyManagerPin } from "@/utils/settings/preferences/pin";
 import {
   getRefundablePayments,
   getOrderPaymentMethodType,
@@ -33,7 +31,6 @@ export const useRefund = (order: AdminOrder, isOpen: boolean, onClose: () => voi
   const { data: store } = useQueryStore();
   const { data: refundReasons = [] } = useQueryRefundReasons(isOpen);
   const { openCashDrawer, getDefaultPrinter } = usePrinterService();
-  const { requirePinToClose, managerPinHash } = useRegister();
 
   const [step, setStep] = useState<"form" | "confirm">("form");
   const [isProcessing, setIsProcessing] = useState(false);
@@ -49,7 +46,6 @@ export const useRefund = (order: AdminOrder, isOpen: boolean, onClose: () => voi
     payments.find((payment) => payment.id === selectedPaymentId) ?? payments[0];
   const refundable = selectedPayment?.refundable ?? 0;
   const currency = getOrderCurrency(order);
-  const pinRequired = requirePinToClose && !!managerPinHash;
 
   const form = useForm<Forms["Refund"]>({
     resolver: coercedZodResolver(schemas.refund),
@@ -57,7 +53,6 @@ export const useRefund = (order: AdminOrder, isOpen: boolean, onClose: () => voi
       amount: refundable,
       refundReasonId: "",
       note: "",
-      managerPin: "",
     },
   });
 
@@ -88,8 +83,7 @@ export const useRefund = (order: AdminOrder, isOpen: boolean, onClose: () => voi
         amount: first?.refundable ?? 0,
         refundReasonId: "",
         note: "",
-        managerPin: "",
-      });
+        });
     }
   }
 
@@ -106,9 +100,9 @@ export const useRefund = (order: AdminOrder, isOpen: boolean, onClose: () => voi
     setAmount(String(refundable));
   }, [refundable, setAmount]);
 
-  // Config-dependent rules (refundable ceiling, manager PIN) live here rather
-  // than in the schema, matching the close-register flow.
-  const handleValidate = form.handleSubmit(async (data) => {
+  // The refundable ceiling depends on the payment, not the form, so it is checked
+  // here rather than in the schema — matching the close-register flow.
+  const handleValidate = form.handleSubmit((data) => {
     if (!selectedPayment) return;
 
     if (data.amount > refundable) {
@@ -116,18 +110,6 @@ export const useRefund = (order: AdminOrder, isOpen: boolean, onClose: () => voi
         message: translate("orders.refund_exceeds_refundable"),
       });
       return;
-    }
-
-    if (pinRequired) {
-      const ok = data.managerPin
-        ? await verifyManagerPin(data.managerPin, managerPinHash as string)
-        : false;
-      if (!ok) {
-        form.setError("managerPin", {
-          message: translate("orders.refund_pin_invalid"),
-        });
-        return;
-      }
     }
 
     setStep("confirm");
@@ -205,7 +187,6 @@ export const useRefund = (order: AdminOrder, isOpen: boolean, onClose: () => voi
     setAmount,
     handleRefundFull,
     refundReasons,
-    pinRequired,
     isProcessing,
     handleValidate,
     handleConfirm,

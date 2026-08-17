@@ -13,7 +13,7 @@ A daily open/close register flow for a **single terminal**, fully local.
    safe) and **pay-ins** (change added) adjust the expected total.
 3. **Close register** — the operator counts the drawer and enters **one total**. The app
    shows `Expected vs Counted vs Over/Short`. A **reason is required** when the
-   difference exceeds a configurable threshold. Closing can require a **manager PIN**.
+   difference exceeds a configurable threshold.
 4. **Optional** — print a short close summary on the existing receipt printer (this is a
    summary, not a full Z-Report).
 
@@ -31,7 +31,7 @@ app start ──► [business day changed or no open session?]
                  │                          cash refund lowers "expected"
                  ▼
         CloseRegisterDialog ──► count drawer ──► Over/Short shown
-                 │ (reason if over threshold, manager PIN if required)
+                 │ (reason if over threshold)
                  ▼
         session archived to history ──► next open starts a fresh day
 ```
@@ -51,5 +51,9 @@ app start ──► [business day changed or no open session?]
 - Z-Report (short/long) and end-of-day accounting across **all** payment methods.
 - In-app history browser, PDF/CSV export.
 - Denomination ("count by note") breakdown.
-- **Server-enforced staff roles** — v1 uses an interim on-device manager PIN; proper
-  roles are a later, backend-side concern. See [Security](./07-security-manager-pin.md).
+- **Authority — who may close or reopen a register.** There is deliberately **no
+  gate** on the device. An earlier version shipped an on-device manager PIN; it was
+  removed because a PIN held on the terminal is not an identity, only a shared secret
+  that every cashier learns. Authority belongs with server-enforced staff roles in the
+  backend, and until those exist any operator can close or reopen. The mitigations that
+  remain are evidential rather than preventive — see [Edge cases](./08-edge-cases.md).

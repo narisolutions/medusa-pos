@@ -10,7 +10,6 @@ import { useExpectedCash } from "@/hooks/register/useExpectedCash";
 import { useQueryRegion } from "@/hooks/queries/useQueryRegion";
 import { usePrinterService } from "@/hooks/printer/usePrinterService";
 import { movementTotals } from "@/utils/pos/register";
-import { verifyManagerPin } from "@/utils/settings/preferences/pin";
 import type { RegisterSession } from "@/types/register";
 
 function buildSummary(
@@ -47,8 +46,6 @@ export const useCloseRegister = (onDone: () => void) => {
     session,
     closeRegister,
     discrepancyThreshold,
-    requirePinToClose,
-    managerPinHash,
   } = useRegister();
   const { expectedCash, isLoading } = useExpectedCash(session);
   const { data: regionData } = useQueryRegion();
@@ -61,7 +58,7 @@ export const useCloseRegister = (onDone: () => void) => {
 
   const form = useForm<Forms["CloseRegister"]>({
     resolver: coercedZodResolver(schemas.closeRegister),
-    defaultValues: { countedCash: 0, note: "", managerPin: "" },
+    defaultValues: { countedCash: 0, note: "" },
   });
 
   const counted = Number(form.watch("countedCash")) || 0;
@@ -70,12 +67,11 @@ export const useCloseRegister = (onDone: () => void) => {
   const hasCounted = counted > 0;
   const difference = counted - expectedCash;
   const overThreshold = Math.abs(difference) > discrepancyThreshold;
-  const pinRequired = requirePinToClose && !!managerPinHash;
 
   // Conditional rules (config-dependent, so enforced here not in the schema).
   // Runs before the confirm step so errors surface on the form, not after.
   const validateClose = useCallback(
-    async (data: Forms["CloseRegister"]): Promise<boolean> => {
+    (data: Forms["CloseRegister"]): boolean => {
       if (!session) return false;
       if (overThreshold && !data.note?.trim()) {
         form.setError("note", {
@@ -83,20 +79,9 @@ export const useCloseRegister = (onDone: () => void) => {
         });
         return false;
       }
-      if (pinRequired) {
-        const ok = data.managerPin
-          ? await verifyManagerPin(data.managerPin, managerPinHash as string)
-          : false;
-        if (!ok) {
-          form.setError("managerPin", {
-            message: translate("register.close.pin_invalid"),
-          });
-          return false;
-        }
-      }
       return true;
     },
-    [session, overThreshold, pinRequired, managerPinHash, form]
+    [session, overThreshold, form]
   );
 
   // Performs the actual close. Assumes validateClose already passed.
@@ -129,7 +114,7 @@ export const useCloseRegister = (onDone: () => void) => {
         }
 
         toast.success(translate("register.close.success"));
-        form.reset({ countedCash: 0, note: "", managerPin: "" });
+        form.reset({ countedCash: 0, note: "" });
         onDone();
       } finally {
         setIsSubmitting(false);
@@ -157,7 +142,6 @@ export const useCloseRegister = (onDone: () => void) => {
     hasCounted,
     difference,
     overThreshold,
-    pinRequired,
     printSummary,
     setPrintSummary,
     currency,

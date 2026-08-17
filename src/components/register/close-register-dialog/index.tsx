@@ -60,7 +60,6 @@ const CloseRegisterDialog: React.FC<Props> = ({
     hasCounted,
     difference,
     overThreshold,
-    pinRequired,
     printSummary,
     setPrintSummary,
     currency,
@@ -73,7 +72,7 @@ const CloseRegisterDialog: React.FC<Props> = ({
   >(null);
 
   const handleValidSubmit = form.handleSubmit(async (data) => {
-    if (!(await validateClose(data))) return;
+    if (!validateClose(data)) return;
     if (forced) {
       await commitClose(data);
       return;
@@ -260,33 +259,6 @@ const CloseRegisterDialog: React.FC<Props> = ({
                 </FormItem>
               )}
             />
-
-            {pinRequired && (
-              <FormField
-                control={form.control}
-                name="managerPin"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-base font-medium">
-                      {t("register.close.manager_pin")}
-                    </FormLabel>
-                    <FormControl>
-                      <Input
-                        type="password"
-                        inputMode="numeric"
-                        autoComplete="off"
-                        value={field.value ?? ""}
-                        onChange={(e) =>
-                          field.onChange(e.target.value.replace(/\D/g, ""))
-                        }
-                        className="h-11 text-base"
-                      />
-                    </FormControl>
-                    <FormMessage className="text-red-500" />
-                  </FormItem>
-                )}
-              />
-            )}
 
             <div className="flex items-center justify-between">
               <span className="text-base text-fg-muted">

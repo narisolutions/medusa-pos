@@ -5,10 +5,17 @@ import ConnectionSettings from "./connection";
 import StoreSettings from "./store";
 import PreferencesSettings from "./preferences";
 import PluginsSettings from "./plugins";
+import ScannerSettings from "./scanner";
 import storage from "@/utils/storage";
 import { useTranslation } from "@/i18n";
 
-type SettingsTabs = "printer" | "connection" | "store" | "preferences" | "plugins";
+type SettingsTabs =
+  | "printer"
+  | "scanner"
+  | "connection"
+  | "store"
+  | "preferences"
+  | "plugins";
 
 const Settings: React.FC = () => {
   const { t } = useTranslation();
@@ -48,6 +55,12 @@ const Settings: React.FC = () => {
             {t("settings.printer.title")}
           </TabsTrigger>
           <TabsTrigger
+            value="scanner"
+            className="text-lg px-6 py-4 border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:text-primary text-fg-muted bg-transparent rounded-none min-h-[48px]"
+          >
+            {t("settings.scanner.title")}
+          </TabsTrigger>
+          <TabsTrigger
             value="connection"
             className="text-lg px-6 py-4 border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:text-primary text-fg-muted bg-transparent rounded-none min-h-[48px]"
           >
@@ -75,6 +88,10 @@ const Settings: React.FC = () => {
 
         <TabsContent value="printer" className="flex flex-col">
           <PrinterSettings />
+        </TabsContent>
+
+        <TabsContent value="scanner" className="flex flex-col">
+          <ScannerSettings />
         </TabsContent>
 
         <TabsContent value="connection" className="flex flex-col">

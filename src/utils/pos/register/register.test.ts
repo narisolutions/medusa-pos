@@ -8,9 +8,6 @@ import {
   movementTotals,
   computeExpectedCash,
   orderCashContribution,
-  hashPin,
-  verifyPin,
-  isLegacyPinHash,
 } from ".";
 
 const session = (over: Partial<RegisterSession> = {}): RegisterSession =>
@@ -179,35 +176,5 @@ describe("computeExpectedCash", () => {
 
   it("is just the float when nothing has happened", () => {
     expect(computeExpectedCash(session({ openingFloat: 75 }), [], store)).toBe(75);
-  });
-});
-
-describe("PIN hashing", () => {
-  it("round-trips a PIN through the salted hash", async () => {
-    const stored = await hashPin("1234");
-    expect(await verifyPin("1234", stored)).toBe(true);
-    expect(await verifyPin("1235", stored)).toBe(false);
-  });
-
-  it("salts each hash so two identical PINs do not collide", async () => {
-    expect(await hashPin("1234")).not.toBe(await hashPin("1234"));
-  });
-
-  it("still verifies legacy unsalted SHA-256 hashes", async () => {
-    // SHA-256("1234")
-    const legacy =
-      "03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4";
-    expect(isLegacyPinHash(legacy)).toBe(true);
-    expect(await verifyPin("1234", legacy)).toBe(true);
-    expect(await verifyPin("9999", legacy)).toBe(false);
-  });
-
-  it("does not mistake a new-format hash for a legacy one", async () => {
-    expect(isLegacyPinHash(await hashPin("1234"))).toBe(false);
-  });
-
-  it("rejects a malformed stored value instead of throwing", async () => {
-    expect(await verifyPin("1234", "garbage")).toBe(false);
-    expect(await verifyPin("1234", "")).toBe(false);
   });
 });

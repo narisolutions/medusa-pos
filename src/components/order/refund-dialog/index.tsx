@@ -53,7 +53,6 @@ const RefundDialog: React.FC<Props> = ({ isOpen, onClose, order }) => {
     setAmount,
     handleRefundFull,
     refundReasons,
-    pinRequired,
     isProcessing,
     handleValidate,
     handleConfirm,
@@ -247,32 +246,6 @@ const RefundDialog: React.FC<Props> = ({ isOpen, onClose, order }) => {
                   </FormItem>
                 )}
               />
-
-              {pinRequired && (
-                <FormField
-                  control={form.control}
-                  name="managerPin"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-base font-medium">
-                        {t("register.close.manager_pin")}
-                      </FormLabel>
-                      <FormControl>
-                        <Input
-                          type="password"
-                          inputMode="numeric"
-                          autoComplete="off"
-                          value={field.value ?? ""}
-                          onChange={(e) =>
-                            field.onChange(e.target.value.replace(/\D/g, ""))
-                          }
-                        />
-                      </FormControl>
-                      <FormMessage className="text-red-500" />
-                    </FormItem>
-                  )}
-                />
-              )}
 
               <div className="flex gap-3 pt-2">
                 <Button

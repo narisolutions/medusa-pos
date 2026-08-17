@@ -17,7 +17,7 @@ import { useOrderProcessing } from "@/hooks/order/useOrderProcessing";
 import { getPaymentMethods, getMethodType } from "@/utils/settings/store/metadata";
 import { getCashRounding, roundCashAmount } from "@/utils/settings/preferences";
 import constants from "@/utils/constants";
-import { CreditCard, Banknote } from "lucide-react";
+import { CreditCard, Banknote, ArrowLeftRight } from "lucide-react";
 import {
   cashDrawerIssueStaffHintToast,
   handleErrorToast,
@@ -27,6 +27,7 @@ import {
 const iconByType = {
   cash: Banknote,
   card: CreditCard,
+  transfer: ArrowLeftRight,
 } as const;
 
 const usePaymentMethodDisplay = (selectedPaymentMethod?: PaymentMethod) => {
@@ -218,7 +219,8 @@ const usePaymentModal = (
   // Total snapshotted at submit — clearing draftOrderId mid-flow would show 0.00 otherwise.
   const [frozenTotal, setFrozenTotal] = useState<number | null>(null);
 
-  const { printOrderReceipt, openCashDrawer, getDefaultPrinter } = usePrinterService();
+  const { printOrderReceipt, printHandoffTicket, openCashDrawer, getDefaultPrinter } =
+    usePrinterService();
   const clearItems = useCartStore((state) => state.clearItems);
   const setDraftOrderId = useCartStore((state) => state.setDraftOrderId);
   const { selectedPaymentMethod, setPaymentMethod } = useCheckout();
@@ -231,7 +233,8 @@ const usePaymentModal = (
   // Get payment method display info
   const paymentMethodInfo = usePaymentMethodDisplay(selectedPaymentMethod);
   const { data: store } = useQueryStore();
-  const isCashType = getMethodType(store, selectedPaymentMethod) === "cash";
+  const methodType = getMethodType(store, selectedPaymentMethod);
+  const isCashType = methodType === "cash";
 
   // Compose sub-hooks
   const { draftOrder, fetchDraftOrder } = useDraftOrderState(
@@ -285,9 +288,25 @@ const usePaymentModal = (
         });
       });
 
+      // A transfer takes no money, so the paper is the whole transaction: the
+      // items travel to the other till on this ticket.
+      if (getMethodType(store, paymentMethod) === "transfer") {
+        printHandoffTicket(order).catch((ticketError) => {
+          void logger.warn(`Hand-off ticket print failed: ${safeStringify(ticketError)}`);
+          toast.error(t("handoff.print_error"), {
+            description: defaultPrinter
+              ? printerIssueStaffHintToast(defaultPrinter.name)
+              : t("checkout.no_default_printer"),
+          });
+        });
+      }
+
       if (defaultPrinter?.openCashDrawer) {
-        const isCash = getMethodType(store, paymentMethod) === "cash";
-        const isCard = !isCash && paymentMethod !== undefined;
+        const type = getMethodType(store, paymentMethod);
+        const isCash = type === "cash";
+        // Explicitly "card", not "not cash" — a transfer moves no money at the
+        // till, so the drawer must stay shut for it.
+        const isCard = type === "card" && paymentMethod !== undefined;
         if (
           (isCash && defaultPrinter.openCashDrawerOnCash) ||
           (isCard && defaultPrinter.openCashDrawerOnCard)
@@ -301,7 +320,7 @@ const usePaymentModal = (
         }
       }
     },
-    [store, printOrderReceipt, openCashDrawer, getDefaultPrinter]
+    [store, printOrderReceipt, printHandoffTicket, openCashDrawer, getDefaultPrinter]
   );
 
   // Clean up after successful order — synchronous-ish: clears cart, resets
@@ -619,9 +638,12 @@ const usePaymentModal = (
 
   // Handle complete button click
   const handleCompleteClick = useCallback(() => {
-    const isCardPayment = !isCashType;
+    // Cash needs no confirmation — counting the money out is the confirmation.
+    // Card confirms the terminal went through; transfer confirms an internal
+    // settlement that takes no money at all and cannot be undone at the till.
+    const needsConfirmation = methodType !== "cash";
 
-    if (isCardPayment) {
+    if (needsConfirmation) {
       setShowConfirmation(true);
     } else {
       handleProcessPayment().then((result) => {
@@ -630,7 +652,7 @@ const usePaymentModal = (
         }
       });
     }
-  }, [isCashType, handleProcessPayment, handleClose]);
+  }, [methodType, handleProcessPayment, handleClose]);
 
   // Handle complete payment with modal close (legacy, kept for backwards compatibility)
   const handleCompletePayment = useCallback(async (): Promise<void> => {

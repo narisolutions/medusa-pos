@@ -341,7 +341,6 @@
     "refund_confirm_submit": "Zwróć teraz",
     "refund_irreversible_warning": "Tej operacji nie można cofnąć.",
     "refund_exceeds_refundable": "Kwota przekracza dostępną do zwrotu",
-    "refund_pin_invalid": "Nieprawidłowy PIN menedżera",
     "refund_processing": "Zwracanie...",
     "refund_success": "Zwrócono {{amount}}",
     "refund_failed": "Zwrot nie powiódł się",
@@ -376,6 +375,15 @@
     "amount_due": "Kwota do zapłaty",
     "unpaid": "** NIEOPŁACONE — PŁATNOŚĆ OCZEKUJĄCA **",
     "rounding": "Zaokrąglenie"
+  },
+  "handoff": {
+    "title": "KWIT PRZEKAZANIA",
+    "banner": "** PRZEKAZANIE - PŁATNOŚĆ W RESTAURACJI **",
+    "counterparty": "Przekazanie do",
+    "footer": "Przekaż ten kwit razem z towarem.",
+    "print_action": "Drukuj kwit przekazania",
+    "print_success": "Kwit przekazania wydrukowany",
+    "print_error": "Kwit przekazania nie został wydrukowany"
   },
   "settings": {
     "preferences": {
@@ -418,27 +426,7 @@
         "cutoff_hour": "Godzina granicy dnia",
         "cutoff_hour_description": "Godzina (0–23) rozpoczęcia nowego dnia. Utrzymuje sprzedaż nocną w jednej zmianie.",
         "discrepancy_threshold": "Próg rozbieżności",
-        "discrepancy_threshold_description": "Różnica powyżej tej kwoty wymaga podania powodu przy zamykaniu.",
-        "require_pin": "Wymagaj PIN-u do zamknięcia",
-        "require_pin_description": "Pytaj o PIN menedżera przed zamknięciem kasy.",
-        "manager_pin": "PIN menedżera",
-        "pin_set": "PIN jest ustawiony.",
-        "pin_not_set": "Brak PIN-u.",
-        "set_pin": "Ustaw PIN",
-        "change_pin": "Zmień PIN",
-        "clear_pin": "Usuń PIN",
-        "new_pin": "Nowy PIN",
-        "confirm_pin": "Potwierdź PIN",
-        "save_pin": "Zapisz PIN",
-        "pin_too_short": "PIN musi mieć co najmniej 4 cyfry.",
-        "pin_mismatch": "PIN-y nie są zgodne.",
-        "pin_saved": "Zapisano PIN menedżera.",
-        "pin_cleared": "Usunięto PIN menedżera.",
-        "locked_notice": "PIN menedżera chroni te ustawienia. Odblokuj, aby je zmienić.",
-        "unlock": "Odblokuj",
-        "unlock_title": "Wprowadź PIN menedżera",
-        "unlock_description": "Wprowadź PIN menedżera, aby edytować ustawienia kasy.",
-        "unlock_failed": "Nieprawidłowy PIN"
+        "discrepancy_threshold_description": "Różnica powyżej tej kwoty wymaga podania powodu przy zamykaniu."
       },
       "cash_rounding": "Zaokrąglanie gotówki",
       "cash_rounding_description": "Zaokrągla płatności gotówkowe do najbliższego progu. Płatności kartą i inne pozostają dokładne.",
@@ -453,6 +441,7 @@
       "encoding_ascii": "ASCII (Domyślne — znaki spoza ASCII są usuwane)",
       "encoding_utf8": "UTF-8 (Unicode — wszystkie znaki są przepuszczane)",
       "encoding_cp852": "CP852 (Europa Środkowa — mapowanie polskich znaków)",
+      "encoding_translit": "Transliteracja na alfabet łaciński",
       "loading": "Ładowanie drukarek...",
       "testing_print": "Test druku…",
       "testing_drawer": "Test szuflady…",
@@ -520,6 +509,7 @@
       "dialog_encoding_ascii_desc": "Bezpieczne dla wszystkich drukarek. Znaki spoza ASCII są usuwane.",
       "dialog_encoding_utf8_desc": "Wymaga firmware drukarki z obsługą UTF-8. Wszystkie znaki przechodzą.",
       "dialog_encoding_cp852_desc": "Mapuje polskie/środkowoeuropejskie znaki na najbliższe odpowiedniki ASCII.",
+      "dialog_encoding_translit_desc": "Romanizuje gruziński, cyrylicę, grecki, ormiański i hebrajski, a następnie stosuje ASCII. Dla drukarek bez strony kodowej dla lokalnego pisma.",
       "dialog_update_button": "Aktualizuj drukarkę"
     },
     "connection": {
@@ -572,9 +562,11 @@
       "icon_label": "Ikona",
       "icon_cash": "Gotówka",
       "icon_card": "Karta",
+      "icon_transfer": "Przekazanie",
       "type_label": "Typ",
       "type_cash": "Gotówka",
       "type_card": "Karta",
+      "type_transfer": "Przekazanie",
       "provider_id_not_installed": "Ten identyfikator dostawcy nie jest zainstalowany w Medusa.",
       "add_payment_method_button": "Dodaj metodę płatności",
       "font_size_label": "Podstawowy rozmiar czcionki (px)",
@@ -591,6 +583,35 @@
       "pick_logo_dialog_title": "Wybierz logo sklepu",
       "pick_logo_filter_name": "Obraz",
       "logo_too_large": "Obraz logo musi być mniejszy niż 256 KB"
+    },
+    "scanner": {
+      "title": "Skaner",
+      "description": "Jak skaner kodów kreskowych łączy się z aplikacją. Tryb klawiatury nie wymaga konfiguracji; tryb szeregowy czyta port COM bezpośrednio i tylko on niezawodnie odczytuje kody 2D.",
+      "transport_label": "Tryb wprowadzania",
+      "transport_wedge": "Klawiatura (domyślnie)",
+      "transport_serial": "Szeregowy (Virtual COM)",
+      "transport_wedge_hint": "Skaner wpisuje to, co odczyta. Bez konfiguracji, ale układ klawiatury może zmienić interpunkcję i działają tylko kody numeryczne.",
+      "transport_serial_hint": "Skaner wysyła bajty na port COM. Najpierw przełącz skaner w tryb Virtual COM kodem konfiguracyjnym z instrukcji.",
+      "port_label": "Port",
+      "port_none": "Nie wybrano portu",
+      "scan_ports": "Szukaj portów",
+      "scanning": "Szukanie...",
+      "no_ports": "Nie znaleziono portów szeregowych. Sprawdź, czy skaner jest podłączony i w trybie Virtual COM.",
+      "show_all_ports": "Pokaż wszystkie porty (ukryto {{count}})",
+      "baud_label": "Prędkość (baud)",
+      "idle_label": "Limit bezczynności (ms)",
+      "idle_hint": "Zostaw 0, chyba że skaner nie wysyła terminatora. Każda inna wartość dodaje to opóźnienie do każdego skanu.",
+      "test_label": "Test skanowania",
+      "test_hint": "Pokazuje dokładnie to, co przychodzi — pozwala odróżnić źle skonfigurowany skaner od źle skonfigurowanej aplikacji.",
+      "test_start": "Rozpocznij test",
+      "test_stop": "Zatrzymaj test",
+      "test_waiting": "Czekam na skan...",
+      "test_idle": "Rozpocznij test i zeskanuj coś.",
+      "test_bytes": "bajtów",
+      "test_terminator": "zakończone",
+      "open_failed": "Nie można otworzyć portu skanera",
+      "reader_stopped": "Skaner odłączony",
+      "save_failed": "Nie udało się zapisać ustawień skanera"
     },
     "plugins": {
       "title": "Wtyczki",
@@ -680,8 +701,6 @@
       "reason": "Powód",
       "reason_required": "Ta różnica wymaga podania powodu",
       "reason_optional": "Opcjonalnie",
-      "manager_pin": "PIN menedżera",
-      "pin_invalid": "Nieprawidłowy PIN",
       "print_summary": "Drukuj podsumowanie",
       "print_failed": "Nie wydrukowano podsumowania",
       "success": "Kasa zamknięta",
@@ -705,8 +724,7 @@
     "reopen": {
       "title": "Ponowne otwarcie kasy",
       "description": "Wznawia bieżącą zmianę, aby kontynuować sprzedaż. Saldo początkowe i operacje gotówkowe zostają zachowane.",
-      "submit": "Otwórz kasę ponownie",
-      "pin_invalid": "Nieprawidłowy PIN"
+      "submit": "Otwórz kasę ponownie"
     }
   }
 }

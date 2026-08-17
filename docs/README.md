@@ -1,8 +1,14 @@
 # POS Documentation
 
-This directory holds **portable, product-agnostic** documentation for POS features.
-It is written so that the concepts and logic can be reused in a **different POS
-application** — for example a restaurant POS that does **not** use a Medusa backend.
+This directory holds two kinds of document, kept apart on purpose:
+
+- **Feature docs** (subdirectories) — **portable and product-agnostic**, written so the
+  concepts and logic can be reused in a **different POS application**, for example a
+  restaurant POS that does **not** use a Medusa backend.
+- **Project docs** (files at this level) — the opposite: specific to *this* deployment,
+  naming our branches, backends and open work. They date quickly, and that is fine.
+
+## Feature docs
 
 Each feature lives in its own subdirectory. Within a feature, docs are split into:
 
@@ -26,4 +32,9 @@ Each feature lives in its own subdirectory. Within a feature, docs are split int
 | [Role Management](./role-management/README.md) | planned (design only) | Staff roles, permissions, manager approval — replaces the register-scoped manager PIN |
 
 > More feature subdirectories will be added here over time.
-</invoke>
+
+## Project docs
+
+| Doc | What it covers |
+|---|---|
+| [pos-toolkit & QR hand-off status](./pos-toolkit-and-handoff-status.md) | What is still open on the pos-toolkit adoption and the Tamada transfer ticket: work blocked on other teams, open decisions, known defects, and verification gaps |
