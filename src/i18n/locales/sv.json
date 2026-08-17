@@ -404,27 +404,7 @@
         "cutoff_hour": "Brytpunktstimme för affärsdag",
         "cutoff_hour_description": "Timme (0–23) då en ny affärsdag börjar. Håller nattförsäljning i ett pass.",
         "discrepancy_threshold": "Tröskel för differens",
-        "discrepancy_threshold_description": "En differens över detta belopp kräver en orsak vid stängning.",
-        "require_pin": "Kräv chefskod för att stänga",
-        "require_pin_description": "Be om chefskoden innan kassan stängs.",
-        "manager_pin": "Chefskod",
-        "pin_set": "En kod är inställd.",
-        "pin_not_set": "Ingen kod inställd.",
-        "set_pin": "Ställ in kod",
-        "change_pin": "Ändra kod",
-        "clear_pin": "Rensa kod",
-        "new_pin": "Ny kod",
-        "confirm_pin": "Bekräfta kod",
-        "save_pin": "Spara kod",
-        "pin_too_short": "Koden måste vara minst 4 siffror.",
-        "pin_mismatch": "Koderna matchar inte.",
-        "pin_saved": "Chefskod sparad.",
-        "pin_cleared": "Chefskod rensad.",
-        "locked_notice": "Chefskoden skyddar dessa inställningar. Lås upp för att ändra.",
-        "unlock": "Lås upp",
-        "unlock_title": "Ange chefskod",
-        "unlock_description": "Ange chefskoden för att ändra kassainställningarna.",
-        "unlock_failed": "Fel kod"
+        "discrepancy_threshold_description": "En differens över detta belopp kräver en orsak vid stängning."
       },
       "cash_rounding": "Kontantavrundning",
       "cash_rounding_description": "Avrundar kontantbetalningar till närmaste steg. Kort- och andra betalningar förblir exakta.",
@@ -699,8 +679,6 @@
       "reason": "Orsak",
       "reason_required": "Orsak krävs för denna differens",
       "reason_optional": "Valfritt",
-      "manager_pin": "Chefskod",
-      "pin_invalid": "Fel kod",
       "print_summary": "Skriv ut sammanfattning",
       "print_failed": "Sammanfattningen skrevs inte ut",
       "success": "Kassan stängd",
@@ -724,8 +702,7 @@
     "reopen": {
       "title": "Öppna kassan igen",
       "description": "Återupptar det aktuella passet så att du kan fortsätta sälja. Växelkassan och kontantrörelserna behålls.",
-      "submit": "Öppna kassan igen",
-      "pin_invalid": "Felaktig PIN"
+      "submit": "Öppna kassan igen"
     }
   }
 }

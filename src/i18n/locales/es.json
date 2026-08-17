@@ -404,27 +404,7 @@
         "cutoff_hour": "Hora de corte del día",
         "cutoff_hour_description": "Hora (0–23) en que empieza un nuevo día. Mantiene las ventas nocturnas en un turno.",
         "discrepancy_threshold": "Umbral de discrepancia",
-        "discrepancy_threshold_description": "Una diferencia mayor que este importe exige un motivo al cerrar.",
-        "require_pin": "Exigir PIN para cerrar",
-        "require_pin_description": "Pide el PIN del responsable antes de cerrar la caja.",
-        "manager_pin": "PIN del responsable",
-        "pin_set": "Hay un PIN configurado.",
-        "pin_not_set": "Sin PIN configurado.",
-        "set_pin": "Configurar PIN",
-        "change_pin": "Cambiar PIN",
-        "clear_pin": "Borrar PIN",
-        "new_pin": "Nuevo PIN",
-        "confirm_pin": "Confirmar PIN",
-        "save_pin": "Guardar PIN",
-        "pin_too_short": "El PIN debe tener al menos 4 dígitos.",
-        "pin_mismatch": "Los PIN no coinciden.",
-        "pin_saved": "PIN del responsable guardado.",
-        "pin_cleared": "PIN del responsable borrado.",
-        "locked_notice": "El PIN del responsable protege estos ajustes. Desbloquea para cambiarlos.",
-        "unlock": "Desbloquear",
-        "unlock_title": "Introduce el PIN del responsable",
-        "unlock_description": "Introduce el PIN del responsable para editar los ajustes de la caja.",
-        "unlock_failed": "PIN incorrecto"
+        "discrepancy_threshold_description": "Una diferencia mayor que este importe exige un motivo al cerrar."
       },
       "cash_rounding": "Redondeo de efectivo",
       "cash_rounding_description": "Redondea los pagos en efectivo al incremento más cercano. Los pagos con tarjeta y otros se mantienen exactos.",
@@ -699,8 +679,6 @@
       "reason": "Motivo",
       "reason_required": "Se requiere un motivo para esta diferencia",
       "reason_optional": "Opcional",
-      "manager_pin": "PIN del responsable",
-      "pin_invalid": "PIN incorrecto",
       "print_summary": "Imprimir resumen",
       "print_failed": "No se imprimió el resumen",
       "success": "Caja cerrada",
@@ -724,8 +702,7 @@
     "reopen": {
       "title": "Reabrir la caja",
       "description": "Reanuda el turno actual para seguir vendiendo. Se conservan el fondo inicial y los movimientos de efectivo.",
-      "submit": "Reabrir la caja",
-      "pin_invalid": "PIN incorrecto"
+      "submit": "Reabrir la caja"
     }
   }
 }

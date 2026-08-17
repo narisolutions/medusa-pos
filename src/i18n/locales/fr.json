@@ -404,27 +404,7 @@
         "cutoff_hour": "Heure de bascule de journée",
         "cutoff_hour_description": "Heure (0–23) du début d'une nouvelle journée. Regroupe les ventes nocturnes dans un poste.",
         "discrepancy_threshold": "Seuil d'écart",
-        "discrepancy_threshold_description": "Un écart supérieur à ce montant exige un motif à la clôture.",
-        "require_pin": "Exiger le code pour clôturer",
-        "require_pin_description": "Demander le code responsable avant de clôturer la caisse.",
-        "manager_pin": "Code responsable",
-        "pin_set": "Un code est défini.",
-        "pin_not_set": "Aucun code défini.",
-        "set_pin": "Définir le code",
-        "change_pin": "Modifier le code",
-        "clear_pin": "Effacer le code",
-        "new_pin": "Nouveau code",
-        "confirm_pin": "Confirmer le code",
-        "save_pin": "Enregistrer le code",
-        "pin_too_short": "Le code doit comporter au moins 4 chiffres.",
-        "pin_mismatch": "Les codes ne correspondent pas.",
-        "pin_saved": "Code responsable enregistré.",
-        "pin_cleared": "Code responsable effacé.",
-        "locked_notice": "Le code responsable protège ces paramètres. Déverrouillez pour les modifier.",
-        "unlock": "Déverrouiller",
-        "unlock_title": "Saisir le code responsable",
-        "unlock_description": "Saisissez le code responsable pour modifier les paramètres de la caisse.",
-        "unlock_failed": "Code incorrect"
+        "discrepancy_threshold_description": "Un écart supérieur à ce montant exige un motif à la clôture."
       },
       "cash_rounding": "Arrondi des espèces",
       "cash_rounding_description": "Arrondit les paiements en espèces au pas le plus proche. Les paiements par carte et autres restent exacts.",
@@ -699,8 +679,6 @@
       "reason": "Motif",
       "reason_required": "Un motif est requis pour cet écart",
       "reason_optional": "Facultatif",
-      "manager_pin": "Code responsable",
-      "pin_invalid": "Code incorrect",
       "print_summary": "Imprimer le résumé",
       "print_failed": "Le résumé n'a pas été imprimé",
       "success": "Caisse clôturée",
@@ -724,8 +702,7 @@
     "reopen": {
       "title": "Rouvrir la caisse",
       "description": "Reprend le service en cours pour continuer à vendre. Le fonds de caisse et les mouvements d'espèces sont conservés.",
-      "submit": "Rouvrir la caisse",
-      "pin_invalid": "Code PIN incorrect"
+      "submit": "Rouvrir la caisse"
     }
   }
 }

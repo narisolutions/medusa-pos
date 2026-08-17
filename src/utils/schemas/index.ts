@@ -80,14 +80,13 @@ export default {
     registerEnabled: z.boolean(),
     registerCutoffHour: z.coerce.number().int().min(0).max(23),
     registerDiscrepancyThreshold: z.coerce.number().min(0),
-    registerRequirePin: z.boolean(),
     cashRoundingEnabled: z.boolean(),
     cashRoundingIncrement: z.coerce.number().positive(),
   }),
 
   // Register (cash reconciliation) dialogs. Amounts arrive from numeric inputs as
-  // strings, so coerce. Conditional rules (reason required over threshold, PIN
-  // required) depend on runtime config and are enforced in the submit handlers.
+  // strings, so coerce. The reason-required-over-threshold rule depends on runtime
+  // config, so it is enforced in the submit handler rather than here.
   openRegister: z.object({
     openingFloat: z.coerce
       .number()
@@ -99,7 +98,6 @@ export default {
       .number()
       .min(0, { message: "Enter a valid amount" }),
     note: z.string().optional(),
-    managerPin: z.string().optional(),
   }),
 
   cashMovement: z.object({

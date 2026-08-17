@@ -404,27 +404,7 @@
         "cutoff_hour": "Godzina granicy dnia",
         "cutoff_hour_description": "Godzina (0–23) rozpoczęcia nowego dnia. Utrzymuje sprzedaż nocną w jednej zmianie.",
         "discrepancy_threshold": "Próg rozbieżności",
-        "discrepancy_threshold_description": "Różnica powyżej tej kwoty wymaga podania powodu przy zamykaniu.",
-        "require_pin": "Wymagaj PIN-u do zamknięcia",
-        "require_pin_description": "Pytaj o PIN menedżera przed zamknięciem kasy.",
-        "manager_pin": "PIN menedżera",
-        "pin_set": "PIN jest ustawiony.",
-        "pin_not_set": "Brak PIN-u.",
-        "set_pin": "Ustaw PIN",
-        "change_pin": "Zmień PIN",
-        "clear_pin": "Usuń PIN",
-        "new_pin": "Nowy PIN",
-        "confirm_pin": "Potwierdź PIN",
-        "save_pin": "Zapisz PIN",
-        "pin_too_short": "PIN musi mieć co najmniej 4 cyfry.",
-        "pin_mismatch": "PIN-y nie są zgodne.",
-        "pin_saved": "Zapisano PIN menedżera.",
-        "pin_cleared": "Usunięto PIN menedżera.",
-        "locked_notice": "PIN menedżera chroni te ustawienia. Odblokuj, aby je zmienić.",
-        "unlock": "Odblokuj",
-        "unlock_title": "Wprowadź PIN menedżera",
-        "unlock_description": "Wprowadź PIN menedżera, aby edytować ustawienia kasy.",
-        "unlock_failed": "Nieprawidłowy PIN"
+        "discrepancy_threshold_description": "Różnica powyżej tej kwoty wymaga podania powodu przy zamykaniu."
       },
       "cash_rounding": "Zaokrąglanie gotówki",
       "cash_rounding_description": "Zaokrągla płatności gotówkowe do najbliższego progu. Płatności kartą i inne pozostają dokładne.",
@@ -699,8 +679,6 @@
       "reason": "Powód",
       "reason_required": "Ta różnica wymaga podania powodu",
       "reason_optional": "Opcjonalnie",
-      "manager_pin": "PIN menedżera",
-      "pin_invalid": "Nieprawidłowy PIN",
       "print_summary": "Drukuj podsumowanie",
       "print_failed": "Nie wydrukowano podsumowania",
       "success": "Kasa zamknięta",
@@ -724,8 +702,7 @@
     "reopen": {
       "title": "Ponowne otwarcie kasy",
       "description": "Wznawia bieżącą zmianę, aby kontynuować sprzedaż. Saldo początkowe i operacje gotówkowe zostają zachowane.",
-      "submit": "Otwórz kasę ponownie",
-      "pin_invalid": "Nieprawidłowy PIN"
+      "submit": "Otwórz kasę ponownie"
     }
   }
 }

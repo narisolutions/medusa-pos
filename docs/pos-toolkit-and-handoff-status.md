@@ -52,7 +52,21 @@ The hand-off brief anticipates more than one eventually (another restaurant, a b
 
 ### 2.3 Should transfer settlement be role-gated?
 
-The brief suggests yes. Not implemented, and it depends on the role-management work that is still design-only.
+The brief suggests yes. Not implemented, and it depends on the role-management work described below.
+
+### 2.4 Staff roles — the register is now ungated
+
+The on-device manager PIN was removed (2026-08-12). It gated closing the register, reopening a
+same-day close, and editing register settings; all three are now open to any operator.
+
+A PIN held on the terminal is a shared secret rather than an identity — every cashier learns it,
+and it proves nothing about *who* closed the drawer. Authority is to be **server-enforced staff
+roles in Medusa**, and until those exist the register has no preventive gate at all. What remains
+is evidential: the expected total is snapshotted and immutable, a reason is forced over the
+discrepancy threshold, and a voided close stays on record.
+
+Whoever implements Medusa roles should also revisit §2.3 — transfer settlement, closing and
+reopening are the three actions that want the same gate.
 
 ---
 

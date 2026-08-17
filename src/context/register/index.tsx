@@ -51,8 +51,6 @@ type RegisterContextValue = {
   canReopen: boolean;
   cutoffHour: number;
   discrepancyThreshold: number;
-  requirePinToClose: boolean;
-  managerPinHash?: string;
   openRegister: (openingFloat: number) => Promise<void>;
   addMovement: (
     type: CashMovementType,
@@ -246,8 +244,6 @@ export function RegisterProvider({ children }: { children: React.ReactNode }) {
       canReopen: enabled && session?.status === "closed" && !needsOpen,
       cutoffHour: config.dayCutoffHour,
       discrepancyThreshold: config.discrepancyThreshold,
-      requirePinToClose: config.requirePinToClose,
-      managerPinHash: config.managerPinHash,
       openRegister,
       addMovement,
       closeRegister,

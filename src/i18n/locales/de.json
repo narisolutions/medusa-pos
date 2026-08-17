@@ -404,27 +404,7 @@
         "cutoff_hour": "Geschäftstag-Grenzstunde",
         "cutoff_hour_description": "Stunde (0–23), zu der ein neuer Geschäftstag beginnt. Hält Nachtverkäufe in einer Schicht.",
         "discrepancy_threshold": "Differenzschwelle",
-        "discrepancy_threshold_description": "Eine Differenz über diesem Betrag erfordert beim Schließen einen Grund.",
-        "require_pin": "Manager-PIN zum Schließen verlangen",
-        "require_pin_description": "Vor dem Schließen der Kasse die Manager-PIN abfragen.",
-        "manager_pin": "Manager-PIN",
-        "pin_set": "Eine PIN ist festgelegt.",
-        "pin_not_set": "Keine PIN festgelegt.",
-        "set_pin": "PIN festlegen",
-        "change_pin": "PIN ändern",
-        "clear_pin": "PIN löschen",
-        "new_pin": "Neue PIN",
-        "confirm_pin": "PIN bestätigen",
-        "save_pin": "PIN speichern",
-        "pin_too_short": "Die PIN muss mindestens 4 Ziffern haben.",
-        "pin_mismatch": "Die PINs stimmen nicht überein.",
-        "pin_saved": "Manager-PIN gespeichert.",
-        "pin_cleared": "Manager-PIN gelöscht.",
-        "locked_notice": "Die Manager-PIN schützt diese Einstellungen. Zum Ändern entsperren.",
-        "unlock": "Entsperren",
-        "unlock_title": "Manager-PIN eingeben",
-        "unlock_description": "Geben Sie die Manager-PIN ein, um die Kasseneinstellungen zu bearbeiten.",
-        "unlock_failed": "Falsche PIN"
+        "discrepancy_threshold_description": "Eine Differenz über diesem Betrag erfordert beim Schließen einen Grund."
       },
       "cash_rounding": "Bargeld-Rundung",
       "cash_rounding_description": "Bargeldzahlungen auf den nächsten Schritt runden. Karten- und andere Zahlungen bleiben exakt.",
@@ -699,8 +679,6 @@
       "reason": "Grund",
       "reason_required": "Für diese Differenz ist ein Grund erforderlich",
       "reason_optional": "Optional",
-      "manager_pin": "Manager-PIN",
-      "pin_invalid": "Falsche PIN",
       "print_summary": "Zusammenfassung drucken",
       "print_failed": "Zusammenfassung wurde nicht gedruckt",
       "success": "Kasse geschlossen",
@@ -724,8 +702,7 @@
     "reopen": {
       "title": "Kasse erneut öffnen",
       "description": "Setzt die aktuelle Schicht fort, damit Sie weiter verkaufen können. Anfangsbestand und Bargeldbewegungen bleiben erhalten.",
-      "submit": "Kasse erneut öffnen",
-      "pin_invalid": "Falsche PIN"
+      "submit": "Kasse erneut öffnen"
     }
   }
 }

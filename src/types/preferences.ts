@@ -43,10 +43,6 @@ export type RegisterPreferences = {
   dayCutoffHour: number;
   /** |over/short| above this (display units) requires a reason at close. */
   discrepancyThreshold: number;
-  /** Whether closing the register requires the manager PIN. */
-  requirePinToClose: boolean;
-  /** SHA-256 hex hash of the manager PIN. The raw PIN is never stored. */
-  managerPinHash?: string;
 };
 
 /**

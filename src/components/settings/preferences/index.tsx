@@ -16,8 +16,6 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { Input } from "@/components/ui/input";
 import { usePreferencesSettings } from "./hooks";
-import ManagerPin from "./manager-pin";
-import RegisterLock from "./register-lock";
 import type { ThemeMode, LanguageMode } from "@/types/preferences";
 import { useTranslation } from "@/i18n";
 
@@ -42,11 +40,6 @@ const PreferencesSettings: React.FC = () => {
     isTauri,
     handleThemeModeChange,
     handleLanguageChange,
-    hasManagerPin,
-    handleSetManagerPin,
-    handleClearManagerPin,
-    registerLocked,
-    unlockRegister,
   } = usePreferencesSettings();
   const { t } = useTranslation();
 
@@ -388,8 +381,6 @@ const PreferencesSettings: React.FC = () => {
               {t("settings.preferences.register.title")}
             </legend>
 
-            {registerLocked && <RegisterLock onUnlock={unlockRegister} />}
-
             <FormField
               control={control}
               name="registerEnabled"
@@ -407,7 +398,6 @@ const PreferencesSettings: React.FC = () => {
                     <FormControl>
                       <Switch
                         checked={field.value}
-                        disabled={registerLocked}
                         onCheckedChange={field.onChange}
                       />
                     </FormControl>
@@ -435,8 +425,7 @@ const PreferencesSettings: React.FC = () => {
                           min={0}
                           max={23}
                           step={1}
-                          disabled={registerLocked}
-                          value={field.value}
+                            value={field.value}
                           onChange={(e) => field.onChange(e.target.value)}
                           className="h-11 text-base max-w-[8rem]"
                         />
@@ -461,8 +450,7 @@ const PreferencesSettings: React.FC = () => {
                           type="number"
                           min={0}
                           step="0.01"
-                          disabled={registerLocked}
-                          value={field.value}
+                            value={field.value}
                           onChange={(e) => field.onChange(e.target.value)}
                           className="h-11 text-base max-w-[10rem]"
                         />
@@ -471,38 +459,6 @@ const PreferencesSettings: React.FC = () => {
                   )}
                 />
 
-                <FormField
-                  control={control}
-                  name="registerRequirePin"
-                  render={({ field }) => (
-                    <FormItem>
-                      <div className="flex items-center justify-between">
-                        <div className="space-y-0.5">
-                          <FormLabel className="text-base font-medium">
-                            {t("settings.preferences.register.require_pin")}
-                          </FormLabel>
-                          <p className="text-sm text-fg-muted">
-                            {t("settings.preferences.register.require_pin_description")}
-                          </p>
-                        </div>
-                        <FormControl>
-                          <Switch
-                            checked={field.value}
-                            disabled={registerLocked}
-                            onCheckedChange={field.onChange}
-                          />
-                        </FormControl>
-                      </div>
-                    </FormItem>
-                  )}
-                />
-
-                <ManagerPin
-                  hasPin={hasManagerPin}
-                  locked={registerLocked}
-                  onSet={handleSetManagerPin}
-                  onClear={handleClearManagerPin}
-                />
               </div>
             )}
           </fieldset>
