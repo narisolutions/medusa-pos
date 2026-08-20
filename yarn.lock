@@ -2361,10 +2361,10 @@ react-error-boundary@^6.1.2:
   resolved "https://registry.yarnpkg.com/react-error-boundary/-/react-error-boundary-6.1.2.tgz#d213780329ceb3678cec7813a76a00e2a7584f48"
   integrity sha512-3DpCr5HVdZ0caUjYE/kIHBEJN0mNP3ZCgf16c48uJ5TbWjorKVp+YG8W3XqlJ7vJAVNw6wNIImyPXmFydwmyng==
 
-react-hook-form@^7.82.0:
-  version "7.82.0"
-  resolved "https://registry.yarnpkg.com/react-hook-form/-/react-hook-form-7.82.0.tgz#9e8d504fe99ddd5a26a1d858bb6a03de45abff3e"
-  integrity sha512-Zw/uFZ2dO+02GHlBn7JFGn8kZJ7LdM33B/0BXOovzFay+CMhf94JMw5BVu+F1tVkUKjNvBuaE3fz5BJhga10Tg==
+react-hook-form@^7.84.0:
+  version "7.84.0"
+  resolved "https://registry.yarnpkg.com/react-hook-form/-/react-hook-form-7.84.0.tgz#5ace8ca20d0e35ef09a88f6a5cbfdbfbbe32194c"
+  integrity sha512-+hWvQP6GLco56mDwrbU4XnHix8t1z90ltZsDIrREl+jnQFQxYLX8oAzqe/Xn8nHpmoXTY5M6oEXrAhbP1qevNQ==
 
 react-i18next@^17.0.11:
   version "17.0.11"
