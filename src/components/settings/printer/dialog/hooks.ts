@@ -21,7 +21,7 @@ interface SystemPrinterInfo {
 type PrinterFormValues = {
   name: string;
   type: "receipt";
-  connectionType: "local" | "usb" | "network" | "bluetooth";
+  connectionType: "local" | "usb" | "network";
   address: string;
   port: string;
   vendorId?: number;

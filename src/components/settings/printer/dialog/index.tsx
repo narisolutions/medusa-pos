@@ -48,6 +48,8 @@ const PrinterDialog: React.FC<Props> = ({
     local: { placeholder: t("settings.printer.dialog_system_printer_placeholder"), label: t("settings.printer.dialog_system_printer_label") },
     network: { placeholder: "192.168.1.100", label: t("settings.printer.dialog_ip_label") },
     usb: { placeholder: t("settings.printer.dialog_usb_placeholder"), label: t("settings.printer.dialog_usb_label") },
+    // Kept only so a printer saved as bluetooth by an older build still renders
+    // instead of crashing on an undefined lookup; it is not selectable.
     bluetooth: { placeholder: "00:11:22:33:44:55", label: t("settings.printer.dialog_bluetooth_label") },
   };
 
@@ -140,15 +142,11 @@ const PrinterDialog: React.FC<Props> = ({
                           <span>{t("settings.printer.dialog_network")}</span>
                         )}
                         {field.value === "usb" && <span>{t("settings.printer.dialog_usb_item")}</span>}
-                        {field.value === "bluetooth" && (
-                          <span>{t("settings.printer.dialog_bluetooth_item")}</span>
-                        )}
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="local">{t("settings.printer.dialog_local")}</SelectItem>
                         <SelectItem value="network">{t("settings.printer.dialog_network")}</SelectItem>
                         <SelectItem value="usb">{t("settings.printer.dialog_usb_item")}</SelectItem>
-                        <SelectItem value="bluetooth">{t("settings.printer.dialog_bluetooth_item")}</SelectItem>
                       </SelectContent>
                     </Select>
                   </FormControl>

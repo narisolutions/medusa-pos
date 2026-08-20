@@ -31,7 +31,9 @@ export default {
     id: z.string().optional(),
     name: z.string().min(1, { message: "Printer name is required" }),
     type: z.enum(["receipt"], { message: "Please select a printer type" }),
-    connectionType: z.enum(["local", "usb", "network", "bluetooth"], {
+    // No bluetooth: the plugin has no bluetooth print target and never had one,
+    // so offering it only produced "Unsupported connection type" at print time.
+    connectionType: z.enum(["local", "usb", "network"], {
       message: "Please select a connection type",
     }),
     address: z.string().min(1, { message: "Address/IP is required" }),
