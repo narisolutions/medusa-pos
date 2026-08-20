@@ -25,7 +25,6 @@ money use the numeric keypad pattern already used at checkout.
 - **Fields**:
   - counted cash (single total, required).
   - reason — **required only** when `|counted − expected|` exceeds the threshold.
-  - manager PIN — required when `requirePinToClose` is on.
 - **Two-step (normal close)**: after the count is validated, a **confirm step** restates
   Expected / Counted / Over-Short and warns that closing **ends the business day and
   blocks selling until the register is reopened**. The forced prior-day reconcile skips
@@ -60,8 +59,8 @@ The register lives as an item in the sidebar rail (`RegisterMenuItem`), with a s
 - **Hidden entirely when the feature is disabled** (the rail looks unchanged).
 - **Open (green dot)**: tapping opens a touch-friendly action chooser — **Cash drop /
   pay-in** or **Close register**.
-- **Closed earlier today (amber dot, "Reopen")**: tapping opens the **Reopen** dialog
-  (manager PIN when `requirePinToClose` is on). See the Reopen flow below.
+- **Closed earlier today (amber dot, "Reopen")**: tapping opens the **Reopen** dialog.
+  See the Reopen flow below.
 - **Otherwise (inert)**: disabled; opening for a new business day is driven by the
   blocking open dialog, not this item.
 
@@ -76,8 +75,10 @@ The register lives as an item in the sidebar rail (`RegisterMenuItem`), with a s
 - **Audit**: the archived close is **not** deleted; it is flagged `voided` (with
   `voidedAt`) so the over/short stays on record. A later legitimate close appends a new
   archive entry alongside it.
-- **Authority**: gated by the manager PIN whenever `requirePinToClose` is on (reopen is a
-  manager-level undo, same authority as closing).
+- **Authority**: **ungated on the device.** Reopen is a manager-level undo and belongs
+  behind a staff role, but roles are server-side work that does not exist yet, so any
+  operator can do it. What protects the number is the audit trail rather than the gate:
+  the voided close stays on record.
 
 > Placement is a host-app choice; the register components are self-contained. See
 > [Portability](./09-portability.md).

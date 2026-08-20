@@ -24,6 +24,10 @@ export const DEFAULT_PREFERENCES: UserPreferences = {
     enabled: false,
     dayCutoffHour: 0,
     discrepancyThreshold: 5,
-    requirePinToClose: true,
+  },
+  scanner: {
+    transport: "wedge",
+    baud: 9600,
+    idleMs: 0,
   },
 };

@@ -77,6 +77,20 @@ export const useActivityEvents = (order: AdminOrder) => {
           );
           if (event) activityEvents.push(event);
         }
+
+        payment.refunds?.forEach((refund, refundIndex) => {
+          const event = createEvent(
+            `refunded_${refund.id || `refund_${payment.id}_${refundIndex}`}`,
+            "refunded",
+            t("orders.event_refunded"),
+            refund.created_at,
+            {
+              amount: refund.amount,
+              currency: getOrderCurrency(order),
+            }
+          );
+          if (event) activityEvents.push(event);
+        });
       });
 
       if (order.payment_status === "captured" && collection.updated_at) {

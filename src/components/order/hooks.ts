@@ -17,7 +17,10 @@ import { getSdkBaseUrl, getSdk, getAuthToken } from "@/config/medusa";
 import { useQueryClient } from "@tanstack/react-query";
 import { queryKeys } from "@/config/query";
 import { usePrinterService } from "@/hooks/printer/usePrinterService";
+import { useQueryStore } from "@/hooks/queries/useQueryStore";
+import { getOrderPaymentMethodType } from "@/utils/pos/payment";
 import { classifyFulfillment, classifyOrderShippingMethod } from "@/utils/pos/fulfillment";
+import { getOrderRefundableTotal } from "@/utils/pos/payment";
 
 // Type for fulfillment with extended properties
 type ExtendedFulfillment = Record<string, unknown> & {
@@ -43,9 +46,13 @@ export const useOrder = (order: AdminOrder) => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { t } = useTranslation();
-  const { printOrderReceipt, downloadReceiptAsPDF, getDefaultPrinter } =
+  const { printOrderReceipt, printHandoffTicket, downloadReceiptAsPDF, getDefaultPrinter } =
     usePrinterService();
   const [isPrinting, setIsPrinting] = useState(false);
+  const [isPrintingTicket, setIsPrintingTicket] = useState(false);
+  const { data: store } = useQueryStore();
+  // The hand-off ticket only means anything for an internal transfer.
+  const isTransferOrder = getOrderPaymentMethodType(order, store) === "transfer";
   const [isDownloading, setIsDownloading] = useState(false);
   const [isDownloadingPDF, setIsDownloadingPDF] = useState(false);
   const [isCreatingShipment, setIsCreatingShipment] = useState(false);
@@ -54,6 +61,7 @@ export const useOrder = (order: AdminOrder) => {
   const [isPickupConfirmationOpen, setIsPickupConfirmationOpen] =
     useState(false);
   const [isRecordPaymentOpen, setIsRecordPaymentOpen] = useState(false);
+  const [isRefundOpen, setIsRefundOpen] = useState(false);
 
   const fulfillmentStatus = order.fulfillment_status;
   const isNegativeFulfillmentStatus =
@@ -97,6 +105,24 @@ export const useOrder = (order: AdminOrder) => {
       }
     } finally {
       setIsPrinting(false);
+    }
+  };
+
+  const handlePrintHandoffTicket = async () => {
+    if (isPrintingTicket) return;
+    setIsPrintingTicket(true);
+    try {
+      await printHandoffTicket(order);
+      toast.success(t("handoff.print_success"));
+    } catch {
+      const printer = getDefaultPrinter();
+      toast.error(t("handoff.print_error"), {
+        description: printer
+          ? printerIssueStaffHintToast(printer.name)
+          : t("checkout.no_default_printer"),
+      });
+    } finally {
+      setIsPrintingTicket(false);
     }
   };
 
@@ -273,6 +299,11 @@ export const useOrder = (order: AdminOrder) => {
       paymentStatus === "partially_authorized" ||
       paymentStatus === "partially_captured");
 
+  // Only captured money can be given back — Medusa caps a refund at
+  // (captures - refunds), so an unpaid order has nothing refundable.
+  const refundableTotal = getOrderRefundableTotal(order);
+  const canRefund = order.status !== "canceled" && refundableTotal > 0;
+
   return {
     getStatusColor,
     getFulfillmentStatusColor,
@@ -280,11 +311,14 @@ export const useOrder = (order: AdminOrder) => {
     formatStatusText: formatOrderStatusText,
     handleBackToOrders,
     handleReprintReceipt,
+    handlePrintHandoffTicket,
     handleDownloadShippingLabel,
     handleCreateShipment,
     handleOpenPickupConfirmation,
     handleMarkAsPickedUp,
     isPrinting,
+    isPrintingTicket,
+    isTransferOrder,
     isDownloading,
     isDownloadingPDF,
     isCreatingShipment,
@@ -300,6 +334,10 @@ export const useOrder = (order: AdminOrder) => {
     setIsPickupConfirmationOpen,
     isRecordPaymentOpen,
     setIsRecordPaymentOpen,
+    canRefund,
+    refundableTotal,
+    isRefundOpen,
+    setIsRefundOpen,
     handleDownloadReceiptPDF,
   };
 };

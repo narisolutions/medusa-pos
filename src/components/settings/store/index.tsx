@@ -1,6 +1,6 @@
 import React from "react";
 import { useForm, useFieldArray } from "react-hook-form";
-import { ImageIcon, Upload, X, Banknote, CreditCard, Plus, Trash2, Info, AlertTriangle } from "lucide-react";
+import { ImageIcon, Upload, X, Banknote, CreditCard, ArrowLeftRight, Plus, Trash2, Info, AlertTriangle } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -379,6 +379,11 @@ const StoreSettings: React.FC = () => {
                                   <CreditCard className="w-4 h-4" /> {t("settings.store.icon_card")}
                                 </span>
                               </SelectItem>
+                              <SelectItem value="transfer">
+                                <span className="flex items-center gap-2">
+                                  <ArrowLeftRight className="w-4 h-4" /> {t("settings.store.icon_transfer")}
+                                </span>
+                              </SelectItem>
                             </SelectContent>
                           </Select>
                         </FormItem>
@@ -407,6 +412,9 @@ const StoreSettings: React.FC = () => {
                               </SelectItem>
                               <SelectItem value="card">
                                 {t("settings.store.type_card")}
+                              </SelectItem>
+                              <SelectItem value="transfer">
+                                {t("settings.store.type_transfer")}
                               </SelectItem>
                             </SelectContent>
                           </Select>

@@ -1,6 +1,6 @@
 [package]
 name = "medusa-pos"
-version = "0.4.1"
+version = "0.5.0"
 description = "Point of Sale application for MedusaJS"
 authors = ["Nari Solutions"]
 edition = "2021"
@@ -28,10 +28,10 @@ tauri-plugin-opener = "2.5"
 tauri-plugin-store = "2.4"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
-# `usb` uses rusb/libusb and scans all interfaces for bulk IN+OUT — fixes Windows
-# "no suitable interface number found" from `native_usb` (nusb) when `interfaces()` is empty.
-escpos = { version = "0.19.0", features = ["graphics", "usb"] }
-rusb = "0.9"
+# Shared POS peripheral layer (ESC/POS printing, USB enumeration, Windows
+# spooler, keyboard detection). Consumed library-style — the plugin's `init()`
+# is deliberately not registered, so this app keeps its own command names.
+tauri-plugin-pos-hardware = { git = "https://github.com/narisolutions/pos-toolkit", branch = "main" }
 tauri-plugin-http = "2.5.9"
 tauri-plugin-fs = "2.4"
 tauri-plugin-dialog = "2.7"
@@ -44,15 +44,3 @@ anyhow = "1"
 [target.'cfg(target_os = "linux")'.dependencies]
 dirs = "6"
 tokio = { version = "1", features = ["sync"], default-features = false }
-
-[target.'cfg(target_os = "windows")'.dependencies]
-windows = { version = "0.62", features = [
-    "Win32_Devices_HumanInterfaceDevice",
-    "Win32_UI_Input",
-    "Win32_Foundation",
-    "Win32_UI_WindowsAndMessaging",
-    "Win32_Graphics_Printing",
-    "Win32_Graphics_Gdi",
-    "Win32_Security",
-] }
-

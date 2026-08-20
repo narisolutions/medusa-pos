@@ -43,10 +43,31 @@ export type RegisterPreferences = {
   dayCutoffHour: number;
   /** |over/short| above this (display units) requires a reason at close. */
   discrepancyThreshold: number;
-  /** Whether closing the register requires the manager PIN. */
-  requirePinToClose: boolean;
-  /** SHA-256 hex hash of the manager PIN. The raw PIN is never stored. */
-  managerPinHash?: string;
+};
+
+/**
+ * Barcode scanner input. `wedge` is the default: the scanner types keystrokes
+ * and a document-level listener picks them up. `serial` opens the scanner's
+ * Virtual COM port instead and reads bytes — immune to keyboard layout, not
+ * dependent on focus, and the only path that can read alphanumeric or 2D codes.
+ * Stored per-terminal; a scanner has to be switched to COM mode on the device.
+ */
+export type ScannerTransport = "wedge" | "serial";
+
+export type ScannerPreferences = {
+  transport: ScannerTransport;
+  /**
+   * Port to open. Prefer the OS's stable identifier where one exists — on Linux
+   * `ttyUSB0` is assigned in enumeration order, so a replug can move it.
+   */
+  port?: string;
+  baud: number;
+  /**
+   * Silence-based framing for a scanner that sends no terminator, in ms.
+   * 0 = terminator-only, which is the normal path; anything else costs that
+   * latency on every scan.
+   */
+  idleMs: number;
 };
 
 export type UserPreferences = {
@@ -56,4 +77,5 @@ export type UserPreferences = {
   appearance: AppearancePreferences;
   language: LanguageMode;
   register: RegisterPreferences;
+  scanner: ScannerPreferences;
 };

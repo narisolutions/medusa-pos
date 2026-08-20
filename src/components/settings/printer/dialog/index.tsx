@@ -48,6 +48,8 @@ const PrinterDialog: React.FC<Props> = ({
     local: { placeholder: t("settings.printer.dialog_system_printer_placeholder"), label: t("settings.printer.dialog_system_printer_label") },
     network: { placeholder: "192.168.1.100", label: t("settings.printer.dialog_ip_label") },
     usb: { placeholder: t("settings.printer.dialog_usb_placeholder"), label: t("settings.printer.dialog_usb_label") },
+    // Kept only so a printer saved as bluetooth by an older build still renders
+    // instead of crashing on an undefined lookup; it is not selectable.
     bluetooth: { placeholder: "00:11:22:33:44:55", label: t("settings.printer.dialog_bluetooth_label") },
   };
 
@@ -140,15 +142,11 @@ const PrinterDialog: React.FC<Props> = ({
                           <span>{t("settings.printer.dialog_network")}</span>
                         )}
                         {field.value === "usb" && <span>{t("settings.printer.dialog_usb_item")}</span>}
-                        {field.value === "bluetooth" && (
-                          <span>{t("settings.printer.dialog_bluetooth_item")}</span>
-                        )}
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="local">{t("settings.printer.dialog_local")}</SelectItem>
                         <SelectItem value="network">{t("settings.printer.dialog_network")}</SelectItem>
                         <SelectItem value="usb">{t("settings.printer.dialog_usb_item")}</SelectItem>
-                        <SelectItem value="bluetooth">{t("settings.printer.dialog_bluetooth_item")}</SelectItem>
                       </SelectContent>
                     </Select>
                   </FormControl>
@@ -208,8 +206,8 @@ const PrinterDialog: React.FC<Props> = ({
                               <div className="flex flex-col">
                                 <span>{printer.name}</span>
                                 <span className="text-sm text-fg-muted">
-                                  {printer.port_name}
-                                  {printer.is_default && ` ${t("settings.printer.dialog_default_badge")}`}
+                                  {printer.portName}
+                                  {printer.isDefault && ` ${t("settings.printer.dialog_default_badge")}`}
                                 </span>
                               </div>
                             </SelectItem>
@@ -260,7 +258,7 @@ const PrinterDialog: React.FC<Props> = ({
                             <span className="truncate">
                               {usbDevices.find(
                                 (d) =>
-                                  `${d.vendor_id}:${d.product_id}` ===
+                                  `${d.vendorId}:${d.productId}` ===
                                   selectedUsbKey
                               )?.description ||
                                 watch("address") ||
@@ -280,13 +278,13 @@ const PrinterDialog: React.FC<Props> = ({
                           )}
                           {usbDevices.map((device) => (
                             <SelectItem
-                              key={`${device.vendor_id}:${device.product_id}`}
-                              value={`${device.vendor_id}:${device.product_id}`}
+                              key={`${device.vendorId}:${device.productId}`}
+                              value={`${device.vendorId}:${device.productId}`}
                             >
                               <div className="flex flex-col">
                                 <span>{device.description}</span>
                                 <span className="text-sm text-fg-muted">
-                                  {formatVidPid(device.vendor_id, device.product_id)}
+                                  {formatVidPid(device.vendorId, device.productId)}
                                 </span>
                               </div>
                             </SelectItem>
@@ -460,7 +458,7 @@ const PrinterDialog: React.FC<Props> = ({
                 <FormItem>
                   <FormLabel className="text-lg font-medium">{t("settings.printer.encoding")}</FormLabel>
                   <FormControl>
-                    <Select onValueChange={field.onChange} value={field.value ?? "ascii"}>
+                    <Select onValueChange={field.onChange} value={field.value ?? "translit"}>
                       <SelectTrigger className="h-12 text-lg px-4">
                         <SelectValue />
                       </SelectTrigger>
@@ -468,6 +466,7 @@ const PrinterDialog: React.FC<Props> = ({
                         <SelectItem value="ascii">{t("settings.printer.encoding_ascii")}</SelectItem>
                         <SelectItem value="utf8">{t("settings.printer.encoding_utf8")}</SelectItem>
                         <SelectItem value="cp852">{t("settings.printer.encoding_cp852")}</SelectItem>
+                        <SelectItem value="translit">{t("settings.printer.encoding_translit")}</SelectItem>
                       </SelectContent>
                     </Select>
                   </FormControl>
@@ -475,6 +474,7 @@ const PrinterDialog: React.FC<Props> = ({
                     {field.value === "ascii" && t("settings.printer.dialog_encoding_ascii_desc")}
                     {field.value === "utf8" && t("settings.printer.dialog_encoding_utf8_desc")}
                     {field.value === "cp852" && t("settings.printer.dialog_encoding_cp852_desc")}
+                    {field.value === "translit" && t("settings.printer.dialog_encoding_translit_desc")}
                   </p>
                   <FormMessage className="text-base" />
                 </FormItem>

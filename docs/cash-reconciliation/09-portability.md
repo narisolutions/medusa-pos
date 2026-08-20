@@ -1,7 +1,7 @@
 # 9. Portability — reusing this in a non-Medusa restaurant POS
 
 This feature was designed to be **mostly backend-agnostic**. The domain model, business-
-day logic, expected-cash math, state machine, PIN hashing, and UI flows are all generic.
+day logic, expected-cash math, state machine, and UI flows are all generic.
 Only a handful of seams touch this app's specific stack (Tauri + React + Medusa). To port
 the feature, reimplement those seams and keep everything else.
 
@@ -12,7 +12,6 @@ the feature, reimplement those seams and keep everything else.
 | `RegisterSession` / `CashMovement` types | Pure data. No backend types involved. |
 | `businessDay(ts, cutoffHour)` | Pure function. |
 | `computeExpectedCash(session, sales)` | Pure function over a normalized sale list (see seam below). |
-| `hashPin` / `verifyPin` | Standard Web Crypto (`crypto.subtle`) — works in any modern runtime. |
 | State machine (NO SESSION → OPEN → CLOSED → archive) | Framework-independent logic. |
 | Dialog flows & validation rules | Re-skin the UI; keep the rules. |
 | The **enabled / off-by-default** policy | Same everywhere. |
@@ -70,7 +69,6 @@ core/                 (portable — no backend imports)
   register.types.ts       RegisterSession, CashMovement, SessionSale
   business-day.ts         businessDay()
   expected-cash.ts        computeExpectedCash(session, SessionSale[])
-  pin.ts                  hashPin / verifyPin
   session-machine.ts      pure transitions: open / addMovement / close / archive
 
 adapters/             (per-app — the only files you rewrite)

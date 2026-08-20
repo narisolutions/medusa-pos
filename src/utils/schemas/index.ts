@@ -31,7 +31,9 @@ export default {
     id: z.string().optional(),
     name: z.string().min(1, { message: "Printer name is required" }),
     type: z.enum(["receipt"], { message: "Please select a printer type" }),
-    connectionType: z.enum(["local", "usb", "network", "bluetooth"], {
+    // No bluetooth: the plugin has no bluetooth print target and never had one,
+    // so offering it only produced "Unsupported connection type" at print time.
+    connectionType: z.enum(["local", "usb", "network"], {
       message: "Please select a connection type",
     }),
     address: z.string().min(1, { message: "Address/IP is required" }),
@@ -43,7 +45,8 @@ export default {
     openCashDrawerOnCash: z.boolean().optional().default(false),
     openCashDrawerOnCard: z.boolean().optional().default(false),
     paperWidth: z.enum(["80mm", "57mm"]).optional().default("80mm"),
-    encoding: z.enum(["ascii", "utf8", "cp852"]).optional().default("ascii"),
+    // "translit" romanizes rather than stripping, so it is never worse than "ascii".
+    encoding: z.enum(["ascii", "utf8", "cp852", "translit"]).optional().default("translit"),
   }),
 
   apiSettings: z.object({
@@ -79,14 +82,13 @@ export default {
     registerEnabled: z.boolean(),
     registerCutoffHour: z.coerce.number().int().min(0).max(23),
     registerDiscrepancyThreshold: z.coerce.number().min(0),
-    registerRequirePin: z.boolean(),
     cashRoundingEnabled: z.boolean(),
     cashRoundingIncrement: z.coerce.number().positive(),
   }),
 
   // Register (cash reconciliation) dialogs. Amounts arrive from numeric inputs as
-  // strings, so coerce. Conditional rules (reason required over threshold, PIN
-  // required) depend on runtime config and are enforced in the submit handlers.
+  // strings, so coerce. The reason-required-over-threshold rule depends on runtime
+  // config, so it is enforced in the submit handler rather than here.
   openRegister: z.object({
     openingFloat: z.coerce
       .number()
@@ -98,7 +100,6 @@ export default {
       .number()
       .min(0, { message: "Enter a valid amount" }),
     note: z.string().optional(),
-    managerPin: z.string().optional(),
   }),
 
   cashMovement: z.object({
@@ -107,6 +108,41 @@ export default {
       .number()
       .positive({ message: "Amount must be greater than zero" }),
     reason: z.string().min(1, { message: "Reason is required" }),
+  }),
+
+  refund: z.object({
+    amount: z.coerce
+      .number()
+      .positive({ message: "Refund amount must be greater than zero" }),
+    refundReasonId: z.string().optional(),
+    note: z.string().optional(),
+  }),
+
+  /**
+   * The QR hand-off payload. Owned by Tamada's docs/22-external-items-qr.md —
+   * raise changes there first, not here.
+   */
+  handoffPayload: z.object({
+    v: z.literal(1),
+    src: z.literal("medusa"),
+    ref: z.string().min(1),
+    ts: z.string(),
+    currency: z.string().length(3),
+    items: z
+      .array(
+        z.object({
+          sku: z.string().min(1),
+          name: z.string().min(1),
+          nameKa: z.string().optional(),
+          qty: z.number().int().min(1),
+          // Integer minor units, gross of VAT. Tamada never parses decimals.
+          priceMinor: z.number().int().nonnegative(),
+          vatBp: z.number().int().nonnegative().optional(),
+          minimumAge: z.number().int().positive().optional(),
+          meta: z.record(z.string(), z.unknown()).optional(),
+        })
+      )
+      .min(1),
   }),
 
   storeSettings: z.object({
@@ -129,8 +165,8 @@ export default {
           id: z.string().min(1),
           label: z.string().min(1),
           enabled: z.boolean(),
-          icon: z.enum(["cash", "card"]).optional(),
-          type: z.enum(["cash", "card"]).optional(),
+          icon: z.enum(["cash", "card", "transfer"]).optional(),
+          type: z.enum(["cash", "card", "transfer"]).optional(),
         })
       )
       .optional(),

@@ -9,10 +9,8 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { SidebarMenuItem } from "@/components/ui/sidebar";
 import { useRegister } from "@/context/register";
-import { verifyManagerPin } from "@/utils/settings/preferences/pin";
 import { useTranslation } from "@/i18n";
 import CashMovementDialog from "../cash-movement-dialog";
 import CloseRegisterDialog from "../close-register-dialog";
@@ -23,39 +21,21 @@ const RegisterMenuItem: React.FC = () => {
     enabled,
     isOpen,
     canReopen,
-    requirePinToClose,
-    managerPinHash,
     reopenRegister,
   } = useRegister();
   const [chooserOpen, setChooserOpen] = useState(false);
   const [movementOpen, setMovementOpen] = useState(false);
   const [closeOpen, setCloseOpen] = useState(false);
   const [reopenOpen, setReopenOpen] = useState(false);
-  const [reopenPin, setReopenPin] = useState("");
-  const [reopenError, setReopenError] = useState(false);
   const [reopenBusy, setReopenBusy] = useState(false);
 
   if (!enabled) return null;
 
-  // Reopen is a manager-authority undo, so it reuses the close PIN gate.
-  const reopenPinRequired = requirePinToClose && !!managerPinHash;
-
   const handleReopen = async () => {
     setReopenBusy(true);
     try {
-      if (reopenPinRequired) {
-        const ok = reopenPin
-          ? await verifyManagerPin(reopenPin, managerPinHash as string)
-          : false;
-        if (!ok) {
-          setReopenError(true);
-          return;
-        }
-      }
       await reopenRegister();
       setReopenOpen(false);
-      setReopenPin("");
-      setReopenError(false);
     } finally {
       setReopenBusy(false);
     }
@@ -127,13 +107,7 @@ const RegisterMenuItem: React.FC = () => {
 
       <Dialog
         open={reopenOpen}
-        onOpenChange={(o) => {
-          setReopenOpen(o);
-          if (!o) {
-            setReopenPin("");
-            setReopenError(false);
-          }
-        }}
+        onOpenChange={setReopenOpen}
       >
         <DialogContent className="max-w-xs">
           <DialogHeader>
@@ -142,29 +116,6 @@ const RegisterMenuItem: React.FC = () => {
               {t("register.reopen.description")}
             </DialogDescription>
           </DialogHeader>
-
-          {reopenPinRequired && (
-            <Input
-              type="password"
-              inputMode="numeric"
-              autoComplete="off"
-              autoFocus
-              value={reopenPin}
-              onChange={(e) => {
-                setReopenPin(e.target.value.replace(/\D/g, ""));
-                setReopenError(false);
-              }}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" && reopenPin && !reopenBusy) handleReopen();
-              }}
-              className="h-11 text-base"
-            />
-          )}
-          {reopenError && (
-            <p className="text-sm text-red-500">
-              {t("register.reopen.pin_invalid")}
-            </p>
-          )}
 
           <DialogFooter>
             <Button
@@ -177,7 +128,7 @@ const RegisterMenuItem: React.FC = () => {
             </Button>
             <Button
               type="button"
-              disabled={reopenBusy || (reopenPinRequired && !reopenPin)}
+              disabled={reopenBusy}
               className="text-white bg-primary hover:bg-primary/90"
               onClick={handleReopen}
             >

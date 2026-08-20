@@ -1,12 +1,18 @@
 import { AdminStore } from "@medusajs/types";
 
+/**
+ * "transfer" settles an order against an internal counterparty rather than a
+ * customer — no money is taken at the till, so no numpad, no change, no drawer.
+ */
+export type PaymentMethodType = "cash" | "card" | "transfer";
+
 export type PaymentMethodConfig = {
   id: string;
   label: string;
   enabled: boolean;
-  icon?: "cash" | "card";
+  icon?: "cash" | "card" | "transfer";
   /** Drives payment processing behavior (numpad, change calc, confirmation dialog). */
-  type?: "cash" | "card";
+  type?: PaymentMethodType;
 };
 
 /** POS-specific store settings, nested under metadata.pos */
@@ -21,6 +27,8 @@ export type PosMetadata = {
   store_phone?: string;
   payment_methods?: PaymentMethodConfig[];
   guest_customer_email?: string;
+  /** Who a transfer settlement is owed to; printed on the hand-off ticket. */
+  transfer_counterparty?: string;
 };
 
 /** Raw store metadata shape (may have pos object and/or legacy flat keys) */
@@ -36,6 +44,8 @@ type RawStoreMetadata = Record<string, unknown> & {
   store_phone?: string;
   payment_methods?: PaymentMethodConfig[];
   guest_customer_email?: string;
+  /** Who a transfer settlement is owed to; printed on the hand-off ticket. */
+  transfer_counterparty?: string;
 };
 
 const DEFAULT_PAYMENT_METHODS: PaymentMethodConfig[] = [
@@ -71,6 +81,7 @@ export function getStoreMetadata(
     store_phone: pos.store_phone ?? raw.store_phone,
     payment_methods: pos.payment_methods ?? raw.payment_methods,
     guest_customer_email: pos.guest_customer_email ?? raw.guest_customer_email,
+    transfer_counterparty: pos.transfer_counterparty ?? raw.transfer_counterparty,
   };
 }
 
@@ -108,6 +119,12 @@ export function getStoreAddress(
   store: AdminStore | null | undefined
 ): string | undefined {
   return getStoreMetadata(store).store_address;
+}
+
+export function getTransferCounterparty(
+  store: AdminStore | null | undefined
+): string | undefined {
+  return getStoreMetadata(store).transfer_counterparty;
 }
 
 export function getStoreAddress2(
@@ -157,6 +174,7 @@ const POS_METADATA_KEYS = new Set([
   "store_phone",
   "payment_methods",
    "guest_customer_email",
+  "transfer_counterparty",
   "pos",
 ]);
 
@@ -173,20 +191,31 @@ export function buildStoreMetadataPayload(
 }
 
 /**
- * Returns the behavioral type ("cash" or "card") for a given provider ID.
- * Falls back from the explicit `type` field to the `icon` field for legacy saved configs.
- * Defaults to "card" when the method is not found.
+ * Returns the behavioral type for a given provider ID.
+ *
+ * Matched case-insensitively, like `getOrderPaymentMethodLabel`: when the two
+ * disagreed, a configured id differing only in case showed the right label on a
+ * receipt while silently resolving to "card" — wrong drawer behaviour and no
+ * transfer ticket, with no error anywhere.
+ *
+ * Falls back from the explicit `type` field to `icon` for legacy saved configs,
+ * and defaults to "card" when the method is not found.
  */
 export function getMethodType(
   store: AdminStore | null | undefined,
   providerId: string | undefined
-): "cash" | "card" {
+): PaymentMethodType {
   if (!providerId) return "card";
   const configured = getStoreMetadata(store).payment_methods;
   const all = configured?.length ? configured : DEFAULT_PAYMENT_METHODS;
-  const found = all.find((m) => m.id === providerId);
+  const found = all.find(
+    (m) => m.id?.toLowerCase() === providerId.toLowerCase()
+  );
   if (!found) return "card";
-  return found.type ?? (found.icon === "cash" ? "cash" : "card");
+  // Legacy configs carry only an icon; infer every type from it, not just cash.
+  if (found.type) return found.type;
+  if (found.icon === "cash" || found.icon === "transfer") return found.icon;
+  return "card";
 }
 
 export { DEFAULT_PAYMENT_METHODS };

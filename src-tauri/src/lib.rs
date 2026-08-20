@@ -1,139 +1,49 @@
 // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
 use std::collections::HashMap;
-use std::time::Duration;
 
-use escpos::{
-    driver::*, errors::PrinterError, printer::Printer, printer_options::PrinterOptions, utils::*,
-};
 use tauri::{Emitter, Manager};
 use tauri_plugin_log::{Target, TargetKind};
+use tauri_plugin_pos_hardware::printing::{self, Align, PrintOp, PrinterTarget, QrEcc};
+use tauri_plugin_pos_hardware::{keyboard, serial, usb, winprint};
 
 mod config;
-mod keyboard;
-mod winprint;
 #[cfg(target_os = "linux")]
 mod appimage_integrate;
 use config::AppConfig;
 
-/// Shared byte buffer for capturing ESC/POS output.
-type SharedBuffer = std::sync::Arc<std::sync::Mutex<Vec<u8>>>;
+/// Logo raster width in dots — 384 is the printable width of an 80mm head.
+const LOGO_MAX_WIDTH: u32 = 384;
+/// QR byte-mode capacity at error-correction level M, by symbol version.
+/// Payloads here are always a few hundred bytes, so the table starts at 9.
+const QR_CAPACITY_M: [(u32, usize); 22] = [
+    (9, 180), (10, 213), (11, 251), (12, 287), (13, 331), (14, 362),
+    (15, 412), (16, 450), (17, 504), (18, 560), (19, 624), (20, 666),
+    (21, 711), (22, 779), (23, 857), (24, 911), (25, 997), (26, 1059),
+    (27, 1125), (28, 1190), (29, 1264), (30, 1370),
+];
 
-/// In-memory driver that captures ESC/POS bytes for later dispatch
-/// (e.g. via the Windows print spooler).
-#[derive(Clone)]
-struct BufferDriver {
-    buf: SharedBuffer,
-}
-
-impl BufferDriver {
-    fn new(buf: SharedBuffer) -> Self {
-        Self { buf }
+/// Printable dots across the paper: 48 or 32 columns of a 12-dot font.
+fn paper_dots(paper_width: Option<&str>) -> u32 {
+    match paper_width {
+        Some("57mm") => 384,
+        _ => 576,
     }
 }
 
-impl Driver for BufferDriver {
-    fn name(&self) -> String {
-        "BufferDriver".into()
-    }
-
-    fn write(&self, data: &[u8]) -> Result<(), PrinterError> {
-        self.buf.lock().unwrap().extend_from_slice(data);
-        Ok(())
-    }
-
-    fn read(&self, _buf: &mut [u8]) -> Result<usize, PrinterError> {
-        Ok(0)
-    }
-
-    fn flush(&self) -> Result<(), PrinterError> {
-        Ok(())
-    }
-}
-
-fn create_buffer_printer() -> (Printer<BufferDriver>, SharedBuffer) {
-    let buf: SharedBuffer = std::sync::Arc::new(std::sync::Mutex::new(Vec::with_capacity(4096)));
-    let driver = BufferDriver::new(buf.clone());
-    let printer = Printer::new(driver, Protocol::default(), Some(PrinterOptions::default()));
-    (printer, buf)
-}
-
-// Helper function for Georgian text handling
-fn configure_printer_for_georgian<T>(
-    _printer: &mut Printer<T>,
-    text: &str,
-) -> Result<(), PrinterError>
-where
-    T: Driver,
-{
-    // Check if text contains Georgian characters
-    let has_georgian = text.chars().any(|c| {
-        // Georgian Unicode ranges
-        (c >= '\u{10A0}' && c <= '\u{10FF}') || // Georgian
-        (c >= '\u{2D00}' && c <= '\u{2D2F}') // Georgian Supplement
-    });
-
-    if has_georgian {
-        log::info!(
-            "Georgian text detected in receipt: {} characters",
-            text.chars()
-                .filter(|c| (c >= &'\u{10A0}' && c <= &'\u{10FF}')
-                    || (c >= &'\u{2D00}' && c <= &'\u{2D2F}'))
-                .count()
-        );
-        log::info!("Printer will send Georgian text as UTF-8 - ensure printer supports Unicode");
-
-        // Rust automatically handles UTF-8 encoding
-        // Modern thermal printers should handle UTF-8 Georgian characters
-        // If characters appear as ? or □, the printer firmware doesn't support Georgian
-    }
-
-    Ok(())
-}
-
-// Helper function for error mapping
-fn map_printer_error<T>(result: Result<T, PrinterError>) -> Result<T, String> {
-    result.map_err(|e| {
-        let s = e.to_string();
-        log::error!("Printer error: {s}");
-        s
-    })
-}
-
-fn create_network_printer(
-    address: &str,
-    port_num: u16,
-) -> Result<Printer<NetworkDriver>, PrinterError> {
-    let driver = NetworkDriver::open(address, port_num, Some(Duration::from_secs(5)))?;
-    Ok(Printer::new(
-        driver,
-        Protocol::default(),
-        Some(PrinterOptions::default()),
-    ))
-}
-
-fn create_usb_printer(vendor_id: u16, product_id: u16) -> Result<Printer<UsbDriver>, PrinterError> {
-    // If logs still show `nusb::`, the app was not rebuilt after switching escpos from `native_usb` to `usb`.
-    log::info!(
-        "USB print path: libusb via escpos::UsbDriver (rusb), VID {:04x} PID {:04x}",
-        vendor_id,
-        product_id
-    );
-    match UsbDriver::open(vendor_id, product_id, Some(Duration::from_secs(8)), None) {
-        Ok(driver) => Ok(Printer::new(
-            driver,
-            Protocol::default(),
-            Some(PrinterOptions::default()),
-        )),
-        Err(e) => {
-            log::error!(
-                "USB printer open failed (VID {:04x} PID {:04x}): {}",
-                vendor_id,
-                product_id,
-                e
-            );
-            Err(e)
-        }
-    }
+/// The largest module size whose symbol still fits the paper.
+///
+/// A fixed size cannot work: a version-v symbol is 17 + 4v modules wide and the
+/// payload grows with every item on the ticket, so one bottle and six bottles
+/// need different modules. Bigger modules scan more easily, so take the biggest
+/// that fits rather than a small one that always would.
+fn qr_module_size(payload_len: usize, paper_dots: u32) -> u8 {
+    let version = QR_CAPACITY_M
+        .iter()
+        .find(|(_, capacity)| *capacity >= payload_len)
+        .map(|(version, _)| *version)
+        .unwrap_or(40);
+    let modules = 17 + 4 * version;
+    (paper_dots / modules).clamp(2, 8) as u8
 }
 
 fn parse_usb_ids(vendor_id: Option<u16>, product_id: Option<u16>) -> Result<(u16, u16), String> {
@@ -143,78 +53,14 @@ fn parse_usb_ids(vendor_id: Option<u16>, product_id: Option<u16>) -> Result<(u16
     }
 }
 
-#[derive(serde::Serialize, Clone)]
-struct UsbDeviceInfo {
-    vendor_id: u16,
-    product_id: u16,
-    description: String,
-}
-
 #[tauri::command]
 fn list_system_printers() -> Result<Vec<winprint::SystemPrinterInfo>, String> {
     winprint::list_system_printers()
 }
 
 #[tauri::command]
-fn list_usb_devices() -> Result<Vec<UsbDeviceInfo>, String> {
-    let devices = rusb::devices().map_err(|e| format!("Failed to enumerate USB devices: {}", e))?;
-    let mut result = Vec::new();
-
-    for device in devices.iter() {
-        let desc = match device.device_descriptor() {
-            Ok(d) => d,
-            Err(_) => continue,
-        };
-
-        // USB class 7 = Printer. Also include composite devices (class 0)
-        // whose interfaces may be printers.
-        let dominated_by_printer_class = desc.class_code() == 7;
-        let is_composite = desc.class_code() == 0;
-
-        let has_printer_interface = if is_composite {
-            if let Ok(config) = device.active_config_descriptor() {
-                config.interfaces().any(|iface| {
-                    iface.descriptors().any(|id| id.class_code() == 7)
-                })
-            } else {
-                false
-            }
-        } else {
-            false
-        };
-
-        if !dominated_by_printer_class && !has_printer_interface {
-            continue;
-        }
-
-        let handle = device.open().ok();
-        let manufacturer = handle
-            .as_ref()
-            .and_then(|h| h.read_manufacturer_string_ascii(&desc).ok())
-            .unwrap_or_default();
-        let product = handle
-            .as_ref()
-            .and_then(|h| h.read_product_string_ascii(&desc).ok())
-            .unwrap_or_default();
-
-        let description = if !manufacturer.is_empty() && !product.is_empty() {
-            format!("{} {}", manufacturer, product)
-        } else if !product.is_empty() {
-            product
-        } else if !manufacturer.is_empty() {
-            manufacturer
-        } else {
-            format!("USB Printer ({:04x}:{:04x})", desc.vendor_id(), desc.product_id())
-        };
-
-        result.push(UsbDeviceInfo {
-            vendor_id: desc.vendor_id(),
-            product_id: desc.product_id(),
-            description,
-        });
-    }
-
-    Ok(result)
+fn list_usb_devices() -> Result<Vec<usb::UsbDeviceInfo>, String> {
+    usb::list_usb_devices()
 }
 
 fn parse_port(port: Option<String>) -> u16 {
@@ -254,188 +100,98 @@ fn get_company_header(company_name: Option<&str>) -> &str {
         .unwrap_or("POS")
 }
 
-fn print_test_page<T: Driver>(
-    printer: &mut Printer<T>,
-    app_handle: &tauri::AppHandle<tauri::Wry>,
-    header: &str,
-    app_version: Option<&str>,
-    datetime: Option<&str>,
-    store_name: Option<&str>,
-    sales_channel_name: Option<&str>,
-) -> Result<(), String> {
-    map_printer_error(printer.init())?;
-
-    let test_georgian = "ტესტი - Test Print - ქართული";
-    map_printer_error(configure_printer_for_georgian(printer, test_georgian))?;
-
-    map_printer_error(printer.justify(JustifyMode::CENTER))?;
-
-    match get_logo_path(app_handle) {
-        Ok(logo_path) => {
-            log::info!("Test print: Using logo path: {}", logo_path);
-            let image_configs = vec![
-                (Some(384), None, BitImageSize::Normal),
-                (Some(256), None, BitImageSize::Normal),
-                (Some(192), None, BitImageSize::Normal),
-                (None, None, BitImageSize::Normal),
-                (Some(384), None, BitImageSize::DoubleWidth),
-                (Some(384), None, BitImageSize::DoubleHeight),
-            ];
-
-            let mut logo_printed = false;
-            for (width, height, size) in image_configs {
-                match BitImageOption::new(width, height, size) {
-                    Ok(bit_image_option) => {
-                        log::info!("Test print: Trying image config - width: {:?}, height: {:?}, size: {:?}", width, height, size);
-                        match printer.bit_image_option(&logo_path, bit_image_option) {
-                            Ok(_) => {
-                                log::info!("Test print: Logo printed successfully with config - width: {:?}, height: {:?}", width, height);
-                                map_printer_error(printer.feed())?;
-                                logo_printed = true;
-                                break;
-                            }
-                            Err(e) => {
-                                log::warn!("Test print: Failed to print logo with config - width: {:?}, height: {:?}: {}", width, height, e);
-                                continue;
-                            }
-                        }
-                    }
-                    Err(e) => {
-                        log::warn!("Test print: Failed to create bit image option - width: {:?}, height: {:?}: {}", width, height, e);
-                        continue;
-                    }
-                }
-            }
-
-            if !logo_printed {
-                log::warn!("Test print: All logo printing attempts failed. Using text header.");
-                map_printer_error(printer.bold(true))?;
-                map_printer_error(printer.writeln(header))?;
-                map_printer_error(printer.bold(false))?;
-                map_printer_error(printer.feed())?;
-            }
+/// Resolve the frontend's connection fields into a plugin print target.
+fn printer_target(
+    connection_type: &str,
+    address: &str,
+    port: Option<String>,
+    vendor_id: Option<u16>,
+    product_id: Option<u16>,
+) -> Result<PrinterTarget, String> {
+    match connection_type {
+        "network" => Ok(PrinterTarget::Network {
+            host: address.to_string(),
+            port: parse_port(port),
+        }),
+        "usb" => {
+            let (vendor_id, product_id) = parse_usb_ids(vendor_id, product_id)?;
+            Ok(PrinterTarget::Usb {
+                vendor_id,
+                product_id,
+            })
         }
-        Err(e) => {
-            log::warn!("Test print: Could not locate logo file: {}. Using text header.", e);
-            map_printer_error(printer.bold(true))?;
-            map_printer_error(printer.writeln(header))?;
-            map_printer_error(printer.bold(false))?;
-            map_printer_error(printer.feed())?;
-        }
+        "local" => Ok(PrinterTarget::System {
+            name: address.to_string(),
+        }),
+        _ => Err("Unsupported connection type".to_string()),
     }
-
-    map_printer_error(printer.justify(JustifyMode::LEFT))?;
-    map_printer_error(printer.smoothing(true))?;
-    map_printer_error(printer.bold(true))?;
-    map_printer_error(printer.underline(UnderlineMode::Single))?;
-    map_printer_error(printer.writeln("TEST PRINT"))?;
-    map_printer_error(printer.bold(false))?;
-    map_printer_error(printer.underline(UnderlineMode::None))?;
-
-    map_printer_error(printer.writeln("Medusa POS"))?;
-    if let Some(v) = app_version.filter(|s| !s.is_empty()) {
-        map_printer_error(printer.writeln(&format!("Version {}", v)))?;
-    }
-    if let Some(dt) = datetime.filter(|s| !s.is_empty()) {
-        map_printer_error(printer.writeln(dt))?;
-    }
-    if let Some(name) = store_name.filter(|s| !s.is_empty()) {
-        map_printer_error(printer.writeln(&format!("Store: {}", name)))?;
-    }
-    if let Some(ch) = sales_channel_name.filter(|s| !s.is_empty()) {
-        map_printer_error(printer.writeln(&format!("Sales channel: {}", ch)))?;
-    }
-    map_printer_error(printer.feed())?;
-
-    map_printer_error(printer.justify(JustifyMode::CENTER))?;
-    map_printer_error(printer.reverse(true))?;
-    map_printer_error(printer.writeln("Hello world - Test successful!"))?;
-    map_printer_error(printer.feed())?;
-    map_printer_error(printer.justify(JustifyMode::RIGHT))?;
-    map_printer_error(printer.reverse(false))?;
-    map_printer_error(printer.underline(UnderlineMode::None))?;
-    map_printer_error(printer.size(2, 3))?;
-    map_printer_error(printer.writeln("Thank you"))?;
-    map_printer_error(printer.print_cut())?;
-
-    Ok(())
 }
 
-fn print_receipt_page<T: Driver>(
-    printer: &mut Printer<T>,
-    app_handle: &tauri::AppHandle<tauri::Wry>,
-    header: &str,
-    receipt_data: &str,
-) -> Result<(), String> {
-    map_printer_error(printer.init())?;
-
-    map_printer_error(configure_printer_for_georgian(printer, receipt_data))?;
-
-    map_printer_error(printer.justify(JustifyMode::CENTER))?;
-
-    match get_logo_path(app_handle) {
-        Ok(logo_path) => {
-            log::info!("Receipt print: Using logo path: {}", logo_path);
-            let image_configs = vec![
-                (Some(384), None, BitImageSize::Normal),
-                (Some(256), None, BitImageSize::Normal),
-                (Some(192), None, BitImageSize::Normal),
-                (None, None, BitImageSize::Normal),
-                (Some(384), None, BitImageSize::DoubleWidth),
-                (Some(384), None, BitImageSize::DoubleHeight),
-            ];
-
-            let mut logo_printed = false;
-            for (width, height, size) in image_configs {
-                match BitImageOption::new(width, height, size) {
-                    Ok(bit_image_option) => {
-                        log::info!("Receipt print: Trying image config - width: {:?}, height: {:?}, size: {:?}", width, height, size);
-                        match printer.bit_image_option(&logo_path, bit_image_option) {
-                            Ok(_) => {
-                                log::info!("Receipt print: Logo printed successfully with config - width: {:?}, height: {:?}", width, height);
-                                map_printer_error(printer.feed())?;
-                                logo_printed = true;
-                                break;
-                            }
-                            Err(e) => {
-                                log::warn!("Receipt print: Failed to print logo with config - width: {:?}, height: {:?}: {}", width, height, e);
-                                continue;
-                            }
-                        }
-                    }
-                    Err(e) => {
-                        log::warn!("Receipt print: Failed to create bit image option - width: {:?}, height: {:?}: {}", width, height, e);
-                        continue;
-                    }
-                }
-            }
-
-            if !logo_printed {
-                log::warn!("Receipt print: All logo printing attempts failed. Using text header.");
-                map_printer_error(printer.bold(true))?;
-                map_printer_error(printer.writeln(header))?;
-                map_printer_error(printer.bold(false))?;
-                map_printer_error(printer.feed())?;
-            }
-        }
-        Err(e) => {
-            log::warn!("Receipt print: Could not locate logo file: {}. Using text header.", e);
-            map_printer_error(printer.bold(true))?;
-            map_printer_error(printer.writeln(header))?;
-            map_printer_error(printer.bold(false))?;
-            map_printer_error(printer.feed())?;
-        }
+fn text(content: &str) -> PrintOp {
+    PrintOp::Text {
+        text: content.to_string(),
+        bold: false,
+        align: None,
+        size: None,
     }
-
-    map_printer_error(printer.justify(JustifyMode::LEFT))?;
-    map_printer_error(printer.writeln(receipt_data))?;
-    map_printer_error(printer.feed())?;
-    map_printer_error(printer.feed())?;
-    map_printer_error(printer.print_cut())?;
-
-    Ok(())
 }
 
+/// Bold, centered store name — the header when no logo file is configured.
+fn text_header(header: &str) -> Vec<PrintOp> {
+    vec![
+        PrintOp::Text {
+            text: header.to_string(),
+            bold: true,
+            align: Some(Align::Center),
+            size: None,
+        },
+        PrintOp::Feed { lines: 1 },
+    ]
+}
+
+/// Logo raster, or the text header when no logo file exists.
+fn header_ops(app_handle: &tauri::AppHandle<tauri::Wry>, header: &str) -> Vec<PrintOp> {
+    match get_logo_path(app_handle) {
+        Ok(path) => vec![
+            PrintOp::Image {
+                path,
+                max_width: Some(LOGO_MAX_WIDTH),
+            },
+            PrintOp::Feed { lines: 1 },
+        ],
+        Err(e) => {
+            log::warn!("No logo file ({e}); printing a text header instead");
+            text_header(header)
+        }
+    }
+}
+
+/// Run a job, and if it had a logo, retry once with a text header instead.
+/// A bad image fails while encoding, before any bytes reach the head, so the
+/// retry can't duplicate output — and reconnect-per-job survives it.
+fn print_job_with_logo_fallback(
+    target: &PrinterTarget,
+    header: &str,
+    logo_ops: &[PrintOp],
+    body: Vec<PrintOp>,
+) -> Result<(), String> {
+    let mut ops = logo_ops.to_vec();
+    ops.extend(body.iter().cloned());
+
+    match printing::print_job(target, &ops) {
+        Ok(()) => Ok(()),
+        Err(e) if matches!(logo_ops.first(), Some(PrintOp::Image { .. })) => {
+            log::warn!("Print with logo failed ({e}); retrying with a text header");
+            let mut retry = text_header(header);
+            retry.extend(body);
+            printing::print_job(target, &retry)
+        }
+        Err(e) => Err(e),
+    }
+}
+
+// The argument list is the frontend's invoke contract, not a design choice.
+#[allow(clippy::too_many_arguments)]
 #[tauri::command]
 async fn print_test(
     app_handle: tauri::AppHandle<tauri::Wry>,
@@ -451,56 +207,50 @@ async fn print_test(
     sales_channel_name: Option<String>,
 ) -> Result<(), String> {
     let header = get_company_header(company_name.as_deref());
-    log::info!(
-        "Starting print test - Connection: {}, Address: {}",
-        connection_type,
-        address
-    );
+    log::info!("Starting print test - Connection: {connection_type}, Address: {address}");
 
-    match connection_type.as_str() {
-        "network" => {
-            let port_num = parse_port(port);
-            let mut printer = map_printer_error(create_network_printer(&address, port_num))?;
-            printer.debug_mode(Some(DebugMode::Dec));
-            print_test_page(
-                &mut printer,
-                &app_handle,
-                header,
-                app_version.as_deref(),
-                datetime.as_deref(),
-                store_name.as_deref(),
-                sales_channel_name.as_deref(),
-            )
-        }
-        "usb" => {
-            let (vid, pid) = parse_usb_ids(vendor_id, product_id)?;
-            let mut printer = map_printer_error(create_usb_printer(vid, pid))?;
-            print_test_page(
-                &mut printer,
-                &app_handle,
-                header,
-                app_version.as_deref(),
-                datetime.as_deref(),
-                store_name.as_deref(),
-                sales_channel_name.as_deref(),
-            )
-        }
-        "local" => {
-            let (mut printer, buf) = create_buffer_printer();
-            print_test_page(
-                &mut printer,
-                &app_handle,
-                header,
-                app_version.as_deref(),
-                datetime.as_deref(),
-                store_name.as_deref(),
-                sales_channel_name.as_deref(),
-            )?;
-            let bytes = std::mem::take(&mut *buf.lock().unwrap());
-            winprint::raw_print(&address, &bytes)
-        }
-        _ => Err("Unsupported connection type".to_string()),
+    let target = printer_target(&connection_type, &address, port, vendor_id, product_id)?;
+
+    let mut body = vec![
+        PrintOp::Text {
+            text: "TEST PRINT".to_string(),
+            bold: true,
+            align: None,
+            size: None,
+        },
+        text("Medusa POS"),
+    ];
+    if let Some(v) = app_version.filter(|s| !s.is_empty()) {
+        body.push(text(&format!("Version {v}")));
     }
+    if let Some(dt) = datetime.filter(|s| !s.is_empty()) {
+        body.push(text(&dt));
+    }
+    if let Some(name) = store_name.filter(|s| !s.is_empty()) {
+        body.push(text(&format!("Store: {name}")));
+    }
+    if let Some(channel) = sales_channel_name.filter(|s| !s.is_empty()) {
+        body.push(text(&format!("Sales channel: {channel}")));
+    }
+    body.extend([
+        PrintOp::Feed { lines: 1 },
+        PrintOp::Text {
+            text: "Hello world - Test successful!".to_string(),
+            bold: false,
+            align: Some(Align::Center),
+            size: None,
+        },
+        PrintOp::Feed { lines: 1 },
+        PrintOp::Text {
+            text: "Thank you".to_string(),
+            bold: false,
+            align: Some(Align::Right),
+            size: Some((2, 3)),
+        },
+        PrintOp::Cut,
+    ]);
+
+    print_job_with_logo_fallback(&target, header, &header_ops(&app_handle, header), body)
 }
 
 #[tauri::command]
@@ -511,37 +261,11 @@ async fn open_cash_drawer(
     vendor_id: Option<u16>,
     product_id: Option<u16>,
 ) -> Result<(), String> {
-    match connection_type.as_str() {
-        "network" => {
-            use std::net::{TcpStream, SocketAddr};
-            use std::io::Write;
-            let port_num = parse_port(port);
-            let addr = format!("{}:{}", address, port_num);
-            let socket_addr: SocketAddr = addr.parse().map_err(|e: std::net::AddrParseError| e.to_string())?;
-            let mut stream = TcpStream::connect_timeout(&socket_addr, Duration::from_secs(3))
-                .map_err(|e| e.to_string())?;
-            stream.write_all(&[0x1B, 0x70, 0x00, 0x19, 0xFF])
-                .map_err(|e| e.to_string())?;
-            Ok(())
-        }
-        "usb" => {
-            let (vid, pid) = parse_usb_ids(vendor_id, product_id)?;
-            let mut printer = map_printer_error(create_usb_printer(vid, pid))?;
-            map_printer_error(printer.init())?;
-            map_printer_error(printer.cash_drawer(CashDrawer::Pin2))?;
-            Ok(())
-        }
-        "local" => {
-            let (mut printer, buf) = create_buffer_printer();
-            map_printer_error(printer.init())?;
-            map_printer_error(printer.cash_drawer(CashDrawer::Pin2))?;
-            let bytes = std::mem::take(&mut *buf.lock().unwrap());
-            winprint::raw_print(&address, &bytes)
-        }
-        _ => Err("Unsupported connection type".to_string()),
-    }
+    let target = printer_target(&connection_type, &address, port, vendor_id, product_id)?;
+    printing::open_cash_drawer(&target)
 }
 
+#[allow(clippy::too_many_arguments)]
 #[tauri::command]
 async fn print_receipt(
     app_handle: tauri::AppHandle<tauri::Wry>,
@@ -554,27 +278,86 @@ async fn print_receipt(
     company_name: Option<String>,
 ) -> Result<(), String> {
     let header = get_company_header(company_name.as_deref());
-    match connection_type.as_str() {
-        "network" => {
-            let port_num = parse_port(port);
-            let mut printer = map_printer_error(create_network_printer(&address, port_num))?;
-            print_receipt_page(&mut printer, &app_handle, header, &receipt_data)
-        }
-        "usb" => {
-            let (vid, pid) = parse_usb_ids(vendor_id, product_id)?;
-            let mut printer = map_printer_error(create_usb_printer(vid, pid))?;
-            print_receipt_page(&mut printer, &app_handle, header, &receipt_data)
-        }
-        "local" => {
-            let (mut printer, buf) = create_buffer_printer();
-            print_receipt_page(&mut printer, &app_handle, header, &receipt_data)?;
-            let bytes = std::mem::take(&mut *buf.lock().unwrap());
-            winprint::raw_print(&address, &bytes)
-        }
-        _ => Err("Unsupported connection type".to_string()),
-    }
+    let target = printer_target(&connection_type, &address, port, vendor_id, product_id)?;
+
+    let body = vec![
+        text(&receipt_data),
+        PrintOp::Feed { lines: 2 },
+        PrintOp::Cut,
+    ];
+
+    print_job_with_logo_fallback(&target, header, &header_ops(&app_handle, header), body)
 }
 
+/// Hand-off ticket: the human-readable section, then the QR the receiving till
+/// scans. It can't reuse `print_receipt`, which cuts straight after the body and
+/// leaves nowhere to put the code.
+#[allow(clippy::too_many_arguments)]
+#[tauri::command]
+async fn print_handoff_ticket(
+    app_handle: tauri::AppHandle<tauri::Wry>,
+    connection_type: String,
+    address: String,
+    port: Option<String>,
+    vendor_id: Option<u16>,
+    product_id: Option<u16>,
+    ticket_text: String,
+    qr_payload: String,
+    paper_width: Option<String>,
+    company_name: Option<String>,
+) -> Result<(), String> {
+    let header = get_company_header(company_name.as_deref());
+    let target = printer_target(&connection_type, &address, port, vendor_id, product_id)?;
+
+    let size = qr_module_size(qr_payload.len(), paper_dots(paper_width.as_deref()));
+    log::info!("Hand-off QR: {} bytes at module size {size}", qr_payload.len());
+
+    let body = vec![
+        text(&ticket_text),
+        PrintOp::Feed { lines: 1 },
+        // The QR op carries no alignment and the plugin has no standalone align
+        // op, so the justify bytes are set around it directly: ESC a 1 centers,
+        // ESC a 0 restores left for whatever follows.
+        PrintOp::Raw { bytes: vec![0x1B, 0x61, 0x01] },
+        PrintOp::QrCode {
+            data: qr_payload,
+            size: Some(size),
+            correction: Some(QrEcc::M),
+        },
+        PrintOp::Raw { bytes: vec![0x1B, 0x61, 0x00] },
+        PrintOp::Feed { lines: 2 },
+        PrintOp::Cut,
+    ];
+
+    print_job_with_logo_fallback(&target, header, &header_ops(&app_handle, header), body)
+}
+
+#[tauri::command]
+fn list_serial_ports() -> Result<Vec<serial::SerialPortInfo>, String> {
+    serial::list_serial_ports()
+}
+
+/// Start a reader; framed scans arrive on the `pos-hardware://serial-scan` event.
+/// `idle_ms` 0 means terminator-only framing, which is what a COM-mode scanner
+/// normally does — an idle fallback costs that latency on every scan.
+#[tauri::command]
+fn open_serial_scanner(
+    app_handle: tauri::AppHandle<tauri::Wry>,
+    state: tauri::State<'_, serial::SerialState>,
+    path: String,
+    baud: u32,
+    idle_ms: Option<u64>,
+) -> Result<(), String> {
+    serial::open_scanner(app_handle, &state, path, baud, idle_ms.unwrap_or(0))
+}
+
+#[tauri::command]
+fn close_serial_scanner(
+    state: tauri::State<'_, serial::SerialState>,
+    path: String,
+) -> Result<(), String> {
+    serial::close_scanner(&state, &path)
+}
 
 #[tauri::command]
 fn check_physical_keyboard() -> bool {
@@ -693,7 +476,7 @@ fn debug_config_info() -> Result<String, String> {
     // Try to load config
     match AppConfig::load() {
         Ok(config) => {
-            debug_info.push_str(&format!("Config loaded successfully\n"));
+            debug_info.push_str("Config loaded successfully\n");
             debug_info.push_str(&format!("Backend URL: {}\n", config.backend_url));
         }
         Err(e) => {
@@ -781,13 +564,13 @@ fn debug_logo_path(app_handle: tauri::AppHandle<tauri::Wry>) -> Result<String, S
             // Check if file exists and get info
             let logo_path = std::path::Path::new(&path);
             if logo_path.exists() {
-                debug_info.push_str(&format!("Logo file exists: true\n"));
+                debug_info.push_str("Logo file exists: true\n");
 
                 if let Ok(metadata) = logo_path.metadata() {
                     debug_info.push_str(&format!("Logo file size: {} bytes\n", metadata.len()));
                 }
             } else {
-                debug_info.push_str(&format!("Logo file exists: false\n"));
+                debug_info.push_str("Logo file exists: false\n");
             }
         }
         Err(e) => {
@@ -835,6 +618,7 @@ pub fn run() {
     };
 
     tauri::Builder::default()
+        .manage(serial::SerialState::default())
         .setup(|app| {
             // On Linux AppImage builds, offer to integrate into the apps menu
             // and relaunch from a stable install path on first run. No-ops when
@@ -889,9 +673,13 @@ pub fn run() {
         .invoke_handler(tauri::generate_handler![
             check_physical_keyboard,
             toggle_virtual_keyboard,
+            list_serial_ports,
+            open_serial_scanner,
+            close_serial_scanner,
             print_test,
             open_cash_drawer,
             print_receipt,
+            print_handoff_ticket,
             list_usb_devices,
             list_system_printers,
             check_config_exists,
@@ -909,4 +697,59 @@ pub fn run() {
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
+}
+
+#[cfg(test)]
+mod tests {
+    use super::{paper_dots, qr_module_size};
+
+    /// A symbol is 17 + 4v modules wide; whatever size we pick, modules * size
+    /// must stay inside the paper or the printer clips or refuses the code.
+    fn fits(payload_len: usize, dots: u32) -> bool {
+        let size = qr_module_size(payload_len, dots) as u32;
+        let version = super::QR_CAPACITY_M
+            .iter()
+            .find(|(_, capacity)| *capacity >= payload_len)
+            .map(|(v, _)| *v)
+            .unwrap_or(40);
+        (17 + 4 * version) * size <= dots
+    }
+
+    #[test]
+    fn paper_width_maps_to_printable_dots() {
+        assert_eq!(paper_dots(Some("80mm")), 576);
+        assert_eq!(paper_dots(Some("57mm")), 384);
+        // Unknown or absent falls back to the common 80mm head.
+        assert_eq!(paper_dots(None), 576);
+        assert_eq!(paper_dots(Some("nonsense")), 576);
+    }
+
+    #[test]
+    fn every_realistic_ticket_fits_the_paper() {
+        // ~123 bytes of envelope plus ~86 per item, inflated by base64url.
+        for items in 1..=12 {
+            let len = (123 + items * 86) * 4 / 3;
+            assert!(fits(len, 576), "{items} items overflow 80mm");
+            assert!(fits(len, 384), "{items} items overflow 57mm");
+        }
+    }
+
+    #[test]
+    fn a_longer_ticket_never_gets_a_bigger_module() {
+        let sizes: Vec<u8> = (1..=12)
+            .map(|items| qr_module_size((123 + items * 86) * 4 / 3, 576))
+            .collect();
+        assert!(
+            sizes.windows(2).all(|w| w[0] >= w[1]),
+            "module size must shrink as the payload grows: {sizes:?}"
+        );
+    }
+
+    #[test]
+    fn size_stays_inside_the_escpos_range() {
+        for len in [1, 200, 800, 5_000, 100_000] {
+            let size = qr_module_size(len, 576);
+            assert!((2..=8).contains(&size), "size {size} out of range for {len} bytes");
+        }
+    }
 }

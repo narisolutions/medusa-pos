@@ -16,10 +16,16 @@ import {
   getStoreAddress2,
   getStorePhone,
   getGuestCustomerEmail,
+  getTransferCounterparty,
 } from "@/utils/settings/store/metadata";
+import { buildHandoffPayload, encodeHandoffUrl } from "@/utils/pos/handoff";
+import schemas from "@/utils/schemas";
+import { buildHandoffTicketText } from "@/utils/pos/handoff/ticket";
+import type { PrinterEncoding } from "@/utils/pos/receipt/printer-encoding";
 import {
   getOrderPaymentMethodLabel,
   getOrderPaymentMethodType,
+  getOrderSaleTotal,
 } from "@/utils/pos/payment";
 
 const usePrinterService = () => {
@@ -171,7 +177,8 @@ const usePrinterService = () => {
 
     const subtotal = order.subtotal || 0;
     const tax = order.tax_total || 0;
-    const total = order.total || 0;
+    // Sale value, not order.total — a refund credit line drives that to 0.
+    const total = getOrderSaleTotal(order);
     const discount = (order.discount_total || 0) + itemDiscountsTotal + orderLevelDiscount;
     const cashPaid: number = typeof order.metadata?.cash_paid === "number"
       ? order.metadata.cash_paid
@@ -282,7 +289,7 @@ const usePrinterService = () => {
       try {
         const receiptData = buildReceiptDataFromOrder(order);
         const paperWidth = printer.paperWidth ?? "80mm";
-        const encoding = (printer as Printer & { encoding?: string }).encoding as import("@/utils/pos/receipt/printer-encoding").PrinterEncoding ?? "ascii";
+        const encoding = (printer as Printer & { encoding?: string }).encoding as import("@/utils/pos/receipt/printer-encoding").PrinterEncoding ?? "translit";
         const receiptText = buildReceipt(receiptData, paperWidth, getReceiptLabels(), encoding);
         await printReceiptText(receiptText, printer);
 
@@ -296,6 +303,87 @@ const usePrinterService = () => {
       }
     },
     [getDefaultPrinter, printReceiptText, buildReceiptDataFromOrder, getReceiptLabels]
+  );
+
+  /**
+   * Transfer hand-off ticket: human-readable section plus the QR the receiving
+   * till scans. Deterministic from the order, so a reprint is safe.
+   */
+  const printHandoffTicket = useCallback(
+    async (order: AdminOrder, printer?: Printer) => {
+      const targetPrinter = printer || getDefaultPrinter();
+
+      if (!targetPrinter) {
+        throw new Error("No printer specified and no default printer configured");
+      }
+
+      try {
+        const encoding =
+          (targetPrinter as Printer & { encoding?: PrinterEncoding }).encoding ?? "translit";
+
+        const ticketText = buildHandoffTicketText(order, {
+          labels: {
+            title: t("handoff.title"),
+            banner: t("handoff.banner"),
+            date: t("receipt.date"),
+            time: t("receipt.time"),
+            order: t("receipt.order"),
+            counterparty: t("handoff.counterparty"),
+            items: t("receipt.items"),
+            total: t("receipt.total"),
+            footer: t("handoff.footer"),
+          },
+          headerLines: [
+            getBrandName(store) || "POS",
+            store?.name ?? "",
+            getStoreAddress(store) ?? "",
+            getStoreAddress2(store) ?? "",
+          ].filter(Boolean),
+          counterpartyName: getTransferCounterparty(store),
+          paperWidth: targetPrinter.paperWidth ?? "80mm",
+          encoding,
+        });
+
+        const payload = buildHandoffPayload(order);
+
+        // The QR is unreadable on paper, so a malformed payload would only be
+        // discovered at the receiving till. Fail here instead — the usual cause
+        // is an order fetched without the fields the payload needs.
+        const validation = schemas.handoffPayload.safeParse(payload);
+        if (!validation.success) {
+          const detail = validation.error.issues
+            .map((issue) => `${issue.path.join(".")}: ${issue.message}`)
+            .join("; ");
+          void logger.error(`Hand-off payload rejected before printing: ${detail}`);
+          throw new Error(t("handoff.payload_invalid"));
+        }
+
+        const { invoke } = await import("@tauri-apps/api/core");
+        await invoke("print_handoff_ticket", {
+          connectionType: targetPrinter.connectionType,
+          address: targetPrinter.address,
+          port: targetPrinter.port || null,
+          vendorId: targetPrinter.vendorId ?? null,
+          productId: targetPrinter.productId ?? null,
+          ticketText,
+          // URL form, not raw JSON: base64url is ASCII, so a wedge scanner
+          // cannot mangle a Georgian name on the way in.
+          qrPayload: encodeHandoffUrl(payload),
+          paperWidth: targetPrinter.paperWidth ?? "80mm",
+          companyName: getBrandName(store) || "POS",
+        });
+
+        return { success: true, payload };
+      } catch (error) {
+        const errorMessage = getTauriInvokeErrorMessage(
+          error,
+          "Failed to print transfer ticket"
+        );
+        void logger.error(`Hand-off ticket print failed: ${safeStringify(errorMessage)}`);
+        throw new Error(errorMessage);
+      }
+    },
+    [getDefaultPrinter, store, t]
   );
 
   const downloadReceiptAsPDF = useCallback(
@@ -342,6 +430,7 @@ const usePrinterService = () => {
     getDefaultPrinter,
     printReceiptText,
     printOrderReceipt,
+    printHandoffTicket,
     downloadReceiptAsPDF,
     openCashDrawer,
     savePrinters,
