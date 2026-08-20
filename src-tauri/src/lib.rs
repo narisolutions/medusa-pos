@@ -698,3 +698,58 @@ pub fn run() {
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
+
+#[cfg(test)]
+mod tests {
+    use super::{paper_dots, qr_module_size};
+
+    /// A symbol is 17 + 4v modules wide; whatever size we pick, modules * size
+    /// must stay inside the paper or the printer clips or refuses the code.
+    fn fits(payload_len: usize, dots: u32) -> bool {
+        let size = qr_module_size(payload_len, dots) as u32;
+        let version = super::QR_CAPACITY_M
+            .iter()
+            .find(|(_, capacity)| *capacity >= payload_len)
+            .map(|(v, _)| *v)
+            .unwrap_or(40);
+        (17 + 4 * version) * size <= dots
+    }
+
+    #[test]
+    fn paper_width_maps_to_printable_dots() {
+        assert_eq!(paper_dots(Some("80mm")), 576);
+        assert_eq!(paper_dots(Some("57mm")), 384);
+        // Unknown or absent falls back to the common 80mm head.
+        assert_eq!(paper_dots(None), 576);
+        assert_eq!(paper_dots(Some("nonsense")), 576);
+    }
+
+    #[test]
+    fn every_realistic_ticket_fits_the_paper() {
+        // ~123 bytes of envelope plus ~86 per item, inflated by base64url.
+        for items in 1..=12 {
+            let len = (123 + items * 86) * 4 / 3;
+            assert!(fits(len, 576), "{items} items overflow 80mm");
+            assert!(fits(len, 384), "{items} items overflow 57mm");
+        }
+    }
+
+    #[test]
+    fn a_longer_ticket_never_gets_a_bigger_module() {
+        let sizes: Vec<u8> = (1..=12)
+            .map(|items| qr_module_size((123 + items * 86) * 4 / 3, 576))
+            .collect();
+        assert!(
+            sizes.windows(2).all(|w| w[0] >= w[1]),
+            "module size must shrink as the payload grows: {sizes:?}"
+        );
+    }
+
+    #[test]
+    fn size_stays_inside_the_escpos_range() {
+        for len in [1, 200, 800, 5_000, 100_000] {
+            let size = qr_module_size(len, 576);
+            assert!((2..=8).contains(&size), "size {size} out of range for {len} bytes");
+        }
+    }
+}
