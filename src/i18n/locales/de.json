@@ -383,7 +383,8 @@
     "footer": "Diesen Beleg zusammen mit den Artikeln übergeben.",
     "print_action": "Transferbeleg drucken",
     "print_success": "Transferbeleg gedruckt",
-    "print_error": "Transferbeleg wurde nicht gedruckt"
+    "print_error": "Transferbeleg wurde nicht gedruckt",
+    "payload_invalid": "Transferbeleg-Daten sind unvollständig — es wurde nichts gedruckt"
   },
   "settings": {
     "preferences": {

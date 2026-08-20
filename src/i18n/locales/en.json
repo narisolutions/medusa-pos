@@ -383,7 +383,8 @@
     "footer": "Hand this ticket over with the items.",
     "print_action": "Print transfer ticket",
     "print_success": "Transfer ticket printed",
-    "print_error": "Transfer ticket did not print"
+    "print_error": "Transfer ticket did not print",
+    "payload_invalid": "Transfer ticket data is incomplete — nothing was printed"
   },
   "settings": {
     "preferences": {

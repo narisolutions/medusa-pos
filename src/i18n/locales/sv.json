@@ -383,7 +383,8 @@
     "footer": "Lämna detta kvitto tillsammans med varorna.",
     "print_action": "Skriv ut överföringskvitto",
     "print_success": "Överföringskvitto utskrivet",
-    "print_error": "Överföringskvittot skrevs inte ut"
+    "print_error": "Överföringskvittot skrevs inte ut",
+    "payload_invalid": "Uppgifterna för överföringskvittot är ofullständiga — inget skrevs ut"
   },
   "settings": {
     "preferences": {

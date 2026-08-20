@@ -383,7 +383,8 @@
     "footer": "Entregue este ticket junto con los artículos.",
     "print_action": "Imprimir ticket de transferencia",
     "print_success": "Ticket de transferencia impreso",
-    "print_error": "El ticket de transferencia no se imprimió"
+    "print_error": "El ticket de transferencia no se imprimió",
+    "payload_invalid": "Los datos del ticket de transferencia están incompletos: no se imprimió nada"
   },
   "settings": {
     "preferences": {

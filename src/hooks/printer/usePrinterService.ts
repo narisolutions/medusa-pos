@@ -19,6 +19,7 @@ import {
   getTransferCounterparty,
 } from "@/utils/settings/store/metadata";
 import { buildHandoffPayload, encodeHandoffUrl } from "@/utils/pos/handoff";
+import schemas from "@/utils/schemas";
 import { buildHandoffTicketText } from "@/utils/pos/handoff/ticket";
 import type { PrinterEncoding } from "@/utils/pos/receipt/printer-encoding";
 import {
@@ -344,6 +345,18 @@ const usePrinterService = () => {
         });
 
         const payload = buildHandoffPayload(order);
+
+        // The QR is unreadable on paper, so a malformed payload would only be
+        // discovered at the receiving till. Fail here instead — the usual cause
+        // is an order fetched without the fields the payload needs.
+        const validation = schemas.handoffPayload.safeParse(payload);
+        if (!validation.success) {
+          const detail = validation.error.issues
+            .map((issue) => `${issue.path.join(".")}: ${issue.message}`)
+            .join("; ");
+          void logger.error(`Hand-off payload rejected before printing: ${detail}`);
+          throw new Error(t("handoff.payload_invalid"));
+        }
 
         const { invoke } = await import("@tauri-apps/api/core");
         await invoke("print_handoff_ticket", {

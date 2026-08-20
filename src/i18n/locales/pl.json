@@ -383,7 +383,8 @@
     "footer": "Przekaż ten kwit razem z towarem.",
     "print_action": "Drukuj kwit przekazania",
     "print_success": "Kwit przekazania wydrukowany",
-    "print_error": "Kwit przekazania nie został wydrukowany"
+    "print_error": "Kwit przekazania nie został wydrukowany",
+    "payload_invalid": "Dane kwitu przekazania są niekompletne — nic nie wydrukowano"
   },
   "settings": {
     "preferences": {
