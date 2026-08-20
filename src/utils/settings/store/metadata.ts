@@ -191,9 +191,15 @@ export function buildStoreMetadataPayload(
 }
 
 /**
- * Returns the behavioral type ("cash" or "card") for a given provider ID.
- * Falls back from the explicit `type` field to the `icon` field for legacy saved configs.
- * Defaults to "card" when the method is not found.
+ * Returns the behavioral type for a given provider ID.
+ *
+ * Matched case-insensitively, like `getOrderPaymentMethodLabel`: when the two
+ * disagreed, a configured id differing only in case showed the right label on a
+ * receipt while silently resolving to "card" — wrong drawer behaviour and no
+ * transfer ticket, with no error anywhere.
+ *
+ * Falls back from the explicit `type` field to `icon` for legacy saved configs,
+ * and defaults to "card" when the method is not found.
  */
 export function getMethodType(
   store: AdminStore | null | undefined,
@@ -202,9 +208,14 @@ export function getMethodType(
   if (!providerId) return "card";
   const configured = getStoreMetadata(store).payment_methods;
   const all = configured?.length ? configured : DEFAULT_PAYMENT_METHODS;
-  const found = all.find((m) => m.id === providerId);
+  const found = all.find(
+    (m) => m.id?.toLowerCase() === providerId.toLowerCase()
+  );
   if (!found) return "card";
-  return found.type ?? (found.icon === "cash" ? "cash" : "card");
+  // Legacy configs carry only an icon; infer every type from it, not just cash.
+  if (found.type) return found.type;
+  if (found.icon === "cash" || found.icon === "transfer") return found.icon;
+  return "card";
 }
 
 export { DEFAULT_PAYMENT_METHODS };
