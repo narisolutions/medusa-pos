@@ -43,6 +43,13 @@ async function getItem<D>(key: Keys): Promise<D | undefined> {
   }
 }
 
+// `getItem` reports a failed read as `undefined`, which is indistinguishable from
+// "never set". Callers that would overwrite on a miss must use this instead.
+async function getItemOrThrow<D>(key: ObjectKeys): Promise<D | undefined> {
+  const store = await Store.load("pos-storage.json");
+  return (await store.get<D>(key)) ?? undefined;
+}
+
 function setItem(key: NumberKeys, value: number): Promise<void>;
 function setItem(key: StringKeys, value: string): Promise<void>;
 function setItem(key: BooleanKeys, value: boolean): Promise<void>;
@@ -153,10 +160,27 @@ async function clearOnBackendChange(): Promise<void> {
   }
 }
 
+// The updater restarts the process without the store plugin's exit-save running,
+// so anything still inside the auto-save debounce has to be forced out first.
+async function flush(): Promise<void> {
+  await Promise.all(
+    ["pos-storage.json", ".auth.dat"].map(async (path) => {
+      try {
+        const store = await Store.load(path);
+        await store.save();
+      } catch (error) {
+        void logger.error(`Failed to flush "${path}": ${safeStringify(error)}`);
+      }
+    })
+  );
+}
+
 export default {
   getItem,
+  getItemOrThrow,
   setItem,
   removeItem,
   clear,
   clearOnBackendChange,
+  flush,
 };

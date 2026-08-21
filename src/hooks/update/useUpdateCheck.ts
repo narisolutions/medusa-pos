@@ -4,6 +4,7 @@ import { check } from "@tauri-apps/plugin-updater";
 import { relaunch } from "@tauri-apps/plugin-process";
 import { toast } from "sonner";
 import { t } from "@/i18n";
+import storage from "@/utils/storage";
 
 export default function useUpdateCheck() {
   useEffect(() => {
@@ -46,6 +47,8 @@ export default function useUpdateCheck() {
                   }
                 });
                 toast.dismiss(installing);
+                // The restart bypasses the store plugin's exit-save, so force a write.
+                await storage.flush();
                 await relaunch();
               } catch (err) {
                 toast.dismiss(installing);
