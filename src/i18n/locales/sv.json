@@ -627,8 +627,8 @@
       "invalid_email": "Ange en giltig e-postadress.",
       "too_short": "{{field}} måste vara minst {{min}} tecken."
     },
-    "connection_trouble_title": "Problem med anslutningen?",
-    "connection_trouble_message": "Backend kan vara onåbar. Du kan försöka igen eller byta till en annan butik.",
+    "boot_slow_title": "Laddar fortfarande…",
+    "boot_slow_message": "Det här tar längre tid än vanligt. Du kan vänta, försöka igen eller byta butik.",
     "sales_channel_required_title": "Försäljningskanal krävs",
     "sales_channel_required_message": "En försäljningskanal måste konfigureras innan du kan lägga produkter i kundvagnen. Gå till Inställningar → API-inställningar för att konfigurera din försäljningskanal.",
     "store_setup_title": "Konfigurera butiksinformation",

@@ -1,14 +1,17 @@
 import { useState, useCallback } from "react";
+import { useTranslation } from "react-i18next";
 import { useStoreManager } from "@/context/store-manager";
 import { LoadingSpinner } from "@/components/ui/loading-spinner";
 import { Button } from "@/components/ui/button";
 import storage from "@/utils/storage";
 
 interface Props {
+  message?: string;
   onRetry: () => void;
 }
 
-const BootEscapeOverlay = ({ onRetry }: Props) => {
+const BootEscapeOverlay = ({ message, onRetry }: Props) => {
+  const { t } = useTranslation();
   const [switching, setSwitching] = useState(false);
 
   const handleSwitchStore = useCallback(async () => {
@@ -23,21 +26,21 @@ const BootEscapeOverlay = ({ onRetry }: Props) => {
   }, []);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30">
-      <div className="flex flex-col items-center gap-6 rounded-lg bg-background p-8 shadow-lg max-w-sm text-center">
-        <LoadingSpinner size={32} className="text-muted-foreground" />
-        <div className="space-y-1">
-          <p className="text-sm font-medium">Having trouble connecting?</p>
-          <p className="text-xs text-muted-foreground">
-            The backend may be unreachable. You can retry or switch to a different store.
-          </p>
+    <div className="fixed top-0 left-0 z-50 w-full h-full bg-black/20 flex items-center justify-center">
+      <div className="flex flex-col items-center gap-4 max-w-sm text-center">
+        <img src="/logo.svg" alt="Medusa POS" className="h-28 w-auto object-contain" />
+        <LoadingSpinner size={28} />
+        {message && <p className="text-xs text-zinc-500 tracking-wide">{message}</p>}
+        <div className="space-y-1 pt-4">
+          <p className="text-base font-medium">{t("errors.boot_slow_title")}</p>
+          <p className="text-base text-muted-foreground">{t("errors.boot_slow_message")}</p>
         </div>
-        <div className="flex gap-3">
-          <Button variant="outline" size="sm" onClick={onRetry}>
-            Retry
+        <div className="flex w-full flex-col gap-3 pt-2">
+          <Button size="lg" variant="outline" onClick={onRetry}>
+            {t("common.retry")}
           </Button>
-          <Button size="sm" onClick={handleSwitchStore} disabled={switching}>
-            Switch Store
+          <Button size="lg" variant="ghost" onClick={handleSwitchStore} disabled={switching}>
+            {t("common.switch_store")}
           </Button>
         </div>
       </div>

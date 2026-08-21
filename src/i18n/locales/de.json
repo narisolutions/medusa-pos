@@ -627,8 +627,8 @@
       "invalid_email": "Bitte geben Sie eine gültige E-Mail-Adresse ein.",
       "too_short": "{{field}} muss mindestens {{min}} Zeichen lang sein."
     },
-    "connection_trouble_title": "Verbindungsprobleme?",
-    "connection_trouble_message": "Das Backend ist möglicherweise nicht erreichbar. Sie können es erneut versuchen oder zu einer anderen Filiale wechseln.",
+    "boot_slow_title": "Wird noch geladen…",
+    "boot_slow_message": "Das dauert länger als gewöhnlich. Sie können weiter warten, es erneut versuchen oder die Filiale wechseln.",
     "sales_channel_required_title": "Verkaufskanal erforderlich",
     "sales_channel_required_message": "Bevor Sie Produkte zum Warenkorb hinzufügen können, muss ein Verkaufskanal konfiguriert werden. Gehen Sie zu Einstellungen → API-Einstellungen, um Ihren Verkaufskanal zu konfigurieren.",
     "store_setup_title": "Filialdaten einrichten",

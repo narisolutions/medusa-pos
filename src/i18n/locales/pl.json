@@ -627,8 +627,8 @@
       "invalid_email": "Wprowadź prawidłowy adres e-mail.",
       "too_short": "Pole {{field}} musi zawierać co najmniej {{min}} znaków."
     },
-    "connection_trouble_title": "Problem z połączeniem?",
-    "connection_trouble_message": "Backend może być niedostępny. Możesz spróbować ponownie lub zmienić sklep.",
+    "boot_slow_title": "Wciąż trwa ładowanie…",
+    "boot_slow_message": "Trwa to dłużej niż zwykle. Możesz poczekać, spróbować ponownie lub zmienić sklep.",
     "sales_channel_required_title": "Wymagany kanał sprzedaży",
     "sales_channel_required_message": "Przed dodaniem produktów do koszyka należy skonfigurować kanał sprzedaży. Przejdź do Ustawienia → Ustawienia API.",
     "store_setup_title": "Skonfiguruj dane sklepu",

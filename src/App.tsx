@@ -38,6 +38,9 @@ function App() {
     if (!bootLoading) setBootTimedOut(false);
   });
 
+  // Each boot phase gets a fresh countdown, so a slow-but-progressing boot never trips it.
+  useChange(bootMessage, () => setBootTimedOut(false));
+
   useEffect(() => {
     if (!bootLoading) {
       return;
@@ -45,7 +48,7 @@ function App() {
 
     const timer = setTimeout(() => setBootTimedOut(true), constants.BOOT_TIMEOUT_MS);
     return () => clearTimeout(timer);
-  }, [bootLoading]);
+  }, [bootLoading, bootMessage]);
 
   const handleRetry = useCallback(() => {
     setBootTimedOut(false);
@@ -57,7 +60,7 @@ function App() {
       <QueryClientProvider client={queryClient}>
         {!bootLoading && <AppContent />}
         {bootLoading && !bootTimedOut && <Backdrop loading showLogo message={bootMessage} />}
-        {bootLoading && bootTimedOut && <BootEscapeOverlay onRetry={handleRetry} />}
+        {bootLoading && bootTimedOut && <BootEscapeOverlay message={bootMessage} onRetry={handleRetry} />}
         {!bootLoading && globalLoading && <Backdrop loading />}
       </QueryClientProvider>
     </VirtualKeyboardProvider>

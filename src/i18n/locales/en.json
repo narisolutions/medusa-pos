@@ -627,8 +627,8 @@
       "invalid_email": "Enter a valid email address.",
       "too_short": "{{field}} must be at least {{min}} characters."
     },
-    "connection_trouble_title": "Having trouble connecting?",
-    "connection_trouble_message": "The backend may be unreachable. You can retry or switch to a different store.",
+    "boot_slow_title": "Still loading…",
+    "boot_slow_message": "This is taking longer than usual. You can keep waiting, or retry / switch store.",
     "sales_channel_required_title": "Sales Channel Required",
     "sales_channel_required_message": "A sales channel must be configured before you can add products to cart. Please go to Settings → API Settings to configure your sales channel.",
     "store_setup_title": "Set up store info",

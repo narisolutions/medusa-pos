@@ -627,8 +627,8 @@
       "invalid_email": "შეიყვანეთ სწორი ელ.ფოსტის მისამართი.",
       "too_short": "{{field}} უნდა შეიცავდეს მინიმუმ {{min}} სიმბოლოს."
     },
-    "connection_trouble_title": "კავშირის პრობლემა?",
-    "connection_trouble_message": "REVIEW: The backend may be unreachable. You can retry or switch to a different store.",
+    "boot_slow_title": "ჯერ კიდევ იტვირთება…",
+    "boot_slow_message": "REVIEW: This is taking longer than usual. You can keep waiting, or retry / switch store.",
     "sales_channel_required_title": "გაყიდვების არხი საჭიროა",
     "sales_channel_required_message": "კალათაში ნივთების დასამატებლად უნდა იყოს კონფიგურირებული გაყიდვების არხი. გადადით პარამეტრები → API პარამეტრები.",
     "store_setup_title": "ობიექტის ინფორმაციის შევსება",

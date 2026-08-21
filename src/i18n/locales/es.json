@@ -627,8 +627,8 @@
       "invalid_email": "Introduce una dirección de correo electrónico válida.",
       "too_short": "{{field}} debe tener al menos {{min}} caracteres."
     },
-    "connection_trouble_title": "¿Problemas de conexión?",
-    "connection_trouble_message": "Es posible que el backend no esté accesible. Puedes reintentarlo o cambiar a otra tienda.",
+    "boot_slow_title": "Cargando…",
+    "boot_slow_message": "Está tardando más de lo habitual. Puedes esperar, reintentar o cambiar de tienda.",
     "sales_channel_required_title": "Canal de venta requerido",
     "sales_channel_required_message": "Debes configurar un canal de venta antes de añadir productos al carrito. Ve a Ajustes → Ajustes de la API para configurar tu canal de venta.",
     "store_setup_title": "Configura los datos de la tienda",

@@ -627,8 +627,8 @@
       "invalid_email": "Veuillez saisir une adresse e-mail valide.",
       "too_short": "{{field}} doit contenir au moins {{min}} caractères."
     },
-    "connection_trouble_title": "Problèmes de connexion ?",
-    "connection_trouble_message": "Le backend est peut-être inaccessible. Vous pouvez réessayer ou changer de magasin.",
+    "boot_slow_title": "Chargement en cours…",
+    "boot_slow_message": "Cela prend plus de temps que d'habitude. Vous pouvez patienter, réessayer ou changer de magasin.",
     "sales_channel_required_title": "Canal de vente requis",
     "sales_channel_required_message": "Un canal de vente doit être configuré avant d’ajouter des produits au panier. Allez dans Paramètres → Paramètres API pour configurer votre canal de vente.",
     "store_setup_title": "Configurer les informations du magasin",
