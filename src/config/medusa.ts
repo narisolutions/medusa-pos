@@ -115,9 +115,32 @@ const createSdk = async (baseUrl?: string) => {
           const query = initObj.query as Record<string, unknown>;
           const params = new URLSearchParams();
           Object.entries(query).forEach(([key, value]) => {
-            if (value !== undefined && value !== null) {
-              params.append(key, String(value));
+            if (value === undefined || value === null) return;
+
+            // String(value) would flatten these: a one-element array would arrive as a
+            // scalar and an operator map as "[object Object]". Routes that require an
+            // array (draft-orders' sales_channel_id) reject the flattened form outright.
+            // Indexed brackets, matching qs (what Medusa parses with). Repeated keys
+            // would not do: a one-element array degenerates back to a scalar and the
+            // route rejects it for not being an array.
+            if (Array.isArray(value)) {
+              value.forEach((item, index) =>
+                params.append(`${key}[${index}]`, String(item))
+              );
+              return;
             }
+
+            if (typeof value === "object") {
+              Object.entries(value as Record<string, unknown>).forEach(
+                ([operator, operand]) => {
+                  if (operand === undefined || operand === null) return;
+                  params.append(`${key}[${operator}]`, String(operand));
+                }
+              );
+              return;
+            }
+
+            params.append(key, String(value));
           });
           queryParams = params.toString();
         }

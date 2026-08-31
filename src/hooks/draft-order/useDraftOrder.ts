@@ -1,68 +1,34 @@
 import { logger, safeStringify } from "@/utils/logger";
 import { useState, useCallback } from "react";
 import { getSdk } from "@/config/medusa";
+import { queryClient, queryKeys } from "@/config/query";
 import { AdminDraftOrder } from "@medusajs/types";
 import { useCartStore } from "@/context/cart";
 import {
-  CartItem,
   DraftOrderCreatePayload,
   DraftOrderMetadata,
   DraftOrderUpdatePayload,
-  OrderDiscount,
 } from "@/types/utils";
 import { useQueryShippingOption } from "../queries/useQueryShippingOption";
-import { isEmpty } from "@/utils/helpers";
 import { useQueryStore } from "@/hooks/queries/useQueryStore";
 import { getGuestCustomerEmail } from "@/utils/settings/store/metadata";
+import {
+  sanitizeDraftOrderMetadata,
+  mapDraftOrderItemsToCartItems,
+  buildCartMetadataFromDraft,
+} from "@/utils/pos/draft-order";
 
-// payment_method is deliberately absent: the provider is recorded on the payment
-// session / markAsPaid now, so it never goes to backend metadata. The cashier's
-// selection lives only in local cart metadata.
-const DEFAULT_DRAFT_ORDER_METADATA: DraftOrderMetadata = {
-  order_discount: null,
-  order_comment: "",
-};
+// payment_method IS written to draft metadata, so a parked sale resumes with the
+// cashier's selection intact. It stays a UI selection only — the provider that actually
+// settles the order is still recorded on the payment session / markAsPaid.
 
-const sanitizeDraftOrderMetadata = (
-  metadata: Record<string, unknown> | null | undefined,
-  removeEmpty: boolean = false
-): DraftOrderMetadata => {
-  const orderDiscount = metadata?.order_discount as OrderDiscount | undefined;
-  const orderComment = metadata?.order_comment;
-
-  if (removeEmpty) {
-    // For writing to API: only include keys with actual values, no defaults
-    const sanitized: Record<string, unknown> = {};
-
-    if (!isEmpty(orderDiscount)) {
-      sanitized.order_discount = orderDiscount;
-    }
-
-    if (
-      orderComment &&
-      typeof orderComment === "string" &&
-      orderComment.trim() !== ""
-    ) {
-      sanitized.order_comment = orderComment;
-    }
-
-    return sanitized as DraftOrderMetadata;
-  }
-
-  // For reading from API: normalize with defaults
-  const normalized: Record<string, unknown> = {
-    order_discount:
-      typeof orderDiscount === "object" || orderDiscount === null
-        ? (orderDiscount as OrderDiscount | null)
-        : DEFAULT_DRAFT_ORDER_METADATA.order_discount,
-    order_comment:
-      typeof orderComment === "string"
-        ? orderComment
-        : DEFAULT_DRAFT_ORDER_METADATA.order_comment,
-  };
-
-  return normalized as DraftOrderMetadata;
-};
+/** Stable across key order, so a reordered object is not mistaken for a change. */
+const stableStringify = (value: unknown): string =>
+  JSON.stringify(value, (_key, val) =>
+    val && typeof val === "object" && !Array.isArray(val)
+      ? Object.fromEntries(Object.entries(val as Record<string, unknown>).sort())
+      : val
+  );
 
 const useDraftOrder = () => {
   // Op counter, not a boolean — isLoading must stay true until the LAST overlapping call ends.
@@ -71,7 +37,6 @@ const useDraftOrder = () => {
   const beginLoading = () => setPendingOps((count) => count + 1);
   const endLoading = () => setPendingOps((count) => count - 1);
 
-  const items = useCartStore((state) => state.items);
   const setItems = useCartStore((state) => state.setItems);
   const draftOrderId = useCartStore((state) => state.draftOrderId);
   const setDraftOrderId = useCartStore((state) => state.setDraftOrderId);
@@ -79,6 +44,8 @@ const useDraftOrder = () => {
   const metadata = useCartStore((state) => state.metadata);
   const setCartMetadata = useCartStore((state) => state.setCartMetadata);
   const markAsSynced = useCartStore((state) => state.markAsSynced);
+  const adoptDraftOrder = useCartStore((state) => state.adoptDraftOrder);
+  const releaseDraftOrder = useCartStore((state) => state.releaseDraftOrder);
 
   const { data: shippingOptions } = useQueryShippingOption();
   const { data: store } = useQueryStore();
@@ -95,6 +62,9 @@ const useDraftOrder = () => {
       const sdk = getSdk();
       beginLoading();
 
+      // Fresh, not from the render closure — park sets the label immediately before this.
+      const metadata = useCartStore.getState().metadata;
+
       // Prefer a pickup option, else the first — the converted order needs shipping_methods.
       const shippingOptionForDraft =
         shippingOptions?.find((option) =>
@@ -105,7 +75,7 @@ const useDraftOrder = () => {
         // Sanitize metadata to remove empty values before creating draft order
         const sanitizedMetadata = sanitizeDraftOrderMetadata(
           metadata as Record<string, unknown>,
-          true
+          { removeEmpty: true }
         );
 
         // Get customer email from metadata if not provided
@@ -156,6 +126,7 @@ const useDraftOrder = () => {
           await sdk.admin.draftOrder.create(draftOrderData);
 
         setDraftOrderId(draft_order.id);
+        void queryClient.invalidateQueries({ queryKey: queryKeys.draftOrders.all });
 
         return draft_order.id;
       } catch (error) {
@@ -165,118 +136,89 @@ const useDraftOrder = () => {
         endLoading();
       }
     },
-    [setDraftOrderId, shippingOptions, metadata, guestEmail]
+    [setDraftOrderId, shippingOptions, guestEmail]
   );
 
-  const getDraftOrder =
-    useCallback(async (): Promise<AdminDraftOrder | null> => {
-      if (!draftOrderId) {
-        return null;
-      }
-
+  /** Pure read. Never touches cart state — callers decide what a failure means. */
+  const fetchDraftOrder = useCallback(
+    async (targetId: string, fields?: string): Promise<AdminDraftOrder | null> => {
       const sdk = getSdk();
       beginLoading();
 
       try {
-        const { draft_order } =
-          await sdk.admin.draftOrder.retrieve(draftOrderId);
-
-        // Load metadata and customer info
-        const metadataUpdates: Record<string, unknown> = {};
-
-        if (draft_order?.metadata) {
-          const sanitized = sanitizeDraftOrderMetadata(
-            draft_order.metadata as Record<string, unknown>
-          );
-          Object.assign(metadataUpdates, sanitized);
-        } else {
-          Object.assign(metadataUpdates, { ...DEFAULT_DRAFT_ORDER_METADATA });
-        }
-
-        // Load customer info from draft order
-        if (draft_order?.customer_id) {
-          metadataUpdates.customer_id = draft_order.customer_id;
-        }
-        if (draft_order?.email) {
-          metadataUpdates.customer_email = draft_order.email;
-        }
-
-        // Selection is UI-local (not on the backend) — carry it through the hydration.
-        metadataUpdates.payment_method =
-          useCartStore.getState().metadata.payment_method;
-
-        setCartMetadata(metadataUpdates as DraftOrderMetadata);
+        const { draft_order } = await sdk.admin.draftOrder.retrieve(
+          targetId,
+          fields ? { fields } : undefined
+        );
 
         return draft_order;
       } catch (error) {
         void logger.error(`Failed to retrieve draft order: ${safeStringify(error)}`);
 
-        setItems([]);
-        setDraftOrderId(null);
+        // Only reset for the draft this cart is actually bound to; a stale id from the
+        // parked list must never wipe an unrelated live cart.
+        if (targetId === useCartStore.getState().draftOrderId) {
+          setItems([]);
+          setDraftOrderId(null);
+        }
 
         return null;
       } finally {
         endLoading();
       }
-    }, [draftOrderId, setItems, setDraftOrderId, setCartMetadata]);
+    },
+    [setItems, setDraftOrderId]
+  );
 
-  // Load draft order and update frontend state - only use for initial loading or after confirmEdit
-  const loadDraftOrderToState =
-    useCallback(async (): Promise<AdminDraftOrder | null> => {
-      const draftOrder = await getDraftOrder();
+  // Load a draft into the cart. Used on resume and after confirmEdit.
+  const loadDraftOrderToState = useCallback(
+    async (targetDraftOrderId?: string): Promise<AdminDraftOrder | null> => {
+      const targetId = targetDraftOrderId || draftOrderId;
+      if (!targetId) return null;
 
-      if (draftOrder) {
-        const cartItems: CartItem[] = (draftOrder.items || []).map((item) => ({
-          variant_id: item.variant_id ?? "",
-          quantity: item.quantity,
-          unit_price: item.unit_price,
-          title: item.variant_title || undefined,
-          metadata: {
-            product_title: item.metadata?.product_title || undefined,
-            variant_sku: item.metadata?.variant_sku || undefined,
-            barcode: item.metadata?.barcode || undefined,
-            thumbnail: item.metadata?.thumbnail || undefined,
-            available_quantity: item.metadata?.available_quantity || undefined,
-            original_price: item.metadata?.original_price || undefined,
-            priceListType: item.metadata?.priceListType || undefined,
-            vintage: item.metadata?.vintage || undefined,
-            volume: item.metadata?.volume || undefined,
-            ...(item.metadata?.comment !== undefined && {
-              comment: item.metadata?.comment,
-            }),
-            ...(item.metadata?.item_discount !== undefined && {
-              item_discount: item.metadata?.item_discount,
-            }),
-          },
-        }));
-        setItems(cartItems);
-      }
+      const draftOrder = await fetchDraftOrder(targetId);
+      if (!draftOrder) return null;
+
+      adoptDraftOrder({
+        draftOrderId: targetId,
+        items: mapDraftOrderItemsToCartItems(draftOrder),
+        metadata: buildCartMetadataFromDraft(
+          draftOrder,
+          useCartStore.getState().metadata.payment_method
+        ),
+      });
 
       return draftOrder;
-    }, [getDraftOrder, setItems]);
+    },
+    [draftOrderId, fetchDraftOrder, adoptDraftOrder]
+  );
 
-  // Delete current draft order
-  const deleteDraftOrder = useCallback(async (): Promise<void> => {
-    if (!draftOrderId) {
-      return;
-    }
+  const deleteDraftOrder = useCallback(
+    async (targetDraftOrderId?: string): Promise<void> => {
+      const targetId = targetDraftOrderId || draftOrderId;
+      if (!targetId) {
+        return;
+      }
 
-    const sdk = getSdk();
+      const sdk = getSdk();
 
-    try {
-      beginLoading();
-      await sdk.admin.draftOrder.delete(draftOrderId);
-
-      setDraftOrderId(null);
-      setItems([]);
-    } catch (error) {
-      void logger.error(`Failed to delete draft order: ${safeStringify(error)}`);
-      setDraftOrderId(null);
-      setItems([]);
-    } finally {
-      endLoading();
-    }
-  }, [draftOrderId, setDraftOrderId, setItems]);
+      try {
+        beginLoading();
+        await sdk.admin.draftOrder.delete(targetId);
+      } catch (error) {
+        // A draft that is already gone is a successful delete — the operator wanted it gone.
+        void logger.error(`Failed to delete draft order: ${safeStringify(error)}`);
+      } finally {
+        // Only clear the cart when we deleted the draft it is bound to.
+        if (targetId === useCartStore.getState().draftOrderId) {
+          releaseDraftOrder();
+        }
+        void queryClient.invalidateQueries({ queryKey: queryKeys.draftOrders.all });
+        endLoading();
+      }
+    },
+    [draftOrderId, releaseDraftOrder]
+  );
 
   const syncLocalChangesToDraftOrder = useCallback(
     async (targetDraftOrderId?: string): Promise<void> => {
@@ -287,6 +229,10 @@ const useDraftOrder = () => {
       }
 
       const sdk = getSdk();
+
+      // Read fresh rather than from the render closure: park writes the label and syncs
+      // in the same tick, so a captured `metadata` would still be the pre-label value.
+      const { items, metadata } = useCartStore.getState();
 
       try {
         beginLoading();
@@ -339,14 +285,20 @@ const useDraftOrder = () => {
           if (draftItem) {
             const quantityChanged = draftItem.quantity !== localItem.quantity;
             const priceChanged = draftItem.unit_price !== localItem.unit_price;
+            // Without this, a comment or discount applied after add-to-cart never
+            // reaches the backend and is lost the moment the sale is parked.
+            const metadataChanged =
+              stableStringify(draftItem.metadata ?? {}) !==
+              stableStringify(localItem.metadata ?? {});
 
-            if (quantityChanged || priceChanged) {
+            if (quantityChanged || priceChanged || metadataChanged) {
               await sdk.admin.draftOrder.updateItem(
                 activeDraftOrderId,
                 draftItem.id,
                 {
                   quantity: localItem.quantity,
                   unit_price: localItem.unit_price,
+                  metadata: localItem.metadata ?? null,
                 }
               );
             }
@@ -371,14 +323,15 @@ const useDraftOrder = () => {
           | DraftOrderMetadata
           | undefined;
 
-        // Sanitize metadata to remove keys with empty/null/undefined values
+        // Sanitize for the API, carrying through keys other flows own (cash_paid,
+        // register_session_id, pay_later) so this write cannot erase them.
         const sanitizedMetadata = sanitizeDraftOrderMetadata(
           metadata as Record<string, unknown>,
-          true // removeEmpty = true for writing to API
+          { removeEmpty: true, preserve: currentMetadata }
         );
 
         const hasMetadataChanged =
-          JSON.stringify(currentMetadata) !== JSON.stringify(sanitizedMetadata);
+          stableStringify(currentMetadata) !== stableStringify(sanitizedMetadata);
 
         if (hasMetadataChanged) {
           const updatePayload: DraftOrderUpdatePayload = {
@@ -399,7 +352,7 @@ const useDraftOrder = () => {
         endLoading();
       }
     },
-    [draftOrderId, items, metadata, markAsSynced]
+    [draftOrderId, markAsSynced]
   );
 
   const updateDraftOrderCustomer = useCallback(
@@ -469,7 +422,7 @@ const useDraftOrder = () => {
     isLoading,
     getCurrentDraftOrderId: getDraftOrderId,
     createDraftOrder,
-    getDraftOrder,
+    fetchDraftOrder,
     loadDraftOrderToState,
     deleteDraftOrder,
     syncLocalChangesToDraftOrder,

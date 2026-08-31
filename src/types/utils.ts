@@ -136,6 +136,8 @@ interface DraftOrderMetadata extends Record<string, unknown> {
   payment_method?: PaymentMethod;
   order_discount?: OrderDiscount;
   order_comment?: string;
+  /** Operator-chosen name for a parked sale ("Table 4") — a label, not a status flag. */
+  park_label?: string;
   /** Set when the order is delivered but payment is deferred (capture later). */
   pay_later?: boolean;
   /** ISO date the goods were actually delivered offline (created_at is not backdatable). */

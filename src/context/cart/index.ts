@@ -60,6 +60,16 @@ const withStoragePersistence =
       updateMetadata: wrapMutation(state.updateMetadata),
       setCartMetadata: wrapMutation(state.setCartMetadata),
       setDraftOrderId: wrapMutation(state.setDraftOrderId, false),
+      releaseDraftOrder: wrapMutation(state.releaseDraftOrder),
+      // Not wrapMutation: a just-adopted cart matches its draft by definition.
+      adoptDraftOrder: (payload) => {
+        state.adoptDraftOrder(payload);
+        set({ isSynced: true });
+        const storeState = get();
+        if (storeState.saveToStorage) {
+          storeState.saveToStorage();
+        }
+      },
       markAsSynced: () => {
         set({ isSynced: true });
         const storeState = get();

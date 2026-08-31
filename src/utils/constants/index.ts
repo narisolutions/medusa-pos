@@ -1,8 +1,8 @@
 export default {
   PROD: import.meta.env.MODE === "production",
 
-  // Boot timeout
-  BOOT_TIMEOUT_MS: 10_000 as const,
+  // How long a single boot phase may stall before offering the escape hatch
+  BOOT_TIMEOUT_MS: 20_000 as const,
 
 
   CHECKOUT_CONFIG: {

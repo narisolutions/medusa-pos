@@ -24,6 +24,25 @@ import {
   printerIssueStaffHintToast,
 } from "@/utils/helpers";
 
+// UI-only keys that must not outlive the draft. payment_method is the cashier's
+// selection for resuming a parked sale; the provider that actually settles the order
+// is recorded on the payment session, so it has no place in order history.
+const DRAFT_ONLY_METADATA_KEYS = ["payment_method"] as const;
+
+const stripDraftOnlyKeys = (
+  metadata: Record<string, unknown>
+): { metadata: Record<string, unknown>; stripped: boolean } => {
+  const cleaned = { ...metadata };
+  let stripped = false;
+  for (const key of DRAFT_ONLY_METADATA_KEYS) {
+    if (key in cleaned) {
+      delete cleaned[key];
+      stripped = true;
+    }
+  }
+  return { metadata: cleaned, stripped };
+};
+
 const iconByType = {
   cash: Banknote,
   card: CreditCard,
@@ -334,6 +353,9 @@ const usePaymentModal = (
       clearItems();
       setDraftOrderId(null);
       void queryClient.invalidateQueries({ queryKey: queryKeys.orders.all });
+      // The draft is consumed by convertToOrder — drop it from the parked list now,
+      // rather than leaving a paid sale sitting there until the next poll.
+      void queryClient.invalidateQueries({ queryKey: queryKeys.draftOrders.all });
 
       resetCashState();
       setPaymentMethod(undefined);
@@ -402,11 +424,16 @@ const usePaymentModal = (
         if (registerSessionId) {
           metadataPatch.register_session_id = registerSessionId;
         }
-        if (Object.keys(metadataPatch).length > 0) {
-          const { draft_order } = await sdk.admin.draftOrder.retrieve(draftOrderId!);
-          const currentMetadata = (draft_order.metadata || {}) as Record<string, unknown>;
+        // Runs even with an empty patch: the draft carries UI-only keys that must be
+        // removed before conversion copies its metadata onto the order.
+        const { draft_order: preConvert } =
+          await sdk.admin.draftOrder.retrieve(draftOrderId!);
+        const { metadata: cleanedMetadata, stripped } = stripDraftOnlyKeys(
+          (preConvert.metadata || {}) as Record<string, unknown>
+        );
+        if (stripped || Object.keys(metadataPatch).length > 0) {
           await sdk.admin.draftOrder.update(draftOrderId!, {
-            metadata: { ...currentMetadata, ...metadataPatch },
+            metadata: { ...cleanedMetadata, ...metadataPatch },
           });
         }
 
@@ -421,7 +448,7 @@ const usePaymentModal = (
         // Step 3: Fetch full order with expanded payment/fulfillment fields
         const { order } = await sdk.admin.order.retrieve(convertedOrder.id, {
           fields:
-            "*payment_collections,*payment_collections.payments,*summary,*fulfillments,*items,*customer,*sales_channel,*shipping_methods,currency_code",
+            "display_id,*payment_collections,*payment_collections.payments,*summary,*fulfillments,*items,*customer,*sales_channel,*shipping_methods,currency_code",
         });
 
         // Step 4: Process payment collection
@@ -445,7 +472,7 @@ const usePaymentModal = (
             if (paymentWasCaptured) {
               const { order: fullRefreshed } = await sdk.admin.order.retrieve(order.id, {
                 fields:
-                  "*payment_collections,*payment_collections.payments,*summary,*fulfillments,*items,*customer,*sales_channel,*shipping_methods,currency_code",
+                  "display_id,*payment_collections,*payment_collections.payments,*summary,*fulfillments,*items,*customer,*sales_channel,*shipping_methods,currency_code",
               });
               finalOrder = fullRefreshed;
             }
@@ -465,6 +492,7 @@ const usePaymentModal = (
             resetCashState();
             setPaymentMethod(undefined);
             void queryClient.invalidateQueries({ queryKey: queryKeys.orders.all });
+            void queryClient.invalidateQueries({ queryKey: queryKeys.draftOrders.all });
             playErrorSound();
             toast.warning(
               t("checkout.order_saved_unpaid", { displayId: order.display_id })
@@ -556,7 +584,7 @@ const usePaymentModal = (
         >;
         await sdk.admin.draftOrder.update(draftOrderId, {
           metadata: {
-            ...currentMetadata,
+            ...stripDraftOnlyKeys(currentMetadata).metadata,
             pay_later: true,
             ...(registerSessionId ? { register_session_id: registerSessionId } : {}),
           },
@@ -571,7 +599,7 @@ const usePaymentModal = (
         // Step 3: Fetch full order with expanded fields.
         const { order } = await sdk.admin.order.retrieve(convertedOrder.id, {
           fields:
-            "*payment_collections,*payment_collections.payments,*summary,*fulfillments,*items,*customer,*sales_channel,*shipping_methods,currency_code",
+            "display_id,*payment_collections,*payment_collections.payments,*summary,*fulfillments,*items,*customer,*sales_channel,*shipping_methods,currency_code",
         });
 
         // Step 4: Deliver now (decrements inventory). Skip payment capture and

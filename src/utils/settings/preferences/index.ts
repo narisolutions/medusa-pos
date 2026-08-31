@@ -9,6 +9,7 @@ import type {
   LanguageMode,
 } from "@/types/preferences";
 import storage from "@/utils/storage";
+import { logger, safeStringify } from "@/utils/logger";
 import { DEFAULT_PREFERENCES } from "./defaults";
 
 /** A patch that may touch any subset of any preferences section. */
@@ -58,17 +59,29 @@ type LegacyDateTimePreferences = {
   timeFormat: "system" | "24h" | "12h";
 };
 
-export async function loadPreferences(): Promise<UserPreferences> {
-  const existing = await storage.getItem<UserPreferences>("user_preferences");
+/** Throws if the store cannot be read, so a bad read is never mistaken for a first run. */
+async function readPreferences(): Promise<UserPreferences> {
+  const existing = await storage.getItemOrThrow<UserPreferences>("user_preferences");
   if (existing) return deepMerge(DEFAULT_PREFERENCES, existing);
 
-  const legacy = await storage.getItem<LegacyDateTimePreferences>("date_time_preferences");
-  const migrated = deepMerge(DEFAULT_PREFERENCES, legacy ? { dateTime: legacy } : {});
+  const legacy = await storage.getItemOrThrow<LegacyDateTimePreferences>("date_time_preferences");
+  if (!legacy) return DEFAULT_PREFERENCES;
 
+  const migrated = deepMerge(DEFAULT_PREFERENCES, { dateTime: legacy });
   await storage.setItem("user_preferences", migrated);
-  if (legacy) await storage.removeItem("date_time_preferences");
+  await storage.removeItem("date_time_preferences");
 
   return migrated;
+}
+
+export async function loadPreferences(): Promise<UserPreferences> {
+  try {
+    return await readPreferences();
+  } catch (error) {
+    // Defaults are for this session only — persisting them would wipe real settings.
+    void logger.error(`Failed to read preferences: ${safeStringify(error)}`);
+    return DEFAULT_PREFERENCES;
+  }
 }
 
 export async function savePreferences(prefs: UserPreferences): Promise<void> {
@@ -78,7 +91,9 @@ export async function savePreferences(prefs: UserPreferences): Promise<void> {
 export async function updatePreferences(
   patch: PreferencesPatch
 ): Promise<UserPreferences> {
-  const current = await loadPreferences();
+  // Deliberately not `loadPreferences` — failing loudly beats saving a patch on top
+  // of defaults and overwriting everything the operator had configured.
+  const current = await readPreferences();
   const merged = deepMerge(current, patch);
   await savePreferences(merged);
   return merged;

@@ -14,6 +14,7 @@ import { plugins } from "@/plugins";
 // Pages are lazy so each route ships as its own chunk, off the boot path.
 const Login = lazy(() => import("@/pages/login"));
 const Orders = lazy(() => import("@/pages/orders"));
+const Parked = lazy(() => import("@/pages/parked"));
 const Checkout = lazy(() => import("@/pages/checkout"));
 const Settings = lazy(() => import("@/pages/settings"));
 const Order = lazy(() => import("@/pages/order"));
@@ -44,6 +45,7 @@ const router = createHashRouter(
       >
         <Route index element={<Navigate to="/checkout" replace />} />
         <Route path="orders" element={page(<Orders />)} />
+        <Route path="parked" element={page(<Parked />)} />
         <Route path="orders/:orderId" element={page(<Order />)} />
         <Route path="checkout" element={page(<Checkout />)} />
         <Route path="settings" element={page(<Settings />)} />
