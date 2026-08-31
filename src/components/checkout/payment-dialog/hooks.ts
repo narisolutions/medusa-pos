@@ -421,7 +421,7 @@ const usePaymentModal = (
         // Step 3: Fetch full order with expanded payment/fulfillment fields
         const { order } = await sdk.admin.order.retrieve(convertedOrder.id, {
           fields:
-            "*payment_collections,*payment_collections.payments,*summary,*fulfillments,*items,*customer,*sales_channel,*shipping_methods,currency_code",
+            "display_id,*payment_collections,*payment_collections.payments,*summary,*fulfillments,*items,*customer,*sales_channel,*shipping_methods,currency_code",
         });
 
         // Step 4: Process payment collection
@@ -445,7 +445,7 @@ const usePaymentModal = (
             if (paymentWasCaptured) {
               const { order: fullRefreshed } = await sdk.admin.order.retrieve(order.id, {
                 fields:
-                  "*payment_collections,*payment_collections.payments,*summary,*fulfillments,*items,*customer,*sales_channel,*shipping_methods,currency_code",
+                  "display_id,*payment_collections,*payment_collections.payments,*summary,*fulfillments,*items,*customer,*sales_channel,*shipping_methods,currency_code",
               });
               finalOrder = fullRefreshed;
             }
@@ -571,7 +571,7 @@ const usePaymentModal = (
         // Step 3: Fetch full order with expanded fields.
         const { order } = await sdk.admin.order.retrieve(convertedOrder.id, {
           fields:
-            "*payment_collections,*payment_collections.payments,*summary,*fulfillments,*items,*customer,*sales_channel,*shipping_methods,currency_code",
+            "display_id,*payment_collections,*payment_collections.payments,*summary,*fulfillments,*items,*customer,*sales_channel,*shipping_methods,currency_code",
         });
 
         // Step 4: Deliver now (decrements inventory). Skip payment capture and
