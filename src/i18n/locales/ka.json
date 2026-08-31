@@ -209,15 +209,16 @@
     "rounded_from": "დამრგვალდა",
     "park_button": "გაყიდვის გადადება",
     "park_dialog_title": "გადადეთ ეს გაყიდვა",
-    "park_dialog_description": "დაარქვით სახელი, რომ მოგვიანებით ადვილად იპოვოთ. არასავალდებულოა.",
+    "park_dialog_description": "დაარქვით სახელი, რომ მოგვიანებით ადვილად იპოვოთ, ან გადადეთ სახელის გარეშე.",
     "park_label_placeholder": "მაგ. მაგიდა 4",
     "park_confirm_button": "გადადება",
-    "park_skip_button": "გადადება სახელის გარეშე",
     "parked_toast": "გაყიდვა გადადებულია.",
     "park_failed": "გაყიდვის გადადება ვერ მოხერხდა. {{error}}",
     "park_empty_cart": "გადადებამდე დაამატეთ რამე კალათაში.",
     "view_parked_action": "ნახვა",
-    "parking": "მიმდინარეობს გადადება…"
+    "parking": "მიმდინარეობს გადადება…",
+    "park_name_label": "სახელი",
+    "park_name_optional": "არასავალდებულო"
   },
   "orders": {
     "search_placeholder": "შეკვეთების ძებნა...",

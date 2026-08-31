@@ -209,15 +209,16 @@
     "rounded_from": "Arrondi de",
     "park_button": "Mettre en attente",
     "park_dialog_title": "Mettre cette vente en attente",
-    "park_dialog_description": "Donnez-lui un nom pour la retrouver facilement. Facultatif.",
+    "park_dialog_description": "Donnez-lui un nom pour la retrouver facilement, ou mettez-la en attente sans nom.",
     "park_label_placeholder": "ex. Table 4",
     "park_confirm_button": "Mettre en attente",
-    "park_skip_button": "Mettre en attente sans nom",
     "parked_toast": "Vente mise en attente.",
     "park_failed": "Impossible de mettre la vente en attente. {{error}}",
     "park_empty_cart": "Ajoutez un article au panier avant de le mettre en attente.",
     "view_parked_action": "Voir les ventes en attente",
-    "parking": "Mise en attente…"
+    "parking": "Mise en attente…",
+    "park_name_label": "Nom",
+    "park_name_optional": "facultatif"
   },
   "orders": {
     "search_placeholder": "Rechercher des commandes...",

@@ -48,8 +48,11 @@ is still there — visible, and safe.
 anyone can resume anyone's. Adding identity here waits on
 [role management](../role-management/README.md).
 
-**Payment method is not carried across.** The cashier re-picks it on resume. This is
-correct: the till, and therefore the available methods, may differ.
+**Payment method is carried across**, so a resumed sale comes back ready to take. It is
+dropped when the resuming till does not offer that provider — otherwise the sale would
+look ready to pay with nothing selected. It is also removed at conversion, so it never
+lands on the finished order: the provider that actually settles the sale is recorded on
+the payment session, not in metadata.
 
 ## Boundaries with other features
 

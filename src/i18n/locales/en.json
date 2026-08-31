@@ -209,15 +209,16 @@
     "rounded_from": "Rounded from",
     "park_button": "Park sale",
     "park_dialog_title": "Park this sale",
-    "park_dialog_description": "Give it a name so it is easy to find later. Optional.",
+    "park_dialog_description": "Give it a name so it is easy to find later, or park it without one.",
     "park_label_placeholder": "e.g. Table 4",
     "park_confirm_button": "Park sale",
-    "park_skip_button": "Park without a name",
     "parked_toast": "Sale parked.",
     "park_failed": "Could not park the sale. {{error}}",
     "park_empty_cart": "Add something to the cart before parking it.",
     "view_parked_action": "View parked",
-    "parking": "Parking…"
+    "parking": "Parking…",
+    "park_name_label": "Name",
+    "park_name_optional": "optional"
   },
   "orders": {
     "search_placeholder": "Search orders...",

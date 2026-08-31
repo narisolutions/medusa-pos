@@ -209,15 +209,16 @@
     "rounded_from": "Avrundat från",
     "park_button": "Parkera köp",
     "park_dialog_title": "Parkera det här köpet",
-    "park_dialog_description": "Ge det ett namn så blir det lätt att hitta senare. Valfritt.",
+    "park_dialog_description": "Ge det ett namn så blir det lätt att hitta senare, eller parkera utan.",
     "park_label_placeholder": "t.ex. Bord 4",
     "park_confirm_button": "Parkera",
-    "park_skip_button": "Parkera utan namn",
     "parked_toast": "Köpet är parkerat.",
     "park_failed": "Det gick inte att parkera köpet. {{error}}",
     "park_empty_cart": "Lägg till något i varukorgen innan du parkerar den.",
     "view_parked_action": "Visa parkerade",
-    "parking": "Parkerar…"
+    "parking": "Parkerar…",
+    "park_name_label": "Namn",
+    "park_name_optional": "valfritt"
   },
   "orders": {
     "search_placeholder": "Sök order...",

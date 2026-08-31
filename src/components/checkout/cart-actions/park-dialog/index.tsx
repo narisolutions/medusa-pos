@@ -19,9 +19,7 @@ const ParkModal: React.FC<Props> = ({ open, onClose }) => {
   const { data: store } = useQueryStore();
   const { t } = useTranslation();
   const [label, setLabel] = useState("");
-  // Which button is running, so only that one shows a spinner.
-  const [pending, setPending] = useState<"named" | "unnamed" | null>(null);
-  const isParking = pending !== null;
+  const [isParking, setIsParking] = useState(false);
   // A ref, not state, so a double-tap can't create two drafts before the re-render.
   const submitting = useRef(false);
 
@@ -38,13 +36,13 @@ const ParkModal: React.FC<Props> = ({ open, onClose }) => {
   const park = async (value?: string) => {
     if (submitting.current) return;
     submitting.current = true;
-    setPending(value === undefined ? "unnamed" : "named");
+    setIsParking(true);
     try {
       const parked = await handleParkSale(value);
       if (parked) onClose();
     } finally {
       submitting.current = false;
-      setPending(null);
+      setIsParking(false);
     }
   };
 
@@ -59,49 +57,46 @@ const ParkModal: React.FC<Props> = ({ open, onClose }) => {
             {t("checkout.park_dialog_description")}
           </p>
 
-          <Input
-            autoFocus
-            value={label}
-            disabled={isParking}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setLabel(e.target.value)}
-            onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
-              if (e.key === "Enter") void park(label);
-            }}
-            placeholder={t("checkout.park_label_placeholder")}
-            className="text-base"
-          />
+          <div className="space-y-2">
+            {/* "optional" sits on the field itself — leaving an empty box is the
+                action now that there is no second button to say so. */}
+            <label
+              htmlFor="park-label"
+              className="flex items-baseline gap-2 text-base font-medium text-fg"
+            >
+              {t("checkout.park_name_label")}
+              <span className="text-sm font-normal text-muted-foreground">
+                {t("checkout.park_name_optional")}
+              </span>
+            </label>
+            <Input
+              id="park-label"
+              autoFocus
+              value={label}
+              disabled={isParking}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setLabel(e.target.value)}
+              onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
+                if (e.key === "Enter") void park(label);
+              }}
+              placeholder={t("checkout.park_label_placeholder")}
+              className="text-base"
+            />
+          </div>
 
           <div className="flex flex-col gap-3 pt-2">
-            {/* Whichever button was pressed carries the spinner, so the operator can
-                see which action is running rather than just that everything is dead. */}
             <Button
               size="lg"
               disabled={isParking}
               onClick={() => void park(label)}
               className="bg-primary hover:bg-primary/90 text-white"
             >
-              {pending === "named" ? (
+              {isParking ? (
                 <span className="flex items-center justify-center gap-2">
                   <Loader2 className="size-5 animate-spin" />
                   {t("checkout.parking")}
                 </span>
               ) : (
                 t("checkout.park_confirm_button")
-              )}
-            </Button>
-            <Button
-              size="lg"
-              variant="outline"
-              disabled={isParking}
-              onClick={() => void park(undefined)}
-            >
-              {pending === "unnamed" ? (
-                <span className="flex items-center justify-center gap-2">
-                  <Loader2 className="size-5 animate-spin" />
-                  {t("checkout.parking")}
-                </span>
-              ) : (
-                t("checkout.park_skip_button")
               )}
             </Button>
             <Button

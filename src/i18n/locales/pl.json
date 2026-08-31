@@ -209,15 +209,16 @@
     "rounded_from": "Zaokrąglono z",
     "park_button": "Odłóż sprzedaż",
     "park_dialog_title": "Odłóż tę sprzedaż",
-    "park_dialog_description": "Nadaj jej nazwę, aby łatwo ją później znaleźć. Opcjonalne.",
+    "park_dialog_description": "Nadaj nazwę, aby łatwo ją później znaleźć, lub odłóż bez nazwy.",
     "park_label_placeholder": "np. Stolik 4",
     "park_confirm_button": "Odłóż",
-    "park_skip_button": "Odłóż bez nazwy",
     "parked_toast": "Sprzedaż odłożona.",
     "park_failed": "Nie udało się odłożyć sprzedaży. {{error}}",
     "park_empty_cart": "Dodaj coś do koszyka przed odłożeniem.",
     "view_parked_action": "Zobacz odłożone",
-    "parking": "Odkładanie…"
+    "parking": "Odkładanie…",
+    "park_name_label": "Nazwa",
+    "park_name_optional": "opcjonalne"
   },
   "orders": {
     "search_placeholder": "Szukaj zamówień...",

@@ -6,7 +6,7 @@
 |---|---|---|---|
 | The parked sales themselves | Backend | ✅ | ✅ |
 | The active cart (lines, bound id, metadata) | Local key-value store | ✅ | ❌ |
-| Selected payment method | Local cart only | ✅ | ❌ |
+| Selected payment method | Parked sale (draft-only) | ✅ | ✅ |
 | Which row is selected in the cart UI | Memory | ❌ | ❌ |
 | List filters / search text | Local key-value store | ✅ | ❌ |
 
@@ -22,11 +22,13 @@ mutation, so a crash or restart mid-sale loses nothing. It is **preserved on log
 sale belongs to the till, not the cashier) and **wiped when the terminal is pointed at a
 different backend**.
 
-## What is local-only
+## Payment method is draft-only
 
-**Payment method** never leaves the terminal. It is the cashier's selection on *this*
-till, and the till that resumes a parked sale may not offer the same methods. On resume it
-resets and is re-picked.
+**Payment method** is stored on the parked sale so it survives a resume, but it is
+**draft-only**: it is stripped when the sale converts, so it never reaches order history.
+It is the cashier's UI selection, not the record of how the sale settled — that lives on
+the payment session. A restored method is discarded when the resuming till does not offer
+that provider.
 
 Everything else round-trips.
 

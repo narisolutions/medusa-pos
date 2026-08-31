@@ -209,15 +209,16 @@
     "rounded_from": "Redondeado desde",
     "park_button": "Aparcar venta",
     "park_dialog_title": "Aparcar esta venta",
-    "park_dialog_description": "Ponle un nombre para encontrarla fácilmente después. Opcional.",
+    "park_dialog_description": "Ponle un nombre para encontrarla fácilmente después, o apárcala sin nombre.",
     "park_label_placeholder": "p. ej. Mesa 4",
     "park_confirm_button": "Aparcar",
-    "park_skip_button": "Aparcar sin nombre",
     "parked_toast": "Venta aparcada.",
     "park_failed": "No se pudo aparcar la venta. {{error}}",
     "park_empty_cart": "Añade algo al carrito antes de aparcarlo.",
     "view_parked_action": "Ver aparcadas",
-    "parking": "Aparcando…"
+    "parking": "Aparcando…",
+    "park_name_label": "Nombre",
+    "park_name_optional": "opcional"
   },
   "orders": {
     "search_placeholder": "Buscar pedidos...",
