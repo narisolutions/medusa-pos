@@ -29,8 +29,8 @@ Each feature lives in its own subdirectory. Within a feature, docs are split int
 | Feature | Status | Docs |
 |---|---|---|
 | [Cash Reconciliation](./cash-reconciliation/README.md) | v1 (in development) | Register open/close, expected-cash tracking, discrepancy reporting |
-| [Role Management](./role-management/README.md) | planned, not implemented | Operator identity, permissions and manager approval — the authorization boundary the POS currently lacks entirely |
-| [Role Management](./role-management/README.md) | planned (design only) | Staff roles, permissions, manager approval — replaces the register-scoped manager PIN |
+| [Draft Orders & Parked Sales](./draft-orders/README.md) | phase 1 (in development) | Park an in-progress sale and resume it later; stock re-check on resume, inventory holds spec'd for phase 2 |
+| [Role Management](./role-management/README.md) | planned (design only) | Operator identity, staff roles, permissions and manager approval — replaces the register-scoped manager PIN |
 
 > More feature subdirectories will be added here over time.
 

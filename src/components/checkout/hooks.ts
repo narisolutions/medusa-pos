@@ -5,15 +5,14 @@ import React, {
   useMemo,
   useState,
 } from "react";
-import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { useDraftOrder } from "@/hooks/draft-order/useDraftOrder";
+import { useParkedSales, isGuardError } from "@/hooks/draft-order/useParkedSales";
 import { useCartStore } from "@/context/cart";
 import { useRegister } from "@/context/register";
 import { useQueryRegion } from "@/hooks/queries/useQueryRegion";
 import { useQueryStore } from "@/hooks/queries/useQueryStore";
-import { getPaymentMethods, getGuestCustomerEmail } from "@/utils/settings/store/metadata";
-import storage from "@/utils/storage";
+import { getPaymentMethods } from "@/utils/settings/store/metadata";
 import { usePrinterService } from "@/hooks/printer/usePrinterService";
 import Payments from "@/assets/icons/payments";
 import CardIcon from "@/assets/icons/card";
@@ -62,6 +61,7 @@ type CheckoutContextValue = {
   isPaymentModalOpen: boolean;
   handleOpenModal: () => Promise<void>;
   handleCloseModal: () => void;
+  handleParkSale: (label?: string) => Promise<boolean>;
   handleClearItems: () => Promise<void>;
   handleRemoveItem: (itemId: string) => void;
   handleQuantityChange: (itemId: string, delta: number) => void;
@@ -113,12 +113,9 @@ const useProvideCheckout = (): CheckoutContextValue => {
   const setItemMetadata = useCartStore((state) => state.setItemMetadata);
   const metadata = useCartStore((state) => state.metadata);
   const updateMetadata = useCartStore((state) => state.updateMetadata);
-  const isSynced = useCartStore((state) => state.isSynced);
 
   const {
     isLoading,
-    syncLocalChangesToDraftOrder,
-    createDraftOrder,
     deleteDraftOrder,
     updateDraftOrderCustomer,
   } = useDraftOrder();
@@ -128,9 +125,9 @@ const useProvideCheckout = (): CheckoutContextValue => {
   const currency =
     defaultRegion?.currency_code?.toUpperCase() ?? "USD";
 
-  const navigate = useNavigate();
   const { openCashDrawer, getDefaultPrinter } = usePrinterService();
   const { enabled: registerEnabled, isOpen: registerOpen } = useRegister();
+  const { ensureDraftOrderSynced, parkCurrentSale } = useParkedSales();
 
   const handleRemoveItem = useCallback(
     (itemId: string) => {
@@ -176,27 +173,6 @@ const useProvideCheckout = (): CheckoutContextValue => {
     [handleRemoveItem, items, updateItemQuantity, t]
   );
 
-  const goToGuestEmailSetting = useCallback(() => {
-    void storage.setItem("settings_tab", "store");
-    navigate("/settings");
-    setTimeout(() => {
-      const el = document.getElementById("guest-customer-email");
-      if (!el) return;
-      el.scrollIntoView({ behavior: "smooth", block: "center" });
-      el.style.outline = "2px solid var(--color-primary)";
-      el.style.outlineOffset = "4px";
-      el.style.borderRadius = "8px";
-      el.style.transition = "outline-color 0.6s ease, outline-offset 0.3s ease";
-      el.querySelector("input")?.focus();
-      setTimeout(() => {
-        el.style.outline = "";
-        el.style.outlineOffset = "";
-        el.style.borderRadius = "";
-        el.style.transition = "";
-      }, 2500);
-    }, 400);
-  }, [navigate]);
-
   const handleOpenModal = useCallback(async () => {
     try {
       if (registerEnabled && !registerOpen) {
@@ -209,76 +185,17 @@ const useProvideCheckout = (): CheckoutContextValue => {
         return;
       }
 
-      // If already synced and draft order exists, just open the modal
-      if (isSynced && draftOrderId) {
-        setIsPaymentModalOpen(true);
-        return;
-      }
-
-      // Need to sync changes
-      const salesChannelId = await storage.getItem("sales_channel_id");
-
-      if (draftOrderId) {
-        await syncLocalChangesToDraftOrder();
-      } else {
-        if (!defaultRegion || !salesChannelId) {
-          handleErrorToast(t("checkout.region_channel_missing"));
-          return;
-        }
-
-        // Get customer info from metadata
-        const customerEmail = (metadata as Record<string, unknown>)
-          .customer_email as string | undefined;
-        const customerId = (metadata as Record<string, unknown>)
-          .customer_id as string | null | undefined;
-        const countryCode =
-          defaultRegion.countries?.[0]?.iso_2 ??
-          defaultRegion.countries?.[0]?.iso_3 ??
-          undefined;
-
-        const guestEmail = getGuestCustomerEmail(store);
-
-        if (!customerEmail && !customerId && !guestEmail) {
-          toast.error(
-            t("checkout.guest_email_not_configured"),
-            {
-              action: {
-                label: t("common.go_to_store_settings"),
-                onClick: goToGuestEmailSetting,
-              },
-              actionButtonStyle: {
-                backgroundColor: "var(--error-text)",
-                color: "var(--error-bg)",
-              },
-            }
-          );
-          return;
-        }
-
-        const newDraftOrderId = await createDraftOrder(
-          defaultRegion.id,
-          salesChannelId,
-          customerEmail,
-          customerId,
-          countryCode
-        );
-
-        await syncLocalChangesToDraftOrder(newDraftOrderId);
-      }
+      // Shared with park, so both paths apply the same create-or-sync guards.
+      await ensureDraftOrderSynced();
 
       setIsPaymentModalOpen(true);
     } catch (error) {
+      if (isGuardError(error)) return;
       handleErrorToast(t("checkout.failed_to_prepare_checkout", { error: (error as Error).message }));
     }
   }, [
-    draftOrderId,
-    isSynced,
-    syncLocalChangesToDraftOrder,
-    defaultRegion,
-    createDraftOrder,
-    metadata,
-    store,
-    goToGuestEmailSetting,
+    ensureDraftOrderSynced,
+    metadata.payment_method,
     registerEnabled,
     registerOpen,
     t,
@@ -287,6 +204,11 @@ const useProvideCheckout = (): CheckoutContextValue => {
   const handleCloseModal = useCallback(() => {
     setIsPaymentModalOpen(false);
   }, []);
+
+  const handleParkSale = useCallback(
+    (label?: string) => parkCurrentSale(label),
+    [parkCurrentSale]
+  );
 
   const handleClearItems = useCallback(async () => {
     clearItems();
@@ -379,6 +301,7 @@ const useProvideCheckout = (): CheckoutContextValue => {
       isPaymentModalOpen,
       handleOpenModal,
       handleCloseModal,
+      handleParkSale,
       handleClearItems,
       handleRemoveItem,
       handleQuantityChange,
@@ -406,6 +329,7 @@ const useProvideCheckout = (): CheckoutContextValue => {
       currency,
       handleClearItems,
       handleCloseModal,
+      handleParkSale,
       handleOpenDrawer,
       handleOpenModal,
       handleQuantityChange,

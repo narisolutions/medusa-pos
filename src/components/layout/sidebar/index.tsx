@@ -10,10 +10,11 @@ import {
 } from "@/components/ui/sidebar";
 import { useUser } from "@/context/user";
 import { NavLink, useNavigate } from "react-router-dom";
-import { ChevronLeft, LogOut, Settings } from "lucide-react";
+import { Bookmark, ChevronLeft, LogOut, Settings } from "lucide-react";
 import Payments from "@/assets/icons/payments";
 import Checkout from "@/assets/icons/checkout";
 import { useUnfulfilledOrdersCount } from "@/hooks/queries/useUnfulfilledOrdersCount";
+import { useParkedSalesCount } from "@/hooks/queries/useParkedSalesCount";
 import { plugins } from "@/plugins";
 import { useTranslation } from "@/i18n";
 import RegisterMenuItem from "@/components/register/register-menu-item";
@@ -23,11 +24,25 @@ const AppSidebar = () => {
   const logout = useUser((state) => state.logout);
   const navigate = useNavigate();
   const { data: unfulfilledCount = 0 } = useUnfulfilledOrdersCount();
+  const { data: parkedCount = 0 } = useParkedSalesCount();
   const { t } = useTranslation();
 
   const mainMenuItems = [
     { id: "checkout", label: t("nav.pos"), to: "/checkout", icon: Checkout },
-    { id: "orders", label: t("nav.orders"), to: "/orders", icon: Payments },
+    {
+      id: "parked",
+      label: t("nav.parked"),
+      to: "/parked",
+      icon: Bookmark,
+      badge: parkedCount,
+    },
+    {
+      id: "orders",
+      label: t("nav.orders"),
+      to: "/orders",
+      icon: Payments,
+      badge: unfulfilledCount,
+    },
   ];
 
   const bottomMenuItems = [
@@ -76,9 +91,9 @@ const AppSidebar = () => {
                       <item.icon
                         className={`size-8 ${isActive ? "text-primary" : ""}`}
                       />
-                      {item.id === "orders" && unfulfilledCount > 0 && (
+                      {!!item.badge && item.badge > 0 && (
                         <span className="absolute -top-1 -right-1 flex items-center justify-center min-w-[18px] h-[18px] px-1.5 text-xs font-medium text-white bg-primary rounded-full">
-                          {unfulfilledCount > 99 ? "99+" : unfulfilledCount}
+                          {item.badge > 99 ? "99+" : item.badge}
                         </span>
                       )}
                     </div>

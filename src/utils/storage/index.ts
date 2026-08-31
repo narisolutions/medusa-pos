@@ -18,6 +18,7 @@ type ObjectKeys =
   | "printers"
   | "cart"
   | "orders_filters"
+  | "parked_filters"
   | "store_theme"
   | "stores"
   | "user_preferences"

@@ -1,6 +1,11 @@
 import { StateCreator } from "zustand";
 import { AdminProductVariant } from "@medusajs/types";
-import { CartItem, AddItemResult, OrderDiscount } from "@/types/utils";
+import {
+  CartItem,
+  AddItemResult,
+  OrderDiscount,
+  DraftOrderMetadata,
+} from "@/types/utils";
 import {
   buildItemMetadata,
   resolveSelectedItemId,
@@ -9,6 +14,12 @@ import {
   getVariantAvailableQuantity,
 } from "@/utils/pos/cart";
 import { applyDiscountToUnitPrice } from "@/utils/pos/pricing";
+
+export interface AdoptDraftOrderPayload {
+  draftOrderId: string;
+  items: CartItem[];
+  metadata: DraftOrderMetadata;
+}
 
 export interface CartItemsSlice {
   items: CartItem[];
@@ -27,6 +38,8 @@ export interface CartItemsSlice {
   updateItemQuantity: (itemId: string, quantity: number) => void;
   removeItem: (itemId: string) => void;
   clearItems: () => void;
+  adoptDraftOrder: (payload: AdoptDraftOrderPayload) => void;
+  releaseDraftOrder: () => void;
   getDraftOrderId: () => string | null;
 }
 
@@ -193,10 +206,15 @@ export const createCartItemsSlice: StateCreator<
     
     if (!currentItem) return;
 
-    // Check stock availability
+    // Check stock availability. A resumed sale can legitimately hold more than is now
+    // available, so only block increases — decreasing towards a valid quantity must work.
     const availableQuantity = currentItem.metadata?.available_quantity as number | undefined;
-    
-    if (typeof availableQuantity === "number" && quantity > availableQuantity) {
+
+    if (
+      typeof availableQuantity === "number" &&
+      quantity > availableQuantity &&
+      quantity > currentItem.quantity
+    ) {
       // Return early and let caller know the update failed
       throw new Error(`Cannot set quantity to ${quantity}. Only ${availableQuantity} available in stock.`);
     }
@@ -253,6 +271,32 @@ export const createCartItemsSlice: StateCreator<
         metadata: { ...DEFAULT_CART_METADATA },
       };
     });
+  },
+
+  // Bind and fill in one write. Split across two mutations this would persist draft A's
+  // id against draft B's items, and the next sync would rewrite the wrong draft.
+  adoptDraftOrder: ({ draftOrderId, items, metadata }: AdoptDraftOrderPayload) => {
+    set(() => ({
+      draftOrderId,
+      items,
+      metadata,
+      selectedItemId: resolveSelectedItemId(items, []),
+      itemQuantity: null,
+      pendingItemDiscount: null,
+      pendingItemComment: null,
+    }));
+  },
+
+  releaseDraftOrder: () => {
+    set(() => ({
+      draftOrderId: null,
+      items: [],
+      metadata: { ...DEFAULT_CART_METADATA },
+      selectedItemId: undefined,
+      itemQuantity: null,
+      pendingItemDiscount: null,
+      pendingItemComment: null,
+    }));
   },
 
   getDraftOrderId: () => {

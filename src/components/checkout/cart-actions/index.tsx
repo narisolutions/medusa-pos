@@ -1,11 +1,12 @@
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { MessageSquare, User } from "lucide-react";
+import { Bookmark, MessageSquare, User } from "lucide-react";
 import { useTranslation } from "@/i18n";
 import DiscountModal from "./discount-dialog";
 import CommentModal from "./comment-dialog";
 import QuantityModal from "./quantity-dialog";
 import CustomerModal from "./customer-dialog";
+import ParkModal from "./park-dialog";
 import { useCheckout } from "../hooks";
 
 const CartActions: React.FC = () => {
@@ -26,6 +27,7 @@ const CartActions: React.FC = () => {
   const [isCommentOpen, setCommentOpen] = useState(false);
   const [isQtyOpen, setQtyOpen] = useState(false);
   const [isCustomerOpen, setCustomerOpen] = useState(false);
+  const [isParkOpen, setParkOpen] = useState(false);
 
   return (
     <div className="flex flex-col h-full border border-theme-border bg-surface rounded-lg overflow-hidden">
@@ -114,6 +116,18 @@ const CartActions: React.FC = () => {
             </span>
           </Button>
           <Button
+            onClick={() => setParkOpen(true)}
+            disabled={loading || items.length === 0}
+            className="w-full min-w-0 h-20 text-base font-semibold bg-surface border-2 border-theme-border hover:bg-surface-hover text-fg"
+          >
+            <span className="flex flex-col items-center justify-center gap-1 w-full min-w-0 px-1">
+              <Bookmark className="size-5 shrink-0" />
+              <span className="w-full leading-tight text-center whitespace-normal wrap-break-word">
+                {t("checkout.park_button")}
+              </span>
+            </span>
+          </Button>
+          <Button
             onClick={() => void handleOpenModal()}
             disabled={loading || items.length === 0}
             className="w-full min-w-0 h-20 text-base font-semibold bg-green-600 hover:bg-green-700 text-white"
@@ -139,6 +153,7 @@ const CartActions: React.FC = () => {
         open={isCustomerOpen}
         onClose={() => setCustomerOpen(false)}
       />
+      <ParkModal open={isParkOpen} onClose={() => setParkOpen(false)} />
     </div>
   );
 };

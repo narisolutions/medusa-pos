@@ -47,6 +47,13 @@ export const queryKeys = {
     recent: (withCashDetail: boolean) =>
       ["orders", "recent", withCashDetail ? "cash" : "badge"] as const,
   },
+  // Parked sales. Any surviving draft is an unfinished sale, so the list is unfiltered
+  // beyond the sales channel — see docs/draft-orders/02-domain-model.md.
+  draftOrders: {
+    all: ["draft-orders"] as const,
+    list: (salesChannelId?: string) =>
+      ["draft-orders", "list", salesChannelId ?? null] as const,
+  },
   inventoryKitItems: (
     inventoryItemIds?: string[],
     kitVariantInventoryItems?: unknown

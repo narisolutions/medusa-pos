@@ -334,6 +334,9 @@ const usePaymentModal = (
       clearItems();
       setDraftOrderId(null);
       void queryClient.invalidateQueries({ queryKey: queryKeys.orders.all });
+      // The draft is consumed by convertToOrder — drop it from the parked list now,
+      // rather than leaving a paid sale sitting there until the next poll.
+      void queryClient.invalidateQueries({ queryKey: queryKeys.draftOrders.all });
 
       resetCashState();
       setPaymentMethod(undefined);
@@ -465,6 +468,7 @@ const usePaymentModal = (
             resetCashState();
             setPaymentMethod(undefined);
             void queryClient.invalidateQueries({ queryKey: queryKeys.orders.all });
+            void queryClient.invalidateQueries({ queryKey: queryKeys.draftOrders.all });
             playErrorSound();
             toast.warning(
               t("checkout.order_saved_unpaid", { displayId: order.display_id })
