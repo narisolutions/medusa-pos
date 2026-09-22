@@ -257,6 +257,7 @@
     "customer_name_label": "Namn: ",
     "customer_email_label": "E-post: ",
     "customer_phone_label": "Telefon: ",
+    "customer_note_label": "Notering: ",
     "shipping_address_header": "Leveransadress",
     "order_payment_details_header": "Order- och betalningsuppgifter",
     "order_id_label": "Ordernummer",

@@ -257,6 +257,7 @@
     "customer_name_label": "სახელი: ",
     "customer_email_label": "ელ.ფოსტა: ",
     "customer_phone_label": "ტელეფონი: ",
+    "customer_note_label": "შენიშვნა: ",
     "shipping_address_header": "მიწოდების მისამართი",
     "order_payment_details_header": "შეკვეთის დეტალები",
     "order_id_label": "შეკვეთის ID",
