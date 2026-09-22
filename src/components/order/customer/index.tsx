@@ -1,7 +1,7 @@
 import React from "react";
 import { AdminOrder } from "@medusajs/types";
 import { User } from "lucide-react";
-import { isOrderGuestCustomer } from "@/utils/helpers";
+import { isOrderGuestCustomer, getOrderDeliveryCustomer } from "@/utils/helpers";
 import { useQueryStore } from "@/hooks/queries/useQueryStore";
 import { getGuestCustomerEmail } from "@/utils/settings/store/metadata";
 import { useTranslation } from "@/i18n";
@@ -15,10 +15,7 @@ const Customer: React.FC<Props> = ({ order }) => {
   const { customer, shipping_address, billing_address } = order;
   const { data: store } = useQueryStore();
   const guestEmail = getGuestCustomerEmail(store);
-  // An order booked from a delivery platform carries the person to hand the
-  // bag to on its own metadata — it has no Medusa customer of its own.
-  const delivery = (order.metadata as { delivery?: { customer?: { name?: string; phone?: string; note?: string } } } | null)
-    ?.delivery?.customer;
+  const delivery = getOrderDeliveryCustomer(order);
   const hasDeliveryCustomer = !!(delivery?.name || delivery?.phone || delivery?.note);
 
   return (

@@ -191,6 +191,38 @@ const isOrderGuestCustomer = (
   return guestEmail === email;
 };
 
+type OrderDeliveryCustomer = { name?: string; phone?: string; note?: string };
+
+/**
+ * An order booked from a delivery platform carries the person to hand the bag to on
+ * its own metadata — it has no Medusa customer, so `customer.email` is the store's
+ * guest address. Shared so the list and the detail card read the same place.
+ */
+const getOrderDeliveryCustomer = (order: {
+  metadata?: Record<string, unknown> | null;
+}): OrderDeliveryCustomer | undefined =>
+  (order.metadata as { delivery?: { customer?: OrderDeliveryCustomer } } | null)
+    ?.delivery?.customer;
+
+/** One-line "who is this order for", for list columns. */
+const getOrderCustomerLabel = (order: {
+  email?: string | null;
+  customer?: { email?: string | null; first_name?: string | null; last_name?: string | null } | null;
+  billing_address?: { first_name?: string | null; last_name?: string | null } | null;
+  metadata?: Record<string, unknown> | null;
+}): string => {
+  const deliveryName = getOrderDeliveryCustomer(order)?.name?.trim();
+  if (deliveryName) return deliveryName;
+
+  const named = [
+    [order.customer?.first_name, order.customer?.last_name],
+    [order.billing_address?.first_name, order.billing_address?.last_name],
+  ].find(([first, last]) => first || last);
+  if (named) return named.filter(Boolean).join(" ");
+
+  return order.customer?.email || order.email || "—";
+};
+
 const checkBackendHealth = async (
   baseUrl: string,
   options?: { timeoutMs?: number },
@@ -259,6 +291,8 @@ export {
   getOrderPaymentStatusColor,
   getOrderCurrency,
   isOrderGuestCustomer,
+  getOrderDeliveryCustomer,
+  getOrderCustomerLabel,
   checkBackendHealth,
   printerIssueStaffHintToast,
   cashDrawerIssueStaffHintToast,
