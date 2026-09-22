@@ -30,6 +30,7 @@ Each feature lives in its own subdirectory. Within a feature, docs are split int
 |---|---|---|
 | [Cash Reconciliation](./cash-reconciliation/README.md) | v1 (in development) | Register open/close, expected-cash tracking, discrepancy reporting |
 | [Draft Orders & Parked Sales](./draft-orders/README.md) | phase 1 (released v0.6.0) | Park an in-progress sale and resume it later; stock re-check on resume, inventory holds spec'd for phase 2 |
+| [Post-Sale](./post-sale/README.md) | planned (spec + implementation plan) | Returns, exchanges and additional charges from the order page, settled at the till |
 | [Role Management](./role-management/README.md) | planned (design only) | Operator identity, staff roles, permissions and manager approval — replaces the register-scoped manager PIN |
 
 > More feature subdirectories will be added here over time.
