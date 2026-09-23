@@ -1,7 +1,7 @@
 import React from "react";
 import { AdminOrder } from "@medusajs/types";
 import { User } from "lucide-react";
-import { isOrderGuestCustomer } from "@/utils/helpers";
+import { isOrderGuestCustomer, getOrderDeliveryCustomer } from "@/utils/helpers";
 import { useQueryStore } from "@/hooks/queries/useQueryStore";
 import { getGuestCustomerEmail } from "@/utils/settings/store/metadata";
 import { useTranslation } from "@/i18n";
@@ -15,6 +15,8 @@ const Customer: React.FC<Props> = ({ order }) => {
   const { customer, shipping_address, billing_address } = order;
   const { data: store } = useQueryStore();
   const guestEmail = getGuestCustomerEmail(store);
+  const delivery = getOrderDeliveryCustomer(order);
+  const hasDeliveryCustomer = !!(delivery?.name || delivery?.phone || delivery?.note);
 
   return (
     <div className="bg-surface rounded-lg border border-theme-border overflow-hidden shadow-sm flex flex-col h-full">
@@ -29,7 +31,34 @@ const Customer: React.FC<Props> = ({ order }) => {
         </div>
       </div>
       <div className="p-6 space-y-4 overflow-y-auto flex-1 min-h-0">
-        {customer && (
+        {hasDeliveryCustomer && (
+          <div>
+            <h3 className="text-base font-medium text-fg mb-2">
+              {t("orders.customer_information_header")}
+            </h3>
+            <div className="grid grid-cols-1 gap-3 text-base">
+              {delivery?.name && (
+                <div>
+                  <span className="text-fg-muted">{t("orders.customer_name_label")}</span>
+                  <span className="font-medium text-fg">{delivery.name}</span>
+                </div>
+              )}
+              {delivery?.phone && (
+                <div>
+                  <span className="text-fg-muted">{t("orders.customer_phone_label")}</span>
+                  <span className="font-medium text-fg">{delivery.phone}</span>
+                </div>
+              )}
+              {delivery?.note && (
+                <div>
+                  <span className="text-fg-muted">{t("orders.customer_note_label")}</span>
+                  <span className="font-medium text-fg">{delivery.note}</span>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+        {!hasDeliveryCustomer && customer && (
           <>
             {(!customer.email || customer.email.trim() === "") &&
             isOrderGuestCustomer(customer.email, guestEmail) ? (

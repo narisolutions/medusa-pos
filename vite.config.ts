@@ -10,11 +10,17 @@ import { execSync } from "child_process";
  * src/plugins/index.ts); Vite's dev-server fs guard needs their REAL paths.
  */
 function pluginRealPaths(): string[] {
-  const roots = [
-    path.resolve(__dirname, "src/plugins"),
-    // linked (yarn link) workspace deps plugins build against
-    path.resolve(__dirname, "node_modules/@narisolutions"),
-  ];
+  const nodeModules = path.resolve(__dirname, "node_modules");
+  // Scopes are discovered, not named: a public config must not advertise
+  // private ones. Only entries resolving outside the repo survive below, so
+  // ordinary installed packages are skipped and just linked ones are allowed.
+  const scopes = fs.existsSync(nodeModules)
+    ? fs
+        .readdirSync(nodeModules)
+        .filter((entry) => entry.startsWith("@"))
+        .map((entry) => path.join(nodeModules, entry))
+    : [];
+  const roots = [path.resolve(__dirname, "src/plugins"), ...scopes];
   const real: string[] = [];
   for (const root of roots) {
     if (!fs.existsSync(root)) continue;
@@ -81,6 +87,7 @@ export default defineConfig(() => ({
       "lucide-react",
       "react-hook-form",
       "@hookform/resolvers",
+      "sonner",
       "@tauri-apps/plugin-http",
       "@tauri-apps/plugin-store",
     ],

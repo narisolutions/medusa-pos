@@ -57,6 +57,11 @@ const Items: React.FC<ItemsProps> = ({
           const hasManualDiscount = !!metadata?.item_discount;
           const originalUnitPrice = metadata?.original_unit_price;
           const originalTotal = originalUnitPrice != null ? originalUnitPrice * item.quantity : null;
+          // A custom line (no variant) carries only `title`, so the
+          // product/variant pair renders blank.
+          const primaryTitle = item.product_title || item.title;
+          const secondaryTitle =
+            item.variant_title && item.variant_title !== primaryTitle ? item.variant_title : null;
 
           return (
             <div
@@ -64,11 +69,11 @@ const Items: React.FC<ItemsProps> = ({
               className="flex items-start justify-between py-3 border-b border-theme-border last:border-b-0"
             >
               <div className="flex-1">
-                {item.product_title && item.product_title !== item.variant_title ? (
+                {secondaryTitle ? (
                   <>
-                    <h3 className="text-base font-medium text-fg">{item.product_title}</h3>
+                    <h3 className="text-base font-medium text-fg">{primaryTitle}</h3>
                     <div className="flex items-center gap-2 mb-1">
-                      <p className="text-sm text-fg-muted">{item.variant_title}</p>
+                      <p className="text-sm text-fg-muted">{secondaryTitle}</p>
                       {(vintage || volume) && (
                         <div className="flex items-center gap-1.5">
                           {vintage && (
@@ -87,7 +92,7 @@ const Items: React.FC<ItemsProps> = ({
                   </>
                 ) : (
                   <div className="flex items-center gap-2 mb-1">
-                    <h3 className="text-base font-medium text-fg">{item.variant_title}</h3>
+                    <h3 className="text-base font-medium text-fg">{primaryTitle}</h3>
                     {(vintage || volume) && (
                       <div className="flex items-center gap-1.5">
                         {vintage && (
@@ -105,7 +110,7 @@ const Items: React.FC<ItemsProps> = ({
                   </div>
                 )}
                 <p className="text-base text-fg-muted mb-1">
-                  {t("orders.qty_label")}: {item.quantity} × {formatPrice(item.total, currency)}
+                  {t("orders.qty_label")}: {item.quantity} × {formatPrice(item.unit_price, currency)}
                 </p>
               </div>
               <div className="text-right">

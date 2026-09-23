@@ -8,6 +8,7 @@ import {
   getOrderPaymentStatusColor,
   getOrderFulfillmentStatusColor,
   getOrderCurrency,
+  getOrderCustomerLabel,
 } from "@/utils/helpers";
 import { AdminOrder } from "@medusajs/types";
 import { useQueryOrders } from "@/hooks/queries/useQueryOrders";
@@ -77,12 +78,12 @@ const useOrders = () => {
         },
         filterFn: "includesString",
       }),
-      columnHelper.accessor("customer.email", {
+      // Resolved, not raw email: a guest order's customer.email is the store's
+      // own guest address.
+      columnHelper.accessor((row) => getOrderCustomerLabel(row), {
         id: "customer_email",
         header: t("orders.column_customer"),
-        cell: (info) => (
-          <span className="text-base">{info.getValue() || "—"}</span>
-        ),
+        cell: (info) => <span className="text-base">{info.getValue()}</span>,
         filterFn: "includesString",
       }),
       columnHelper.accessor("sales_channel.name", {

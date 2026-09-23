@@ -23,6 +23,18 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v7
 
+      # Private plugins mount into src/plugins/ and must never be committed here
+      # (.gitignore allowlists the seam); a forced add would publish them.
+      - name: Guard the plugin seam
+        run: |
+          unexpected="$(git ls-files src/plugins \
+            | grep -vE '^src/plugins/(index\.ts|providers\.tsx)$' || true)"
+          if [ -n "$unexpected" ]; then
+            echo "::error::Private plugin files must not be committed:"
+            echo "$unexpected"
+            exit 1
+          fi
+
       - name: Setup Node 22 LTS
         uses: actions/setup-node@v7
         with:

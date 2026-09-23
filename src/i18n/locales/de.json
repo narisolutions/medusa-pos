@@ -257,6 +257,7 @@
     "customer_name_label": "Name: ",
     "customer_email_label": "E-Mail: ",
     "customer_phone_label": "Telefon: ",
+    "customer_note_label": "Hinweis: ",
     "shipping_address_header": "Lieferadresse",
     "order_payment_details_header": "Bestell- & Zahlungsdetails",
     "order_id_label": "Bestell-Nr.",
