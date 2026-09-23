@@ -78,8 +78,8 @@ const useOrders = () => {
         },
         filterFn: "includesString",
       }),
-      // Resolved, not raw email: a partner order has no Medusa customer, so its
-      // customer.email is the store's own guest address.
+      // Resolved, not raw email: a guest order's customer.email is the store's
+      // own guest address.
       columnHelper.accessor((row) => getOrderCustomerLabel(row), {
         id: "customer_email",
         header: t("orders.column_customer"),

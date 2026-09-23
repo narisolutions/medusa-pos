@@ -57,8 +57,8 @@ const Items: React.FC<ItemsProps> = ({
           const hasManualDiscount = !!metadata?.item_discount;
           const originalUnitPrice = metadata?.original_unit_price;
           const originalTotal = originalUnitPrice != null ? originalUnitPrice * item.quantity : null;
-          // A custom line — a partner order's item that matched no variant —
-          // carries only `title`, so the product/variant pair renders blank.
+          // A custom line (no variant) carries only `title`, so the
+          // product/variant pair renders blank.
           const primaryTitle = item.product_title || item.title;
           const secondaryTitle =
             item.variant_title && item.variant_title !== primaryTitle ? item.variant_title : null;

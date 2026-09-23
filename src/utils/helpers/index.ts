@@ -194,9 +194,9 @@ const isOrderGuestCustomer = (
 type OrderDeliveryCustomer = { name?: string; phone?: string; note?: string };
 
 /**
- * An order booked from a delivery platform carries the person to hand the bag to on
- * its own metadata — it has no Medusa customer, so `customer.email` is the store's
- * guest address. Shared so the list and the detail card read the same place.
+ * An order created outside the POS may carry the person to hand it to on its own
+ * metadata; as a guest order, its `customer.email` is the store's guest address.
+ * Shared so the list and the detail card read the same place.
  */
 const getOrderDeliveryCustomer = (order: {
   metadata?: Record<string, unknown> | null;

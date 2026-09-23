@@ -4,9 +4,9 @@ import { getOrderCustomerLabel, getOrderDeliveryCustomer } from ".";
 const GUEST = "guest@wineland.ge";
 
 describe("getOrderCustomerLabel", () => {
-  // A partner order has no Medusa customer, so customer.email is the store's own
-  // guest address — the list showed that instead of the person on the metadata.
-  it("prefers the delivery customer on a partner order", () => {
+  // A guest order's customer.email is the store's own guest address — the list
+  // showed that instead of the person on the metadata.
+  it("prefers the customer the order carries on its metadata", () => {
     const order = {
       email: GUEST,
       customer: { email: GUEST },
