@@ -17,6 +17,7 @@ import storage from "@/utils/storage";
 import { classifyOrderShippingMethod, getShippingMethodLabel } from "@/utils/pos/fulfillment";
 import { useQueryStore } from "@/hooks/queries/useQueryStore";
 import { getOrderPaymentMethodLabel } from "@/utils/pos/payment";
+import { plugins } from "@/plugins";
 
 const columnHelper = createColumnHelper<AdminOrder>();
 
@@ -40,6 +41,10 @@ const useOrders = () => {
         header: t("orders.column_method"),
         cell: (info) => {
           const order = info.row.original;
+          // A plugin's badge replaces the method: the order's source says how it leaves.
+          const pluginBadge = plugins.map((plugin) => plugin.orderBadge?.(order)).find((badge) => badge != null);
+          if (pluginBadge) return pluginBadge;
+
           const label = getShippingMethodLabel(order);
           if (!label) {
             return (
