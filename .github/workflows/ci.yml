@@ -27,16 +27,19 @@ jobs:
         uses: actions/setup-node@v7
         with:
           node-version: 22
-          cache: yarn
+          cache: npm
 
       - name: Install dependencies
-        run: yarn install --frozen-lockfile
+        # npm ci: same lockfile the release workflow installs from (there is no
+        # root yarn.lock, so `yarn install --frozen-lockfile` resolved fresh
+        # versions every run and never verified package-lock.json).
+        run: npm ci
 
       - name: Lint
-        run: yarn lint
+        run: npm run lint
 
       - name: Typecheck
-        run: yarn typecheck
+        run: npm run typecheck
 
       - name: Build
-        run: yarn build
+        run: npm run build
