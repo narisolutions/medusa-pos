@@ -11,6 +11,10 @@ const isSdkNotInitializedError = (error: unknown): boolean => {
   return message.includes("SDK not initialized");
 };
 
+/** Everything the order page and its receipt read, including totals, status and metadata. */
+export const ORDER_DETAIL_FIELDS =
+  "*items,*items.detail,*items.variant,*items.tax_lines,*customer,*sales_channel,*shipping_address,*shipping_methods,*billing_address,*fulfillments.*,*fulfillments.shipping_option.*,*payment_collections,*payment_collections.payments,*payment_collections.payment_sessions,payment_collections.payments.provider_id,payment_collections.payments.refunds.*,payment_collections.payments.captures.*,payment_collections.payment_sessions.provider_id,*region,*summary,display_id,status,payment_status,fulfillment_status,created_at,updated_at,total,subtotal,tax_total,discount_total,shipping_total,refunded_total,currency_code,metadata";
+
 const fetchOrder = async (orderId: string): Promise<AdminOrder | null> => {
   if (!orderId) {
     return null;
@@ -19,8 +23,7 @@ const fetchOrder = async (orderId: string): Promise<AdminOrder | null> => {
   try {
     const sdk = getSdk();
     const { order } = await sdk.admin.order.retrieve(orderId, {
-      fields:
-        "*items,*items.detail,*items.variant,*items.tax_lines,*customer,*sales_channel,*shipping_address,*shipping_methods,*billing_address,*fulfillments.*,*fulfillments.shipping_option.*,*payment_collections,*payment_collections.payments,*payment_collections.payment_sessions,payment_collections.payments.provider_id,payment_collections.payments.refunds.*,payment_collections.payments.captures.*,payment_collections.payment_sessions.provider_id,*region,*summary,display_id,status,payment_status,fulfillment_status,created_at,updated_at,total,subtotal,tax_total,discount_total,shipping_total,refunded_total,currency_code,metadata",
+      fields: ORDER_DETAIL_FIELDS,
     });
 
     return order as AdminOrder;

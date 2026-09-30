@@ -1,3 +1,4 @@
+import { ORDER_DETAIL_FIELDS } from "@/hooks/queries/useQueryOrder";
 import { logger, safeStringify } from "@/utils/logger";
 import { t } from "@/i18n";
 import { useState, useCallback, useEffect, useMemo, useRef } from "react";
@@ -511,6 +512,17 @@ const usePaymentModal = (
           // non-fatal
         }
 
+        // The receipt must show the sale as paid: the copy above was read before
+        // capture, and without its totals or status.
+        try {
+          const { order: paidOrder } = await sdk.admin.order.retrieve(finalOrder.id, {
+            fields: ORDER_DETAIL_FIELDS,
+          });
+          finalOrder = paidOrder;
+        } catch (refetchError) {
+          void logger.warn(`Receipt re-read failed; printing from the earlier copy: ${safeStringify(refetchError)}`);
+        }
+
         // Step 7: Clean up and finalize
         await cleanupAfterOrder(finalOrder, selectedPaymentMethod);
         return finalOrder;
@@ -596,10 +608,9 @@ const usePaymentModal = (
         setDraftOrderId(null);
         orderConversionDone = true;
 
-        // Step 3: Fetch full order with expanded fields.
+        // Step 3: Fetch full order — the "amount due" receipt prints from it, totals included.
         const { order } = await sdk.admin.order.retrieve(convertedOrder.id, {
-          fields:
-            "display_id,*payment_collections,*payment_collections.payments,*summary,*fulfillments,*items,*customer,*sales_channel,*shipping_methods,currency_code",
+          fields: ORDER_DETAIL_FIELDS,
         });
 
         // Step 4: Deliver now (decrements inventory). Skip payment capture and
