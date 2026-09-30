@@ -1,6 +1,7 @@
 import { useCallback } from "react";
 import { AdminOrder } from "@medusajs/types";
-import { handleErrorToast } from "@/utils/helpers";
+import { getApiErrorMessage, handleErrorToast } from "@/utils/helpers";
+import { logger, safeStringify } from "@/utils/logger";
 import {
   processPaymentCollection,
   processFulfillment as fulfillOrder,
@@ -14,17 +15,21 @@ import {
  * - processPaymentCollection: ensures the order's payment is captured (see
  *   project memory project_payment_provider_flow).
  * - processFulfillment: fulfills + marks delivered (this is what decrements
- *   inventory at the stock location). Errors are non-fatal (surface a toast).
+ *   inventory at the stock location). Errors are non-fatal (surface a toast);
+ *   resolves false when the goods were not handed over.
  */
 const useOrderProcessing = () => {
   const processFulfillment = useCallback(
-    async (order: AdminOrder): Promise<void> => {
+    async (order: AdminOrder): Promise<boolean> => {
       try {
         await fulfillOrder(order);
+        return true;
       } catch (error) {
+        void logger.error(`Fulfillment failed: ${safeStringify(error)}`);
         handleErrorToast(
-          `Fulfillment failed (${error instanceof Error ? error.message : "Unknown"}), but order created`
+          `Fulfillment failed (${getApiErrorMessage(error, "Unknown")}), but order created`
         );
+        return false;
       }
     },
     []

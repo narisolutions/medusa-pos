@@ -615,11 +615,13 @@ const usePaymentModal = (
 
         // Step 4: Deliver now (decrements inventory). Skip payment capture and
         // order.complete; do NOT cancel on any failure.
-        await processFulfillment(order);
+        const delivered = await processFulfillment(order);
 
         // Step 5: Clean up and finalize with an "outstanding" toast.
         await cleanupAfterOrder(order, selectedPaymentMethod, {
-          successMessage: `Order #${order.display_id} delivered — payment outstanding`,
+          successMessage: delivered
+            ? `Order #${order.display_id} delivered — payment outstanding`
+            : `Order #${order.display_id} created, not delivered — payment outstanding`,
         });
         return order;
       } catch (error) {
