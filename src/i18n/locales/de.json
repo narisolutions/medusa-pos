@@ -397,6 +397,7 @@
       "movement_payment": "Bestellung #{{id}}: Bargeld nach dem Verkauf angenommen",
       "add_title": "Artikel hinzufügen",
       "add_description": "Zusätzliche Artikel scannen oder suchen. Der Kunde zahlt nur das Hinzugefügte.",
+      "add_description_unpaid": "Diese Bestellung ist noch nicht bezahlt, daher wird jetzt nichts kassiert: Die Artikel kommen zum offenen Betrag des Kunden. Kassieren Sie später über „Zahlung erfassen“.",
       "add_empty": "Noch nichts hinzugefügt",
       "going_out": "Geht raus",
       "coming_back": "Kommt zurück",

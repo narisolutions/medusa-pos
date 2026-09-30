@@ -53,7 +53,9 @@ const AddItemsDialog: React.FC<Props> = ({ isOpen, onClose, order }) => {
             {t("orders.post_sale.add_title")}
           </DialogTitle>
           <DialogDescription className="text-base">
-            {t("orders.post_sale.add_description")}
+            {isUnpaidOrder
+              ? t("orders.post_sale.add_description_unpaid")
+              : t("orders.post_sale.add_description")}
           </DialogDescription>
         </DialogHeader>
 

@@ -397,6 +397,7 @@
       "movement_payment": "Order #{{id}}: cash taken after the sale",
       "add_title": "Add items",
       "add_description": "Scan or search the extra items. The customer pays only for what is added.",
+      "add_description_unpaid": "This order is not paid yet, so nothing is taken now: the items join what the customer owes. Take payment later with Record payment.",
       "add_empty": "Nothing added yet",
       "going_out": "Going out",
       "coming_back": "Coming back",

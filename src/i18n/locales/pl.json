@@ -397,6 +397,7 @@
       "movement_payment": "Zamówienie #{{id}}: gotówka przyjęta po sprzedaży",
       "add_title": "Dodaj artykuły",
       "add_description": "Zeskanuj lub wyszukaj dodatkowe artykuły. Klient płaci tylko za to, co dodano.",
+      "add_description_unpaid": "To zamówienie nie jest jeszcze opłacone, więc teraz nic nie jest pobierane: artykuły dołączają do kwoty należnej od klienta. Pobierz płatność później przez Zarejestruj płatność.",
       "add_empty": "Nic jeszcze nie dodano",
       "going_out": "Wychodzi",
       "coming_back": "Wraca",

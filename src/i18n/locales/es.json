@@ -397,6 +397,7 @@
       "movement_payment": "Pedido #{{id}}: efectivo cobrado después de la venta",
       "add_title": "Añadir artículos",
       "add_description": "Escanee o busque los artículos adicionales. El cliente paga solo lo añadido.",
+      "add_description_unpaid": "Este pedido aún no está pagado, así que no se cobra nada ahora: los artículos se suman a lo que debe el cliente. Cobre más tarde con Registrar pago.",
       "add_empty": "Aún no se ha añadido nada",
       "going_out": "Sale",
       "coming_back": "Vuelve",

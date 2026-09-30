@@ -397,6 +397,7 @@
       "movement_payment": "Order #{{id}}: kontanter mottagna efter försäljningen",
       "add_title": "Lägg till varor",
       "add_description": "Skanna eller sök de extra varorna. Kunden betalar bara för det som läggs till.",
+      "add_description_unpaid": "Denna order är inte betald än, så inget tas nu: varorna läggs till det kunden är skyldig. Ta betalt senare med Registrera betalning.",
       "add_empty": "Inget tillagt ännu",
       "going_out": "Går ut",
       "coming_back": "Kommer tillbaka",
