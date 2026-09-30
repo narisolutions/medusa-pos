@@ -94,10 +94,13 @@ export function getPostSaleOptions(
   };
 }
 
-/** The entry button shows when anything is possible, or when an open change explains why not. */
+/**
+ * The entry button shows unless the order is dead (canceled, fully refunded):
+ * a greyed-out option with its reason tells the cashier more than no button.
+ */
 export function showPostSaleEntry(options: Record<PostSaleKind, PostSaleOption>): boolean {
   return Object.values(options).some(
-    (o) => o.enabled || o.reason === "open_change"
+    (o) => o.enabled || (o.reason !== "canceled" && o.reason !== "refunded")
   );
 }
 

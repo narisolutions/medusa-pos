@@ -71,7 +71,11 @@ const RefundDialog: React.FC<Props> = ({ isOpen, onClose, order, amount: lockedA
       open={isOpen}
       onOpenChange={(open) => !open && !isProcessing && onClose()}
     >
-      <DialogContent className="max-w-lg" preventOutsideClose={isProcessing}>
+      <DialogContent
+        className="max-w-lg"
+        preventOutsideClose={isProcessing}
+        showCloseButton={!isProcessing}
+      >
         <DialogHeader>
           <DialogTitle className="text-2xl font-semibold text-fg">
             {step === "confirm"

@@ -175,8 +175,9 @@ can and refuses. Without `amount` the dialog is unchanged.
 
 ✅ **Done 2026-09-30.** Eligibility is pure and tested in `src/utils/pos/post-sale/`
 (`getPostSaleOptions`, `getReturnableQuantity`). Deviation from [UI flows](./06-ui-flows.md): the
-button also shows when every option is blocked by an **open change**, so the cashier can read why
-instead of the button silently vanishing. Choosing an option does nothing until Phases 2–4 add the
+button shows whenever the order is not canceled or fully refunded, even if every option is blocked,
+so the cashier can read why instead of the button silently vanishing (changed 2026-09-30 after a
+EUR, unfulfilled order showed no button at all). Choosing an option does nothing until Phases 2–4 add the
 dialogs.
 
 ---

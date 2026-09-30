@@ -45,6 +45,7 @@ const ReturnDialog: React.FC<Props> = ({ isOpen, onClose, order, onReturned }) =
       <DialogContent
         className="max-w-3xl max-h-[92vh] overflow-y-auto"
         preventOutsideClose={isBusy}
+        showCloseButton={!isBusy}
       >
         <DialogHeader>
           <DialogTitle className="text-2xl font-semibold text-fg">

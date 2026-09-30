@@ -79,11 +79,19 @@ describe("getPostSaleOptions on an order in another currency", () => {
 });
 
 describe("showPostSaleEntry", () => {
-  it("hides the entry on a canceled order but shows it when an open change needs explaining", () => {
+  it("hides the entry only on a canceled or fully refunded order", () => {
     const canceled = getPostSaleOptions({ status: "canceled", payment_status: "captured", items: [] }, ok);
+    const refunded = getPostSaleOptions({ status: "completed", payment_status: "refunded", items: [line(1)] }, ok);
     const blocked = getPostSaleOptions({ ...paid, items: [line(1)] }, { ...ok, hasOpenChange: true });
+    // Unfulfilled and in another currency: nothing possible, but the reasons are worth showing.
+    const nothingPossible = getPostSaleOptions(
+      { ...paid, currency_code: "eur", items: [line(0)] },
+      { ...ok, tillCurrency: "GEL" }
+    );
     expect(showPostSaleEntry(canceled)).toBe(false);
+    expect(showPostSaleEntry(refunded)).toBe(false);
     expect(showPostSaleEntry(blocked)).toBe(true);
+    expect(showPostSaleEntry(nothingPossible)).toBe(true);
   });
 });
 
