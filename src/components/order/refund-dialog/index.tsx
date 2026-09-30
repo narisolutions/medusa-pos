@@ -26,7 +26,7 @@ import {
   SelectTrigger,
 } from "@/components/ui/select";
 import { formatPrice } from "@/utils/helpers";
-import { getOrderPaymentMethodLabel } from "@/utils/pos/payment";
+import { getOrderPaymentMethodLabel, getPaymentMethodLabel } from "@/utils/pos/payment";
 import { useQueryStore } from "@/hooks/queries/useQueryStore";
 import { useTranslation } from "@/i18n";
 import { useRefund } from "./hooks";
@@ -150,13 +150,17 @@ const RefundDialog: React.FC<Props> = ({ isOpen, onClose, order, amount: lockedA
                         type="button"
                         onClick={() => handleSelectPayment(payment.id)}
                         disabled={isProcessing}
-                        className={`h-16 text-base font-semibold ${
+                        aria-pressed={selectedPaymentId === payment.id}
+                        className={`h-16 flex-col gap-0.5 text-base font-semibold ${
                           selectedPaymentId === payment.id
                             ? "bg-primary text-white shadow"
                             : "bg-surface border border-theme-border hover:bg-surface-hover text-fg"
                         }`}
                       >
-                        {formatPrice(payment.refundable, currency)}
+                        <span>{formatPrice(payment.refundable, currency)}</span>
+                        <span className="text-base font-normal opacity-80">
+                          {getPaymentMethodLabel(store, payment.providerId) || t("orders.payment_label")}
+                        </span>
                       </Button>
                     ))}
                   </div>
