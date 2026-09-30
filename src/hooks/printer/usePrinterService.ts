@@ -186,8 +186,17 @@ const usePrinterService = () => {
     const subtotal = order.subtotal || 0;
     const tax = order.tax_total || 0;
     // Sale value, not order.total — a refund credit line drives that to 0.
-    // A changed order has no single sale value; its current total is what it is worth now.
-    const total = changed ? toNumber(order.total) : getOrderSaleTotal(order);
+    // A changed order is worth the goods the customer still has.
+    const total = changed
+      ? mappedReceiptItems.reduce(
+          (sum, item) =>
+            sum +
+            (item.total !== undefined && item.total !== null
+              ? toNumber(item.total)
+              : toNumber(item.unit_price) * toNumber(item.quantity)),
+          0
+        )
+      : getOrderSaleTotal(order);
     const discount = (order.discount_total || 0) + itemDiscountsTotal + orderLevelDiscount;
     const cashPaid: number = typeof order.metadata?.cash_paid === "number"
       ? order.metadata.cash_paid
@@ -216,7 +225,7 @@ const usePrinterService = () => {
     const amountPaid: number = isUnpaid
       ? 0
       : changed
-        ? toNumber(order.summary?.paid_total) - toNumber(order.summary?.refunded_total)
+        ? toNumber(order.summary?.paid_total)
         : isCashMethod && cashPaid > 0
           ? cashPaid
           : total;
@@ -255,6 +264,7 @@ const usePrinterService = () => {
       currency: getOrderCurrency(order),
       paymentMethod: paymentMethodLabel,
       amountPaid,
+      refunded: changed ? toNumber(order.summary?.refunded_total) : undefined,
       change,
       cashRounding,
       isUnpaid,
@@ -282,6 +292,7 @@ const usePrinterService = () => {
     rounding: t("receipt.rounding"),
     paymentMethod: t("receipt.payment_method"),
     amountPaid: t("receipt.amount_paid"),
+    refunded: t("receipt.slip.refunded"),
     change: t("receipt.change"),
     amountDue: t("receipt.amount_due"),
     unpaid: t("receipt.unpaid"),

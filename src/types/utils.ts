@@ -93,6 +93,8 @@ interface ReceiptData {
   currency: string;
   paymentMethod: string;
   amountPaid?: number;
+  /** Money given back after the sale; shown on a reprint of a changed order. */
+  refunded?: number;
   change?: number;
   /** Signed cash-rounding adjustment (cash collected − exact total); cash only. */
   cashRounding?: number;

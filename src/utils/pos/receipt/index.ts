@@ -34,6 +34,7 @@ export type ReceiptLabels = {
   rounding: string;
   paymentMethod: string;
   amountPaid: string;
+  refunded: string;
   change: string;
   amountDue: string;
   unpaid: string;
@@ -58,6 +59,7 @@ export const DEFAULT_RECEIPT_LABELS: ReceiptLabels = {
   rounding: "Rounding",
   paymentMethod: "Payment Method",
   amountPaid: "Amount Paid",
+  refunded: "Refunded",
   change: "Change",
   amountDue: "Amount Due",
   unpaid: "** UNPAID — PAYMENT PENDING **",
@@ -160,6 +162,9 @@ const buildReceiptDoc = (
   } else {
     if (data.amountPaid) {
       paymentRows.push({ label: labels.amountPaid, amount: data.amountPaid });
+    }
+    if (data.refunded) {
+      paymentRows.push({ label: labels.refunded, amount: data.refunded });
     }
     if (data.change && data.change > 0) {
       paymentRows.push({ label: labels.change, amount: data.change });
@@ -374,6 +379,10 @@ const buildReceiptPDF = async (data: ReceiptData, paperWidth: PaperWidth = "80mm
   } else {
     if (data.amountPaid) {
       addTwoColumn(labels.amountPaid + ":", formatCurrencyRaw(data.amountPaid, data.currency), false, 5);
+    }
+
+    if (data.refunded) {
+      addTwoColumn(labels.refunded + ":", formatCurrencyRaw(data.refunded, data.currency), false, 5);
     }
 
     if (data.change && data.change > 0) {
