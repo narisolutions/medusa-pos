@@ -63,7 +63,13 @@ function getShippingMethodLabel(order: AdminOrder): string | null {
   return method?.name ?? null;
 }
 
+/** The store's pickup option, else the first — an order needs a shipping method even at a counter. */
+function pickPickupOption<T extends { name?: string | null }>(options: T[] | null | undefined): T | undefined {
+  return options?.find((o) => o.name?.toLowerCase().includes("pickup")) ?? options?.[0];
+}
+
 export {
+  pickPickupOption,
   classifyFulfillment,
   classifyOrderShippingMethod,
   getShippingMethodLabel,

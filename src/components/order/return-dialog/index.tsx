@@ -1,6 +1,6 @@
 import React from "react";
 import { AdminOrder } from "@medusajs/types";
-import { Loader2, Minus, PackageCheck, PackageX, Plus } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -11,6 +11,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import PostSaleDifference from "../post-sale-difference";
+import ReturnLines from "../return-lines";
 import { useTranslation } from "@/i18n";
 import { useReturnItems } from "./hooks";
 
@@ -21,54 +22,6 @@ interface Props {
   /** Called with the backend's outstanding amount once the return is applied. */
   onReturned: (outstanding: number) => void;
 }
-
-interface StepperProps {
-  label: string;
-  icon: React.ReactNode;
-  value: number;
-  disabled: boolean;
-  onChange: (delta: number) => void;
-  decreaseLabel: string;
-  increaseLabel: string;
-}
-
-const ConditionStepper: React.FC<StepperProps> = ({
-  label,
-  icon,
-  value,
-  disabled,
-  onChange,
-  decreaseLabel,
-  increaseLabel,
-}) => (
-  <div className="flex items-center gap-2">
-    <span className="flex items-center gap-2 w-40 text-base text-fg">
-      {icon}
-      {label}
-    </span>
-    <Button
-      type="button"
-      variant="outline"
-      size="icon"
-      disabled={disabled || value === 0}
-      onClick={() => onChange(-1)}
-      aria-label={`${decreaseLabel}: ${label}`}
-    >
-      <Minus className="size-5" />
-    </Button>
-    <span className="w-10 text-center text-lg font-semibold">{value}</span>
-    <Button
-      type="button"
-      variant="outline"
-      size="icon"
-      disabled={disabled}
-      onClick={() => onChange(1)}
-      aria-label={`${increaseLabel}: ${label}`}
-    >
-      <Plus className="size-5" />
-    </Button>
-  </div>
-);
 
 const ReturnDialog: React.FC<Props> = ({ isOpen, onClose, order, onReturned }) => {
   const { t } = useTranslation();
@@ -102,45 +55,7 @@ const ReturnDialog: React.FC<Props> = ({ isOpen, onClose, order, onReturned }) =
         </DialogHeader>
 
         <div className="space-y-5">
-          <div className="rounded-lg border border-theme-border divide-y divide-theme-border">
-            {lines.map(({ item, returnable }) => {
-              const s = selection[item.id] ?? { restock: 0, damaged: 0 };
-              const full = s.restock + s.damaged >= returnable;
-              return (
-                <div key={item.id} className="p-4 space-y-3">
-                  <div className="flex items-baseline justify-between gap-4">
-                    <span className="text-base font-medium text-fg">{item.title}</span>
-                    <span className="text-base text-fg-muted shrink-0">
-                      {t("orders.post_sale.return_returnable", {
-                        count: returnable,
-                        sold: item.quantity,
-                      })}
-                    </span>
-                  </div>
-                  <div className="flex flex-wrap gap-x-8 gap-y-3">
-                    <ConditionStepper
-                      label={t("orders.post_sale.return_restock")}
-                      icon={<PackageCheck className="size-5 text-green-600" />}
-                      value={s.restock}
-                      disabled={isBusy || (full && s.restock === 0)}
-                      onChange={(delta) => change(item.id, "restock", delta, returnable)}
-                      decreaseLabel={t("orders.post_sale.decrease")}
-                      increaseLabel={t("orders.post_sale.increase")}
-                    />
-                    <ConditionStepper
-                      label={t("orders.post_sale.return_damaged")}
-                      icon={<PackageX className="size-5 text-red-600" />}
-                      value={s.damaged}
-                      disabled={isBusy || (full && s.damaged === 0)}
-                      onChange={(delta) => change(item.id, "damaged", delta, returnable)}
-                      decreaseLabel={t("orders.post_sale.decrease")}
-                      increaseLabel={t("orders.post_sale.increase")}
-                    />
-                  </div>
-                </div>
-              );
-            })}
-          </div>
+          <ReturnLines lines={lines} selection={selection} change={change} disabled={isBusy} />
 
           <div>
             <label htmlFor="return-note" className="block text-base font-medium text-fg mb-2">

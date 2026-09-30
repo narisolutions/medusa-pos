@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useState } from "react";
-import { AdminOrder, AdminProductVariant } from "@medusajs/types";
+import { AdminOrder } from "@medusajs/types";
 import { toast } from "sonner";
 import { getSdk } from "@/config/medusa";
 import { useTranslation } from "@/i18n";
@@ -11,20 +11,10 @@ import { useSalesChannel } from "@/context/sales-channel";
 import { describeChangeError, useOrderChange } from "@/hooks/order/useOrderChange";
 import { useSettleOutstanding } from "@/hooks/order/useSettleOutstanding";
 import { usePostSaleCash } from "@/hooks/order/usePostSaleCash";
-import type { ProductPickerResult } from "@/components/base/product-picker/hooks";
-import { getVariantAvailableQuantity, getVariantUnitPrice } from "@/utils/pos/cart";
+import { useOutboundLines } from "../outbound-lines/hooks";
 import { fulfilRemainingItems } from "@/utils/pos/order-processing";
 import { getOrderPaymentProviderId } from "@/utils/pos/payment";
 import { getMethodType, getPaymentMethods } from "@/utils/settings/store/metadata";
-
-type AddedLine = { variant: AdminProductVariant; quantity: number };
-
-const lineTitle = (variant: AdminProductVariant) => {
-  const product = variant.product?.title;
-  return variant.title && variant.title !== "Default variant" && variant.title !== product
-    ? `${product ?? ""} · ${variant.title}`
-    : product || variant.title || "-";
-};
 
 const useAddItems = (order: AdminOrder, isOpen: boolean, onClose: () => void) => {
   const { t } = useTranslation();
@@ -38,7 +28,7 @@ const useAddItems = (order: AdminOrder, isOpen: boolean, onClose: () => void) =>
   const methods = useMemo(() => getPaymentMethods(store), [store]);
   const defaultMethod = () => getOrderPaymentProviderId(order) ?? methods[0]?.id ?? "";
   const [selectedMethod, setSelectedMethod] = useState<string>(defaultMethod);
-  const [lines, setLines] = useState<AddedLine[]>([]);
+  const { lines, handleSelect, changeQuantity, reset, goingOut } = useOutboundLines();
   const [phase, setPhase] = useState<"fulfil" | "settle" | null>(null);
   const [isBusy, setIsBusy] = useState(false);
 
@@ -47,54 +37,13 @@ const useAddItems = (order: AdminOrder, isOpen: boolean, onClose: () => void) =>
   if (isOpen !== wasOpen) {
     setWasOpen(isOpen);
     if (isOpen) {
-      setLines([]);
+      reset();
       setSelectedMethod(defaultMethod());
       setPhase(null);
     }
   }
 
   const currency = getOrderCurrency(order);
-  const goingOut = lines.reduce(
-    (sum, line) => sum + getVariantUnitPrice(line.variant) * line.quantity,
-    0
-  );
-
-  const handleSelect = useCallback(
-    (variant: AdminProductVariant): ProductPickerResult => {
-      const current = lines.find((l) => l.variant.id === variant.id)?.quantity ?? 0;
-      const available = getVariantAvailableQuantity(variant);
-      if (typeof available === "number" && current + 1 > available) {
-        return { success: false, message: t("checkout.out_of_stock") };
-      }
-      setLines((prev) =>
-        current > 0
-          ? prev.map((l) => (l.variant.id === variant.id ? { ...l, quantity: l.quantity + 1 } : l))
-          : [...prev, { variant, quantity: 1 }]
-      );
-      const title = lineTitle(variant);
-      return {
-        success: true,
-        message:
-          current > 0
-            ? t("checkout.quantity_increased", { title })
-            : t("checkout.item_added", { title }),
-      };
-    },
-    [lines, t]
-  );
-
-  const changeQuantity = useCallback((variantId: string, delta: number) => {
-    setLines((prev) =>
-      prev
-        .map((l) => {
-          if (l.variant.id !== variantId) return l;
-          const available = getVariantAvailableQuantity(l.variant);
-          const next = l.quantity + delta;
-          return typeof available === "number" && next > available ? l : { ...l, quantity: next };
-        })
-        .filter((l) => l.quantity > 0)
-    );
-  }, []);
 
   const handleConfirm = useCallback(async () => {
     if (isBusy || lines.length === 0 || !selectedMethod) return;
@@ -203,7 +152,6 @@ const useAddItems = (order: AdminOrder, isOpen: boolean, onClose: () => void) =>
     products,
     currency,
     lines,
-    lineTitle,
     goingOut,
     methods,
     selectedMethod,

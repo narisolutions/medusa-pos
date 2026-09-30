@@ -1,6 +1,6 @@
 import React from "react";
 import { AdminOrder } from "@medusajs/types";
-import { Loader2, Minus, Plus } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -11,8 +11,8 @@ import {
 import { Button } from "@/components/ui/button";
 import ProductPicker from "@/components/base/product-picker";
 import PostSaleDifference from "../post-sale-difference";
-import { formatPrice } from "@/utils/helpers";
-import { getVariantUnitPrice } from "@/utils/pos/cart";
+import OutboundLines from "../outbound-lines";
+import PaymentMethodPicker from "../payment-method-picker";
 import { useTranslation } from "@/i18n";
 import { useAddItems } from "./hooks";
 
@@ -28,7 +28,6 @@ const AddItemsDialog: React.FC<Props> = ({ isOpen, onClose, order }) => {
     products,
     currency,
     lines,
-    lineTitle,
     goingOut,
     methods,
     selectedMethod,
@@ -60,81 +59,21 @@ const AddItemsDialog: React.FC<Props> = ({ isOpen, onClose, order }) => {
             <ProductPicker products={products} currency={currency} onSelect={handleSelect} />
           )}
 
-          <div className="rounded-lg border border-theme-border divide-y divide-theme-border">
-            {lines.length === 0 ? (
-              <p className="p-4 text-base text-fg-muted text-center">
-                {t("orders.post_sale.add_empty")}
-              </p>
-            ) : (
-              lines.map(({ variant, quantity }) => {
-                const unit = getVariantUnitPrice(variant);
-                return (
-                  <div key={variant.id} className="flex items-center gap-4 p-3">
-                    <div className="flex-1 min-w-0">
-                      <div className="text-base font-medium text-fg truncate">
-                        {lineTitle(variant)}
-                      </div>
-                      <div className="text-base text-fg-muted">
-                        {formatPrice(unit, currency)}
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="icon"
-                        disabled={isBusy}
-                        onClick={() => changeQuantity(variant.id, -1)}
-                        aria-label={t("orders.post_sale.decrease")}
-                      >
-                        <Minus className="size-5" />
-                      </Button>
-                      <span className="w-10 text-center text-lg font-semibold">{quantity}</span>
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="icon"
-                        disabled={isBusy}
-                        onClick={() => changeQuantity(variant.id, 1)}
-                        aria-label={t("orders.post_sale.increase")}
-                      >
-                        <Plus className="size-5" />
-                      </Button>
-                    </div>
-                    <div className="w-28 text-right text-base font-semibold text-fg">
-                      {formatPrice(unit * quantity, currency)}
-                    </div>
-                  </div>
-                );
-              })
-            )}
-          </div>
+          <OutboundLines
+            lines={lines}
+            currency={currency}
+            changeQuantity={changeQuantity}
+            disabled={isBusy}
+          />
 
           <PostSaleDifference currency={currency} goingOut={goingOut} />
 
-          <div>
-            <div className="text-base font-medium text-fg mb-2">
-              {t("orders.payment_method_label")}
-            </div>
-            <div className="grid grid-cols-2 gap-3">
-              {methods.map((method) => (
-                <Button
-                  key={method.id}
-                  type="button"
-                  onClick={() => setSelectedMethod(method.id)}
-                  disabled={isBusy}
-                  aria-pressed={selectedMethod === method.id}
-                  className={`h-16 text-base font-semibold ${
-                    selectedMethod === method.id
-                      ? "bg-primary text-white shadow"
-                      : "bg-surface border border-theme-border hover:bg-surface-hover text-fg"
-                  }`}
-                >
-                  {method.label}
-                </Button>
-              ))}
-            </div>
-          </div>
+          <PaymentMethodPicker
+            methods={methods}
+            selected={selectedMethod}
+            onSelect={setSelectedMethod}
+            disabled={isBusy}
+          />
 
           <div className="flex gap-3 pt-2">
             <Button

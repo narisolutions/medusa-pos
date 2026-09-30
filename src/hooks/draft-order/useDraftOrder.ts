@@ -1,3 +1,4 @@
+import { pickPickupOption } from "@/utils/pos/fulfillment";
 import { logger, safeStringify } from "@/utils/logger";
 import { useState, useCallback } from "react";
 import { getSdk } from "@/config/medusa";
@@ -65,11 +66,7 @@ const useDraftOrder = () => {
       // Fresh, not from the render closure — park sets the label immediately before this.
       const metadata = useCartStore.getState().metadata;
 
-      // Prefer a pickup option, else the first — the converted order needs shipping_methods.
-      const shippingOptionForDraft =
-        shippingOptions?.find((option) =>
-          option.name.toLowerCase().includes("pickup")
-        ) ?? shippingOptions?.[0];
+      const shippingOptionForDraft = pickPickupOption(shippingOptions);
 
       try {
         // Sanitize metadata to remove empty values before creating draft order
