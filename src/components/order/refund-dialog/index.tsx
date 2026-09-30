@@ -79,7 +79,9 @@ const RefundDialog: React.FC<Props> = ({ isOpen, onClose, order, amount: lockedA
           <DialogDescription className="text-base">
             {step === "confirm"
               ? t("orders.refund_irreversible_warning")
-              : t("orders.refund_dialog_description")}
+              : isLocked
+                ? t("orders.post_sale.refund_locked_description")
+                : t("orders.refund_dialog_description")}
           </DialogDescription>
         </DialogHeader>
 

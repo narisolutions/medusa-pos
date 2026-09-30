@@ -414,7 +414,24 @@
       "warn_settle_failed": "Die Artikel wurden hinzugefügt, aber die Zahlung wurde nicht erfasst. Verwenden Sie „Zahlung erfassen“.",
       "add_success": "Artikel hinzugefügt, {{amount}} kassiert",
       "decrease": "Menge verringern",
-      "increase": "Menge erhöhen"
+      "increase": "Menge erhöhen",
+      "return_title": "Artikel zurückgeben",
+      "return_description": "Wählen Sie, was zurückkommt und ob jeder Artikel wieder verkauft werden kann.",
+      "return_restock": "Zurück ins Lager",
+      "return_damaged": "Beschädigt",
+      "return_returnable": "{{count}} von {{sold}} können zurück",
+      "return_note_label": "Notiz",
+      "return_note_placeholder": "Optional — warum es zurückkam",
+      "return_confirm": "Artikel zurückgeben",
+      "return_success": "Artikel zurückgegeben",
+      "step_return_initiate": "Rückgabe wird geöffnet…",
+      "step_add_return_items": "Artikel werden hinzugefügt…",
+      "step_confirm_request": "Rückgabe wird erfasst…",
+      "step_initiate_receive": "Ware wird angenommen…",
+      "step_receive": "Artikel werden eingelagert…",
+      "step_dismiss": "Beschädigte Artikel werden erfasst…",
+      "step_confirm_receive": "Wird abgeschlossen…",
+      "refund_locked_description": "Das ist, was die Rückgabe oder der Umtausch dem Kunden schuldig bleibt."
     }
   },
   "parked": {

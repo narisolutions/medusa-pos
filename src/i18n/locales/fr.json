@@ -414,7 +414,24 @@
       "warn_settle_failed": "Les articles ont été ajoutés mais le paiement n'a pas été enregistré. Utilisez Enregistrer le paiement.",
       "add_success": "Articles ajoutés, {{amount}} encaissé",
       "decrease": "Diminuer la quantité",
-      "increase": "Augmenter la quantité"
+      "increase": "Augmenter la quantité",
+      "return_title": "Retourner des articles",
+      "return_description": "Choisissez ce qui revient, et si chaque article peut être revendu.",
+      "return_restock": "Remis en stock",
+      "return_damaged": "Endommagé",
+      "return_returnable": "{{count}} sur {{sold}} peuvent revenir",
+      "return_note_label": "Note",
+      "return_note_placeholder": "Facultatif — pourquoi il est revenu",
+      "return_confirm": "Retourner les articles",
+      "return_success": "Articles retournés",
+      "step_return_initiate": "Ouverture du retour…",
+      "step_add_return_items": "Ajout des articles…",
+      "step_confirm_request": "Enregistrement du retour…",
+      "step_initiate_receive": "Réception des articles…",
+      "step_receive": "Remise en stock…",
+      "step_dismiss": "Enregistrement des articles endommagés…",
+      "step_confirm_receive": "Finalisation…",
+      "refund_locked_description": "C'est ce que le retour ou l'échange laisse dû au client."
     }
   },
   "parked": {

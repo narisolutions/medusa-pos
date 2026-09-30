@@ -23,6 +23,7 @@ import RecordPaymentDialog from "./record-payment-dialog";
 import RefundDialog from "./refund-dialog";
 import PostSaleChooser from "./post-sale-chooser";
 import AddItemsDialog from "./add-items-dialog";
+import ReturnDialog from "./return-dialog";
 import Activity from "./activity";
 import Summary from "./summary";
 import Details from "./details";
@@ -75,6 +76,9 @@ const Order: React.FC<Props> = ({ order }) => {
     postSaleKind,
     setPostSaleKind,
     handleChoosePostSale,
+    lockedRefundAmount,
+    handleChangeApplied,
+    handleCloseRefund,
     handleDownloadReceiptPDF,
   } = useOrder(order);
 
@@ -285,8 +289,9 @@ const Order: React.FC<Props> = ({ order }) => {
 
       <RefundDialog
         isOpen={isRefundOpen}
-        onClose={() => setIsRefundOpen(false)}
+        onClose={handleCloseRefund}
         order={order}
+        amount={lockedRefundAmount}
       />
 
       <PostSaleChooser
@@ -294,6 +299,13 @@ const Order: React.FC<Props> = ({ order }) => {
         onClose={() => setIsPostSaleChooserOpen(false)}
         options={postSaleOptions}
         onChoose={handleChoosePostSale}
+      />
+
+      <ReturnDialog
+        isOpen={postSaleKind === "return"}
+        onClose={() => setPostSaleKind(null)}
+        order={order}
+        onReturned={handleChangeApplied}
       />
 
       <AddItemsDialog

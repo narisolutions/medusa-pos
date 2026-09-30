@@ -414,7 +414,24 @@
       "warn_settle_failed": "Los artículos se añadieron pero no se registró el pago. Use Registrar pago.",
       "add_success": "Artículos añadidos, {{amount}} cobrado",
       "decrease": "Reducir cantidad",
-      "increase": "Aumentar cantidad"
+      "increase": "Aumentar cantidad",
+      "return_title": "Devolver artículos",
+      "return_description": "Elija qué vuelve y si cada artículo puede venderse de nuevo.",
+      "return_restock": "De vuelta al stock",
+      "return_damaged": "Dañado",
+      "return_returnable": "{{count}} de {{sold}} pueden volver",
+      "return_note_label": "Nota",
+      "return_note_placeholder": "Opcional — por qué se devolvió",
+      "return_confirm": "Devolver artículos",
+      "return_success": "Artículos devueltos",
+      "step_return_initiate": "Abriendo la devolución…",
+      "step_add_return_items": "Añadiendo artículos…",
+      "step_confirm_request": "Registrando la devolución…",
+      "step_initiate_receive": "Recibiendo productos…",
+      "step_receive": "Devolviendo al stock…",
+      "step_dismiss": "Registrando artículos dañados…",
+      "step_confirm_receive": "Finalizando…",
+      "refund_locked_description": "Esto es lo que la devolución o el cambio dejó pendiente al cliente."
     }
   },
   "parked": {

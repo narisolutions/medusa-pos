@@ -414,7 +414,24 @@
       "warn_settle_failed": "Varorna lades till men betalningen registrerades inte. Använd Registrera betalning.",
       "add_success": "Varor tillagda, {{amount}} mottaget",
       "decrease": "Minska antal",
-      "increase": "Öka antal"
+      "increase": "Öka antal",
+      "return_title": "Returnera varor",
+      "return_description": "Välj vad som kommer tillbaka och om varje vara kan säljas igen.",
+      "return_restock": "Tillbaka i lager",
+      "return_damaged": "Skadad",
+      "return_returnable": "{{count}} av {{sold}} kan komma tillbaka",
+      "return_note_label": "Anteckning",
+      "return_note_placeholder": "Valfritt — varför den kom tillbaka",
+      "return_confirm": "Returnera varor",
+      "return_success": "Varor returnerade",
+      "step_return_initiate": "Öppnar returen…",
+      "step_add_return_items": "Lägger till varor…",
+      "step_confirm_request": "Registrerar returen…",
+      "step_initiate_receive": "Tar emot varor…",
+      "step_receive": "Lägger tillbaka i lager…",
+      "step_dismiss": "Registrerar skadade varor…",
+      "step_confirm_receive": "Avslutar…",
+      "refund_locked_description": "Detta är vad returen eller bytet lämnade skyldigt till kunden."
     }
   },
   "parked": {

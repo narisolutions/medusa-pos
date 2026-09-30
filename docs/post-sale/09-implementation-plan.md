@@ -201,6 +201,13 @@ the Refund dialog does the same as a drop).
 - Sequence: `return.initiateRequest` (with `location_id`) → `addReturnItem` → `confirmRequest` →
   `initiateReceive` → `receiveItems` / `dismissItems` → `confirmReceive`, then settle.
 
+✅ **Built 2026-09-30, awaiting manual test.** Deviations: each line has two steppers, *Back to stock*
+and *Damaged* (both start at 0, capped together at the returnable count), instead of a quantity
+followed by a condition — still no default, and a line splits naturally. `addReturnItem` takes no
+`reason_id` and staging has no return reasons, so reasons are not offered yet; the note goes on the
+return as `internal_note`. After a return the Refund dialog opens locked to what is owed, and stays
+locked while `pending_difference` is negative, so a refund put off until later still comes out right.
+
 ## Phase 4 — Exchanges
 
 - `src/components/order/exchange-dialog/` — inbound (as return) + outbound (product picker) + running

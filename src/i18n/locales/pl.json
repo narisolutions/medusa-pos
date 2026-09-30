@@ -414,7 +414,24 @@
       "warn_settle_failed": "Artykuły dodano, ale płatność nie została zarejestrowana. Użyj Zarejestruj płatność.",
       "add_success": "Dodano artykuły, pobrano {{amount}}",
       "decrease": "Zmniejsz ilość",
-      "increase": "Zwiększ ilość"
+      "increase": "Zwiększ ilość",
+      "return_title": "Zwróć artykuły",
+      "return_description": "Wybierz, co wraca i czy każdy artykuł można ponownie sprzedać.",
+      "return_restock": "Z powrotem na stan",
+      "return_damaged": "Uszkodzone",
+      "return_returnable": "{{count}} z {{sold}} może wrócić",
+      "return_note_label": "Notatka",
+      "return_note_placeholder": "Opcjonalnie — dlaczego wróciło",
+      "return_confirm": "Zwróć artykuły",
+      "return_success": "Zwrócono artykuły",
+      "step_return_initiate": "Otwieranie zwrotu…",
+      "step_add_return_items": "Dodawanie artykułów…",
+      "step_confirm_request": "Rejestrowanie zwrotu…",
+      "step_initiate_receive": "Przyjmowanie towaru…",
+      "step_receive": "Przywracanie na stan…",
+      "step_dismiss": "Rejestrowanie uszkodzonych artykułów…",
+      "step_confirm_receive": "Kończenie…",
+      "refund_locked_description": "Tyle zwrot lub wymiana pozostawiły do oddania klientowi."
     }
   },
   "parked": {

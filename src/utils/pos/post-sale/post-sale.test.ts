@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { differenceDirection, getPostSaleOptions, getReturnableQuantity, postSaleEvents, showPostSaleEntry } from ".";
+import { buildReturnPlan, differenceDirection, getPostSaleOptions, getReturnableQuantity, postSaleEvents, showPostSaleEntry } from ".";
 
 const line = (f: number, rr = 0, rv = 0, rd = 0) => ({
   detail: {
@@ -128,6 +128,33 @@ describe("postSaleEvents", () => {
       kind: "items_exchanged",
       out: [{ title: "Goruli Mtsvane", quantity: 1 }],
       back: [{ title: "Saperavi 750ml", quantity: 1 }],
+    });
+  });
+});
+
+describe("buildReturnPlan", () => {
+  it("requests every chosen unit, receives the sellable ones and dismisses the damaged", () => {
+    expect(
+      buildReturnPlan({
+        split: { restock: 1, damaged: 1 },
+        good: { restock: 2, damaged: 0 },
+        broken: { restock: 0, damaged: 1 },
+        untouched: { restock: 0, damaged: 0 },
+      })
+    ).toEqual({
+      request: [
+        { id: "split", quantity: 2 },
+        { id: "good", quantity: 2 },
+        { id: "broken", quantity: 1 },
+      ],
+      receive: [
+        { id: "split", quantity: 1 },
+        { id: "good", quantity: 2 },
+      ],
+      dismiss: [
+        { id: "split", quantity: 1 },
+        { id: "broken", quantity: 1 },
+      ],
     });
   });
 });

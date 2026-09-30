@@ -414,7 +414,24 @@
       "warn_settle_failed": "The items were added but the payment was not recorded. Use Record payment.",
       "add_success": "Items added, {{amount}} taken",
       "decrease": "Decrease quantity",
-      "increase": "Increase quantity"
+      "increase": "Increase quantity",
+      "return_title": "Return items",
+      "return_description": "Choose what comes back, and whether each item can be sold again.",
+      "return_restock": "Back to stock",
+      "return_damaged": "Damaged",
+      "return_returnable": "{{count}} of {{sold}} can come back",
+      "return_note_label": "Note",
+      "return_note_placeholder": "Optional — why it came back",
+      "return_confirm": "Return items",
+      "return_success": "Items returned",
+      "step_return_initiate": "Opening the return…",
+      "step_add_return_items": "Adding items…",
+      "step_confirm_request": "Recording the return…",
+      "step_initiate_receive": "Receiving goods…",
+      "step_receive": "Putting items back in stock…",
+      "step_dismiss": "Recording damaged items…",
+      "step_confirm_receive": "Finishing…",
+      "refund_locked_description": "This is what the return or exchange left owing to the customer."
     }
   },
   "parked": {

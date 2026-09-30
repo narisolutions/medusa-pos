@@ -3,18 +3,17 @@ import { AdminOrder, AdminProductVariant } from "@medusajs/types";
 import { toast } from "sonner";
 import { getSdk } from "@/config/medusa";
 import { useTranslation } from "@/i18n";
-import { formatPrice, getApiErrorMessage, getOrderCurrency, handleErrorToast } from "@/utils/helpers";
+import { formatPrice, getOrderCurrency, handleErrorToast } from "@/utils/helpers";
 import { logger, safeStringify } from "@/utils/logger";
 import { useQueryStore } from "@/hooks/queries/useQueryStore";
 import { useQueryProducts } from "@/hooks/queries/useQueryProducts";
 import { useSalesChannel } from "@/context/sales-channel";
-import { useOrderChange } from "@/hooks/order/useOrderChange";
+import { describeChangeError, useOrderChange } from "@/hooks/order/useOrderChange";
 import { useSettleOutstanding } from "@/hooks/order/useSettleOutstanding";
 import { usePostSaleCash } from "@/hooks/order/usePostSaleCash";
 import type { ProductPickerResult } from "@/components/base/product-picker/hooks";
 import { getVariantAvailableQuantity, getVariantUnitPrice } from "@/utils/pos/cart";
 import { fulfilRemainingItems } from "@/utils/pos/order-processing";
-import { OrderChangeBlockedError, OrderChangeError } from "@/utils/pos/order-change";
 import { getOrderPaymentProviderId } from "@/utils/pos/payment";
 import { getMethodType, getPaymentMethods } from "@/utils/settings/store/metadata";
 
@@ -25,23 +24,6 @@ const lineTitle = (variant: AdminProductVariant) => {
   return variant.title && variant.title !== "Default variant" && variant.title !== product
     ? `${product ?? ""} · ${variant.title}`
     : product || variant.title || "-";
-};
-
-/** What went wrong with an order change, in the cashier's words. */
-const describeChangeError = (
-  error: unknown,
-  order: AdminOrder,
-  t: ReturnType<typeof useTranslation>["t"]
-): string => {
-  if (error instanceof OrderChangeBlockedError) return t("orders.post_sale.reason_open_change");
-  if (error instanceof OrderChangeError) {
-    return error.outcome.status === "stranded"
-      ? t("orders.post_sale.error_stranded", { id: order.display_id })
-      : t("orders.post_sale.error_rolled_back", {
-          error: getApiErrorMessage(error.outcome.error, t("common.error")),
-        });
-  }
-  return getApiErrorMessage(error, t("common.error"));
 };
 
 const useAddItems = (order: AdminOrder, isOpen: boolean, onClose: () => void) => {

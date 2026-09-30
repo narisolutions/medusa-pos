@@ -414,7 +414,24 @@
       "warn_settle_failed": "ნივთები დაემატა, მაგრამ გადახდა არ აისახა. გამოიყენეთ „გადახდის დაფიქსირება“.",
       "add_success": "ნივთები დაემატა, მიღებულია {{amount}}",
       "decrease": "რაოდენობის შემცირება",
-      "increase": "რაოდენობის გაზრდა"
+      "increase": "რაოდენობის გაზრდა",
+      "return_title": "ნივთების დაბრუნება",
+      "return_description": "აირჩიეთ, რა ბრუნდება და შეიძლება თუ არა თითოეულის ხელახლა გაყიდვა.",
+      "return_restock": "საწყობში დაბრუნება",
+      "return_damaged": "დაზიანებული",
+      "return_returnable": "{{sold}}-დან {{count}} შეიძლება დაბრუნდეს",
+      "return_note_label": "შენიშვნა",
+      "return_note_placeholder": "არასავალდებულო — რატომ დაბრუნდა",
+      "return_confirm": "ნივთების დაბრუნება",
+      "return_success": "ნივთები დაბრუნდა",
+      "step_return_initiate": "დაბრუნება იხსნება…",
+      "step_add_return_items": "ნივთები ემატება…",
+      "step_confirm_request": "დაბრუნება ფიქსირდება…",
+      "step_initiate_receive": "საქონელი მიიღება…",
+      "step_receive": "ნივთები საწყობში ბრუნდება…",
+      "step_dismiss": "დაზიანებული ნივთები ფიქსირდება…",
+      "step_confirm_receive": "სრულდება…",
+      "refund_locked_description": "ეს არის თანხა, რომელიც დაბრუნების ან გაცვლის შემდეგ მომხმარებელს ეკუთვნის."
     }
   },
   "parked": {

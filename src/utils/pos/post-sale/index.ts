@@ -167,3 +167,19 @@ export function postSaleEvents(
   }
   return events;
 }
+
+/** Per line: how many come back sellable and how many damaged. Nothing is assumed. */
+export type ReturnSelection = Record<string, { restock: number; damaged: number }>;
+
+/**
+ * The return's backend calls from the cashier's choices: everything is
+ * requested, then restocked lines are received and damaged ones dismissed.
+ */
+export function buildReturnPlan(selection: ReturnSelection) {
+  const entries = Object.entries(selection).filter(([, s]) => s.restock + s.damaged > 0);
+  return {
+    request: entries.map(([id, s]) => ({ id, quantity: s.restock + s.damaged })),
+    receive: entries.filter(([, s]) => s.restock > 0).map(([id, s]) => ({ id, quantity: s.restock })),
+    dismiss: entries.filter(([, s]) => s.damaged > 0).map(([id, s]) => ({ id, quantity: s.damaged })),
+  };
+}

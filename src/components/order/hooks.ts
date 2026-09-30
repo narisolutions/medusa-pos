@@ -21,6 +21,7 @@ import { useQueryStore } from "@/hooks/queries/useQueryStore";
 import { getOrderPaymentMethodType } from "@/utils/pos/payment";
 import { classifyFulfillment, classifyOrderShippingMethod } from "@/utils/pos/fulfillment";
 import { getOrderRefundableTotal } from "@/utils/pos/payment";
+import { toNumber } from "@/utils/pos/pricing";
 import { getPostSaleOptions, showPostSaleEntry, type PostSaleKind } from "@/utils/pos/post-sale";
 import { useQueryOpenOrderChange } from "@/hooks/queries/useQueryOrderChanges";
 import { useQueryTerminalStockLocationId } from "@/hooks/queries/useQueryStockLocation";
@@ -67,6 +68,8 @@ export const useOrder = (order: AdminOrder) => {
   const [isRefundOpen, setIsRefundOpen] = useState(false);
   const [isPostSaleChooserOpen, setIsPostSaleChooserOpen] = useState(false);
   const [postSaleKind, setPostSaleKind] = useState<PostSaleKind | null>(null);
+  // Set straight from a return's result, before the refetched order carries it.
+  const [owedAfterChange, setOwedAfterChange] = useState<number | null>(null);
   const { data: openChange } = useQueryOpenOrderChange(order.id);
   const { data: stockLocationId } = useQueryTerminalStockLocationId();
 
@@ -321,6 +324,23 @@ export const useOrder = (order: AdminOrder) => {
     setPostSaleKind(kind);
   };
 
+  // What the customer is owed after a return or exchange; the refund is locked to it.
+  const pendingDifference = toNumber(order.summary?.pending_difference);
+  const lockedRefundAmount =
+    owedAfterChange ?? (pendingDifference < 0 ? -pendingDifference : undefined);
+
+  const handleChangeApplied = (outstanding: number) => {
+    if (outstanding < 0) {
+      setOwedAfterChange(-outstanding);
+      setIsRefundOpen(true);
+    }
+  };
+
+  const handleCloseRefund = () => {
+    setIsRefundOpen(false);
+    setOwedAfterChange(null);
+  };
+
   return {
     getStatusColor,
     getFulfillmentStatusColor,
@@ -362,6 +382,9 @@ export const useOrder = (order: AdminOrder) => {
     postSaleKind,
     setPostSaleKind,
     handleChoosePostSale,
+    lockedRefundAmount,
+    handleChangeApplied,
+    handleCloseRefund,
     handleDownloadReceiptPDF,
   };
 };
