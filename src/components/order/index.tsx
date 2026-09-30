@@ -11,6 +11,7 @@ import {
   Banknote,
   RotateCcw,
   QrCode,
+  ArrowLeftRight,
 } from "lucide-react";
 import { formatDate } from "@/utils/helpers";
 import constants from "@/utils/constants";
@@ -20,6 +21,7 @@ import FulfillmentDialog from "./fulfillment-dialog";
 import PickupConfirmationDialog from "./confirmation-dialog";
 import RecordPaymentDialog from "./record-payment-dialog";
 import RefundDialog from "./refund-dialog";
+import PostSaleChooser from "./post-sale-chooser";
 import Activity from "./activity";
 import Summary from "./summary";
 import Details from "./details";
@@ -65,6 +67,11 @@ const Order: React.FC<Props> = ({ order }) => {
     canRefund,
     isRefundOpen,
     setIsRefundOpen,
+    canPostSale,
+    postSaleOptions,
+    isPostSaleChooserOpen,
+    setIsPostSaleChooserOpen,
+    handleChoosePostSale,
     handleDownloadReceiptPDF,
   } = useOrder(order);
 
@@ -103,6 +110,17 @@ const Order: React.FC<Props> = ({ order }) => {
             >
               <Banknote className="w-5 h-5 mr-3" />
               {t("orders.record_payment")}
+            </Button>
+          )}
+          {canPostSale && (
+            <Button
+              variant="default"
+              size="lg"
+              onClick={() => setIsPostSaleChooserOpen(true)}
+              className={`bg-primary hover:bg-primary/90 text-white ${constants.ORDER_BUTTON_BASE_CLASSES} min-w-[180px]`}
+            >
+              <ArrowLeftRight className="w-5 h-5 mr-3" />
+              {t("orders.post_sale.button")}
             </Button>
           )}
           {canRefund && (
@@ -266,6 +284,13 @@ const Order: React.FC<Props> = ({ order }) => {
         isOpen={isRefundOpen}
         onClose={() => setIsRefundOpen(false)}
         order={order}
+      />
+
+      <PostSaleChooser
+        isOpen={isPostSaleChooserOpen}
+        onClose={() => setIsPostSaleChooserOpen(false)}
+        options={postSaleOptions}
+        onChoose={handleChoosePostSale}
       />
     </div>
   );

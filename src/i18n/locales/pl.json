@@ -366,7 +366,24 @@
     "status_awaiting": "Oczekuje",
     "status_captured": "Pobrane",
     "status_partially_captured": "Częściowo pobrane",
-    "status_refunded": "Zwrócone"
+    "status_refunded": "Zwrócone",
+    "post_sale": {
+      "button": "Zwrot lub wymiana",
+      "title": "Zwrot lub wymiana",
+      "description": "Co chce zrobić klient?",
+      "return_label": "Zwróć artykuły",
+      "return_hint": "Towar wraca, nic nie wychodzi",
+      "exchange_label": "Wymień artykuły",
+      "exchange_hint": "Towar wraca, wychodzi inny",
+      "add_label": "Dodaj artykuły",
+      "add_hint": "Dodatkowy towar do tego opłaconego zamówienia",
+      "reason_canceled": "To zamówienie jest anulowane",
+      "reason_open_change": "Inna zmiana tego zamówienia jest wciąż otwarta. Najpierw zakończ ją lub anuluj w Medusa Admin.",
+      "reason_unpaid": "To zamówienie nie zostało opłacone",
+      "reason_not_fulfilled": "Nic z tego zamówienia nie zostało jeszcze wydane",
+      "reason_all_returned": "Wszystko z tego zamówienia zostało już zwrócone",
+      "reason_no_stock_location": "Najpierw ustaw lokalizację magazynu tej kasy w Ustawieniach"
+    }
   },
   "parked": {
     "title": "Odłożone sprzedaże",

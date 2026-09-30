@@ -4,6 +4,7 @@ import { queryKeys, STALE_TIME } from "@/config/query";
 import { handleErrorToast } from "@/utils/helpers";
 import { useUser } from "@/context/user";
 import { AdminStockLocation } from "@medusajs/types";
+import storage from "@/utils/storage";
 
 const fetchStockLocations = async (): Promise<AdminStockLocation[]> => {
   try {
@@ -27,4 +28,12 @@ const useQueryStockLocation = (): UseQueryResult<AdminStockLocation[], Error> =>
   });
 };
 
-export { useQueryStockLocation, fetchStockLocations };
+/** The stock location this till books stock into; null when not configured. */
+const useQueryTerminalStockLocationId = (): UseQueryResult<string | null, Error> =>
+  useQuery<string | null, Error>({
+    queryKey: queryKeys.terminalStockLocationId,
+    queryFn: async () => (await storage.getItem("stock_location_id")) || null,
+    staleTime: 0,
+  });
+
+export { useQueryStockLocation, useQueryTerminalStockLocationId, fetchStockLocations };

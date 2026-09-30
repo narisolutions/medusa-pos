@@ -21,6 +21,9 @@ import { useQueryStore } from "@/hooks/queries/useQueryStore";
 import { getOrderPaymentMethodType } from "@/utils/pos/payment";
 import { classifyFulfillment, classifyOrderShippingMethod } from "@/utils/pos/fulfillment";
 import { getOrderRefundableTotal } from "@/utils/pos/payment";
+import { getPostSaleOptions, showPostSaleEntry, type PostSaleKind } from "@/utils/pos/post-sale";
+import { useQueryOpenOrderChange } from "@/hooks/queries/useQueryOpenOrderChange";
+import { useQueryTerminalStockLocationId } from "@/hooks/queries/useQueryStockLocation";
 
 // Type for fulfillment with extended properties
 type ExtendedFulfillment = Record<string, unknown> & {
@@ -62,6 +65,10 @@ export const useOrder = (order: AdminOrder) => {
     useState(false);
   const [isRecordPaymentOpen, setIsRecordPaymentOpen] = useState(false);
   const [isRefundOpen, setIsRefundOpen] = useState(false);
+  const [isPostSaleChooserOpen, setIsPostSaleChooserOpen] = useState(false);
+  const [postSaleKind, setPostSaleKind] = useState<PostSaleKind | null>(null);
+  const { data: openChange } = useQueryOpenOrderChange(order.id);
+  const { data: stockLocationId } = useQueryTerminalStockLocationId();
 
   const fulfillmentStatus = order.fulfillment_status;
   const isNegativeFulfillmentStatus =
@@ -304,6 +311,16 @@ export const useOrder = (order: AdminOrder) => {
   const refundableTotal = getOrderRefundableTotal(order);
   const canRefund = order.status !== "canceled" && refundableTotal > 0;
 
+  const postSaleOptions = getPostSaleOptions(order, {
+    hasOpenChange: !!openChange,
+    hasStockLocation: !!stockLocationId,
+  });
+  const canPostSale = showPostSaleEntry(postSaleOptions);
+  const handleChoosePostSale = (kind: PostSaleKind) => {
+    setIsPostSaleChooserOpen(false);
+    setPostSaleKind(kind);
+  };
+
   return {
     getStatusColor,
     getFulfillmentStatusColor,
@@ -338,6 +355,13 @@ export const useOrder = (order: AdminOrder) => {
     refundableTotal,
     isRefundOpen,
     setIsRefundOpen,
+    canPostSale,
+    postSaleOptions,
+    isPostSaleChooserOpen,
+    setIsPostSaleChooserOpen,
+    postSaleKind,
+    setPostSaleKind,
+    handleChoosePostSale,
     handleDownloadReceiptPDF,
   };
 };

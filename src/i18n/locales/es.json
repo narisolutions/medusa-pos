@@ -366,7 +366,24 @@
     "status_awaiting": "Pendiente",
     "status_captured": "Cobrado",
     "status_partially_captured": "Cobrado parcialmente",
-    "status_refunded": "Reembolsado"
+    "status_refunded": "Reembolsado",
+    "post_sale": {
+      "button": "Devolución o cambio",
+      "title": "Devolución o cambio",
+      "description": "¿Qué quiere hacer el cliente?",
+      "return_label": "Devolver artículos",
+      "return_hint": "Vuelven productos, no sale nada",
+      "exchange_label": "Cambiar artículos",
+      "exchange_hint": "Vuelven productos, salen otros",
+      "add_label": "Añadir artículos",
+      "add_hint": "Productos adicionales en este pedido pagado",
+      "reason_canceled": "Este pedido está cancelado",
+      "reason_open_change": "Hay otro cambio abierto en este pedido. Termínelo o cancélelo primero en Medusa Admin.",
+      "reason_unpaid": "Este pedido no se ha pagado",
+      "reason_not_fulfilled": "Aún no se ha entregado nada de este pedido",
+      "reason_all_returned": "Todo lo de este pedido ya se ha devuelto",
+      "reason_no_stock_location": "Primero configure la ubicación de stock de esta caja en Ajustes"
+    }
   },
   "parked": {
     "title": "Ventas aparcadas",

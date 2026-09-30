@@ -366,7 +366,24 @@
     "status_awaiting": "En attente",
     "status_captured": "Encaissé",
     "status_partially_captured": "Partiellement encaissé",
-    "status_refunded": "Remboursé"
+    "status_refunded": "Remboursé",
+    "post_sale": {
+      "button": "Retour ou échange",
+      "title": "Retour ou échange",
+      "description": "Que souhaite faire le client ?",
+      "return_label": "Retourner des articles",
+      "return_hint": "Des articles reviennent, rien ne sort",
+      "exchange_label": "Échanger des articles",
+      "exchange_hint": "Des articles reviennent, d'autres sortent",
+      "add_label": "Ajouter des articles",
+      "add_hint": "Articles supplémentaires sur cette commande payée",
+      "reason_canceled": "Cette commande est annulée",
+      "reason_open_change": "Une autre modification de cette commande est encore ouverte. Terminez-la ou annulez-la d'abord dans Medusa Admin.",
+      "reason_unpaid": "Cette commande n'a pas été payée",
+      "reason_not_fulfilled": "Rien de cette commande n'a encore été remis",
+      "reason_all_returned": "Tout ce qui figure sur cette commande a déjà été retourné",
+      "reason_no_stock_location": "Définissez d'abord l'emplacement de stock de cette caisse dans les Paramètres"
+    }
   },
   "parked": {
     "title": "Ventes en attente",

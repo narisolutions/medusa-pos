@@ -29,6 +29,7 @@ export const queryKeys = {
   salesChannels: ["sales-channels"] as const,
   shippingOptions: ["shipping-options"] as const,
   stockLocations: ["stock-locations"] as const,
+  terminalStockLocationId: ["stock-locations", "terminal"] as const,
   paymentProviders: ["payment-providers"] as const,
   refundReasons: ["refund-reasons"] as const,
   posPlugin: ["pos-plugin-installed"] as const,
@@ -42,6 +43,8 @@ export const queryKeys = {
     list: (options?: UseQueryOrdersOptions) =>
       ["orders", "list", options ?? {}] as const,
     detail: (orderId: string) => ["order", orderId] as const,
+    // Under the detail key, so refreshing the order refreshes this too.
+    openChange: (orderId: string) => ["order", orderId, "open-change"] as const,
     // Keyed by payload shape so the light badge scan and the cash-detail scan
     // never overwrite each other in the cache.
     recent: (withCashDetail: boolean) =>

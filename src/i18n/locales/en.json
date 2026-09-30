@@ -366,7 +366,24 @@
     "status_awaiting": "Awaiting",
     "status_captured": "Captured",
     "status_partially_captured": "Partially captured",
-    "status_refunded": "Refunded"
+    "status_refunded": "Refunded",
+    "post_sale": {
+      "button": "Return or exchange",
+      "title": "Return or exchange",
+      "description": "What is the customer doing?",
+      "return_label": "Return items",
+      "return_hint": "Goods come back, nothing goes out",
+      "exchange_label": "Exchange items",
+      "exchange_hint": "Goods come back, different goods go out",
+      "add_label": "Add items",
+      "add_hint": "Extra goods on this paid order",
+      "reason_canceled": "This order is canceled",
+      "reason_open_change": "Another change on this order is still open. Finish or cancel it in Medusa Admin first.",
+      "reason_unpaid": "This order has not been paid",
+      "reason_not_fulfilled": "Nothing on this order has been handed over yet",
+      "reason_all_returned": "Everything on this order has already come back",
+      "reason_no_stock_location": "Set this till's stock location in Settings first"
+    }
   },
   "parked": {
     "title": "Parked sales",

@@ -366,7 +366,24 @@
     "status_awaiting": "Ausstehend",
     "status_captured": "Eingezogen",
     "status_partially_captured": "Teilweise eingezogen",
-    "status_refunded": "Erstattet"
+    "status_refunded": "Erstattet",
+    "post_sale": {
+      "button": "Rückgabe oder Umtausch",
+      "title": "Rückgabe oder Umtausch",
+      "description": "Was möchte der Kunde tun?",
+      "return_label": "Artikel zurückgeben",
+      "return_hint": "Ware kommt zurück, nichts geht raus",
+      "exchange_label": "Artikel umtauschen",
+      "exchange_hint": "Ware kommt zurück, andere Ware geht raus",
+      "add_label": "Artikel hinzufügen",
+      "add_hint": "Zusätzliche Ware zu dieser bezahlten Bestellung",
+      "reason_canceled": "Diese Bestellung ist storniert",
+      "reason_open_change": "Eine andere Änderung an dieser Bestellung ist noch offen. Schließen oder stornieren Sie sie zuerst in Medusa Admin.",
+      "reason_unpaid": "Diese Bestellung wurde nicht bezahlt",
+      "reason_not_fulfilled": "Aus dieser Bestellung wurde noch nichts ausgegeben",
+      "reason_all_returned": "Alles aus dieser Bestellung wurde bereits zurückgegeben",
+      "reason_no_stock_location": "Legen Sie zuerst den Lagerort dieser Kasse in den Einstellungen fest"
+    }
   },
   "parked": {
     "title": "Geparkte Verkäufe",
