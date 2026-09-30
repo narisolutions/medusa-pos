@@ -13,7 +13,9 @@ order that does nothing until confirmed.
 
 Actions accumulate while the change is open — add a return line, add an outbound item,
 add a shipping method — and each one returns a **preview** of the order as it would
-look. Nothing touches the order, its totals, or stock until confirmation.
+look. Nothing touches the order, its totals, or stock until confirmation. The preview's
+`pending_difference` is not the figure that will be settled until the request step has run
+(spike: 0 for a return, and missing the inbound credit for an exchange).
 
 ## Why a till cannot use it as designed
 
@@ -67,12 +69,12 @@ An order can have **one open change**. Before starting any operation, the POS ch
 an existing open change on the order. If one exists — from Medusa Admin, another till,
 or an earlier failure — it must be resolved first, never silently stacked.
 
-> **Verify in spike:** whether the backend rejects a second change or silently allows it.
-> The POS must enforce this itself either way; the spike determines whether it is also a
-> backend guarantee or purely a POS one.
+> **Verified in spike (S6):** the backend rejects a second open change of any type. The POS
+> check stays, so the operator gets a readable reason instead of a 400.
 
 ## Notifications
 
-Every backend call that accepts `no_notification` is sent with it **set to true**. The
+Every backend call that accepts `no_notification` is sent with it **set to true**
+(`exchange.create` does not accept it and rejects the request if it is sent). The
 customer is at the counter; an email saying their return was "requested" hours after
 they walked out with a refund is confusing and wrong.

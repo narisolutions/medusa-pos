@@ -59,6 +59,7 @@ See [Stock](./05-stock.md) and [Money](./04-money.md).
 
 ## Status
 
-**Specified, not built.** Several behaviours below are marked *verify in spike* — they
-depend on backend behaviour the Medusa documentation does not state, and must be
-confirmed against a real backend before the code that relies on them is written.
+**Specified, not built.** The backend behaviours the Medusa documentation does not state
+were verified against staging on 2026-09-30; the answers are in the
+[implementation plan](./09-implementation-plan.md#spike-results--2026-09-30) and the concept
+docs are corrected to match. Phase 1 can begin.

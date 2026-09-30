@@ -62,5 +62,9 @@ customer will collect later — they are in the customer's hands.
 > items are recorded with the `RECEIVE_DAMAGED_RETURN_ITEM` action and never restock.
 > The location is `location_id` on the return, from the terminal's `stock_location_id`.
 >
-> **Verify in spike:** that `receiveItems` and `dismissItems` can be mixed on one return
-> for different quantities of the same line.
+> **Verified in spike (S4):** `receiveItems` and `dismissItems` mix on one return for
+> split quantities of the same line; the dismissed quantity is counted as written off.
+>
+> Outbound exchange items are only reserved when the exchange carries an outbound
+> shipping method (spike S9). Without one, the request succeeds but fulfilment fails with
+> "No stock reservation found", so the store's pickup option is always added.

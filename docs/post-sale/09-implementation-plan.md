@@ -39,6 +39,36 @@ order that has been paid, fulfilled and delivered through the POS.
 **Exit criterion:** every row answered in writing, appended to this document. The concept docs
 are corrected wherever an answer contradicts them, **before** Phase 1 begins.
 
+### Spike results — 2026-09-30
+
+Run against staging (`@medusajs/js-sdk` 2.19.0) on POS orders #509 (charge, then return and
+refunds), #510 and #507 (exchanges), and #517 (eligibility). All are cash sales with a pickup
+fulfilment.
+
+| # | Answer |
+|---|---|
+| S1 | **Positive = the customer owes.** A charge of 10 gave `pending_difference` **+10**; a return of 10 gave **−10**. For a return it turns negative at `confirmRequest`, before anything is received. |
+| S2 | **Yes, the backend creates one.** Confirming an edit and requesting an exchange each created a new `not_paid` payment collection for exactly the difference. The settlement routine **finds** it; it does not create one. `paymentCollection.markAsPaid` with `provider_id` settles it. |
+| S3 | **`partially_captured`** once an edit raises the total, back to `captured` when settled. `fulfillment_status` likewise drops to `partially_delivered` until the added items are fulfilled. A return that leaves money owed does **not** change `payment_status`; it stays `captured`. |
+| S4 | **Yes.** On a line of 2, `receiveItems` 1 + `dismissItems` 1 confirmed together: `return_received_quantity` 1, `return_dismissed_quantity` 1, `written_off_quantity` 1. |
+| S5 | **Fulfilled is enough; delivered is not required.** A return of an unfulfilled line is rejected ("more items than what was fulfilled"); a fulfilled but undelivered line is accepted. A POS pickup fulfilment qualifies. |
+| S6 | **The backend rejects it.** A second `initiateRequest` of any type while a change is open fails with 400 "already has an existing active order change". The POS guard is still needed to give a readable reason, but it is backed by the backend. |
+| S7 | **Only captured payments, one payment per refund.** Each `payment.refund` is capped at that payment's captured amount (an uncaptured payment refunds nothing), so a refund larger than one payment must be split across payments by the POS. ⚠ The backend does **not** cap a refund at what is owed: refunding 1 beyond `pending_difference` was accepted and silently became a **credit line**, lowering the order total. The POS must cap the refund at −`pending_difference`. |
+| S8 | **The POS must compute it; the backend's cap is not enough.** The backend only rejects quantities above `fulfilled_quantity − return_requested_quantity`, so an already-received line was accepted into a second return. Returnable = `fulfilled_quantity − return_requested_quantity − return_received_quantity − return_dismissed_quantity`. |
+| S9 | **The request succeeds without outbound shipping, but the outbound items then cannot be fulfilled**: no stock reservation is created ("No stock reservation found"). Adding the store's **pickup** shipping option makes the request reserve stock, and fulfilment then works. Outbound shipping is therefore required in practice. |
+
+Also found:
+
+- **Previews do not show the settled figure.** Before `request`/`confirmRequest`, the preview's
+  `pending_difference` was 0 for a return and 8.99 for an exchange that settled at 3.99 (the
+  inbound credit is missing). The running difference must be computed locally, as
+  [UI flows](./06-ui-flows.md#the-running-difference) already says, and the backend figure read
+  after the request step.
+- **`exchange.create` rejects `no_notification`** (400 "Unrecognized fields"). The return,
+  fulfilment and receive calls accept it.
+- **Lines added by an edit or exchange get the product title only** (`Amber Vale · Saperavi`
+  instead of `… 750ml`), which changes how they read on receipts and the order page.
+
 ---
 
 ## Phase 1 — Shared foundation
