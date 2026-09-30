@@ -445,7 +445,8 @@
       "step_add_shipping": "Abholung wird hinzugefügt…",
       "step_exchange_request": "Umtausch wird erfasst…",
       "refund_owed_label": "Dem Kunden geschuldet"
-    }
+    },
+    "item_returned": "Zurückgegeben"
   },
   "parked": {
     "title": "Geparkte Verkäufe",

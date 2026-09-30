@@ -445,7 +445,8 @@
       "step_add_shipping": "Adding pickup…",
       "step_exchange_request": "Recording the exchange…",
       "refund_owed_label": "Owed to customer"
-    }
+    },
+    "item_returned": "Returned"
   },
   "parked": {
     "title": "Parked sales",

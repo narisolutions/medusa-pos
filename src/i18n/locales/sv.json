@@ -445,7 +445,8 @@
       "step_add_shipping": "Lägger till upphämtning…",
       "step_exchange_request": "Registrerar bytet…",
       "refund_owed_label": "Skyldigt kunden"
-    }
+    },
+    "item_returned": "Returnerad"
   },
   "parked": {
     "title": "Parkerade köp",

@@ -445,7 +445,8 @@
       "step_add_shipping": "Añadiendo recogida…",
       "step_exchange_request": "Registrando el cambio…",
       "refund_owed_label": "Adeudado al cliente"
-    }
+    },
+    "item_returned": "Devuelto"
   },
   "parked": {
     "title": "Ventas aparcadas",

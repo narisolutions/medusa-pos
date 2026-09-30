@@ -445,7 +445,8 @@
       "step_add_shipping": "Ajout du retrait…",
       "step_exchange_request": "Enregistrement de l'échange…",
       "refund_owed_label": "Dû au client"
-    }
+    },
+    "item_returned": "Retourné"
   },
   "parked": {
     "title": "Ventes en attente",
