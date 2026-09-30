@@ -66,6 +66,10 @@ Also found:
   after the request step.
 - **`exchange.create` rejects `no_notification`** (400 "Unrecognized fields"). The return,
   fulfilment and receive calls accept it.
+- **An edit on an unpaid order resizes its existing `not_paid` collection** (8.49 → 13.49 on #495)
+  rather than creating a second one, so *Record payment* charges the whole amount owed through the
+  sale's own collection. Add items therefore takes no payment on an unpaid order — it adds to what is
+  owed (checked 2026-09-30).
 - **Lines added by an edit or exchange get the product title only** (`Amber Vale · Saperavi`
   instead of `… 750ml`), which changes how they read on receipts and the order page.
 
