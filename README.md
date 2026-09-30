@@ -29,8 +29,8 @@ Medusa POS is an independent open-source project and is not officially affiliate
 
 ## Medusa Version Tested
 
-- Frontend SDK/types in this project: `@medusajs/js-sdk@2.15.3`, `@medusajs/types@2.15.3`
-- App behavior validated against Medusa Admin API v2.15.x style responses.
+- Frontend SDK/types in this project: `@medusajs/js-sdk@2.19.0`, `@medusajs/types@2.19.0`
+- App behavior targets Medusa Admin API v2.19.x style responses.
 
 If your backend is older/newer, behavior can differ (especially pricing and inventory fields).
 
@@ -96,7 +96,7 @@ The backend URL can also be configured at runtime via Store Setup.
 | Topic | Support in Medusa (current observed behavior) |
 |---|---|
 | Draft order discount totals from Sale Price Lists (`original_amount - calculated_amount`) | ❌ Not automatically reflected in draft-order discount totals unless Promotions are applied separately |
-| Creating admin payment collections with `payments[]`, `provider_id`, `provider_data` in one call | ❌ Not supported by current `AdminCreatePaymentCollection` typing/API shape |
+| Creating admin payment collections with `payments[]`, `provider_id`, `provider_data` in one call | ❌ Not supported by current `AdminCreatePaymentCollection` typing/API shape (still `order_id` + `amount` only); since 2.16 a `provider_id` can be passed when marking a collection as paid |
 
 These are tracked as known limitations for now and can affect POS discount/payment reporting workflows.
 
