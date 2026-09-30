@@ -270,6 +270,8 @@ export const useActivityEvents = (order: AdminOrder) => {
             : [
                 e.out.length ? t("orders.event_out", { items: lineList(e.out) }) : null,
                 e.back.length ? t("orders.event_back", { items: lineList(e.back) }) : null,
+                e.restocked > 0 ? t("orders.event_restocked", { count: e.restocked }) : null,
+                e.damaged > 0 ? t("orders.event_damaged", { count: e.damaged }) : null,
               ]
                 .filter(Boolean)
                 .join(" · ");

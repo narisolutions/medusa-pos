@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { buildReturnPlan, differenceDirection, getPostSaleOptions, isChangedAfterSale, netOfReturns, getReturnableQuantity, postSaleEvents, showPostSaleEntry } from ".";
+import { buildReturnPlan, differenceDirection, getPostSaleOptions, isChangedAfterSale, netOfReturns, getReturnableQuantity, postSaleEvents, showPostSaleEntry, variantLineTitle } from ".";
 
 const line = (f: number, rr = 0, rv = 0, rd = 0) => ({
   detail: {
@@ -151,20 +151,39 @@ describe("postSaleEvents", () => {
     expect(event).toMatchObject({ kind: "items_returned", restocked: 1, damaged: 1 });
   });
 
-  it("lists what went out and came back on an exchange", () => {
-    const [event] = postSaleEvents(
-      [change({ change_type: "exchange", actions: [
-        { action: "ITEM_ADD", details: { reference_id: "l2", quantity: 1 } },
-        { action: "RETURN_ITEM", details: { reference_id: "l1", quantity: 1 } },
+  it("lists what went out and came back on an exchange, folding in how it was received", () => {
+    const events = postSaleEvents(
+      [
+        change({ change_type: "exchange", return_id: "ret_x", actions: [
+          { action: "ITEM_ADD", details: { reference_id: "l2", quantity: 1 } },
+          { action: "RETURN_ITEM", details: { reference_id: "l1", quantity: 1 } },
+        ] }),
+        change({ id: "c2", change_type: "return_receive", return_id: "ret_x", actions: [
+          { action: "RECEIVE_DAMAGED_RETURN_ITEM", details: { reference_id: "l1", quantity: 1 } },
+        ] }),
+      ],
+      items,
+      sale
+    );
+    expect(events).toHaveLength(1);
+    expect(events[0]).toMatchObject({
+      kind: "items_exchanged",
+      out: [{ title: "Goruli Mtsvane", quantity: 1 }],
+      back: [{ title: "Saperavi 750ml", quantity: 1 }],
+      restocked: 0,
+      damaged: 1,
+    });
+  });
+
+  it("keeps a plain return's receive as its own event", () => {
+    const events = postSaleEvents(
+      [change({ change_type: "return_receive", return_id: "ret_plain", actions: [
+        { action: "RECEIVE_RETURN_ITEM", details: { reference_id: "l1", quantity: 1 } },
       ] })],
       items,
       sale
     );
-    expect(event).toMatchObject({
-      kind: "items_exchanged",
-      out: [{ title: "Goruli Mtsvane", quantity: 1 }],
-      back: [{ title: "Saperavi 750ml", quantity: 1 }],
-    });
+    expect(events).toMatchObject([{ kind: "items_returned", restocked: 1 }]);
   });
 });
 
@@ -211,5 +230,14 @@ describe("netOfReturns and isChangedAfterSale", () => {
     expect(isChangedAfterSale({ items: [kept], payment_collections: [{}] })).toBe(false);
     expect(isChangedAfterSale({ items: [kept, gone], payment_collections: [{}] })).toBe(true);
     expect(isChangedAfterSale({ items: [kept], payment_collections: [{}, {}] })).toBe(true);
+  });
+});
+
+describe("variantLineTitle", () => {
+  it("does not say the product twice", () => {
+    expect(variantLineTitle({ title: "Aladasturi 750ml", product: { title: "Aladasturi" } })).toBe("Aladasturi 750ml");
+    expect(variantLineTitle({ title: "750ml", product: { title: "Saperavi" } })).toBe("Saperavi · 750ml");
+    expect(variantLineTitle({ title: "Default variant", product: { title: "Saperavi" } })).toBe("Saperavi");
+    expect(variantLineTitle({ title: null, product: null })).toBe("-");
   });
 });

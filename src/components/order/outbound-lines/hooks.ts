@@ -3,17 +3,11 @@ import { AdminProductVariant } from "@medusajs/types";
 import { useTranslation } from "@/i18n";
 import type { ProductPickerResult } from "@/components/base/product-picker/hooks";
 import { getVariantAvailableQuantity, getVariantUnitPrice } from "@/utils/pos/cart";
+import { variantLineTitle } from "@/utils/pos/post-sale";
 
 type OutboundLine = { variant: AdminProductVariant; quantity: number };
 
-const lineTitle = (variant: AdminProductVariant) => {
-  const product = variant.product?.title ?? "";
-  const title = variant.title && variant.title !== "Default variant" ? variant.title : "";
-  if (!title) return product || "-";
-  // "Aladasturi" + "Aladasturi 750ml" would print the name twice.
-  if (!product || title.toLowerCase().includes(product.toLowerCase())) return title;
-  return `${product} · ${title}`;
-};
+const lineTitle = (variant: AdminProductVariant) => variantLineTitle(variant);
 
 /** Goods going out to the customer, picked like at checkout and capped at stock. */
 const useOutboundLines = () => {

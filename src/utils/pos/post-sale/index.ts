@@ -118,6 +118,7 @@ type ChangeLike = {
   id: string;
   change_type?: string | null;
   description?: string | null;
+  return_id?: string | null;
   status?: string | null;
   confirmed_at?: string | Date | null;
   actions?: ChangeAction[] | null;
@@ -127,7 +128,15 @@ type ActivityLine = { title: string; quantity: number };
 export type PostSaleEvent =
   | { id: string; kind: "items_added"; at: string; lines: ActivityLine[]; amount: number }
   | { id: string; kind: "items_returned"; at: string; restocked: number; damaged: number; lines: ActivityLine[] }
-  | { id: string; kind: "items_exchanged"; at: string; out: ActivityLine[]; back: ActivityLine[] };
+  | {
+      id: string;
+      kind: "items_exchanged";
+      at: string;
+      out: ActivityLine[];
+      back: ActivityLine[];
+      restocked: number;
+      damaged: number;
+    };
 
 const iso = (d: string | Date) => (typeof d === "string" ? d : d.toISOString());
 
@@ -150,6 +159,11 @@ export function postSaleEvents(
         title: titles.get(String(a.details?.reference_id ?? "")) ?? "-",
         quantity: toNumber(a.details?.quantity),
       }));
+
+  // An exchange's return is received as its own change; it belongs to the exchange event.
+  const exchangeByReturn = new Map<string, Extract<PostSaleEvent, { kind: "items_exchanged" }>>();
+  const count = (actions: ChangeAction[], name: string) =>
+    actions.filter((a) => a.action === name).reduce((s, a) => s + toNumber(a.details?.quantity), 0);
 
   const events: PostSaleEvent[] = [];
   for (const change of changes) {
@@ -174,24 +188,32 @@ export function postSaleEvents(
         ),
       });
     } else if (change.change_type === "return_receive") {
-      const count = (name: string) =>
-        actions.filter((a) => a.action === name).reduce((s, a) => s + toNumber(a.details?.quantity), 0);
+      const exchange = change.return_id ? exchangeByReturn.get(change.return_id) : undefined;
+      if (exchange) {
+        exchange.restocked += count(actions, "RECEIVE_RETURN_ITEM");
+        exchange.damaged += count(actions, "RECEIVE_DAMAGED_RETURN_ITEM");
+        continue;
+      }
       events.push({
         id: change.id,
         kind: "items_returned",
         at,
-        restocked: count("RECEIVE_RETURN_ITEM"),
-        damaged: count("RECEIVE_DAMAGED_RETURN_ITEM"),
+        restocked: count(actions, "RECEIVE_RETURN_ITEM"),
+        damaged: count(actions, "RECEIVE_DAMAGED_RETURN_ITEM"),
         lines: linesFor(actions, ["RECEIVE_RETURN_ITEM", "RECEIVE_DAMAGED_RETURN_ITEM"]),
       });
     } else if (change.change_type === "exchange") {
-      events.push({
+      const event = {
         id: change.id,
-        kind: "items_exchanged",
+        kind: "items_exchanged" as const,
         at,
         out: linesFor(actions, ["ITEM_ADD"]),
         back: linesFor(actions, ["RETURN_ITEM"]),
-      });
+        restocked: 0,
+        damaged: 0,
+      };
+      if (change.return_id) exchangeByReturn.set(change.return_id, event);
+      events.push(event);
     }
   }
   return events;
@@ -254,4 +276,16 @@ export function netOfReturns<T extends ReceiptLine>(items: T[]): T[] {
       },
     ];
   });
+}
+
+/** "Product · Variant", without saying the product twice ("Aladasturi" + "Aladasturi 750ml"). */
+export function variantLineTitle(variant: {
+  title?: string | null;
+  product?: { title?: string | null } | null;
+}): string {
+  const product = variant.product?.title ?? "";
+  const title = variant.title && variant.title !== "Default variant" ? variant.title : "";
+  if (!title) return product || "-";
+  if (!product || title.toLowerCase().includes(product.toLowerCase())) return title;
+  return `${product} · ${title}`;
 }
