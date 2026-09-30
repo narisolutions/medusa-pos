@@ -184,6 +184,13 @@ dialogs.
   items immediately, then settle.
 - All calls with `no_notification: true` where accepted.
 
+✅ **Built 2026-09-30, awaiting manual test.** `add-items-dialog/` uses the lifted product picker, the
+shared `post-sale-difference/` bar, and a payment-method grid. Order edits take no
+`no_notification` field. A fulfilment failure warns and still takes payment; a payment failure
+points to *Record payment*, which now settles only the difference on a top-up. Cash on an order
+from an earlier register session is recorded as a pay-in on the open session (decided 2026-09-30;
+the Refund dialog does the same as a drop).
+
 ## Phase 3 — Returns
 
 - `src/components/order/return-dialog/` — line list with returnable caps, condition per line with **no

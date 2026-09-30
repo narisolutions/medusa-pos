@@ -14,12 +14,9 @@ import {
   getApiErrorMessage,
   getOrderCurrency,
   handleErrorToast,
-  cashDrawerIssueStaffHintToast,
 } from "@/utils/helpers";
-import { logger, safeStringify } from "@/utils/logger";
 import { useQueryStore } from "@/hooks/queries/useQueryStore";
 import { useQueryRefundReasons } from "@/hooks/queries/useQueryRefundReasons";
-import { usePrinterService } from "@/hooks/printer/usePrinterService";
 import { usePostSaleCash } from "@/hooks/order/usePostSaleCash";
 import { getMethodType } from "@/utils/settings/store/metadata";
 import {
@@ -40,8 +37,7 @@ export const useRefund = (
   const queryClient = useQueryClient();
   const { data: store } = useQueryStore();
   const { data: refundReasons = [] } = useQueryRefundReasons(isOpen);
-  const { openCashDrawer, getDefaultPrinter } = usePrinterService();
-  const { record: recordCash, isCashBlocked } = usePostSaleCash();
+  const { record: recordCash, openDrawer, isCashBlocked } = usePostSaleCash();
 
   const [step, setStep] = useState<"form" | "confirm">("form");
   const [isProcessing, setIsProcessing] = useState(false);
@@ -145,20 +141,9 @@ export const useRefund = (
     setStep("confirm");
   });
 
-  // Cash paid back out of the drawer — mirrors the post-order hardware step.
   const openDrawerForCashRefund = useCallback(() => {
-    if (getOrderPaymentMethodType(order, store) !== "cash") return;
-
-    const printer = getDefaultPrinter();
-    if (!printer?.openCashDrawer || !printer.openCashDrawerOnCash) return;
-
-    openCashDrawer(printer).catch((drawerError) => {
-      void logger.warn(`Refund cash drawer failed: ${safeStringify(drawerError)}`);
-      toast.error(t("checkout.cash_drawer_error_title"), {
-        description: cashDrawerIssueStaffHintToast(printer.name),
-      });
-    });
-  }, [order, store, getDefaultPrinter, openCashDrawer, t]);
+    if (getOrderPaymentMethodType(order, store) === "cash") openDrawer();
+  }, [order, store, openDrawer]);
 
   const handleConfirm = useCallback(async () => {
     if (submissionRef.current || !selectedPayment) return;

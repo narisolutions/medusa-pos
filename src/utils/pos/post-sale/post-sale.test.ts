@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { getPostSaleOptions, getReturnableQuantity, showPostSaleEntry } from ".";
+import { differenceDirection, getPostSaleOptions, getReturnableQuantity, showPostSaleEntry } from ".";
 
 const line = (f: number, rr = 0, rv = 0, rd = 0) => ({
   detail: {
@@ -60,5 +60,13 @@ describe("showPostSaleEntry", () => {
     const blocked = getPostSaleOptions({ ...paid, items: [line(1)] }, { ...ok, hasOpenChange: true });
     expect(showPostSaleEntry(canceled)).toBe(false);
     expect(showPostSaleEntry(blocked)).toBe(true);
+  });
+});
+
+describe("differenceDirection", () => {
+  it("names who settles, treating sub-cent noise as even", () => {
+    expect(differenceDirection(30)).toBe("pays");
+    expect(differenceDirection(-30)).toBe("refund");
+    expect(differenceDirection(0.004)).toBe("even");
   });
 });

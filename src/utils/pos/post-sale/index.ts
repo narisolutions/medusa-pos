@@ -77,3 +77,9 @@ export function showPostSaleEntry(options: Record<PostSaleKind, PostSaleOption>)
     (o) => o.enabled || o.reason === "open_change"
   );
 }
+
+/** Who settles, never a bare signed number: a cashier can misread −30.00, not a sentence. */
+export function differenceDirection(amount: number): "pays" | "refund" | "even" {
+  const cents = Math.round(amount * 100);
+  return cents > 0 ? "pays" : cents < 0 ? "refund" : "even";
+}

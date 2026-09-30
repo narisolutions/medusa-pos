@@ -22,6 +22,7 @@ import PickupConfirmationDialog from "./confirmation-dialog";
 import RecordPaymentDialog from "./record-payment-dialog";
 import RefundDialog from "./refund-dialog";
 import PostSaleChooser from "./post-sale-chooser";
+import AddItemsDialog from "./add-items-dialog";
 import Activity from "./activity";
 import Summary from "./summary";
 import Details from "./details";
@@ -71,6 +72,8 @@ const Order: React.FC<Props> = ({ order }) => {
     postSaleOptions,
     isPostSaleChooserOpen,
     setIsPostSaleChooserOpen,
+    postSaleKind,
+    setPostSaleKind,
     handleChoosePostSale,
     handleDownloadReceiptPDF,
   } = useOrder(order);
@@ -291,6 +294,12 @@ const Order: React.FC<Props> = ({ order }) => {
         onClose={() => setIsPostSaleChooserOpen(false)}
         options={postSaleOptions}
         onChoose={handleChoosePostSale}
+      />
+
+      <AddItemsDialog
+        isOpen={postSaleKind === "add"}
+        onClose={() => setPostSaleKind(null)}
+        order={order}
       />
     </div>
   );

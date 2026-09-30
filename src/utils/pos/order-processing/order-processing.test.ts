@@ -4,7 +4,7 @@ vi.mock("@/config/medusa", () => ({ getSdk: vi.fn() }));
 vi.mock("@/utils/storage", () => ({ default: {} }));
 vi.mock("@/utils/logger", () => ({ logger: {}, safeStringify: String }));
 
-import { findOutstandingCollection } from ".";
+import { findOutstandingCollection, unfulfilledQuantities } from ".";
 
 describe("findOutstandingCollection", () => {
   const original = { id: "pc_sale", status: "completed", amount: 5 };
@@ -27,5 +27,21 @@ describe("findOutstandingCollection", () => {
     const older = { id: "pc_old", status: "not_paid", amount: 3.99 };
     const newer = { id: "pc_new", status: "not_paid", amount: 3.9899999 };
     expect(findOutstandingCollection([older, newer], 3.99)).toBe(newer);
+  });
+});
+
+describe("unfulfilledQuantities", () => {
+  it("returns only what is not yet handed over, per line", () => {
+    const items = [
+      { id: "sold", quantity: 1, detail: { fulfilled_quantity: 1 } },
+      { id: "added", quantity: 2, detail: { fulfilled_quantity: 0 } },
+      { id: "partly", quantity: 3, detail: { fulfilled_quantity: 1 } },
+      { id: "no_detail", quantity: 1 },
+    ];
+    expect(unfulfilledQuantities(items)).toEqual([
+      { id: "added", quantity: 2 },
+      { id: "partly", quantity: 2 },
+      { id: "no_detail", quantity: 1 },
+    ]);
   });
 });

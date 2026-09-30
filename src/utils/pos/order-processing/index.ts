@@ -194,7 +194,41 @@ async function processFulfillment(order: AdminOrder): Promise<void> {
   await sdk.admin.order.markAsDelivered(order.id, fulfillmentId);
 }
 
+/** Quantities on each line not yet handed over — what an edit or exchange just added. */
+function unfulfilledQuantities(
+  items: { id: string; quantity?: unknown; detail?: { fulfilled_quantity?: unknown } | null }[]
+): { id: string; quantity: number }[] {
+  return items
+    .map((i) => ({ id: i.id, quantity: toNumber(i.quantity) - toNumber(i.detail?.fulfilled_quantity) }))
+    .filter((i) => i.quantity > 0);
+}
+
+/**
+ * Hands over whatever on the order is not yet fulfilled: fulfils it at this
+ * till's stock location and marks it delivered, like a sale at checkout.
+ */
+async function fulfilRemainingItems(orderId: string): Promise<void> {
+  const sdk = getSdk();
+  const { order } = await sdk.admin.order.retrieve(orderId, { fields: "id,*items,*items.detail" });
+  const items = unfulfilledQuantities(order.items ?? []);
+  if (items.length === 0) return;
+
+  const locationId = await storage.getItem("stock_location_id");
+  await sdk.admin.order.createFulfillment(orderId, {
+    items,
+    no_notification: true,
+    ...(locationId ? { location_id: locationId } : {}),
+  });
+
+  const { order: fulfilled } = await sdk.admin.order.retrieve(orderId, { fields: "id,*fulfillments" });
+  for (const f of fulfilled.fulfillments ?? []) {
+    if (!f.delivered_at && !f.canceled_at) await sdk.admin.order.markAsDelivered(orderId, f.id);
+  }
+}
+
 export {
+  fulfilRemainingItems,
+  unfulfilledQuantities,
   processPaymentCollection,
   processFulfillment,
   settleCollection,
