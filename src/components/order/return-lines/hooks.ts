@@ -38,7 +38,18 @@ const useReturnSelection = (order: AdminOrder) => {
     return s ? sum + toNumber(item.unit_price) * (s.restock + s.damaged) : sum;
   }, 0);
 
-  return { lines, selection, change, reset, comingBack, plan: buildReturnPlan(selection) };
+  // One slip line per condition, so a split line reads as two.
+  const slipLines = lines.flatMap(({ item }) => {
+    const s = selection[item.id];
+    if (!s) return [];
+    const base = { title: item.title ?? "-", unitPrice: toNumber(item.unit_price) };
+    return [
+      ...(s.restock > 0 ? [{ ...base, quantity: s.restock, condition: "restock" as const }] : []),
+      ...(s.damaged > 0 ? [{ ...base, quantity: s.damaged, condition: "damaged" as const }] : []),
+    ];
+  });
+
+  return { lines, selection, change, reset, comingBack, slipLines, plan: buildReturnPlan(selection) };
 };
 
 export { useReturnSelection };

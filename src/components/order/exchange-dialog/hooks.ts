@@ -13,19 +13,21 @@ import { useSalesChannel } from "@/context/sales-channel";
 import { describeChangeError, useOrderChange } from "@/hooks/order/useOrderChange";
 import { useSettleOutstanding } from "@/hooks/order/useSettleOutstanding";
 import { usePostSaleCash } from "@/hooks/order/usePostSaleCash";
+import { usePostSaleSlip } from "@/hooks/order/usePostSaleSlip";
+import type { PostSaleSlipDraft } from "@/utils/pos/receipt/post-sale-slip";
 import { useReturnSelection } from "../return-lines/hooks";
 import { useOutboundLines } from "../outbound-lines/hooks";
 import { receiveReturnSteps } from "@/utils/pos/order-change/return-steps";
 import { fulfilRemainingItems } from "@/utils/pos/order-processing";
 import { pickPickupOption } from "@/utils/pos/fulfillment";
-import { getOrderPaymentProviderId } from "@/utils/pos/payment";
+import { getOrderPaymentProviderId, getPaymentMethodLabel } from "@/utils/pos/payment";
 import { getMethodType, getPaymentMethods } from "@/utils/settings/store/metadata";
 
 const useExchangeItems = (
   order: AdminOrder,
   isOpen: boolean,
   onClose: () => void,
-  onExchanged: (outstanding: number) => void
+  onExchanged: (outstanding: number, slip: PostSaleSlipDraft) => void
 ) => {
   const { t } = useTranslation();
   const { data: store } = useQueryStore();
@@ -35,6 +37,7 @@ const useExchangeItems = (
   const { run, currentStep } = useOrderChange(order.id);
   const settle = useSettleOutstanding();
   const { record: recordCash, openDrawer, isCashBlocked } = usePostSaleCash();
+  const printSlip = usePostSaleSlip();
   const back = useReturnSelection(order);
   const out = useOutboundLines();
 
@@ -161,6 +164,14 @@ const useExchangeItems = (
         toast.warning(t("orders.post_sale.warn_fulfil_failed"));
       }
 
+      const slip: PostSaleSlipDraft = {
+        kind: "exchange",
+        orderDisplayId: order.display_id ?? "",
+        currency,
+        back: back.slipLines,
+        out: out.slipLines,
+      };
+
       if (outstanding > 0) {
         setPhase("settle");
         try {
@@ -174,6 +185,14 @@ const useExchangeItems = (
             );
             openDrawer();
           }
+          printSlip({
+            ...slip,
+            settlement: {
+              direction: "pays",
+              amount: charged,
+              method: getPaymentMethodLabel(store, selectedMethod),
+            },
+          });
           toast.success(
             `${t("orders.post_sale.exchange_success")} · ${t("orders.post_sale.direction_pays", {
               amount: formatPrice(charged, currency),
@@ -185,10 +204,12 @@ const useExchangeItems = (
         }
       } else {
         toast.success(t("orders.post_sale.exchange_success"));
+        if (Math.abs(outstanding) < 0.005) printSlip({ ...slip, settlement: { direction: "even" } });
       }
 
       onClose();
-      onExchanged(outstanding);
+      // Owed money: the slip prints once the refund says how it was paid back.
+      if (outstanding < 0) onExchanged(outstanding, slip);
     } finally {
       setPhase(null);
       setIsBusy(false);
@@ -207,6 +228,7 @@ const useExchangeItems = (
     settle,
     recordCash,
     openDrawer,
+    printSlip,
     currency,
     onClose,
     onExchanged,

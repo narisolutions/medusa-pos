@@ -79,6 +79,7 @@ const Order: React.FC<Props> = ({ order }) => {
     handleChoosePostSale,
     lockedRefundAmount,
     handleChangeApplied,
+    handleRefunded,
     handleCloseRefund,
     handleDownloadReceiptPDF,
   } = useOrder(order);
@@ -293,6 +294,7 @@ const Order: React.FC<Props> = ({ order }) => {
         onClose={handleCloseRefund}
         order={order}
         amount={lockedRefundAmount}
+        onRefunded={handleRefunded}
       />
 
       <PostSaleChooser

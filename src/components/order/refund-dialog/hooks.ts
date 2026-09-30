@@ -19,6 +19,7 @@ import { useQueryStore } from "@/hooks/queries/useQueryStore";
 import { useQueryRefundReasons } from "@/hooks/queries/useQueryRefundReasons";
 import { usePostSaleCash } from "@/hooks/order/usePostSaleCash";
 import { getMethodType } from "@/utils/settings/store/metadata";
+import { getPaymentMethodLabel } from "@/utils/pos/payment";
 import {
   allocateRefund,
   getRefundablePayments,
@@ -30,7 +31,8 @@ export const useRefund = (
   order: AdminOrder,
   isOpen: boolean,
   onClose: () => void,
-  lockedAmount?: number
+  lockedAmount?: number,
+  onRefunded?: (amount: number, method: string) => void
 ) => {
   const isLocked = lockedAmount !== undefined;
   const { t } = useTranslation();
@@ -186,6 +188,15 @@ export const useRefund = (
         t("orders.post_sale.movement_refund", { id: order.display_id })
       );
 
+      const methods = [
+        ...new Set(
+          refunds.map((r) =>
+            getPaymentMethodLabel(store, payments.find((p) => p.id === r.id)?.providerId)
+          )
+        ),
+      ].filter(Boolean);
+      onRefunded?.(amount, methods.join(", "));
+
       toast.success(
         t("orders.refund_success", { amount: formatPrice(amount, currency) })
       );
@@ -214,6 +225,7 @@ export const useRefund = (
     currency,
     openDrawerForCashRefund,
     onClose,
+    onRefunded,
     t,
   ]);
 

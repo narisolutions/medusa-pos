@@ -183,3 +183,46 @@ export function buildReturnPlan(selection: ReturnSelection) {
     dismiss: entries.filter(([, s]) => s.damaged > 0).map(([id, s]) => ({ id, quantity: s.damaged })),
   };
 }
+
+type ReceiptLine = {
+  quantity?: unknown;
+  unit_price?: unknown;
+  total?: unknown;
+  discount_total?: unknown;
+  detail?: ItemDetail | null;
+};
+
+/** Returned lines, or a second payment (added items, an exchange top-up). */
+export function isChangedAfterSale(order: {
+  items?: ReceiptLine[] | null;
+  payment_collections?: unknown[] | null;
+}): boolean {
+  return (
+    (order.payment_collections?.length ?? 0) > 1 ||
+    (order.items ?? []).some(
+      (i) =>
+        toNumber(i.detail?.return_received_quantity) + toNumber(i.detail?.return_dismissed_quantity) > 0
+    )
+  );
+}
+
+/** What the customer still has: each line less what came back, empty lines dropped. */
+export function netOfReturns<T extends ReceiptLine>(items: T[]): T[] {
+  return items.flatMap((item) => {
+    const sold = toNumber(item.quantity);
+    const back =
+      toNumber(item.detail?.return_received_quantity) + toNumber(item.detail?.return_dismissed_quantity);
+    const kept = sold - back;
+    if (kept <= 0) return [];
+    if (back === 0) return [item];
+    const share = kept / sold;
+    return [
+      {
+        ...item,
+        quantity: kept,
+        total: toNumber(item.unit_price) * kept,
+        discount_total: toNumber(item.discount_total) * share,
+      },
+    ];
+  });
+}

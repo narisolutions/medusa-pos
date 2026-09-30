@@ -11,9 +11,10 @@ import { useSalesChannel } from "@/context/sales-channel";
 import { describeChangeError, useOrderChange } from "@/hooks/order/useOrderChange";
 import { useSettleOutstanding } from "@/hooks/order/useSettleOutstanding";
 import { usePostSaleCash } from "@/hooks/order/usePostSaleCash";
+import { usePostSaleSlip } from "@/hooks/order/usePostSaleSlip";
 import { useOutboundLines } from "../outbound-lines/hooks";
 import { fulfilRemainingItems } from "@/utils/pos/order-processing";
-import { getOrderPaymentProviderId } from "@/utils/pos/payment";
+import { getOrderPaymentProviderId, getPaymentMethodLabel } from "@/utils/pos/payment";
 import { getMethodType, getPaymentMethods } from "@/utils/settings/store/metadata";
 
 const useAddItems = (order: AdminOrder, isOpen: boolean, onClose: () => void) => {
@@ -24,11 +25,12 @@ const useAddItems = (order: AdminOrder, isOpen: boolean, onClose: () => void) =>
   const { run, currentStep } = useOrderChange(order.id);
   const settle = useSettleOutstanding();
   const { record: recordCash, openDrawer, isCashBlocked } = usePostSaleCash();
+  const printSlip = usePostSaleSlip();
 
   const methods = useMemo(() => getPaymentMethods(store), [store]);
   const defaultMethod = () => getOrderPaymentProviderId(order) ?? methods[0]?.id ?? "";
   const [selectedMethod, setSelectedMethod] = useState<string>(defaultMethod);
-  const { lines, handleSelect, changeQuantity, reset, goingOut } = useOutboundLines();
+  const { lines, handleSelect, changeQuantity, reset, goingOut, slipLines } = useOutboundLines();
   const [phase, setPhase] = useState<"fulfil" | "settle" | null>(null);
   const [isBusy, setIsBusy] = useState(false);
 
@@ -117,6 +119,18 @@ const useAddItems = (order: AdminOrder, isOpen: boolean, onClose: () => void) =>
           );
           openDrawer();
         }
+        printSlip({
+          kind: "add",
+          orderDisplayId: order.display_id ?? "",
+          currency,
+          back: [],
+          out: slipLines,
+          settlement: {
+            direction: "pays",
+            amount: charged,
+            method: getPaymentMethodLabel(store, selectedMethod),
+          },
+        });
         toast.success(
           t("orders.post_sale.add_success", { amount: formatPrice(charged, currency) })
         );
@@ -141,6 +155,8 @@ const useAddItems = (order: AdminOrder, isOpen: boolean, onClose: () => void) =>
     settle,
     recordCash,
     openDrawer,
+    printSlip,
+    slipLines,
     currency,
     onClose,
     t,

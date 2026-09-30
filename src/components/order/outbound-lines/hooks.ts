@@ -62,7 +62,13 @@ const useOutboundLines = () => {
     0
   );
 
-  return { lines, handleSelect, changeQuantity, reset, goingOut };
+  const slipLines = lines.map((l) => ({
+    title: lineTitle(l.variant),
+    quantity: l.quantity,
+    unitPrice: getVariantUnitPrice(l.variant),
+  }));
+
+  return { lines, handleSelect, changeQuantity, reset, goingOut, slipLines };
 };
 
 export { useOutboundLines, lineTitle };

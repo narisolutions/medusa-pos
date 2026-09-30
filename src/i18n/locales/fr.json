@@ -508,7 +508,22 @@
     "thank_you": "Merci de votre visite !",
     "amount_due": "Montant dû",
     "unpaid": "** IMPAYÉ — PAIEMENT EN ATTENTE **",
-    "rounding": "Arrondi"
+    "rounding": "Arrondi",
+    "slip": {
+      "title_return": "RETOUR",
+      "title_exchange": "ÉCHANGE",
+      "title_add": "ARTICLES AJOUTÉS",
+      "back": "Retourné",
+      "out": "Nouvel article",
+      "restock": "remis en stock",
+      "damaged": "endommagé",
+      "coming_back": "Revient",
+      "going_out": "Sort",
+      "customer_paid": "Le client a payé",
+      "refunded": "Remboursé",
+      "even": "À ÉGALITÉ - RIEN À RÉGLER",
+      "footer": "Conservez ce bon avec votre ticket"
+    }
   },
   "handoff": {
     "title": "TICKET DE TRANSFERT",

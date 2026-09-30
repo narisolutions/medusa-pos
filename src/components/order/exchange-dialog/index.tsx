@@ -15,6 +15,7 @@ import ReturnLines from "../return-lines";
 import OutboundLines from "../outbound-lines";
 import PaymentMethodPicker from "../payment-method-picker";
 import { useTranslation } from "@/i18n";
+import type { PostSaleSlipDraft } from "@/utils/pos/receipt/post-sale-slip";
 import { useExchangeItems } from "./hooks";
 
 interface Props {
@@ -22,7 +23,7 @@ interface Props {
   onClose: () => void;
   order: AdminOrder;
   /** Called with the backend's outstanding amount once the exchange is applied. */
-  onExchanged: (outstanding: number) => void;
+  onExchanged: (outstanding: number, slip: PostSaleSlipDraft) => void;
 }
 
 const ExchangeDialog: React.FC<Props> = ({ isOpen, onClose, order, onExchanged }) => {

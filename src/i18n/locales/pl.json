@@ -508,7 +508,22 @@
     "thank_you": "Dziękujemy za wizytę!",
     "amount_due": "Kwota do zapłaty",
     "unpaid": "** NIEOPŁACONE — PŁATNOŚĆ OCZEKUJĄCA **",
-    "rounding": "Zaokrąglenie"
+    "rounding": "Zaokrąglenie",
+    "slip": {
+      "title_return": "ZWROT",
+      "title_exchange": "WYMIANA",
+      "title_add": "DODANE ARTYKUŁY",
+      "back": "Zwrócono",
+      "out": "Nowy artykuł",
+      "restock": "z powrotem na stan",
+      "damaged": "uszkodzone",
+      "coming_back": "Wraca",
+      "going_out": "Wychodzi",
+      "customer_paid": "Klient zapłacił",
+      "refunded": "Zwrócono",
+      "even": "RÓWNO - NIE MA CZEGO ROZLICZAĆ",
+      "footer": "Zachowaj ten dowód wraz z paragonem"
+    }
   },
   "handoff": {
     "title": "KWIT PRZEKAZANIA",

@@ -508,7 +508,22 @@
     "thank_you": "Tack för ditt besök!",
     "amount_due": "Belopp att betala",
     "unpaid": "** OBETALD — BETALNING VÄNTAR **",
-    "rounding": "Avrundning"
+    "rounding": "Avrundning",
+    "slip": {
+      "title_return": "RETUR",
+      "title_exchange": "BYTE",
+      "title_add": "TILLAGDA VAROR",
+      "back": "Returnerad",
+      "out": "Ny vara",
+      "restock": "tillbaka i lager",
+      "damaged": "skadad",
+      "coming_back": "Kommer tillbaka",
+      "going_out": "Går ut",
+      "customer_paid": "Kunden betalade",
+      "refunded": "Återbetalat",
+      "even": "JÄMNT - INGET ATT REGLERA",
+      "footer": "Spara denna kvittens med ditt kvitto"
+    }
   },
   "handoff": {
     "title": "ÖVERFÖRINGSKVITTO",

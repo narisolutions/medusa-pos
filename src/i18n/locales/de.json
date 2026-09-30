@@ -508,7 +508,22 @@
     "thank_you": "Vielen Dank für Ihren Besuch!",
     "amount_due": "Fälliger Betrag",
     "unpaid": "** UNBEZAHLT — ZAHLUNG AUSSTEHEND **",
-    "rounding": "Rundung"
+    "rounding": "Rundung",
+    "slip": {
+      "title_return": "RÜCKGABE",
+      "title_exchange": "UMTAUSCH",
+      "title_add": "ZUSÄTZLICHE ARTIKEL",
+      "back": "Zurückgegeben",
+      "out": "Neuer Artikel",
+      "restock": "zurück ins Lager",
+      "damaged": "beschädigt",
+      "coming_back": "Kommt zurück",
+      "going_out": "Geht raus",
+      "customer_paid": "Kunde zahlte",
+      "refunded": "Erstattet",
+      "even": "AUSGEGLICHEN - NICHTS ZU BEGLEICHEN",
+      "footer": "Bewahren Sie diesen Beleg mit Ihrer Quittung auf"
+    }
   },
   "handoff": {
     "title": "TRANSFERBELEG",

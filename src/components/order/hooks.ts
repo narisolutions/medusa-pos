@@ -25,6 +25,8 @@ import { toNumber } from "@/utils/pos/pricing";
 import { getPostSaleOptions, showPostSaleEntry, type PostSaleKind } from "@/utils/pos/post-sale";
 import { useQueryOpenOrderChange } from "@/hooks/queries/useQueryOrderChanges";
 import { useQueryTerminalStockLocationId } from "@/hooks/queries/useQueryStockLocation";
+import { usePostSaleSlip } from "@/hooks/order/usePostSaleSlip";
+import type { PostSaleSlipDraft } from "@/utils/pos/receipt/post-sale-slip";
 
 // Type for fulfillment with extended properties
 type ExtendedFulfillment = Record<string, unknown> & {
@@ -70,6 +72,9 @@ export const useOrder = (order: AdminOrder) => {
   const [postSaleKind, setPostSaleKind] = useState<PostSaleKind | null>(null);
   // Set straight from a return's result, before the refetched order carries it.
   const [owedAfterChange, setOwedAfterChange] = useState<number | null>(null);
+  // The return/exchange slip waits for the refund, so it can say how the money went back.
+  const [pendingSlip, setPendingSlip] = useState<PostSaleSlipDraft | null>(null);
+  const printSlip = usePostSaleSlip();
   const { data: openChange } = useQueryOpenOrderChange(order.id);
   const { data: stockLocationId } = useQueryTerminalStockLocationId();
 
@@ -329,16 +334,24 @@ export const useOrder = (order: AdminOrder) => {
   const lockedRefundAmount =
     owedAfterChange ?? (pendingDifference < 0 ? -pendingDifference : undefined);
 
-  const handleChangeApplied = (outstanding: number) => {
+  const handleChangeApplied = (outstanding: number, slip: PostSaleSlipDraft) => {
     if (outstanding < 0) {
       setOwedAfterChange(-outstanding);
+      setPendingSlip(slip);
       setIsRefundOpen(true);
+    }
+  };
+
+  const handleRefunded = (amount: number, method: string) => {
+    if (pendingSlip) {
+      printSlip({ ...pendingSlip, settlement: { direction: "refund", amount, method } });
     }
   };
 
   const handleCloseRefund = () => {
     setIsRefundOpen(false);
     setOwedAfterChange(null);
+    setPendingSlip(null);
   };
 
   return {
@@ -384,6 +397,7 @@ export const useOrder = (order: AdminOrder) => {
     handleChoosePostSale,
     lockedRefundAmount,
     handleChangeApplied,
+    handleRefunded,
     handleCloseRefund,
     handleDownloadReceiptPDF,
   };

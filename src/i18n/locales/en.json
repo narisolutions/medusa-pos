@@ -508,7 +508,22 @@
     "thank_you": "Thank you for your visit!",
     "amount_due": "Amount Due",
     "unpaid": "** UNPAID — PAYMENT PENDING **",
-    "rounding": "Rounding"
+    "rounding": "Rounding",
+    "slip": {
+      "title_return": "RETURN",
+      "title_exchange": "EXCHANGE",
+      "title_add": "ADDED ITEMS",
+      "back": "Returned",
+      "out": "New item",
+      "restock": "back to stock",
+      "damaged": "damaged",
+      "coming_back": "Coming back",
+      "going_out": "Going out",
+      "customer_paid": "Customer paid",
+      "refunded": "Refunded",
+      "even": "EVEN - NOTHING TO SETTLE",
+      "footer": "Keep this slip with your receipt"
+    }
   },
   "handoff": {
     "title": "TRANSFER TICKET",

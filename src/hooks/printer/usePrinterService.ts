@@ -21,6 +21,9 @@ import {
 import { buildHandoffPayload, encodeHandoffUrl } from "@/utils/pos/handoff";
 import schemas from "@/utils/schemas";
 import { buildHandoffTicketText } from "@/utils/pos/handoff/ticket";
+import { buildPostSaleSlipText, type PostSaleSlip } from "@/utils/pos/receipt/post-sale-slip";
+import { isChangedAfterSale, netOfReturns } from "@/utils/pos/post-sale";
+import { toNumber } from "@/utils/pos/pricing";
 import type { PrinterEncoding } from "@/utils/pos/receipt/printer-encoding";
 import {
   getOrderPaymentMethodLabel,
@@ -139,8 +142,13 @@ const usePrinterService = () => {
 
   // Helper function to build receipt data from order
   const buildReceiptDataFromOrder = useCallback((order: AdminOrder): ReceiptData => {
+    // After a return, exchange or added items the receipt is what the customer
+    // now has: lines net of returns, and the order's current totals.
+    const changed = isChangedAfterSale(order);
+    const receiptLines = changed ? netOfReturns(order.items || []) : order.items || [];
+
     // Map items, computing discount_total per item from metadata
-    const mappedReceiptItems = (order.items || []).map((item) => {
+    const mappedReceiptItems = receiptLines.map((item) => {
       const itemMeta = item.metadata as
         | {
             item_discount?: { type: "amount" | "percent"; value: number };
@@ -178,7 +186,8 @@ const usePrinterService = () => {
     const subtotal = order.subtotal || 0;
     const tax = order.tax_total || 0;
     // Sale value, not order.total — a refund credit line drives that to 0.
-    const total = getOrderSaleTotal(order);
+    // A changed order has no single sale value; its current total is what it is worth now.
+    const total = changed ? toNumber(order.total) : getOrderSaleTotal(order);
     const discount = (order.discount_total || 0) + itemDiscountsTotal + orderLevelDiscount;
     const cashPaid: number = typeof order.metadata?.cash_paid === "number"
       ? order.metadata.cash_paid
@@ -203,21 +212,24 @@ const usePrinterService = () => {
       paymentStatus === "requires_action" ||
       (order.metadata?.pay_later === true && paymentStatus !== "captured");
 
+    // The cash handed over and its change belong to the original sale only.
     const amountPaid: number = isUnpaid
       ? 0
-      : isCashMethod && cashPaid > 0
-        ? cashPaid
-        : total;
+      : changed
+        ? toNumber(order.summary?.paid_total) - toNumber(order.summary?.refunded_total)
+        : isCashMethod && cashPaid > 0
+          ? cashPaid
+          : total;
 
     const change: number =
-      !isUnpaid && isCashMethod && cashPaid > 0
+      !isUnpaid && !changed && isCashMethod && cashPaid > 0
         ? Math.max(0, cashPaid - cashDue)
         : 0;
 
     // Signed cash-rounding adjustment (cashDue − total); shown as its own receipt
     // line so Total, Rounding, Amount Paid and Change reconcile exactly.
     const cashRounding: number | undefined =
-      !isUnpaid && isCashMethod && cashCollected != null && cashCollected !== total
+      !isUnpaid && !changed && isCashMethod && cashCollected != null && cashCollected !== total
         ? cashCollected - total
         : undefined;
 
@@ -303,6 +315,51 @@ const usePrinterService = () => {
       }
     },
     [getDefaultPrinter, printReceiptText, buildReceiptDataFromOrder, getReceiptLabels]
+  );
+
+  /** The customer's paper for a return, exchange or added items. */
+  const printPostSaleSlip = useCallback(
+    async (slip: PostSaleSlip) => {
+      const printer = getDefaultPrinter();
+      if (!printer) {
+        throw new Error("No printer specified and no default printer configured");
+      }
+      const encoding = (printer as Printer & { encoding?: PrinterEncoding }).encoding ?? "translit";
+      const text = buildPostSaleSlipText(slip, {
+        labels: {
+          title: {
+            return: t("receipt.slip.title_return"),
+            exchange: t("receipt.slip.title_exchange"),
+            add: t("receipt.slip.title_add"),
+          },
+          date: t("receipt.date"),
+          time: t("receipt.time"),
+          order: t("receipt.order"),
+          items: t("receipt.items"),
+          back: t("receipt.slip.back"),
+          out: t("receipt.slip.out"),
+          restock: t("receipt.slip.restock"),
+          damaged: t("receipt.slip.damaged"),
+          comingBack: t("receipt.slip.coming_back"),
+          goingOut: t("receipt.slip.going_out"),
+          paymentMethod: t("receipt.payment_method"),
+          customerPaid: t("receipt.slip.customer_paid"),
+          refunded: t("receipt.slip.refunded"),
+          even: t("receipt.slip.even"),
+          footer: t("receipt.slip.footer"),
+        },
+        headerLines: [
+          getBrandName(store) || "POS",
+          store?.name ?? "",
+          getStoreAddress(store) ?? "",
+          getStoreAddress2(store) ?? "",
+        ].filter(Boolean),
+        paperWidth: printer.paperWidth ?? "80mm",
+        encoding,
+      });
+      await printReceiptText(text, printer);
+    },
+    [getDefaultPrinter, printReceiptText, store, t]
   );
 
   /**
@@ -431,6 +488,7 @@ const usePrinterService = () => {
     printReceiptText,
     printOrderReceipt,
     printHandoffTicket,
+    printPostSaleSlip,
     downloadReceiptAsPDF,
     openCashDrawer,
     savePrinters,

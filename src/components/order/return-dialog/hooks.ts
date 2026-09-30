@@ -9,16 +9,19 @@ import storage from "@/utils/storage";
 import { describeChangeError, useOrderChange } from "@/hooks/order/useOrderChange";
 import { useReturnSelection } from "../return-lines/hooks";
 import { receiveReturnSteps } from "@/utils/pos/order-change/return-steps";
+import { usePostSaleSlip } from "@/hooks/order/usePostSaleSlip";
+import type { PostSaleSlipDraft } from "@/utils/pos/receipt/post-sale-slip";
 
 const useReturnItems = (
   order: AdminOrder,
   isOpen: boolean,
   onClose: () => void,
-  onReturned: (outstanding: number) => void
+  onReturned: (outstanding: number, slip: PostSaleSlipDraft) => void
 ) => {
   const { t } = useTranslation();
   const { run, currentStep } = useOrderChange(order.id);
-  const { lines, selection, change, reset, comingBack, plan } = useReturnSelection(order);
+  const { lines, selection, change, reset, comingBack, slipLines, plan } = useReturnSelection(order);
+  const printSlip = usePostSaleSlip();
   const [note, setNote] = useState("");
   const [isBusy, setIsBusy] = useState(false);
 
@@ -78,16 +81,25 @@ const useReturnItems = (
         ...receiveReturnSteps(() => returnId, plan),
       ]);
 
+      const slip: PostSaleSlipDraft = {
+        kind: "return",
+        orderDisplayId: order.display_id ?? "",
+        currency,
+        back: slipLines,
+        out: [],
+      };
       toast.success(t("orders.post_sale.return_success"));
       onClose();
-      onReturned(outstanding);
+      // Owed money: the slip prints once the refund says how it was paid back.
+      if (outstanding < 0) onReturned(outstanding, slip);
+      else printSlip({ ...slip, settlement: { direction: "even" } });
     } catch (error) {
       void logger.error(`Return failed: ${safeStringify(error)}`);
       handleErrorToast(describeChangeError(error, order, t));
     } finally {
       setIsBusy(false);
     }
-  }, [isBusy, plan, run, order, note, onClose, onReturned, t]);
+  }, [isBusy, plan, run, order, note, currency, slipLines, printSlip, onClose, onReturned, t]);
 
   return {
     currency,

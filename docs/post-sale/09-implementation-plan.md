@@ -231,6 +231,9 @@ and `exchange.cancel` rejects `no_notification` — see [Order changes](./03-ord
 - **Cash reconciliation** — cash in either direction is attributed to the open register session; refused
   while the register is closed.
 - **Receipt slip** — what came back, what went out, what was settled.
+  ✅ Done 2026-09-30: printed automatically once the operation settles — after the refund for a return
+  or an exchange that owes the customer, so the slip names the method. *Reprint receipt* on a changed
+  order now prints lines net of returns, the current totals, and paid less refunded.
 - **i18n** — all seven locales.
 - **Query invalidation** — `queryKeys.orders.detail` and `queryKeys.orders.all` after every operation.
 

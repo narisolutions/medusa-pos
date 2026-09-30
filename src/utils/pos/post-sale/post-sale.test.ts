@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { buildReturnPlan, differenceDirection, getPostSaleOptions, getReturnableQuantity, postSaleEvents, showPostSaleEntry } from ".";
+import { buildReturnPlan, differenceDirection, getPostSaleOptions, isChangedAfterSale, netOfReturns, getReturnableQuantity, postSaleEvents, showPostSaleEntry } from ".";
 
 const line = (f: number, rr = 0, rv = 0, rd = 0) => ({
   detail: {
@@ -156,5 +156,24 @@ describe("buildReturnPlan", () => {
         { id: "broken", quantity: 1 },
       ],
     });
+  });
+});
+
+describe("netOfReturns and isChangedAfterSale", () => {
+  const kept = { quantity: 1, unit_price: 5, detail: { return_received_quantity: 0, return_dismissed_quantity: 0 } };
+  const gone = { quantity: 1, unit_price: 3, detail: { return_received_quantity: 1, return_dismissed_quantity: 0 } };
+  const partly = { quantity: 3, unit_price: 2, discount_total: 3, detail: { return_received_quantity: 1, return_dismissed_quantity: 1 } };
+
+  it("keeps what the customer still has, pro-rating the line's discount", () => {
+    expect(netOfReturns([kept, gone, partly])).toEqual([
+      kept,
+      { ...partly, quantity: 1, total: 2, discount_total: 1 },
+    ]);
+  });
+
+  it("flags returned lines or a second payment, and nothing else", () => {
+    expect(isChangedAfterSale({ items: [kept], payment_collections: [{}] })).toBe(false);
+    expect(isChangedAfterSale({ items: [kept, gone], payment_collections: [{}] })).toBe(true);
+    expect(isChangedAfterSale({ items: [kept], payment_collections: [{}, {}] })).toBe(true);
   });
 });

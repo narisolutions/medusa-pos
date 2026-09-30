@@ -508,7 +508,22 @@
     "thank_you": "¡Gracias por su visita!",
     "amount_due": "Importe pendiente",
     "unpaid": "** SIN PAGAR — PAGO PENDIENTE **",
-    "rounding": "Redondeo"
+    "rounding": "Redondeo",
+    "slip": {
+      "title_return": "DEVOLUCIÓN",
+      "title_exchange": "CAMBIO",
+      "title_add": "ARTÍCULOS AÑADIDOS",
+      "back": "Devuelto",
+      "out": "Artículo nuevo",
+      "restock": "de vuelta al stock",
+      "damaged": "dañado",
+      "coming_back": "Vuelve",
+      "going_out": "Sale",
+      "customer_paid": "El cliente pagó",
+      "refunded": "Reembolsado",
+      "even": "IGUALADO - NADA QUE LIQUIDAR",
+      "footer": "Guarde este comprobante con su recibo"
+    }
   },
   "handoff": {
     "title": "TICKET DE TRANSFERENCIA",

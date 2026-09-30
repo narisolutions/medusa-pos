@@ -13,6 +13,7 @@ import { Input } from "@/components/ui/input";
 import PostSaleDifference from "../post-sale-difference";
 import ReturnLines from "../return-lines";
 import { useTranslation } from "@/i18n";
+import type { PostSaleSlipDraft } from "@/utils/pos/receipt/post-sale-slip";
 import { useReturnItems } from "./hooks";
 
 interface Props {
@@ -20,7 +21,7 @@ interface Props {
   onClose: () => void;
   order: AdminOrder;
   /** Called with the backend's outstanding amount once the return is applied. */
-  onReturned: (outstanding: number) => void;
+  onReturned: (outstanding: number, slip: PostSaleSlipDraft) => void;
 }
 
 const ReturnDialog: React.FC<Props> = ({ isOpen, onClose, order, onReturned }) => {

@@ -37,9 +37,11 @@ interface Props {
   order: AdminOrder;
   /** Prefills and locks the amount — what a return or exchange left owing. */
   amount?: number;
+  /** After the refund went through, with what was refunded and to which method(s). */
+  onRefunded?: (amount: number, method: string) => void;
 }
 
-const RefundDialog: React.FC<Props> = ({ isOpen, onClose, order, amount: lockedAmount }) => {
+const RefundDialog: React.FC<Props> = ({ isOpen, onClose, order, amount: lockedAmount, onRefunded }) => {
   const { t } = useTranslation();
   const { data: store } = useQueryStore();
   const {
@@ -59,7 +61,7 @@ const RefundDialog: React.FC<Props> = ({ isOpen, onClose, order, amount: lockedA
     isProcessing,
     handleValidate,
     handleConfirm,
-  } = useRefund(order, isOpen, onClose, lockedAmount);
+  } = useRefund(order, isOpen, onClose, lockedAmount, onRefunded);
 
   const amount = Number(amountText) || 0;
   const methodLabel = getOrderPaymentMethodLabel(order, store);
