@@ -1,10 +1,12 @@
 import { ReceiptData } from "@/types/utils";
 import { toNumber } from "@/utils/pos/pricing";
 import { formatDateOnly, formatTimeOnly, formatCurrencyRaw } from "@/utils/settings/preferences";
+import { logger } from "@/utils/logger";
 import {
   buildReceiptText,
   type MoneyRow,
   type PaperWidth,
+  type PaymentRow,
   type ReceiptDoc,
   type ReceiptItem,
 } from "@narisolutions/pos-toolkit/receipt-builder";
@@ -109,10 +111,6 @@ const buildReceiptDoc = (
     }
   }
 
-  // The payment method is a label, not an amount, so it cannot sit in the
-  // payment block with Amount Paid / Change the way it used to.
-  metaRows.push({ label: labels.paymentMethod, value: data.paymentMethod });
-
   const items: ReceiptItem[] = data.items.map((item) => {
     const discount = toNumber(item.discount_total);
     return {
@@ -148,7 +146,9 @@ const buildReceiptDoc = (
     totalRows.push({ label: labels.rounding, amount: data.cashRounding });
   }
 
-  const paymentRows: MoneyRow[] = [];
+  const paymentRows: PaymentRow[] = [
+    { label: labels.paymentMethod, value: data.paymentMethod },
+  ];
   const messages: string[] = [];
 
   if (data.isUnpaid) {
@@ -184,12 +184,22 @@ const buildReceipt = (
   paperWidth: PaperWidth = "80mm",
   labels: ReceiptLabels = DEFAULT_RECEIPT_LABELS,
   encoding: PrinterEncoding = "ascii"
-): string =>
-  buildReceiptText(buildReceiptDoc(data, labels), {
+): string => {
+  const unmapped = new Set<string>();
+  const text = buildReceiptText(buildReceiptDoc(data, labels), {
     formatAmount: (amount) => formatCurrencyRaw(amount, data.currency),
     paperWidth,
     encoding,
+    onUnmapped: (char) => unmapped.add(char),
   });
+  if (unmapped.size > 0) {
+    const chars = [...unmapped]
+      .map((ch) => `U+${ch.charCodeAt(0).toString(16).padStart(4, "0")} '${ch}'`)
+      .join(", ");
+    void logger.warn(`[receipt] ${encoding}: unmapped chars replaced with '?': ${chars}`);
+  }
+  return text;
+};
 
 const buildReceiptPDF = async (data: ReceiptData, paperWidth: PaperWidth = "80mm", labels: ReceiptLabels = DEFAULT_RECEIPT_LABELS): Promise<Uint8Array> => {
   // jsPDF is heavy — load it only when a PDF is actually exported.
