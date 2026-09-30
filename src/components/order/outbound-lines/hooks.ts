@@ -7,10 +7,12 @@ import { getVariantAvailableQuantity, getVariantUnitPrice } from "@/utils/pos/ca
 type OutboundLine = { variant: AdminProductVariant; quantity: number };
 
 const lineTitle = (variant: AdminProductVariant) => {
-  const product = variant.product?.title;
-  return variant.title && variant.title !== "Default variant" && variant.title !== product
-    ? `${product ?? ""} · ${variant.title}`
-    : product || variant.title || "-";
+  const product = variant.product?.title ?? "";
+  const title = variant.title && variant.title !== "Default variant" ? variant.title : "";
+  if (!title) return product || "-";
+  // "Aladasturi" + "Aladasturi 750ml" would print the name twice.
+  if (!product || title.toLowerCase().includes(product.toLowerCase())) return title;
+  return `${product} · ${title}`;
 };
 
 /** Goods going out to the customer, picked like at checkout and capped at stock. */
