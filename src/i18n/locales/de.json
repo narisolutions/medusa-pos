@@ -355,6 +355,7 @@
     "refund_confirm_submit": "Jetzt erstatten",
     "refund_irreversible_warning": "Dies kann nicht rückgängig gemacht werden.",
     "refund_exceeds_refundable": "Betrag übersteigt den erstattbaren Restbetrag",
+    "refund_locked_uncovered": "Nur {{available}} kann auf die Zahlungen dieser Bestellung erstattet werden",
     "refund_processing": "Erstattung läuft...",
     "refund_success": "{{amount}} erstattet",
     "refund_failed": "Erstattung fehlgeschlagen",

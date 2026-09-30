@@ -21,11 +21,19 @@ import { useQueryStore } from "@/hooks/queries/useQueryStore";
 import { useQueryRefundReasons } from "@/hooks/queries/useQueryRefundReasons";
 import { usePrinterService } from "@/hooks/printer/usePrinterService";
 import {
+  allocateRefund,
   getRefundablePayments,
   getOrderPaymentMethodType,
 } from "@/utils/pos/payment";
 
-export const useRefund = (order: AdminOrder, isOpen: boolean, onClose: () => void) => {
+/** `lockedAmount`: what a post-sale change left owing; spread across payments, not editable. */
+export const useRefund = (
+  order: AdminOrder,
+  isOpen: boolean,
+  onClose: () => void,
+  lockedAmount?: number
+) => {
+  const isLocked = lockedAmount !== undefined;
   const { t } = useTranslation();
   const queryClient = useQueryClient();
   const { data: store } = useQueryStore();
@@ -44,21 +52,30 @@ export const useRefund = (order: AdminOrder, isOpen: boolean, onClose: () => voi
 
   const selectedPayment =
     payments.find((payment) => payment.id === selectedPaymentId) ?? payments[0];
-  const refundable = selectedPayment?.refundable ?? 0;
+  const refundable = isLocked
+    ? payments.reduce((sum, payment) => sum + payment.refundable, 0)
+    : selectedPayment?.refundable ?? 0;
   const currency = getOrderCurrency(order);
+  const allocation = useMemo(
+    () => (isLocked ? allocateRefund(payments, lockedAmount) : null),
+    [isLocked, payments, lockedAmount]
+  );
+  const initialAmount = (first?: { refundable: number }) =>
+    isLocked ? lockedAmount : first?.refundable ?? 0;
 
   const form = useForm<Forms["Refund"]>({
     resolver: coercedZodResolver(schemas.refund),
     defaultValues: {
-      amount: refundable,
+      amount: initialAmount(payments[0]),
       refundReasonId: "",
       note: "",
     },
   });
 
-  const [amountText, setAmountText] = useState(() =>
-    refundable > 0 ? String(refundable) : ""
-  );
+  const [amountText, setAmountText] = useState(() => {
+    const initial = initialAmount(payments[0]);
+    return initial > 0 ? String(initial) : "";
+  });
 
   const setAmount = useCallback(
     (value: string) => {
@@ -78,9 +95,10 @@ export const useRefund = (order: AdminOrder, isOpen: boolean, onClose: () => voi
       const first = payments[0];
       setStep("form");
       setSelectedPaymentId(first?.id ?? "");
-      setAmountText(first ? String(first.refundable) : "");
+      const initial = initialAmount(first);
+      setAmountText(initial > 0 ? String(initial) : "");
       form.reset({
-        amount: first?.refundable ?? 0,
+        amount: initial,
         refundReasonId: "",
         note: "",
         });
@@ -104,6 +122,15 @@ export const useRefund = (order: AdminOrder, isOpen: boolean, onClose: () => voi
   // here rather than in the schema — matching the close-register flow.
   const handleValidate = form.handleSubmit((data) => {
     if (!selectedPayment) return;
+
+    if (isLocked && !allocation) {
+      form.setError("amount", {
+        message: translate("orders.refund_locked_uncovered", {
+          available: formatPrice(refundable, currency),
+        }),
+      });
+      return;
+    }
 
     if (data.amount > refundable) {
       form.setError("amount", {
@@ -136,14 +163,18 @@ export const useRefund = (order: AdminOrder, isOpen: boolean, onClose: () => voi
     setIsProcessing(true);
 
     const { amount, refundReasonId, note } = form.getValues();
+    const refunds = allocation ?? [{ id: selectedPayment.id, amount }];
 
     try {
       const sdk = getSdk();
-      await sdk.admin.payment.refund(selectedPayment.id, {
-        amount,
-        ...(refundReasonId ? { refund_reason_id: refundReasonId } : {}),
-        ...(note?.trim() ? { note: note.trim() } : {}),
-      });
+      // Sequential: if one fails, what already went through is still on record.
+      for (const refund of refunds) {
+        await sdk.admin.payment.refund(refund.id, {
+          amount: refund.amount,
+          ...(refundReasonId ? { refund_reason_id: refundReasonId } : {}),
+          ...(note?.trim() ? { note: note.trim() } : {}),
+        });
+      }
 
       void queryClient.invalidateQueries({
         queryKey: queryKeys.orders.detail(order.id),
@@ -156,6 +187,9 @@ export const useRefund = (order: AdminOrder, isOpen: boolean, onClose: () => voi
       openDrawerForCashRefund();
       onClose();
     } catch (error) {
+      void queryClient.invalidateQueries({
+        queryKey: queryKeys.orders.detail(order.id),
+      });
       handleErrorToast(getApiErrorMessage(error, t("orders.refund_failed")));
       setStep("form");
     } finally {
@@ -164,6 +198,7 @@ export const useRefund = (order: AdminOrder, isOpen: boolean, onClose: () => voi
     }
   }, [
     selectedPayment,
+    allocation,
     form,
     queryClient,
     order.id,
@@ -174,6 +209,7 @@ export const useRefund = (order: AdminOrder, isOpen: boolean, onClose: () => voi
   ]);
 
   return {
+    isLocked,
     form,
     step,
     setStep,

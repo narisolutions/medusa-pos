@@ -355,6 +355,7 @@
     "refund_confirm_submit": "Återbetala nu",
     "refund_irreversible_warning": "Detta går inte att ångra.",
     "refund_exceeds_refundable": "Beloppet överstiger vad som kan återbetalas",
+    "refund_locked_uncovered": "Endast {{available}} kan återbetalas till orderns betalningar",
     "refund_processing": "Återbetalar...",
     "refund_success": "Återbetalade {{amount}}",
     "refund_failed": "Återbetalningen misslyckades",

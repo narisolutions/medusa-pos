@@ -35,12 +35,15 @@ interface Props {
   isOpen: boolean;
   onClose: () => void;
   order: AdminOrder;
+  /** Prefills and locks the amount — what a return or exchange left owing. */
+  amount?: number;
 }
 
-const RefundDialog: React.FC<Props> = ({ isOpen, onClose, order }) => {
+const RefundDialog: React.FC<Props> = ({ isOpen, onClose, order, amount: lockedAmount }) => {
   const { t } = useTranslation();
   const { data: store } = useQueryStore();
   const {
+    isLocked,
     form,
     step,
     setStep,
@@ -56,7 +59,7 @@ const RefundDialog: React.FC<Props> = ({ isOpen, onClose, order }) => {
     isProcessing,
     handleValidate,
     handleConfirm,
-  } = useRefund(order, isOpen, onClose);
+  } = useRefund(order, isOpen, onClose, lockedAmount);
 
   const amount = Number(amountText) || 0;
   const methodLabel = getOrderPaymentMethodLabel(order, store);
@@ -129,7 +132,7 @@ const RefundDialog: React.FC<Props> = ({ isOpen, onClose, order }) => {
                 </div>
               </div>
 
-              {payments.length > 1 && (
+              {!isLocked && payments.length > 1 && (
                 <div>
                   <div className="text-xs font-semibold text-fg-subtle uppercase tracking-wider mb-2">
                     {t("orders.refund_payment_select_label")}
@@ -163,27 +166,31 @@ const RefundDialog: React.FC<Props> = ({ isOpen, onClose, order }) => {
                       <FormLabel className="text-base font-medium">
                         {t("orders.refund_amount_label")}
                       </FormLabel>
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        disabled={isProcessing}
-                        onClick={handleRefundFull}
-                      >
-                        {t("orders.refund_full_button")}
-                      </Button>
+                      {!isLocked && (
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          disabled={isProcessing}
+                          onClick={handleRefundFull}
+                        >
+                          {t("orders.refund_full_button")}
+                        </Button>
+                      )}
                     </div>
                     <FormControl>
                       <div className="bg-surface-muted border border-theme-border rounded-lg px-4 py-3 text-right text-3xl font-bold text-fg">
                         {formatPrice(amount, currency)}
                       </div>
                     </FormControl>
-                    <Numpad
-                      value={amountText}
-                      onChange={setAmount}
-                      hideActions
-                      className="mt-3"
-                    />
+                    {!isLocked && (
+                      <Numpad
+                        value={amountText}
+                        onChange={setAmount}
+                        hideActions
+                        className="mt-3"
+                      />
+                    )}
                     <FormMessage className="text-red-500" />
                   </FormItem>
                 )}

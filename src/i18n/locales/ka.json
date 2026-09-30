@@ -355,6 +355,7 @@
     "refund_confirm_submit": "დაბრუნება",
     "refund_irreversible_warning": "ამ მოქმედების გაუქმება შეუძლებელია.",
     "refund_exceeds_refundable": "თანხა აღემატება დასაბრუნებელ ნაშთს",
+    "refund_locked_uncovered": "ამ შეკვეთის გადახდებზე შესაძლებელია მხოლოდ {{available}}-ის დაბრუნება",
     "refund_processing": "მიმდინარეობს დაბრუნება...",
     "refund_success": "დაბრუნდა {{amount}}",
     "refund_failed": "დაბრუნება ვერ მოხერხდა",

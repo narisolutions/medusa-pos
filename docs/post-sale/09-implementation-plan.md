@@ -157,6 +157,11 @@ unchanged from `processPaymentCollection`. Checked on staging order #492 with `p
 refundable balance. Add an optional `amount` prop that prefills and locks the field. Existing callers
 pass nothing and are unchanged.
 
+✅ **Done 2026-09-30.** With `amount`, the numpad, *Refund full* and the payment picker are hidden,
+and the amount is split across payments by `allocateRefund` (largest first), because one refund can
+never exceed one payment (spike S7). If the payments cannot cover it, the dialog says how much they
+can and refuses. Without `amount` the dialog is unchanged.
+
 ### 1g. Entry point and chooser
 
 - `canPostSale` flags in `src/components/order/hooks.ts`, alongside the existing `canRefund` /

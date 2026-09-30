@@ -131,3 +131,26 @@ export function getOrderSaleTotal(order: AdminOrder): number {
   const original = toNumber(order.summary?.original_order_total);
   return original > 0 ? original : toNumber(order.total);
 }
+
+/**
+ * Splits a refund across payments, largest first so it takes as few refund
+ * calls as possible — one refund can never exceed one payment's captured
+ * amount. Null when the payments cannot cover it.
+ */
+export function allocateRefund(
+  payments: RefundablePayment[],
+  amount: number
+): { id: string; amount: number }[] | null {
+  let remaining = Math.round(amount * 100);
+  const allocation: { id: string; amount: number }[] = [];
+
+  for (const payment of [...payments].sort((a, b) => b.refundable - a.refundable)) {
+    if (remaining <= 0) break;
+    const take = Math.min(remaining, Math.round(payment.refundable * 100));
+    if (take <= 0) continue;
+    allocation.push({ id: payment.id, amount: take / 100 });
+    remaining -= take;
+  }
+
+  return remaining > 0 ? null : allocation;
+}

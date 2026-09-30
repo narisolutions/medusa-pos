@@ -355,6 +355,7 @@
     "refund_confirm_submit": "Refund now",
     "refund_irreversible_warning": "This cannot be undone.",
     "refund_exceeds_refundable": "Amount is higher than what is available to refund",
+    "refund_locked_uncovered": "Only {{available}} can be refunded to this order's payments",
     "refund_processing": "Refunding...",
     "refund_success": "Refunded {{amount}}",
     "refund_failed": "Refund failed",

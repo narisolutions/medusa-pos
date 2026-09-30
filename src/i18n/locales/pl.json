@@ -355,6 +355,7 @@
     "refund_confirm_submit": "Zwróć teraz",
     "refund_irreversible_warning": "Tej operacji nie można cofnąć.",
     "refund_exceeds_refundable": "Kwota przekracza dostępną do zwrotu",
+    "refund_locked_uncovered": "Na płatności tego zamówienia można zwrócić tylko {{available}}",
     "refund_processing": "Zwracanie...",
     "refund_success": "Zwrócono {{amount}}",
     "refund_failed": "Zwrot nie powiódł się",

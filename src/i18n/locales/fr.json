@@ -355,6 +355,7 @@
     "refund_confirm_submit": "Rembourser",
     "refund_irreversible_warning": "Cette action est irréversible.",
     "refund_exceeds_refundable": "Le montant dépasse le solde remboursable",
+    "refund_locked_uncovered": "Seuls {{available}} peuvent être remboursés sur les paiements de cette commande",
     "refund_processing": "Remboursement...",
     "refund_success": "{{amount}} remboursé",
     "refund_failed": "Échec du remboursement",

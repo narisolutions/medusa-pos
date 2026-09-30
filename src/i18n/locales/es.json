@@ -355,6 +355,7 @@
     "refund_confirm_submit": "Reembolsar ahora",
     "refund_irreversible_warning": "Esta acción no se puede deshacer.",
     "refund_exceeds_refundable": "El importe supera lo disponible para reembolsar",
+    "refund_locked_uncovered": "Solo se pueden reembolsar {{available}} a los pagos de este pedido",
     "refund_processing": "Reembolsando...",
     "refund_success": "Reembolsado {{amount}}",
     "refund_failed": "El reembolso ha fallado",
