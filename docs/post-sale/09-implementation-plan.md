@@ -139,6 +139,18 @@ It may share the lower-level session/capture/`markAsPaid` fallback, extracted in
 **If that extraction touches `processPaymentCollection`, checkout payment is regression-tested before
 merging.** It is the path every sale goes through.
 
+✅ **Done 2026-09-30.** `settleOutstanding` (in `utils/pos/order-processing`) reads
+`pending_difference`, finds the `not_paid` collection the backend created for exactly that amount
+(spike S2), and pays it through `settleCollection` — the session/capture/`markAsPaid` path lifted
+out of `processPaymentCollection` unchanged. Checked on staging order #492 with cash and card: each
+recorded a new captured payment for the difference only.
+
+✅ **Done 2026-09-30.** `settleOutstanding` in `src/utils/pos/order-processing/` reads
+`pending_difference`, finds the `not_paid` collection the backend created for exactly that amount
+(spike S2), and pays it through `settleCollection` — the session/capture/`markAsPaid` tail extracted
+unchanged from `processPaymentCollection`. Checked on staging order #492 with `pp_cash_pos` and
+`pp_tbc_pos`: each charged 5, the provider was recorded, and the order returned to `captured`.
+
 ### 1f. Refund dialog: accept a locked amount
 
 `src/components/order/refund-dialog/` currently takes only `order` and defaults to the full

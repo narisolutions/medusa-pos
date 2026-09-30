@@ -2,6 +2,7 @@ import { AdminOrder } from "@medusajs/types";
 import { getSdk } from "@/config/medusa";
 import { logger, safeStringify } from "@/utils/logger";
 import storage from "@/utils/storage";
+import { toNumber } from "@/utils/pos/pricing";
 
 /**
  * Ensures the order's payment is captured. Reuses an existing payment
@@ -35,6 +36,21 @@ async function processPaymentCollection(
     collectionId = payment_collection.id;
   }
 
+  await settleCollection(order.id, collectionId, providerId);
+}
+
+/**
+ * Pays one payment collection with the chosen provider: opens a session, then
+ * captures the pending payment, falling back to markAsPaid when the provider
+ * does not auto-authorize.
+ */
+async function settleCollection(
+  orderId: string,
+  collectionId: string,
+  providerId: string
+): Promise<void> {
+  const sdk = getSdk();
+
   const { payment_collection: updatedCollection } =
     await sdk.admin.paymentCollection.createPaymentSession(
       collectionId,
@@ -65,7 +81,7 @@ async function processPaymentCollection(
   // the payment session via getOrderPaymentProviderId.
   try {
     await sdk.admin.paymentCollection.markAsPaid(collectionId, {
-      order_id: order.id,
+      order_id: orderId,
       provider_id: providerId,
     });
   } catch (markPaidError) {
@@ -73,9 +89,54 @@ async function processPaymentCollection(
       `markAsPaid with provider_id failed; retrying with system default: ${safeStringify(markPaidError)}`
     );
     await sdk.admin.paymentCollection.markAsPaid(collectionId, {
-      order_id: order.id,
+      order_id: orderId,
     });
   }
+}
+
+type CollectionLike = { id: string; status?: string | null; amount?: unknown };
+
+/**
+ * The unpaid collection a confirmed edit or exchange created for the
+ * difference — the newest one for exactly that amount.
+ */
+function findOutstandingCollection<T extends CollectionLike>(
+  collections: T[],
+  outstanding: number
+): T | undefined {
+  return [...collections]
+    .reverse()
+    .find(
+      (c) =>
+        c.status === "not_paid" && Math.abs(toNumber(c.amount) - outstanding) < 0.005
+    );
+}
+
+/**
+ * Takes payment for what a post-sale change left owing — never the order
+ * total, and never skipped because the order already reads as paid.
+ * Returns the amount charged (0 when nothing is owed).
+ */
+async function settleOutstanding(orderId: string, providerId: string): Promise<number> {
+  const sdk = getSdk();
+  const { order } = await sdk.admin.order.retrieve(orderId, {
+    fields: "id,*summary,*payment_collections",
+  });
+  const outstanding = toNumber(order.summary?.pending_difference ?? 0);
+  if (outstanding <= 0) return 0;
+
+  let collectionId = findOutstandingCollection(order.payment_collections ?? [], outstanding)?.id;
+  if (!collectionId) {
+    // The backend creates this on confirm; creating it here only covers a backend that does not.
+    const { payment_collection } = await sdk.admin.paymentCollection.create({
+      order_id: orderId,
+      amount: outstanding,
+    });
+    collectionId = payment_collection.id;
+  }
+
+  await settleCollection(orderId, collectionId, providerId);
+  return outstanding;
 }
 
 /**
@@ -133,4 +194,10 @@ async function processFulfillment(order: AdminOrder): Promise<void> {
   await sdk.admin.order.markAsDelivered(order.id, fulfillmentId);
 }
 
-export { processPaymentCollection, processFulfillment };
+export {
+  processPaymentCollection,
+  processFulfillment,
+  settleCollection,
+  settleOutstanding,
+  findOutstandingCollection,
+};
