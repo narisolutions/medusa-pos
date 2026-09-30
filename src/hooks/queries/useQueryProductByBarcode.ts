@@ -54,6 +54,8 @@ const fetchProductByBarcode = async (
       },
     } as AdminProductVariant;
   } catch (error) {
+    // The plugin is known to be installed, so a 404 here is an unknown barcode, not a missing route.
+    if ((error as { status?: number }).status === 404) return null;
     handleErrorToast(error, { posEndpointError: true });
     return null;
   }
