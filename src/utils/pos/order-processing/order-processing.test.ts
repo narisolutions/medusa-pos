@@ -31,6 +31,16 @@ describe("findOutstandingCollection", () => {
 });
 
 describe("unfulfilledQuantities", () => {
+  it("leaves the order's existing lines alone, even when unfulfilled", () => {
+    const items = [
+      { id: "awaiting_shipment", quantity: 2, detail: { fulfilled_quantity: 0 } },
+      { id: "added", quantity: 1, detail: { fulfilled_quantity: 0 } },
+    ];
+    expect(unfulfilledQuantities(items, new Set(["awaiting_shipment"]))).toEqual([
+      { id: "added", quantity: 1 },
+    ]);
+  });
+
   it("returns only what is not yet handed over, per line", () => {
     const items = [
       { id: "sold", quantity: 1, detail: { fulfilled_quantity: 1 } },

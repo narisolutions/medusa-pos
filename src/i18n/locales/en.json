@@ -445,7 +445,8 @@
       "step_add_outbound": "Adding what goes out…",
       "step_add_shipping": "Adding pickup…",
       "step_exchange_request": "Recording the exchange…",
-      "refund_owed_label": "Owed to customer"
+      "refund_owed_label": "Owed to customer",
+      "add_success_unpaid": "Items added to what the customer owes"
     },
     "item_returned": "Returned"
   },

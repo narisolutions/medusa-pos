@@ -445,7 +445,8 @@
       "step_add_outbound": "Dodawanie tego, co wychodzi…",
       "step_add_shipping": "Dodawanie odbioru…",
       "step_exchange_request": "Rejestrowanie wymiany…",
-      "refund_owed_label": "Należne klientowi"
+      "refund_owed_label": "Należne klientowi",
+      "add_success_unpaid": "Dodano artykuły do kwoty należnej od klienta"
     },
     "item_returned": "Zwrócono"
   },

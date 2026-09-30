@@ -13,7 +13,8 @@ import { useSettleOutstanding } from "@/hooks/order/useSettleOutstanding";
 import { usePostSaleCash } from "@/hooks/order/usePostSaleCash";
 import { usePostSaleSlip } from "@/hooks/order/usePostSaleSlip";
 import { useOutboundLines } from "../outbound-lines/hooks";
-import { fulfilRemainingItems } from "@/utils/pos/order-processing";
+import { fulfilNewItems } from "@/utils/pos/order-processing";
+import { isUnpaidStatus } from "@/utils/pos/post-sale";
 import { getOrderPaymentProviderId, getPaymentMethodLabel } from "@/utils/pos/payment";
 import { getMethodType, getPaymentMethods } from "@/utils/settings/store/metadata";
 
@@ -46,11 +47,14 @@ const useAddItems = (order: AdminOrder, isOpen: boolean, onClose: () => void) =>
   }
 
   const currency = getOrderCurrency(order);
+  // A pay-later order is owed in full: added items join what is owed, nothing is taken now.
+  const isUnpaidOrder = isUnpaidStatus(order.payment_status);
+  const canConfirm = lines.length > 0 && (isUnpaidOrder || !!selectedMethod);
 
   const handleConfirm = useCallback(async () => {
-    if (isBusy || lines.length === 0 || !selectedMethod) return;
+    if (isBusy || !canConfirm) return;
 
-    const isCash = getMethodType(store, selectedMethod) === "cash";
+    const isCash = !isUnpaidOrder && getMethodType(store, selectedMethod) === "cash";
     if (isCash && isCashBlocked) {
       handleErrorToast(t("checkout.register_closed"));
       return;
@@ -58,6 +62,7 @@ const useAddItems = (order: AdminOrder, isOpen: boolean, onClose: () => void) =>
 
     setIsBusy(true);
     const sdk = getSdk();
+    const linesBefore = new Set((order.items ?? []).map((i) => i.id));
     try {
       try {
         await run([
@@ -101,15 +106,31 @@ const useAddItems = (order: AdminOrder, isOpen: boolean, onClose: () => void) =>
       // The goods are already in the customer's hands; a failure here must not stop payment.
       setPhase("fulfil");
       try {
-        await fulfilRemainingItems(order.id);
+        await fulfilNewItems(order.id, linesBefore);
       } catch (error) {
         void logger.error(`Add items fulfilment failed: ${safeStringify(error)}`);
         toast.warning(t("orders.post_sale.warn_fulfil_failed"));
       }
 
+      if (isUnpaidOrder) {
+        toast.success(t("orders.post_sale.add_success_unpaid"));
+        onClose();
+        return;
+      }
+
       setPhase("settle");
+      let charged: number;
       try {
-        const charged = await settle(order.id, selectedMethod);
+        charged = await settle(order.id, selectedMethod);
+      } catch (error) {
+        void logger.error(`Add items settlement failed: ${safeStringify(error)}`);
+        handleErrorToast(t("orders.post_sale.warn_settle_failed"));
+        onClose();
+        return;
+      }
+
+      // The money is recorded; nothing below may report it as not taken.
+      try {
         if (isCash) {
           await recordCash(
             order,
@@ -131,14 +152,12 @@ const useAddItems = (order: AdminOrder, isOpen: boolean, onClose: () => void) =>
             method: getPaymentMethodLabel(store, selectedMethod),
           },
         });
-        toast.success(
-          t("orders.post_sale.add_success", { amount: formatPrice(charged, currency) })
-        );
       } catch (error) {
-        void logger.error(`Add items settlement failed: ${safeStringify(error)}`);
-        handleErrorToast(t("orders.post_sale.warn_settle_failed"));
+        void logger.error(`Add items after-payment step failed: ${safeStringify(error)}`);
       }
-
+      toast.success(
+        t("orders.post_sale.add_success", { amount: formatPrice(charged, currency) })
+      );
       onClose();
     } finally {
       setPhase(null);
@@ -146,6 +165,8 @@ const useAddItems = (order: AdminOrder, isOpen: boolean, onClose: () => void) =>
     }
   }, [
     isBusy,
+    canConfirm,
+    isUnpaidOrder,
     lines,
     selectedMethod,
     store,
@@ -175,6 +196,8 @@ const useAddItems = (order: AdminOrder, isOpen: boolean, onClose: () => void) =>
     handleSelect,
     changeQuantity,
     handleConfirm,
+    canConfirm,
+    isUnpaidOrder,
     isBusy,
     progressLabel: progressKey ? t(`orders.post_sale.step_${progressKey}`) : null,
   };

@@ -445,7 +445,8 @@
       "step_add_outbound": "ემატება, რაც გადის…",
       "step_add_shipping": "ემატება ადგილზე გატანა…",
       "step_exchange_request": "გაცვლა ფიქსირდება…",
-      "refund_owed_label": "მომხმარებელს ეკუთვნის"
+      "refund_owed_label": "მომხმარებელს ეკუთვნის",
+      "add_success_unpaid": "ნივთები დაემატა მომხმარებლის დავალიანებას"
     },
     "item_returned": "დაბრუნდა"
   },

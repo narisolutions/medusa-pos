@@ -445,7 +445,8 @@
       "step_add_outbound": "Añadiendo lo que sale…",
       "step_add_shipping": "Añadiendo recogida…",
       "step_exchange_request": "Registrando el cambio…",
-      "refund_owed_label": "Adeudado al cliente"
+      "refund_owed_label": "Adeudado al cliente",
+      "add_success_unpaid": "Artículos añadidos a lo que debe el cliente"
     },
     "item_returned": "Devuelto"
   },

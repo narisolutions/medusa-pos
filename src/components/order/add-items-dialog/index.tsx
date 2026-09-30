@@ -35,6 +35,8 @@ const AddItemsDialog: React.FC<Props> = ({ isOpen, onClose, order }) => {
     handleSelect,
     changeQuantity,
     handleConfirm,
+    canConfirm,
+    isUnpaidOrder,
     isBusy,
     progressLabel,
   } = useAddItems(order, isOpen, onClose);
@@ -68,12 +70,14 @@ const AddItemsDialog: React.FC<Props> = ({ isOpen, onClose, order }) => {
 
           <PostSaleDifference currency={currency} goingOut={goingOut} />
 
-          <PaymentMethodPicker
-            methods={methods}
-            selected={selectedMethod}
-            onSelect={setSelectedMethod}
-            disabled={isBusy}
-          />
+          {!isUnpaidOrder && (
+            <PaymentMethodPicker
+              methods={methods}
+              selected={selectedMethod}
+              onSelect={setSelectedMethod}
+              disabled={isBusy}
+            />
+          )}
 
           <div className="flex gap-3 pt-2">
             <Button
@@ -88,11 +92,12 @@ const AddItemsDialog: React.FC<Props> = ({ isOpen, onClose, order }) => {
             <Button
               type="button"
               onClick={() => void handleConfirm()}
-              disabled={isBusy || lines.length === 0 || !selectedMethod}
+              disabled={isBusy || !canConfirm}
               className="flex-1 h-14 text-lg font-semibold bg-green-600 hover:bg-green-700 text-white"
             >
               {isBusy && <Loader2 className="size-5 mr-2 animate-spin" />}
-              {progressLabel ?? t("orders.post_sale.add_confirm")}
+              {progressLabel ??
+                (isUnpaidOrder ? t("orders.post_sale.add_title") : t("orders.post_sale.add_confirm"))}
             </Button>
           </div>
         </div>

@@ -445,7 +445,8 @@
       "step_add_outbound": "Ajout de ce qui sort…",
       "step_add_shipping": "Ajout du retrait…",
       "step_exchange_request": "Enregistrement de l'échange…",
-      "refund_owed_label": "Dû au client"
+      "refund_owed_label": "Dû au client",
+      "add_success_unpaid": "Articles ajoutés au montant dû par le client"
     },
     "item_returned": "Retourné"
   },

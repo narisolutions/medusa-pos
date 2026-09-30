@@ -445,7 +445,8 @@
       "step_add_outbound": "Neue Artikel werden hinzugefügt…",
       "step_add_shipping": "Abholung wird hinzugefügt…",
       "step_exchange_request": "Umtausch wird erfasst…",
-      "refund_owed_label": "Dem Kunden geschuldet"
+      "refund_owed_label": "Dem Kunden geschuldet",
+      "add_success_unpaid": "Artikel zum offenen Betrag des Kunden hinzugefügt"
     },
     "item_returned": "Zurückgegeben"
   },

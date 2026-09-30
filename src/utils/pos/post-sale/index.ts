@@ -39,6 +39,11 @@ export function getReturnableQuantity(item: { detail?: ItemDetail | null }): num
 
 const UNPAID = new Set(["not_paid", "awaiting", "authorized", "partially_authorized", "requires_action", "canceled"]);
 
+/** Nothing captured yet — a pay-later sale still owed in full. */
+export function isUnpaidStatus(status: string | null | undefined): boolean {
+  return UNPAID.has(status ?? "");
+}
+
 /**
  * Which post-sale operations this order allows, each with a reason when not.
  * Nothing is hidden — the chooser shows the reason instead.
@@ -61,7 +66,7 @@ export function getPostSaleOptions(
   if (context.hasOpenChange) return all("open_change");
 
   const items = order.items ?? [];
-  const goodsBack: PostSaleOption = UNPAID.has(order.payment_status ?? "")
+  const goodsBack: PostSaleOption = isUnpaidStatus(order.payment_status)
     ? { enabled: false, reason: "unpaid" }
     : !items.some((i) => toNumber(i.detail?.fulfilled_quantity) > 0)
       ? { enabled: false, reason: "not_fulfilled" }

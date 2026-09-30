@@ -18,7 +18,7 @@ import type { PostSaleSlipDraft } from "@/utils/pos/receipt/post-sale-slip";
 import { useReturnSelection } from "../return-lines/hooks";
 import { useOutboundLines } from "../outbound-lines/hooks";
 import { receiveReturnSteps } from "@/utils/pos/order-change/return-steps";
-import { fulfilRemainingItems } from "@/utils/pos/order-processing";
+import { fulfilNewItems } from "@/utils/pos/order-processing";
 import { pickPickupOption } from "@/utils/pos/fulfillment";
 import { getOrderPaymentProviderId, getPaymentMethodLabel } from "@/utils/pos/payment";
 import { getMethodType, getPaymentMethods } from "@/utils/settings/store/metadata";
@@ -80,6 +80,7 @@ const useExchangeItems = (
     setIsBusy(true);
     const sdk = getSdk();
     const collectionsBefore = new Set((order.payment_collections ?? []).map((c) => c.id));
+    const linesBefore = new Set((order.items ?? []).map((i) => i.id));
     let exchangeId = "";
     let returnId = "";
     try {
@@ -158,7 +159,7 @@ const useExchangeItems = (
       // The new goods are in the customer's hands; a failure here must not stop settling.
       setPhase("fulfil");
       try {
-        await fulfilRemainingItems(order.id);
+        await fulfilNewItems(order.id, linesBefore);
       } catch (error) {
         void logger.error(`Exchange fulfilment failed: ${safeStringify(error)}`);
         toast.warning(t("orders.post_sale.warn_fulfil_failed"));
@@ -174,33 +175,42 @@ const useExchangeItems = (
 
       if (outstanding > 0) {
         setPhase("settle");
+        let charged: number | null = null;
         try {
-          const charged = await settle(order.id, selectedMethod);
-          if (isCash) {
-            await recordCash(
-              order,
-              "payin",
-              charged,
-              t("orders.post_sale.movement_payment", { id: order.display_id })
-            );
-            openDrawer();
+          charged = await settle(order.id, selectedMethod);
+        } catch (error) {
+          void logger.error(`Exchange settlement failed: ${safeStringify(error)}`);
+          handleErrorToast(t("orders.post_sale.warn_settle_failed"));
+        }
+
+        if (charged !== null) {
+          // The money is recorded; nothing below may report it as not taken.
+          try {
+            if (isCash) {
+              await recordCash(
+                order,
+                "payin",
+                charged,
+                t("orders.post_sale.movement_payment", { id: order.display_id })
+              );
+              openDrawer();
+            }
+            printSlip({
+              ...slip,
+              settlement: {
+                direction: "pays",
+                amount: charged,
+                method: getPaymentMethodLabel(store, selectedMethod),
+              },
+            });
+          } catch (error) {
+            void logger.error(`Exchange after-payment step failed: ${safeStringify(error)}`);
           }
-          printSlip({
-            ...slip,
-            settlement: {
-              direction: "pays",
-              amount: charged,
-              method: getPaymentMethodLabel(store, selectedMethod),
-            },
-          });
           toast.success(
             `${t("orders.post_sale.exchange_success")} · ${t("orders.post_sale.direction_pays", {
               amount: formatPrice(charged, currency),
             })}`
           );
-        } catch (error) {
-          void logger.error(`Exchange settlement failed: ${safeStringify(error)}`);
-          handleErrorToast(t("orders.post_sale.warn_settle_failed"));
         }
       } else {
         toast.success(t("orders.post_sale.exchange_success"));

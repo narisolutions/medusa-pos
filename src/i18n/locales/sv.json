@@ -445,7 +445,8 @@
       "step_add_outbound": "Lägger till det som går ut…",
       "step_add_shipping": "Lägger till upphämtning…",
       "step_exchange_request": "Registrerar bytet…",
-      "refund_owed_label": "Skyldigt kunden"
+      "refund_owed_label": "Skyldigt kunden",
+      "add_success_unpaid": "Varor tillagda till det kunden är skyldig"
     },
     "item_returned": "Returnerad"
   },

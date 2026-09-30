@@ -194,24 +194,33 @@ async function processFulfillment(order: AdminOrder): Promise<void> {
   await sdk.admin.order.markAsDelivered(order.id, fulfillmentId);
 }
 
-/** Quantities on each line not yet handed over — what an edit or exchange just added. */
+/**
+ * Quantities not yet handed over on lines an edit or exchange just added. Lines
+ * the order already had are left alone: they may be waiting to ship.
+ */
 function unfulfilledQuantities(
-  items: { id: string; quantity?: unknown; detail?: { fulfilled_quantity?: unknown } | null }[]
+  items: { id: string; quantity?: unknown; detail?: { fulfilled_quantity?: unknown } | null }[],
+  existingLineIds: ReadonlySet<string> = new Set()
 ): { id: string; quantity: number }[] {
   return items
+    .filter((i) => !existingLineIds.has(i.id))
     .map((i) => ({ id: i.id, quantity: toNumber(i.quantity) - toNumber(i.detail?.fulfilled_quantity) }))
     .filter((i) => i.quantity > 0);
 }
 
 /**
- * Hands over whatever on the order is not yet fulfilled: fulfils it at this
- * till's stock location and marks it delivered, like a sale at checkout.
+ * Hands over the lines a post-sale change added: fulfils them at this till's
+ * stock location and marks that fulfilment delivered, like a sale at checkout.
+ * Nothing else on the order is fulfilled or marked delivered.
  */
-async function fulfilRemainingItems(orderId: string): Promise<void> {
+async function fulfilNewItems(orderId: string, existingLineIds: ReadonlySet<string>): Promise<void> {
   const sdk = getSdk();
-  const { order } = await sdk.admin.order.retrieve(orderId, { fields: "id,*items,*items.detail" });
-  const items = unfulfilledQuantities(order.items ?? []);
+  const { order } = await sdk.admin.order.retrieve(orderId, {
+    fields: "id,*items,*items.detail,*fulfillments",
+  });
+  const items = unfulfilledQuantities(order.items ?? [], existingLineIds);
   if (items.length === 0) return;
+  const fulfilmentsBefore = new Set((order.fulfillments ?? []).map((f) => f.id));
 
   const locationId = await storage.getItem("stock_location_id");
   await sdk.admin.order.createFulfillment(orderId, {
@@ -222,12 +231,14 @@ async function fulfilRemainingItems(orderId: string): Promise<void> {
 
   const { order: fulfilled } = await sdk.admin.order.retrieve(orderId, { fields: "id,*fulfillments" });
   for (const f of fulfilled.fulfillments ?? []) {
-    if (!f.delivered_at && !f.canceled_at) await sdk.admin.order.markAsDelivered(orderId, f.id);
+    if (!fulfilmentsBefore.has(f.id) && !f.delivered_at && !f.canceled_at) {
+      await sdk.admin.order.markAsDelivered(orderId, f.id);
+    }
   }
 }
 
 export {
-  fulfilRemainingItems,
+  fulfilNewItems,
   unfulfilledQuantities,
   processPaymentCollection,
   processFulfillment,
