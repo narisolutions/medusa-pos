@@ -110,10 +110,14 @@ export function differenceDirection(amount: number): "pays" | "refund" | "even" 
   return cents > 0 ? "pays" : cents < 0 ? "refund" : "even";
 }
 
+/** Stamped on the edits Add items opens, so the timeline can tell them from checkout's. */
+export const POST_SALE_EDIT_DESCRIPTION = "pos:add_items";
+
 type ChangeAction = { action?: string | null; details?: Record<string, unknown> | null };
 type ChangeLike = {
   id: string;
   change_type?: string | null;
+  description?: string | null;
   status?: string | null;
   confirmed_at?: string | Date | null;
   actions?: ChangeAction[] | null;
@@ -154,7 +158,9 @@ export function postSaleEvents(
     const actions = change.actions ?? [];
 
     if (change.change_type === "edit") {
-      if (cutoff === null || new Date(at).getTime() <= cutoff) continue;
+      // Our own edits carry the stamp; for anyone else's, after the sale completed is the best guess.
+      const stamped = change.description === POST_SALE_EDIT_DESCRIPTION;
+      if (!stamped && (cutoff === null || new Date(at).getTime() <= cutoff)) continue;
       const added = actions.filter((a) => a.action === "ITEM_ADD");
       if (added.length === 0) continue;
       events.push({

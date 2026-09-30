@@ -122,6 +122,17 @@ describe("postSaleEvents", () => {
     ]);
   });
 
+  it("shows a stamped Add items edit even when it predates the first fulfilment (unpaid order)", () => {
+    const stamped = change({
+      change_type: "edit",
+      description: "pos:add_items",
+      confirmed_at: "2026-09-30T09:59:00.000Z",
+      actions: [{ action: "ITEM_ADD", details: { reference_id: "l2", quantity: 1, unit_price: 6 } }],
+    });
+    expect(postSaleEvents([stamped], items, sale)).toMatchObject([{ kind: "items_added", amount: 6 }]);
+    expect(postSaleEvents([stamped], items, null)).toHaveLength(1);
+  });
+
   it("skips the edits that built the sale at checkout, and unconfirmed changes", () => {
     const building = change({ change_type: "edit", confirmed_at: "2026-09-30T09:59:00.000Z", actions: [{ action: "ITEM_ADD", details: { reference_id: "l1", quantity: 1, unit_price: 5 } }] });
     const pending = change({ change_type: "edit", status: "pending", actions: [{ action: "ITEM_ADD", details: {} }] });

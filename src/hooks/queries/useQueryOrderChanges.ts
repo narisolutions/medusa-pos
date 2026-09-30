@@ -7,7 +7,7 @@ import { findOpenChange } from "@/utils/pos/order-change";
 
 const fetchOrderChanges = async (orderId: string): Promise<AdminOrderChange[]> => {
   const { order_changes } = await getSdk().admin.order.listChanges(orderId, {
-    fields: "id,change_type,status,confirmed_at,*actions",
+    fields: "id,change_type,status,confirmed_at,description,*actions",
   });
   return order_changes;
 };

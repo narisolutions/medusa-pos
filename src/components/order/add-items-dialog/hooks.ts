@@ -14,7 +14,7 @@ import { usePostSaleCash } from "@/hooks/order/usePostSaleCash";
 import { usePostSaleSlip } from "@/hooks/order/usePostSaleSlip";
 import { useOutboundLines } from "../outbound-lines/hooks";
 import { fulfilNewItems } from "@/utils/pos/order-processing";
-import { isUnpaidStatus } from "@/utils/pos/post-sale";
+import { isUnpaidStatus, POST_SALE_EDIT_DESCRIPTION } from "@/utils/pos/post-sale";
 import { getOrderPaymentProviderId, getPaymentMethodLabel } from "@/utils/pos/payment";
 import { getMethodType, getPaymentMethods } from "@/utils/settings/store/metadata";
 
@@ -69,7 +69,10 @@ const useAddItems = (order: AdminOrder, isOpen: boolean, onClose: () => void) =>
           {
             key: "initiate",
             run: async () => {
-              await sdk.admin.orderEdit.initiateRequest({ order_id: order.id });
+              await sdk.admin.orderEdit.initiateRequest({
+                order_id: order.id,
+                description: POST_SALE_EDIT_DESCRIPTION,
+              });
             },
             // An edit cancels with cancelRequest right up to confirm (verified on staging).
             undo: async () => {
