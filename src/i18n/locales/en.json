@@ -366,6 +366,7 @@
     "refund_processing": "Refunding...",
     "refund_success": "Refunded {{amount}}",
     "refund_failed": "Refund failed",
+    "refund_partial": "Only {{amount}} was refunded: {{error}}. Refund the rest from the order.",
     "refunded_label": "Refunded",
     "event_refunded": "Refunded",
     "payment_label": "Payment:",

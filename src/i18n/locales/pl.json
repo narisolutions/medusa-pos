@@ -366,6 +366,7 @@
     "refund_processing": "Zwracanie...",
     "refund_success": "Zwrócono {{amount}}",
     "refund_failed": "Zwrot nie powiódł się",
+    "refund_partial": "Zwrócono tylko {{amount}}: {{error}}. Zwróć resztę z poziomu zamówienia.",
     "refunded_label": "Zwrócono",
     "event_refunded": "Zwrócono",
     "payment_label": "Płatność:",

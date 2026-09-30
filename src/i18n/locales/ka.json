@@ -366,6 +366,7 @@
     "refund_processing": "მიმდინარეობს დაბრუნება...",
     "refund_success": "დაბრუნდა {{amount}}",
     "refund_failed": "დაბრუნება ვერ მოხერხდა",
+    "refund_partial": "დაბრუნდა მხოლოდ {{amount}}: {{error}}. დანარჩენი დააბრუნეთ შეკვეთიდან.",
     "refunded_label": "დაბრუნებული",
     "event_refunded": "დაბრუნებული",
     "payment_label": "გადახდა:",

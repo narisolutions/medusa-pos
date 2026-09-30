@@ -366,6 +366,7 @@
     "refund_processing": "Återbetalar...",
     "refund_success": "Återbetalade {{amount}}",
     "refund_failed": "Återbetalningen misslyckades",
+    "refund_partial": "Endast {{amount}} återbetalades: {{error}}. Återbetala resten från ordern.",
     "refunded_label": "Återbetalat",
     "event_refunded": "Återbetalat",
     "payment_label": "Betalning:",

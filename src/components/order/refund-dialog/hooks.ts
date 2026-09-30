@@ -19,11 +19,10 @@ import { useQueryStore } from "@/hooks/queries/useQueryStore";
 import { useQueryRefundReasons } from "@/hooks/queries/useQueryRefundReasons";
 import { usePostSaleCash } from "@/hooks/order/usePostSaleCash";
 import { getMethodType } from "@/utils/settings/store/metadata";
-import { getPaymentMethodLabel } from "@/utils/pos/payment";
 import {
   allocateRefund,
+  getPaymentMethodLabel,
   getRefundablePayments,
-  getOrderPaymentMethodType,
 } from "@/utils/pos/payment";
 
 /** `lockedAmount`: what a post-sale change left owing; spread across payments, not editable. */
@@ -143,10 +142,6 @@ export const useRefund = (
     setStep("confirm");
   });
 
-  const openDrawerForCashRefund = useCallback(() => {
-    if (getOrderPaymentMethodType(order, store) === "cash") openDrawer();
-  }, [order, store, openDrawer]);
-
   const handleConfirm = useCallback(async () => {
     if (submissionRef.current || !selectedPayment) return;
     submissionRef.current = true;
@@ -154,9 +149,11 @@ export const useRefund = (
 
     const { amount, refundReasonId, note } = form.getValues();
     const refunds = allocation ?? [{ id: selectedPayment.id, amount }];
-    const cashRefunded = refunds
-      .filter((r) => getMethodType(store, payments.find((p) => p.id === r.id)?.providerId) === "cash")
-      .reduce((sum, r) => sum + r.amount, 0);
+    const isCashRefund = (r: { id: string }) =>
+      getMethodType(store, payments.find((p) => p.id === r.id)?.providerId) === "cash";
+    const cashIn = (list: { id: string; amount: number }[]) =>
+      list.filter(isCashRefund).reduce((sum, r) => sum + r.amount, 0);
+    const cashRefunded = cashIn(refunds);
 
     if (cashRefunded > 0 && isCashBlocked) {
       handleErrorToast(t("checkout.register_closed"));
@@ -165,6 +162,7 @@ export const useRefund = (
       return;
     }
 
+    const done: typeof refunds = [];
     try {
       const sdk = getSdk();
       // Sequential: if one fails, what already went through is still on record.
@@ -174,6 +172,7 @@ export const useRefund = (
           ...(refundReasonId ? { refund_reason_id: refundReasonId } : {}),
           ...(note?.trim() ? { note: note.trim() } : {}),
         });
+        done.push(refund);
       }
 
       void queryClient.invalidateQueries({
@@ -200,14 +199,34 @@ export const useRefund = (
       toast.success(
         t("orders.refund_success", { amount: formatPrice(amount, currency) })
       );
-      openDrawerForCashRefund();
+      if (cashRefunded > 0) openDrawer();
       onClose();
     } catch (error) {
       void queryClient.invalidateQueries({
         queryKey: queryKeys.orders.detail(order.id),
       });
-      handleErrorToast(getApiErrorMessage(error, t("orders.refund_failed")));
-      setStep("form");
+      // A split refund can fail after its first part: that money has left, so it is
+      // recorded and the cashier is told, rather than reported as nothing happened.
+      const partial = done.reduce((sum, r) => sum + r.amount, 0);
+      if (partial > 0) {
+        await recordCash(
+          order,
+          "drop",
+          cashIn(done),
+          t("orders.post_sale.movement_refund", { id: order.display_id })
+        );
+        if (cashIn(done) > 0) openDrawer();
+        handleErrorToast(
+          t("orders.refund_partial", {
+            amount: formatPrice(partial, currency),
+            error: getApiErrorMessage(error, t("orders.refund_failed")),
+          })
+        );
+        onClose();
+      } else {
+        handleErrorToast(getApiErrorMessage(error, t("orders.refund_failed")));
+        setStep("form");
+      }
     } finally {
       submissionRef.current = false;
       setIsProcessing(false);
@@ -223,7 +242,7 @@ export const useRefund = (
     form,
     queryClient,
     currency,
-    openDrawerForCashRefund,
+    openDrawer,
     onClose,
     onRefunded,
     t,

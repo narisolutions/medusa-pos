@@ -366,6 +366,7 @@
     "refund_processing": "Reembolsando...",
     "refund_success": "Reembolsado {{amount}}",
     "refund_failed": "El reembolso ha fallado",
+    "refund_partial": "Solo se reembolsó {{amount}}: {{error}}. Reembolse el resto desde el pedido.",
     "refunded_label": "Reembolsado",
     "event_refunded": "Reembolsado",
     "payment_label": "Pago:",

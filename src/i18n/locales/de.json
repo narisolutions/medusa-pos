@@ -366,6 +366,7 @@
     "refund_processing": "Erstattung läuft...",
     "refund_success": "{{amount}} erstattet",
     "refund_failed": "Erstattung fehlgeschlagen",
+    "refund_partial": "Nur {{amount}} wurde erstattet: {{error}}. Erstatten Sie den Rest über die Bestellung.",
     "refunded_label": "Erstattet",
     "event_refunded": "Erstattet",
     "payment_label": "Zahlung:",

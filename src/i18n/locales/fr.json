@@ -366,6 +366,7 @@
     "refund_processing": "Remboursement...",
     "refund_success": "{{amount}} remboursé",
     "refund_failed": "Échec du remboursement",
+    "refund_partial": "Seuls {{amount}} ont été remboursés : {{error}}. Remboursez le reste depuis la commande.",
     "refunded_label": "Remboursé",
     "event_refunded": "Remboursé",
     "payment_label": "Paiement :",
