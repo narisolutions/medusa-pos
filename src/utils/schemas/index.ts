@@ -159,6 +159,7 @@ export default {
       .string()
       .email({ message: "Please enter a valid email address" })
       .optional(),
+    transferCounterparty: z.string().optional(),
     paymentMethods: z
       .array(
         z.object({

@@ -1,5 +1,5 @@
 import React from "react";
-import { useForm, useFieldArray } from "react-hook-form";
+import { useForm, useFieldArray, useWatch } from "react-hook-form";
 import { ImageIcon, Upload, X, Banknote, CreditCard, ArrowLeftRight, Plus, Trash2, Info, AlertTriangle } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -47,6 +47,7 @@ const StoreSettings: React.FC = () => {
       storePhone: "",
       paymentMethods: DEFAULT_PAYMENT_METHODS,
       guestCustomerEmail: "",
+      transferCounterparty: "",
     },
   });
 
@@ -60,6 +61,10 @@ const StoreSettings: React.FC = () => {
     control,
     name: "paymentMethods",
   });
+  const paymentMethods = useWatch({ control, name: "paymentMethods" });
+  const hasTransferMethod = paymentMethods?.some(
+    (m) => (m.type ?? m.icon) === "transfer"
+  );
 
   const { data: installedProviders, isError: providersError } = useQueryPaymentProviders();
   const installedProviderIds = React.useMemo(
@@ -275,6 +280,14 @@ const StoreSettings: React.FC = () => {
                 {t("settings.store.payment_methods_description")}
               </p>
               <div className="space-y-3 rounded-lg border border-theme-border p-4 bg-surface-muted">
+                <div className="flex items-end gap-3 px-3 border border-transparent text-base leading-tight font-medium text-fg-muted">
+                  <span className="w-4 shrink-0" />
+                  <span className="w-48 shrink-0">{t("settings.store.column_provider_id")}</span>
+                  <span className="flex-1 min-w-0">{t("settings.store.column_display_name")}</span>
+                  <span className="w-28 shrink-0">{t("settings.store.column_icon")}</span>
+                  <span className="w-28 shrink-0">{t("settings.store.column_type")}</span>
+                  <span className="size-12 shrink-0" />
+                </div>
                 {fields.map((field, index) => (
                   <div
                     key={field.id}
@@ -454,6 +467,45 @@ const StoreSettings: React.FC = () => {
                 </Button>
               </div>
             </div>
+
+            {hasTransferMethod && (
+              <FormField
+                control={control}
+                name="transferCounterparty"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-lg font-medium flex items-center gap-2">
+                      {t("settings.store.transfer_counterparty_label")}
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <button
+                            type="button"
+                            className="inline-flex items-center justify-center rounded-full p-0.5 hover:bg-surface-subtle"
+                          >
+                            <Info className="w-4 h-4 text-fg-subtle" />
+                          </button>
+                        </TooltipTrigger>
+                        <TooltipContent
+                          side="top"
+                          sideOffset={4}
+                          className="max-w-xs text-left"
+                        >
+                          {t("settings.store.transfer_counterparty_tooltip")}
+                        </TooltipContent>
+                      </Tooltip>
+                    </FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder={t("settings.store.transfer_counterparty_placeholder")}
+                        className="h-12 text-lg px-4"
+                        disabled={isLoading}
+                        {...field}
+                      />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
+            )}
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <FormField
