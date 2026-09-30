@@ -264,7 +264,8 @@ const usePrinterService = () => {
       currency: getOrderCurrency(order),
       paymentMethod: paymentMethodLabel,
       amountPaid,
-      refunded: changed ? toNumber(order.summary?.refunded_total) : undefined,
+      // Any refund, not only after a return: a reprint must not read as fully paid.
+      refunded: toNumber(order.summary?.refunded_total) || undefined,
       change,
       cashRounding,
       isUnpaid,
