@@ -21,6 +21,24 @@ export type OrderChangeOutcome =
   /** The undo failed too: a change is left open on the order and needs a person. */
   | { status: "stranded"; failedStep: string; error: unknown; undoError: unknown };
 
+/** A change still pending or requested blocks any new one; the backend rejects it too. */
+export function findOpenChange<T extends { status?: string | null }>(
+  changes: T[]
+): T | undefined {
+  return changes.find((c) => c.status === "pending" || c.status === "requested");
+}
+
+/** Thrown before anything runs when the order already has an open change. */
+export class OrderChangeBlockedError extends Error {
+  constructor(
+    readonly orderId: string,
+    readonly changeType: string | null
+  ) {
+    super(`Order ${orderId} already has an open ${changeType ?? "order"} change`);
+    this.name = "OrderChangeBlockedError";
+  }
+}
+
 /** Thrown by `useOrderChange` when an operation did not apply. */
 export class OrderChangeError extends Error {
   constructor(

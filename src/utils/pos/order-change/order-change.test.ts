@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { runOrderChange, type OrderChangeStep } from ".";
+import { findOpenChange, runOrderChange, type OrderChangeStep } from ".";
 
 const boom = new Error("boom");
 
@@ -76,5 +76,18 @@ describe("runOrderChange", () => {
       undoError: boom,
     });
     expect(calls.slice(-1)).toEqual(["cancelReceive"]);
+  });
+});
+
+describe("findOpenChange", () => {
+  it("treats pending and requested changes as open", () => {
+    expect(findOpenChange([{ status: "confirmed" }, { status: "pending" }])).toEqual({ status: "pending" });
+    expect(findOpenChange([{ status: "requested" }])).toEqual({ status: "requested" });
+  });
+
+  it("ignores confirmed, canceled and declined changes", () => {
+    expect(
+      findOpenChange([{ status: "confirmed" }, { status: "canceled" }, { status: "declined" }, { status: null }])
+    ).toBeUndefined();
   });
 });

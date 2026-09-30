@@ -125,6 +125,9 @@ checked on staging order #492, which was left unchanged.
 Before any operation, read the order's changes (`sdk.admin.order.listChanges`, already used
 elsewhere) and refuse to start if one is open.
 
+✅ **Done 2026-09-30.** `useOrderChange.run` checks first and throws `OrderChangeBlockedError`;
+`getOpenOrderChange` is exported so the entry point can show the reason before a dialog opens.
+
 ### 1e. Settlement routine — **new, not `processPaymentCollection`**
 
 `src/hooks/order/useSettleOutstanding.ts`. Must not reuse `processPaymentCollection` in
