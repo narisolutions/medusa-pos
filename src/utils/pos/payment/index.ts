@@ -161,3 +161,26 @@ export function allocateRefund(
 
   return remaining > 0 ? null : allocation;
 }
+
+const cents = (amount: number) => Math.round(amount * 100);
+
+/** Payments that can each give back the whole amount alone — no split needed. */
+export function paymentsCovering(
+  payments: RefundablePayment[],
+  amount: number
+): RefundablePayment[] {
+  return payments.filter((p) => cents(p.refundable) >= cents(amount));
+}
+
+/**
+ * Which covering payment to suggest: the one for exactly this amount (most
+ * likely what paid for the goods coming back), else the most recent.
+ */
+export function defaultRefundPayment(
+  covering: RefundablePayment[],
+  amount: number
+): RefundablePayment | undefined {
+  return (
+    covering.find((p) => cents(p.refundable) === cents(amount)) ?? covering[covering.length - 1]
+  );
+}

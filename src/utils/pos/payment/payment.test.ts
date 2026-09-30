@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { allocateRefund, type RefundablePayment } from ".";
+import { allocateRefund, defaultRefundPayment, paymentsCovering, type RefundablePayment } from ".";
 
 const payment = (id: string, refundable: number): RefundablePayment => ({
   id,
@@ -32,5 +32,22 @@ describe("allocateRefund", () => {
       { id: "b", amount: 0.2 },
       { id: "a", amount: 0.1 },
     ]);
+  });
+});
+
+describe("paymentsCovering and defaultRefundPayment", () => {
+  const card = payment("card_3.49", 3.49);
+  const cash = payment("cash_5.49", 5.49);
+
+  it("lists only the payments that can refund the whole amount alone", () => {
+    expect(paymentsCovering([card, cash], 5.49)).toEqual([cash]);
+    expect(paymentsCovering([card, cash], 3)).toEqual([card, cash]);
+    expect(paymentsCovering([card, cash], 6)).toEqual([]);
+  });
+
+  it("suggests the payment for exactly that amount, else the most recent", () => {
+    expect(defaultRefundPayment([card, cash], 3.49)).toBe(card);
+    expect(defaultRefundPayment([card, cash], 3)).toBe(cash);
+    expect(defaultRefundPayment([], 3)).toBeUndefined();
   });
 });

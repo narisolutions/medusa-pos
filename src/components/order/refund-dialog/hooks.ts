@@ -21,11 +21,16 @@ import { usePostSaleCash } from "@/hooks/order/usePostSaleCash";
 import { getMethodType } from "@/utils/settings/store/metadata";
 import {
   allocateRefund,
+  defaultRefundPayment,
   getPaymentMethodLabel,
   getRefundablePayments,
+  paymentsCovering,
 } from "@/utils/pos/payment";
 
-/** `lockedAmount`: what a post-sale change left owing; spread across payments, not editable. */
+/**
+ * `lockedAmount`: what a post-sale change left owing, not editable. The cashier
+ * picks which payment returns it when one can alone; otherwise it is split.
+ */
 export const useRefund = (
   order: AdminOrder,
   isOpen: boolean,
@@ -46,9 +51,15 @@ export const useRefund = (
   const submissionRef = useRef(false);
 
   const payments = useMemo(() => getRefundablePayments(order), [order]);
-  const [selectedPaymentId, setSelectedPaymentId] = useState(
-    () => payments[0]?.id ?? ""
+  const covering = useMemo(
+    () => (isLocked ? paymentsCovering(payments, lockedAmount) : []),
+    [isLocked, payments, lockedAmount]
   );
+  const defaultPaymentId = () =>
+    (isLocked ? defaultRefundPayment(covering, lockedAmount) : undefined)?.id ??
+    payments[0]?.id ??
+    "";
+  const [selectedPaymentId, setSelectedPaymentId] = useState(defaultPaymentId);
 
   const selectedPayment =
     payments.find((payment) => payment.id === selectedPaymentId) ?? payments[0];
@@ -56,10 +67,13 @@ export const useRefund = (
     ? payments.reduce((sum, payment) => sum + payment.refundable, 0)
     : selectedPayment?.refundable ?? 0;
   const currency = getOrderCurrency(order);
-  const allocation = useMemo(
-    () => (isLocked ? allocateRefund(payments, lockedAmount) : null),
-    [isLocked, payments, lockedAmount]
-  );
+  const allocation = useMemo(() => {
+    if (!isLocked) return null;
+    if (covering.length === 0) return allocateRefund(payments, lockedAmount);
+    const chosen =
+      covering.find((p) => p.id === selectedPaymentId) ?? defaultRefundPayment(covering, lockedAmount);
+    return chosen ? [{ id: chosen.id, amount: lockedAmount }] : null;
+  }, [isLocked, covering, payments, lockedAmount, selectedPaymentId]);
   const initialAmount = (first?: { refundable: number }) =>
     isLocked ? lockedAmount : first?.refundable ?? 0;
 
@@ -94,7 +108,7 @@ export const useRefund = (
     if (isOpen) {
       const first = payments[0];
       setStep("form");
-      setSelectedPaymentId(first?.id ?? "");
+      setSelectedPaymentId(defaultPaymentId());
       const initial = initialAmount(first);
       setAmountText(initial > 0 ? String(initial) : "");
       form.reset({
@@ -108,10 +122,12 @@ export const useRefund = (
   const handleSelectPayment = useCallback(
     (paymentId: string) => {
       setSelectedPaymentId(paymentId);
+      // Locked: the amount is what is owed, whichever payment returns it.
+      if (isLocked) return;
       const next = payments.find((payment) => payment.id === paymentId);
       setAmount(next ? String(next.refundable) : "");
     },
-    [payments, setAmount]
+    [isLocked, payments, setAmount]
   );
 
   const handleRefundFull = useCallback(() => {
@@ -248,12 +264,22 @@ export const useRefund = (
     t,
   ]);
 
+  const labelOf = (id: string) =>
+    getPaymentMethodLabel(store, payments.find((p) => p.id === id)?.providerId);
+  const targets = allocation ?? (selectedPayment ? [{ id: selectedPayment.id, amount: 0 }] : []);
+
   return {
     isLocked,
     form,
     step,
     setStep,
-    payments,
+    payments: isLocked ? covering : payments,
+    // Where the money goes back to, for the confirmation text.
+    refundMethodLabel: [...new Set(targets.map((r) => labelOf(r.id)).filter(Boolean))].join(", "),
+    splitParts:
+      allocation && allocation.length > 1
+        ? allocation.map((a) => ({ label: labelOf(a.id), amount: a.amount }))
+        : [],
     selectedPayment,
     selectedPaymentId: selectedPayment?.id ?? "",
     handleSelectPayment,

@@ -26,7 +26,7 @@ import {
   SelectTrigger,
 } from "@/components/ui/select";
 import { formatPrice } from "@/utils/helpers";
-import { getOrderPaymentMethodLabel, getPaymentMethodLabel } from "@/utils/pos/payment";
+import { getPaymentMethodLabel } from "@/utils/pos/payment";
 import { useQueryStore } from "@/hooks/queries/useQueryStore";
 import { useTranslation } from "@/i18n";
 import { useRefund } from "./hooks";
@@ -50,6 +50,8 @@ const RefundDialog: React.FC<Props> = ({ isOpen, onClose, order, amount: lockedA
     step,
     setStep,
     payments,
+    refundMethodLabel,
+    splitParts,
     selectedPaymentId,
     handleSelectPayment,
     refundable,
@@ -64,7 +66,7 @@ const RefundDialog: React.FC<Props> = ({ isOpen, onClose, order, amount: lockedA
   } = useRefund(order, isOpen, onClose, lockedAmount, onRefunded);
 
   const amount = Number(amountText) || 0;
-  const methodLabel = getOrderPaymentMethodLabel(order, store);
+  const methodLabel = refundMethodLabel;
 
   return (
     <Dialog
@@ -142,7 +144,7 @@ const RefundDialog: React.FC<Props> = ({ isOpen, onClose, order, amount: lockedA
                 </div>
               )}
 
-              {!isLocked && payments.length > 1 && (
+              {payments.length > 1 && (
                 <div>
                   <div className="text-xs font-semibold text-fg-subtle uppercase tracking-wider mb-2">
                     {t("orders.refund_payment_select_label")}
@@ -199,6 +201,13 @@ const RefundDialog: React.FC<Props> = ({ isOpen, onClose, order, amount: lockedA
                         {formatPrice(amount, currency)}
                       </div>
                     </FormControl>
+                    {splitParts.length > 1 && (
+                      <p className="mt-2 text-base text-fg-muted text-right">
+                        {splitParts
+                          .map((part) => `${part.label} ${formatPrice(part.amount, currency)}`)
+                          .join(" + ")}
+                      </p>
+                    )}
                     {!isLocked && (
                       <Numpad
                         value={amountText}
