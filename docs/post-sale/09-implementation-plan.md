@@ -104,6 +104,8 @@ argument was left out: every caller adds one, and the exchange list adjusts quan
 holds `delivered_quantity`, `return_received_quantity` and `return_dismissed_quantity`. Add
 `*items.detail`.
 
+✅ **Done 2026-09-30**, checked against staging order #509.
+
 ### 1c. Order change runner
 
 `src/hooks/order/useOrderChange.ts` — runs a staged operation as an ordered sequence of steps,
