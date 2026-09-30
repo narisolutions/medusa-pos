@@ -6,6 +6,7 @@ export type PostSaleKind = "return" | "exchange" | "add";
 /** Why an option is unavailable; each maps to `orders.post_sale.reason_<key>`. */
 export type PostSaleBlock =
   | "canceled"
+  | "refunded"
   | "open_change"
   | "unpaid"
   | "not_fulfilled"
@@ -55,6 +56,8 @@ export function getPostSaleOptions(
   } as const);
 
   if (order.status === "canceled") return all("canceled");
+  // A fully refunded sale is reversed: nothing is left to refund against, and a new purchase belongs at checkout.
+  if (order.payment_status === "refunded") return all("refunded");
   if (context.hasOpenChange) return all("open_change");
 
   const items = order.items ?? [];

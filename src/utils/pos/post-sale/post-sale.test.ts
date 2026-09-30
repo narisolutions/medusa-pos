@@ -40,6 +40,13 @@ describe("getPostSaleOptions", () => {
       .toEqual({ enabled: false, reason: "open_change" });
   });
 
+  it("blocks everything on a fully refunded order, but not a partly refunded one", () => {
+    expect(getPostSaleOptions({ status: "completed", payment_status: "refunded", items: [line(1)] }, ok).add)
+      .toEqual({ enabled: false, reason: "refunded" });
+    expect(getPostSaleOptions({ status: "completed", payment_status: "partially_refunded", items: [line(1)] }, ok).return)
+      .toEqual({ enabled: true });
+  });
+
   it("allows only additional charges on an unpaid order", () => {
     const o = getPostSaleOptions({ status: "pending", payment_status: "not_paid", items: [line(1)] }, ok);
     expect(o.return).toEqual({ enabled: false, reason: "unpaid" });

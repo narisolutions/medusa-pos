@@ -378,6 +378,7 @@
       "add_label": "Lägg till varor",
       "add_hint": "Extra varor på denna betalda order",
       "reason_canceled": "Denna order är annullerad",
+      "reason_refunded": "Denna order har återbetalats helt",
       "reason_open_change": "En annan ändring av denna order är fortfarande öppen. Slutför eller avbryt den först i Medusa Admin.",
       "reason_unpaid": "Denna order har inte betalats",
       "reason_not_fulfilled": "Inget från denna order har lämnats ut ännu",

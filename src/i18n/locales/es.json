@@ -378,6 +378,7 @@
       "add_label": "Añadir artículos",
       "add_hint": "Productos adicionales en este pedido pagado",
       "reason_canceled": "Este pedido está cancelado",
+      "reason_refunded": "Este pedido se reembolsó por completo",
       "reason_open_change": "Hay otro cambio abierto en este pedido. Termínelo o cancélelo primero en Medusa Admin.",
       "reason_unpaid": "Este pedido no se ha pagado",
       "reason_not_fulfilled": "Aún no se ha entregado nada de este pedido",

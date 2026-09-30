@@ -378,6 +378,7 @@
       "add_label": "Artikel hinzufügen",
       "add_hint": "Zusätzliche Ware zu dieser bezahlten Bestellung",
       "reason_canceled": "Diese Bestellung ist storniert",
+      "reason_refunded": "Diese Bestellung wurde vollständig erstattet",
       "reason_open_change": "Eine andere Änderung an dieser Bestellung ist noch offen. Schließen oder stornieren Sie sie zuerst in Medusa Admin.",
       "reason_unpaid": "Diese Bestellung wurde nicht bezahlt",
       "reason_not_fulfilled": "Aus dieser Bestellung wurde noch nichts ausgegeben",

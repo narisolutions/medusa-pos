@@ -378,6 +378,7 @@
       "add_label": "Add items",
       "add_hint": "Extra goods on this paid order",
       "reason_canceled": "This order is canceled",
+      "reason_refunded": "This order was fully refunded",
       "reason_open_change": "Another change on this order is still open. Finish or cancel it in Medusa Admin first.",
       "reason_unpaid": "This order has not been paid",
       "reason_not_fulfilled": "Nothing on this order has been handed over yet",

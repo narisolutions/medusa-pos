@@ -378,6 +378,7 @@
       "add_label": "Dodaj artykuły",
       "add_hint": "Dodatkowy towar do tego opłaconego zamówienia",
       "reason_canceled": "To zamówienie jest anulowane",
+      "reason_refunded": "To zamówienie zostało w pełni zwrócone",
       "reason_open_change": "Inna zmiana tego zamówienia jest wciąż otwarta. Najpierw zakończ ją lub anuluj w Medusa Admin.",
       "reason_unpaid": "To zamówienie nie zostało opłacone",
       "reason_not_fulfilled": "Nic z tego zamówienia nie zostało jeszcze wydane",

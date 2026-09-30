@@ -378,6 +378,7 @@
       "add_label": "Ajouter des articles",
       "add_hint": "Articles supplémentaires sur cette commande payée",
       "reason_canceled": "Cette commande est annulée",
+      "reason_refunded": "Cette commande a été entièrement remboursée",
       "reason_open_change": "Une autre modification de cette commande est encore ouverte. Terminez-la ou annulez-la d'abord dans Medusa Admin.",
       "reason_unpaid": "Cette commande n'a pas été payée",
       "reason_not_fulfilled": "Rien de cette commande n'a encore été remis",
