@@ -357,6 +357,7 @@ const usePrinterService = () => {
           paymentMethod: t("receipt.payment_method"),
           customerPaid: t("receipt.slip.customer_paid"),
           refunded: t("receipt.slip.refunded"),
+          owed: t("receipt.slip.owed"),
           even: t("receipt.slip.even"),
           footer: t("receipt.slip.footer"),
         },

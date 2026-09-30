@@ -448,7 +448,8 @@
       "step_add_shipping": "Dodawanie odbioru…",
       "step_exchange_request": "Rejestrowanie wymiany…",
       "refund_owed_label": "Należne klientowi",
-      "add_success_unpaid": "Dodano artykuły do kwoty należnej od klienta"
+      "add_success_unpaid": "Dodano artykuły do kwoty należnej od klienta",
+      "add_authorized_warning": "Wcześniejsza autoryzacja płatności klienta zostanie anulowana. Całą kwotę trzeba będzie zapłacić ponownie."
     },
     "item_returned": "Zwrócono"
   },
@@ -527,7 +528,8 @@
       "customer_paid": "Klient zapłacił",
       "refunded": "Zwrócono",
       "even": "RÓWNO - NIE MA CZEGO ROZLICZAĆ",
-      "footer": "Zachowaj ten dowód wraz z paragonem"
+      "footer": "Zachowaj ten dowód wraz z paragonem",
+      "owed": "Dodano do kwoty należnej"
     }
   },
   "handoff": {

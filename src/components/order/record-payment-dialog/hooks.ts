@@ -12,7 +12,10 @@ import { settleOutstanding } from "@/utils/pos/order-processing";
 import { toNumber } from "@/utils/pos/pricing";
 import { getMethodType, getPaymentMethods } from "@/utils/settings/store/metadata";
 import { getOrderPaymentProviderId } from "@/utils/pos/payment";
-import { handleErrorToast } from "@/utils/helpers";
+import { handleErrorToast, printerIssueStaffHintToast } from "@/utils/helpers";
+import { logger, safeStringify } from "@/utils/logger";
+import { usePrinterService } from "@/hooks/printer/usePrinterService";
+import { ORDER_DETAIL_FIELDS } from "@/hooks/queries/useQueryOrder";
 
 // "Record payment" dialog: captures an outstanding payment on an existing (pay-later)
 // order and completes it once both paid and fulfilled.
@@ -22,6 +25,7 @@ export const useRecordPayment = (order: AdminOrder, onClose?: () => void) => {
   const { data: store } = useQueryStore();
   const { processPaymentCollection } = useOrderProcessing();
   const { record: recordCash, isCashBlocked } = usePostSaleCash();
+  const { printOrderReceipt, getDefaultPrinter } = usePrinterService();
 
   const [isProcessing, setIsProcessing] = useState(false);
 
@@ -87,6 +91,20 @@ export const useRecordPayment = (order: AdminOrder, onClose?: () => void) => {
 
       toast.success(t("orders.record_payment_success"));
       onClose?.();
+
+      // The customer has now paid: print the receipt, from the paid order, like checkout does.
+      void (async () => {
+        try {
+          const { order: paid } = await sdk.admin.order.retrieve(order.id, { fields: ORDER_DETAIL_FIELDS });
+          await printOrderReceipt(paid);
+        } catch (printError) {
+          void logger.warn(`Receipt after recorded payment did not print: ${safeStringify(printError)}`);
+          const printer = getDefaultPrinter();
+          toast.error(t("orders.receipt_did_not_print"), {
+            description: printer ? printerIssueStaffHintToast(printer.name) : t("checkout.no_default_printer"),
+          });
+        }
+      })();
     } catch (error) {
       handleErrorToast(
         error instanceof Error ? error.message : t("orders.record_payment_failed")
@@ -94,7 +112,7 @@ export const useRecordPayment = (order: AdminOrder, onClose?: () => void) => {
     } finally {
       setIsProcessing(false);
     }
-  }, [selectedMethod, order, store, isTopUp, total, isCashBlocked, recordCash, processPaymentCollection, queryClient, onClose, t]);
+  }, [selectedMethod, order, store, isTopUp, total, isCashBlocked, recordCash, processPaymentCollection, printOrderReceipt, getDefaultPrinter, queryClient, onClose, t]);
 
   return {
     methods,

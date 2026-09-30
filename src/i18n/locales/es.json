@@ -448,7 +448,8 @@
       "step_add_shipping": "Añadiendo recogida…",
       "step_exchange_request": "Registrando el cambio…",
       "refund_owed_label": "Adeudado al cliente",
-      "add_success_unpaid": "Artículos añadidos a lo que debe el cliente"
+      "add_success_unpaid": "Artículos añadidos a lo que debe el cliente",
+      "add_authorized_warning": "La autorización de pago anterior del cliente se cancelará. Deberá pagarse de nuevo el importe completo."
     },
     "item_returned": "Devuelto"
   },
@@ -527,7 +528,8 @@
       "customer_paid": "El cliente pagó",
       "refunded": "Reembolsado",
       "even": "IGUALADO - NADA QUE LIQUIDAR",
-      "footer": "Guarde este comprobante con su recibo"
+      "footer": "Guarde este comprobante con su recibo",
+      "owed": "Añadido al importe pendiente"
     }
   },
   "handoff": {

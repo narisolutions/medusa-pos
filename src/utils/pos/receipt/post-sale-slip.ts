@@ -17,6 +17,7 @@ export type PostSaleSlip = {
   out: { title: string; quantity: number; unitPrice: number }[];
   settlement:
     | { direction: "pays" | "refund"; amount: number; method: string }
+    | { direction: "owed"; amount: number }
     | { direction: "even" };
 };
 
@@ -38,6 +39,7 @@ export type PostSaleSlipLabels = {
   paymentMethod: string;
   customerPaid: string;
   refunded: string;
+  owed: string;
   even: string;
   footer: string;
 };
@@ -70,7 +72,9 @@ export function buildPostSaleSlipDoc(
   const paymentRows: PaymentRow[] =
     slip.settlement.direction === "even"
       ? []
-      : [
+      : slip.settlement.direction === "owed"
+        ? [{ label: labels.owed, amount: slip.settlement.amount }]
+        : [
           { label: labels.paymentMethod, value: slip.settlement.method },
           {
             label: slip.settlement.direction === "pays" ? labels.customerPaid : labels.refunded,

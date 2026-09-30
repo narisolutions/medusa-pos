@@ -448,7 +448,8 @@
       "step_add_shipping": "Adding pickup…",
       "step_exchange_request": "Recording the exchange…",
       "refund_owed_label": "Owed to customer",
-      "add_success_unpaid": "Items added to what the customer owes"
+      "add_success_unpaid": "Items added to what the customer owes",
+      "add_authorized_warning": "The customer's earlier payment authorization will be cancelled. The whole amount must be paid again."
     },
     "item_returned": "Returned"
   },
@@ -527,7 +528,8 @@
       "customer_paid": "Customer paid",
       "refunded": "Refunded",
       "even": "EVEN - NOTHING TO SETTLE",
-      "footer": "Keep this slip with your receipt"
+      "footer": "Keep this slip with your receipt",
+      "owed": "Added to amount owed"
     }
   },
   "handoff": {

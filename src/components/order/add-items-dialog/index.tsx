@@ -1,6 +1,6 @@
 import React from "react";
 import { AdminOrder } from "@medusajs/types";
-import { Loader2 } from "lucide-react";
+import { AlertTriangle, Loader2 } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -78,6 +78,13 @@ const AddItemsDialog: React.FC<Props> = ({ isOpen, onClose, order }) => {
               onSelect={setSelectedMethod}
               disabled={isBusy}
             />
+          )}
+
+          {(order.payment_status === "authorized" || order.payment_status === "partially_authorized") && (
+            <div className="flex items-start gap-3 rounded-lg border border-amber-500/40 bg-amber-500/10 p-4">
+              <AlertTriangle className="size-5 shrink-0 text-amber-600 mt-0.5" />
+              <p className="text-base text-fg">{t("orders.post_sale.add_authorized_warning")}</p>
+            </div>
           )}
 
           <div className="flex gap-3 pt-2">

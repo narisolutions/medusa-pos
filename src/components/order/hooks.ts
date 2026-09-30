@@ -348,13 +348,15 @@ export const useOrder = (order: AdminOrder) => {
   const handleRefunded = (amount: number, method: string) => {
     if (pendingSlip) {
       printSlip({ ...pendingSlip, settlement: { direction: "refund", amount, method } });
+      setPendingSlip(null);
     }
   };
 
+  // The slip stays pending if the dialog is closed unrefunded, so a refund made
+  // later from the Refund button still prints it.
   const handleCloseRefund = () => {
     setIsRefundOpen(false);
     setOwedAfterChange(null);
-    setPendingSlip(null);
   };
 
   return {

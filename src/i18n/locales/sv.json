@@ -448,7 +448,8 @@
       "step_add_shipping": "Lägger till upphämtning…",
       "step_exchange_request": "Registrerar bytet…",
       "refund_owed_label": "Skyldigt kunden",
-      "add_success_unpaid": "Varor tillagda till det kunden är skyldig"
+      "add_success_unpaid": "Varor tillagda till det kunden är skyldig",
+      "add_authorized_warning": "Kundens tidigare betalningsauktorisation kommer att avbrytas. Hela beloppet måste betalas igen."
     },
     "item_returned": "Returnerad"
   },
@@ -527,7 +528,8 @@
       "customer_paid": "Kunden betalade",
       "refunded": "Återbetalat",
       "even": "JÄMNT - INGET ATT REGLERA",
-      "footer": "Spara denna kvittens med ditt kvitto"
+      "footer": "Spara denna kvittens med ditt kvitto",
+      "owed": "Lagt till skyldigt belopp"
     }
   },
   "handoff": {

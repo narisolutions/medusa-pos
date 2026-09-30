@@ -116,6 +116,14 @@ const useAddItems = (order: AdminOrder, isOpen: boolean, onClose: () => void) =>
       }
 
       if (isUnpaidOrder) {
+        printSlip({
+          kind: "add",
+          orderDisplayId: order.display_id ?? "",
+          currency,
+          back: [],
+          out: slipLines,
+          settlement: { direction: "owed", amount: goingOut },
+        });
         toast.success(t("orders.post_sale.add_success_unpaid"));
         onClose();
         return;
@@ -181,6 +189,7 @@ const useAddItems = (order: AdminOrder, isOpen: boolean, onClose: () => void) =>
     openDrawer,
     printSlip,
     slipLines,
+    goingOut,
     currency,
     onClose,
     t,

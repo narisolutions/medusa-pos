@@ -6,7 +6,7 @@ const labels: PostSaleSlipLabels = {
   date: "Date", time: "Time", order: "Order", items: "ITEMS",
   back: "Back", out: "Out", restock: "back to stock", damaged: "damaged",
   comingBack: "Coming back", goingOut: "Going out", paymentMethod: "Payment Method",
-  customerPaid: "Customer paid", refunded: "Refunded", even: "EVEN - NOTHING TO SETTLE",
+  customerPaid: "Customer paid", refunded: "Refunded", owed: "Added to amount owed", even: "EVEN - NOTHING TO SETTLE",
   footer: "Keep this slip",
 };
 
@@ -58,5 +58,22 @@ describe("buildPostSaleSlipDoc", () => {
     ]);
     expect(doc.paymentRows).toEqual([]);
     expect(doc.messages).toEqual(["EVEN - NOTHING TO SETTLE"]);
+  });
+
+  it("says the added amount joins what is owed on an unpaid order", () => {
+    const doc = buildPostSaleSlipDoc(
+      {
+        kind: "add",
+        orderDisplayId: 500,
+        currency: "GEL",
+        back: [],
+        out: [{ title: "Saperavi 750ml", quantity: 1, unitPrice: 5 }],
+        settlement: { direction: "owed", amount: 5 },
+      },
+      labels,
+      []
+    );
+    expect(doc.paymentRows).toEqual([{ label: "Added to amount owed", amount: 5 }]);
+    expect(doc.messages).toEqual([]);
   });
 });

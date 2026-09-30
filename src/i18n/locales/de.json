@@ -448,7 +448,8 @@
       "step_add_shipping": "Abholung wird hinzugefügt…",
       "step_exchange_request": "Umtausch wird erfasst…",
       "refund_owed_label": "Dem Kunden geschuldet",
-      "add_success_unpaid": "Artikel zum offenen Betrag des Kunden hinzugefügt"
+      "add_success_unpaid": "Artikel zum offenen Betrag des Kunden hinzugefügt",
+      "add_authorized_warning": "Die frühere Zahlungsautorisierung des Kunden wird storniert. Der gesamte Betrag muss erneut bezahlt werden."
     },
     "item_returned": "Zurückgegeben"
   },
@@ -527,7 +528,8 @@
       "customer_paid": "Kunde zahlte",
       "refunded": "Erstattet",
       "even": "AUSGEGLICHEN - NICHTS ZU BEGLEICHEN",
-      "footer": "Bewahren Sie diesen Beleg mit Ihrer Quittung auf"
+      "footer": "Bewahren Sie diesen Beleg mit Ihrer Quittung auf",
+      "owed": "Zum offenen Betrag hinzugefügt"
     }
   },
   "handoff": {

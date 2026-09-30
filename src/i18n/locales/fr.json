@@ -448,7 +448,8 @@
       "step_add_shipping": "Ajout du retrait…",
       "step_exchange_request": "Enregistrement de l'échange…",
       "refund_owed_label": "Dû au client",
-      "add_success_unpaid": "Articles ajoutés au montant dû par le client"
+      "add_success_unpaid": "Articles ajoutés au montant dû par le client",
+      "add_authorized_warning": "L'autorisation de paiement précédente du client sera annulée. Le montant total devra être réglé à nouveau."
     },
     "item_returned": "Retourné"
   },
@@ -527,7 +528,8 @@
       "customer_paid": "Le client a payé",
       "refunded": "Remboursé",
       "even": "À ÉGALITÉ - RIEN À RÉGLER",
-      "footer": "Conservez ce bon avec votre ticket"
+      "footer": "Conservez ce bon avec votre ticket",
+      "owed": "Ajouté au montant dû"
     }
   },
   "handoff": {
