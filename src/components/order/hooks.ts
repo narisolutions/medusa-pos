@@ -22,7 +22,7 @@ import { getOrderPaymentMethodType } from "@/utils/pos/payment";
 import { classifyFulfillment, classifyOrderShippingMethod } from "@/utils/pos/fulfillment";
 import { getOrderRefundableTotal } from "@/utils/pos/payment";
 import { getPostSaleOptions, showPostSaleEntry, type PostSaleKind } from "@/utils/pos/post-sale";
-import { useQueryOpenOrderChange } from "@/hooks/queries/useQueryOpenOrderChange";
+import { useQueryOpenOrderChange } from "@/hooks/queries/useQueryOrderChanges";
 import { useQueryTerminalStockLocationId } from "@/hooks/queries/useQueryStockLocation";
 
 // Type for fulfillment with extended properties

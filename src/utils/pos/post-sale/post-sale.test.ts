@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { differenceDirection, getPostSaleOptions, getReturnableQuantity, showPostSaleEntry } from ".";
+import { differenceDirection, getPostSaleOptions, getReturnableQuantity, postSaleEvents, showPostSaleEntry } from ".";
 
 const line = (f: number, rr = 0, rv = 0, rd = 0) => ({
   detail: {
@@ -75,5 +75,59 @@ describe("differenceDirection", () => {
     expect(differenceDirection(30)).toBe("pays");
     expect(differenceDirection(-30)).toBe("refund");
     expect(differenceDirection(0.004)).toBe("even");
+  });
+});
+
+describe("postSaleEvents", () => {
+  const items = [
+    { id: "l1", title: "Saperavi 750ml" },
+    { id: "l2", title: "Goruli Mtsvane" },
+  ];
+  const sale = "2026-09-30T10:00:00.000Z";
+  const change = (over: object) => ({ id: "c", status: "confirmed", confirmed_at: "2026-09-30T11:00:00.000Z", ...over });
+
+  it("reports items added after the sale, with quantities and amount", () => {
+    const events = postSaleEvents(
+      [change({ change_type: "edit", actions: [{ action: "ITEM_ADD", details: { reference_id: "l1", quantity: 2, unit_price: 5 } }] })],
+      items,
+      sale
+    );
+    expect(events).toEqual([
+      { id: "c", kind: "items_added", at: "2026-09-30T11:00:00.000Z", lines: [{ title: "Saperavi 750ml", quantity: 2 }], amount: 10 },
+    ]);
+  });
+
+  it("skips the edits that built the sale at checkout, and unconfirmed changes", () => {
+    const building = change({ change_type: "edit", confirmed_at: "2026-09-30T09:59:00.000Z", actions: [{ action: "ITEM_ADD", details: { reference_id: "l1", quantity: 1, unit_price: 5 } }] });
+    const pending = change({ change_type: "edit", status: "pending", actions: [{ action: "ITEM_ADD", details: {} }] });
+    expect(postSaleEvents([building, pending], items, sale)).toEqual([]);
+  });
+
+  it("counts restocked and damaged units on a received return", () => {
+    const [event] = postSaleEvents(
+      [change({ change_type: "return_receive", actions: [
+        { action: "RECEIVE_RETURN_ITEM", details: { reference_id: "l1", quantity: 1 } },
+        { action: "RECEIVE_DAMAGED_RETURN_ITEM", details: { reference_id: "l1", quantity: "1" } },
+      ] })],
+      items,
+      sale
+    );
+    expect(event).toMatchObject({ kind: "items_returned", restocked: 1, damaged: 1 });
+  });
+
+  it("lists what went out and came back on an exchange", () => {
+    const [event] = postSaleEvents(
+      [change({ change_type: "exchange", actions: [
+        { action: "ITEM_ADD", details: { reference_id: "l2", quantity: 1 } },
+        { action: "RETURN_ITEM", details: { reference_id: "l1", quantity: 1 } },
+      ] })],
+      items,
+      sale
+    );
+    expect(event).toMatchObject({
+      kind: "items_exchanged",
+      out: [{ title: "Goruli Mtsvane", quantity: 1 }],
+      back: [{ title: "Saperavi 750ml", quantity: 1 }],
+    });
   });
 });

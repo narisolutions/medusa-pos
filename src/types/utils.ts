@@ -216,12 +216,14 @@ interface OrdersResult {
 
 interface ActivityEvent {
   id: string;
-  type: "delivered" | "fulfilled" | "payment_captured" | "awaiting_payment" | "refunded" | "order_placed" | "shipment_created" | "shipped" | "marked_picked_up";
+  type: "delivered" | "fulfilled" | "payment_captured" | "awaiting_payment" | "refunded" | "order_placed" | "shipment_created" | "shipped" | "marked_picked_up" | "items_added" | "items_returned" | "items_exchanged";
   title: string;
   timestamp: string;
   amount?: number;
   currency?: string;
   itemCount?: number;
+  /** Second line: what moved, and for money, by which method. */
+  detail?: string;
 }
 
 

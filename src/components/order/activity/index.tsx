@@ -27,6 +27,9 @@ const Activity: React.FC<Props> = ({ order }) => {
           <div key={event.id} className="pb-4 border-b border-theme-border last:border-b-0 last:pb-0">
             <div className="mb-2">
               <h3 className="text-base font-medium text-fg">{event.title}</h3>
+              {event.detail && (
+                <p className="text-base text-fg-muted">{event.detail}</p>
+              )}
             </div>
             <div className="flex items-center gap-2 text-sm text-fg-subtle">
               <Clock className="w-4 h-4" />

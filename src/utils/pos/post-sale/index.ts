@@ -86,3 +86,84 @@ export function differenceDirection(amount: number): "pays" | "refund" | "even" 
   const cents = Math.round(amount * 100);
   return cents > 0 ? "pays" : cents < 0 ? "refund" : "even";
 }
+
+type ChangeAction = { action?: string | null; details?: Record<string, unknown> | null };
+type ChangeLike = {
+  id: string;
+  change_type?: string | null;
+  status?: string | null;
+  confirmed_at?: string | Date | null;
+  actions?: ChangeAction[] | null;
+};
+type ActivityLine = { title: string; quantity: number };
+
+export type PostSaleEvent =
+  | { id: string; kind: "items_added"; at: string; lines: ActivityLine[]; amount: number }
+  | { id: string; kind: "items_returned"; at: string; restocked: number; damaged: number; lines: ActivityLine[] }
+  | { id: string; kind: "items_exchanged"; at: string; out: ActivityLine[]; back: ActivityLine[] };
+
+const iso = (d: string | Date) => (typeof d === "string" ? d : d.toISOString());
+
+/**
+ * Timeline events for post-sale changes, from the backend's own change log.
+ * Edits confirmed before `saleCompletedAt` built the original sale at checkout
+ * and are not post-sale additions.
+ */
+export function postSaleEvents(
+  changes: ChangeLike[],
+  items: { id: string; title?: string | null }[],
+  saleCompletedAt: string | Date | null
+): PostSaleEvent[] {
+  const titles = new Map(items.map((i) => [i.id, i.title ?? "-"]));
+  const cutoff = saleCompletedAt ? new Date(saleCompletedAt).getTime() : null;
+  const linesFor = (actions: ChangeAction[], names: string[]): ActivityLine[] =>
+    actions
+      .filter((a) => names.includes(a.action ?? ""))
+      .map((a) => ({
+        title: titles.get(String(a.details?.reference_id ?? "")) ?? "-",
+        quantity: toNumber(a.details?.quantity),
+      }));
+
+  const events: PostSaleEvent[] = [];
+  for (const change of changes) {
+    if (change.status !== "confirmed" || !change.confirmed_at) continue;
+    const at = iso(change.confirmed_at);
+    const actions = change.actions ?? [];
+
+    if (change.change_type === "edit") {
+      if (cutoff === null || new Date(at).getTime() <= cutoff) continue;
+      const added = actions.filter((a) => a.action === "ITEM_ADD");
+      if (added.length === 0) continue;
+      events.push({
+        id: change.id,
+        kind: "items_added",
+        at,
+        lines: linesFor(added, ["ITEM_ADD"]),
+        amount: added.reduce(
+          (sum, a) => sum + toNumber(a.details?.quantity) * toNumber(a.details?.unit_price),
+          0
+        ),
+      });
+    } else if (change.change_type === "return_receive") {
+      const count = (name: string) =>
+        actions.filter((a) => a.action === name).reduce((s, a) => s + toNumber(a.details?.quantity), 0);
+      events.push({
+        id: change.id,
+        kind: "items_returned",
+        at,
+        restocked: count("RECEIVE_RETURN_ITEM"),
+        damaged: count("RECEIVE_DAMAGED_RETURN_ITEM"),
+        lines: linesFor(actions, ["RECEIVE_RETURN_ITEM", "RECEIVE_DAMAGED_RETURN_ITEM"]),
+      });
+    } else if (change.change_type === "exchange") {
+      events.push({
+        id: change.id,
+        kind: "items_exchanged",
+        at,
+        out: linesFor(actions, ["ITEM_ADD"]),
+        back: linesFor(actions, ["RETURN_ITEM"]),
+      });
+    }
+  }
+  return events;
+}

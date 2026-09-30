@@ -39,7 +39,14 @@ export function getOrderPaymentMethodLabel(
   order: AdminOrder,
   store: AdminStore | null | undefined
 ): string {
-  const providerId = getOrderPaymentProviderId(order);
+  return getPaymentMethodLabel(store, getOrderPaymentProviderId(order));
+}
+
+/** The configured label for a provider id, e.g. "Cash"; the id itself when unconfigured. */
+export function getPaymentMethodLabel(
+  store: AdminStore | null | undefined,
+  providerId: string | null | undefined
+): string {
   if (!providerId) return "";
 
   const configuredMethods = getPaymentMethodsForSettings(store);

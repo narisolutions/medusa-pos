@@ -1,9 +1,13 @@
-import { getOrderCurrency } from "@/utils/helpers";
+import { formatPrice, getOrderCurrency } from "@/utils/helpers";
 import { useMemo } from "react";
 import { AdminOrder, AdminPaymentCollection, AdminPayment, AdminOrderFulfillment } from "@medusajs/types";
 import { ActivityEvent } from "@/types/utils";
 import { classifyFulfillment } from "@/utils/pos/fulfillment";
 import { useTranslation } from "@/i18n";
+import { useQueryOrderChanges } from "@/hooks/queries/useQueryOrderChanges";
+import { useQueryStore } from "@/hooks/queries/useQueryStore";
+import { getPaymentMethodLabel } from "@/utils/pos/payment";
+import { postSaleEvents } from "@/utils/pos/post-sale";
 
 const normalizeTimestamp = (timestamp: string | Date | undefined): string | null => {
   if (!timestamp) return null;
@@ -15,7 +19,7 @@ const createEvent = (
   type: ActivityEvent["type"],
   title: string,
   timestamp: string | Date | undefined,
-  options?: { amount?: number; currency?: string; itemCount?: number }
+  options?: { amount?: number; currency?: string; itemCount?: number; detail?: string }
 ): ActivityEvent | null => {
   const normalizedTimestamp = normalizeTimestamp(timestamp);
   if (!normalizedTimestamp) return null;
@@ -29,10 +33,20 @@ const createEvent = (
   };
 };
 
+const lineList = (lines: { title: string; quantity: number }[]) =>
+  lines.map((l) => `${l.quantity} × ${l.title}`).join(", ");
+
 export const useActivityEvents = (order: AdminOrder) => {
   const { t } = useTranslation();
+  const { data: changes } = useQueryOrderChanges(order.id);
+  const { data: store } = useQueryStore();
   const events = useMemo(() => {
     const activityEvents: ActivityEvent[] = [];
+    const currency = getOrderCurrency(order);
+    const money = (providerId: string | undefined, amount: unknown) =>
+      [getPaymentMethodLabel(store, providerId), formatPrice(Number(amount) || 0, currency)]
+        .filter(Boolean)
+        .join(" · ");
 
     // Order placed
     const orderPlaced = createEvent(
@@ -60,6 +74,7 @@ export const useActivityEvents = (order: AdminOrder) => {
               amount: payment.amount || collection.amount || order.total,
               currency:
                 getOrderCurrency(order),
+              detail: money(payment.provider_id, payment.amount),
             }
           );
           if (event) activityEvents.push(event);
@@ -87,6 +102,7 @@ export const useActivityEvents = (order: AdminOrder) => {
             {
               amount: refund.amount,
               currency: getOrderCurrency(order),
+              detail: money(payment.provider_id, refund.amount),
             }
           );
           if (event) activityEvents.push(event);
@@ -228,6 +244,39 @@ export const useActivityEvents = (order: AdminOrder) => {
       }
     });
 
+    // Post-sale changes, from the backend's change log. Checkout's own edits end
+    // when the sale completes: the first capture or fulfilment, whichever is first.
+    const saleCompletedAt =
+      [
+        ...(order.payment_collections ?? []).flatMap((c) => (c.payments ?? []).map((p) => p.captured_at)),
+        ...(order.fulfillments ?? []).map((f) => f.created_at),
+      ]
+        .filter((d): d is string | Date => !!d)
+        .map((d) => new Date(d).getTime())
+        .sort((a, b) => a - b)[0] ?? null;
+
+    for (const e of postSaleEvents(changes ?? [], order.items ?? [], saleCompletedAt === null ? null : new Date(saleCompletedAt))) {
+      const detail =
+        e.kind === "items_added"
+          ? `${lineList(e.lines)} · ${formatPrice(e.amount, currency)}`
+          : e.kind === "items_returned"
+            ? [
+                [...new Set(e.lines.map((l) => l.title))].join(", "),
+                e.restocked > 0 ? t("orders.event_restocked", { count: e.restocked }) : null,
+                e.damaged > 0 ? t("orders.event_damaged", { count: e.damaged }) : null,
+              ]
+                .filter(Boolean)
+                .join(" · ")
+            : [
+                e.out.length ? t("orders.event_out", { items: lineList(e.out) }) : null,
+                e.back.length ? t("orders.event_back", { items: lineList(e.back) }) : null,
+              ]
+                .filter(Boolean)
+                .join(" · ");
+      const event = createEvent(e.id, e.kind, t(`orders.event_${e.kind}`), e.at, { detail });
+      if (event) activityEvents.push(event);
+    }
+
     // Remove duplicates and sort
     const uniqueEvents = activityEvents.filter((event, index, self) => {
       return index === self.findIndex((e) => {
@@ -241,7 +290,7 @@ export const useActivityEvents = (order: AdminOrder) => {
     return uniqueEvents.sort(
       (a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
     );
-  }, [order, t]);
+  }, [order, changes, store, t]);
 
   return events;
 };
