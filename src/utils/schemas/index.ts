@@ -119,7 +119,7 @@ export default {
   }),
 
   /**
-   * The QR hand-off payload. Owned by Tamada's docs/22-external-items-qr.md —
+   * The QR hand-off payload. Owned by Brindola's docs/22-external-items-qr.md —
    * raise changes there first, not here.
    */
   handoffPayload: z.object({
@@ -135,7 +135,7 @@ export default {
           name: z.string().min(1),
           nameKa: z.string().optional(),
           qty: z.number().int().min(1),
-          // Integer minor units, gross of VAT. Tamada never parses decimals.
+          // Integer minor units, gross of VAT. Brindola never parses decimals.
           priceMinor: z.number().int().nonnegative(),
           vatBp: z.number().int().nonnegative().optional(),
           minimumAge: z.number().int().positive().optional(),

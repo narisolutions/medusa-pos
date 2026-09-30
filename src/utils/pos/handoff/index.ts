@@ -30,7 +30,7 @@ function vatBasisPoints(item: OrderLineItem): number | undefined {
   return Math.round(toNumber(rate) * 100);
 }
 
-/** Display-only extras Tamada shows on the line detail. */
+/** Display-only extras Brindola shows on the line detail. */
 function itemMeta(item: OrderLineItem): Record<string, unknown> | undefined {
   const metadata = item.metadata as Record<string, unknown> | null | undefined;
   const vintage = metadata?.vintage;
@@ -48,7 +48,7 @@ type OrderLineItem = NonNullable<AdminOrder["items"]>[number] & {
  * A completed transfer order → the ticket's QR payload.
  *
  * `ref` is the order id, which makes the payload deterministic: a reprint
- * carries the same ref, and Tamada refuses the duplicate scan rather than
+ * carries the same ref, and Brindola refuses the duplicate scan rather than
  * charging the guest twice.
  */
 export function buildHandoffPayload(order: AdminOrder): HandoffPayload {
@@ -59,7 +59,7 @@ export function buildHandoffPayload(order: AdminOrder): HandoffPayload {
 
     return {
       // variant_id is the fallback identity: sku is optional in Medusa but the
-      // line id on Tamada's side has to be stable.
+      // line id on Brindola's side has to be stable.
       sku: item.variant_sku || item.variant_id || item.id,
       name: item.title ?? "",
       qty: Math.max(1, Math.round(toNumber(item.quantity))),
@@ -86,7 +86,7 @@ export function buildHandoffPayload(order: AdminOrder): HandoffPayload {
  * anything fetches it, this feature has the runtime coupling it exists to avoid.
  */
 const HANDOFF_HOST = "wineland.ge";
-const HANDOFF_PATH = "/tamada/handoff/v1";
+const HANDOFF_PATH = "/brindola/handoff/v1";
 
 /** base64url, matching pos-toolkit-side `encodeBase64Url` byte for byte. */
 function encodeBase64Url(input: string): string {
@@ -97,7 +97,7 @@ function encodeBase64Url(input: string): string {
 }
 
 /**
- * The printable form of the payload. Tamada accepts raw JSON too, but a
+ * The printable form of the payload. Brindola accepts raw JSON too, but a
  * keyboard-wedge scanner cannot be assumed to transmit non-ASCII, so `nameKa`
  * would be at risk; base64url is ASCII by construction.
  */

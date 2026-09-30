@@ -1,4 +1,4 @@
-# pos-toolkit adoption & Tamada QR hand-off — what is still open
+# pos-toolkit adoption & Brindola QR hand-off — what is still open
 
 *Last updated 2026-09-30. Covers `develop` @ `68e95e8`.*
 
@@ -30,7 +30,7 @@ Until it exists, the transfer flow is simulated by setting an existing payment m
 
 `minimumAge` is read from the line item's `product_type`, matching `restriction:(\d+)\+`. No product currently carries it, so **every ticket ships unrestricted** and the restaurant till never raises its age prompt.
 
-Wine is the motivating case for that entire feature on Tamada's side. This is a data gap, not a code defect: either tag the wines `restriction:18+`, or tell us the convention actually in use and the parser in [handoff/index.ts](../src/utils/pos/handoff/index.ts) will be matched to it.
+Wine is the motivating case for that entire feature on Brindola's side. This is a data gap, not a code defect: either tag the wines `restriction:18+`, or tell us the convention actually in use and the parser in [handoff/index.ts](../src/utils/pos/handoff/index.ts) will be matched to it.
 
 **This should be closed before the feature goes live.**
 
@@ -40,7 +40,7 @@ Wine is the motivating case for that entire feature on Tamada's side. This is a 
 
 ### 2.1 `nameKa` — Georgian names on the restaurant bill
 
-Omitted from the payload. Medusa's titles here are English and there is no Georgian source. The field is optional and Tamada falls back to `name`, so this is a valid v1 — but Georgian receipts at the restaurant will show English wine names.
+Omitted from the payload. Medusa's titles here are English and there is no Georgian source. The field is optional and Brindola falls back to `name`, so this is a valid v1 — but Georgian receipts at the restaurant will show English wine names.
 
 Candidates: a `metadata.name_ka` on the variant/product, a Medusa translation module, or accepting the fallback.
 
@@ -117,7 +117,7 @@ Also worth upstreaming eventually: an **`align` field on `PrintOp::QrCode`**. Ce
 
 ## 5. Verification gaps
 
-The QR hand-off ticket is **confirmed working end to end** against a real printer and a real Tamada till (2026-08-12).
+The QR hand-off ticket is **confirmed working end to end** against a real printer and a real Brindola till (2026-08-12).
 
 Still to confirm — check with whoever ran the hardware pass before trusting any of these:
 
@@ -130,12 +130,14 @@ Still to confirm — check with whoever ran the hardware pass before trusting an
 
 ## 6. The payload contract moves — check it before touching it
 
-The QR payload is owned by **Tamada's `docs/22-external-items-qr.md`**, mirrored into `docs/handoffs/medusa-qr-hand-off.md`. It has already changed once under us, on 2026-08-10:
+The QR payload is owned by **Brindola's `docs/22-external-items-qr.md`**, mirrored into `docs/handoffs/medusa-qr-hand-off.md`. It has already changed once under us, on 2026-08-10:
 
 - `priceTetri` → **`priceMinor`** (the payload carries its own ISO 4217 `currency`, so naming the field after Georgia's minor unit was wrong)
-- the base64url **URL form** became the one to print — `https://<host>/tamada/handoff/v1?d=…` — because a keyboard wedge cannot be assumed to carry non-ASCII, and `nameKa` would be at risk
+- the base64url **URL form** became the one to print — `https://<host>/brindola/handoff/v1?d=…` — because a keyboard wedge cannot be assumed to carry non-ASCII, and `nameKa` would be at risk
 - a new optional **`prepArea`** (kitchen routing). We do not emit it; a bottle needs no kitchen ticket. It would matter if a deli counter ever transferred something that needs finishing.
 
 Tickets built to the old contract are **rejected on scan** with "That code carries an amount this terminal cannot charge exactly" — their parser finds no price at all.
 
-⚠ Read that doc on Tamada's **`origin/develop`**. It is hundreds of commits ahead of `main`, and a stale local clone will show the old contract with no indication that it is out of date.
+It changed again on 2026-09-16, when Tamada was renamed **Brindola**: the printed path is now `/brindola/handoff/v1`. The recognizer still accepts `/tamada/handoff/` so paper printed before the rename keeps scanning, but it is never generated.
+
+⚠ Read that doc on Brindola's **`origin/develop`**. It is hundreds of commits ahead of `main`, and a stale local clone will show the old contract with no indication that it is out of date.

@@ -116,10 +116,10 @@ describe("buildHandoffPayload", () => {
 });
 
 describe("encodeHandoffUrl", () => {
-  it("produces the URL form Tamada's recognizer expects", () => {
+  it("produces the URL form Brindola's recognizer expects", () => {
     const url = encodeHandoffUrl(buildHandoffPayload(order));
 
-    expect(url.startsWith("https://wineland.ge/tamada/handoff/v1?d=")).toBe(true);
+    expect(url.startsWith("https://wineland.ge/brindola/handoff/v1?d=")).toBe(true);
     // base64url alphabet only — a wedge scanner must not mangle it
     expect(url.split("?d=")[1]).toMatch(/^[A-Za-z0-9_-]+$/);
   });

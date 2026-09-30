@@ -39,4 +39,4 @@ Each feature lives in its own subdirectory. Within a feature, docs are split int
 
 | Doc | What it covers |
 |---|---|
-| [pos-toolkit & QR hand-off status](./pos-toolkit-and-handoff-status.md) | What is still open on the pos-toolkit adoption and the Tamada transfer ticket: work blocked on other teams, open decisions, known defects, and verification gaps |
+| [pos-toolkit & QR hand-off status](./pos-toolkit-and-handoff-status.md) | What is still open on the pos-toolkit adoption and the Brindola transfer ticket: work blocked on other teams, open decisions, known defects, and verification gaps |
