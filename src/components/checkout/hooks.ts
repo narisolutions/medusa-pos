@@ -59,6 +59,7 @@ type CheckoutContextValue = {
   loading: boolean;
   currency: string;
   isPaymentModalOpen: boolean;
+  isPreparingPayment: boolean;
   handleOpenModal: () => Promise<void>;
   handleCloseModal: () => void;
   handleParkSale: (label?: string) => Promise<boolean>;
@@ -101,6 +102,7 @@ const useProvideCheckout = (): CheckoutContextValue => {
     [store]
   );
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
+  const [isPreparingPayment, setIsPreparingPayment] = useState(false);
 
   const items = useCartStore((state) => state.items);
   const draftOrderId = useCartStore((state) => state.draftOrderId);
@@ -186,12 +188,15 @@ const useProvideCheckout = (): CheckoutContextValue => {
       }
 
       // Shared with park, so both paths apply the same create-or-sync guards.
+      setIsPreparingPayment(true);
       await ensureDraftOrderSynced();
 
       setIsPaymentModalOpen(true);
     } catch (error) {
       if (isGuardError(error)) return;
       handleErrorToast(t("checkout.failed_to_prepare_checkout", { error: (error as Error).message }));
+    } finally {
+      setIsPreparingPayment(false);
     }
   }, [
     ensureDraftOrderSynced,
@@ -299,6 +304,7 @@ const useProvideCheckout = (): CheckoutContextValue => {
       loading: isLoading,
       currency,
       isPaymentModalOpen,
+      isPreparingPayment,
       handleOpenModal,
       handleCloseModal,
       handleParkSale,
@@ -337,6 +343,7 @@ const useProvideCheckout = (): CheckoutContextValue => {
       getTotal,
       isLoading,
       isPaymentModalOpen,
+      isPreparingPayment,
       items,
       selectedItemId,
       setOrderComment,

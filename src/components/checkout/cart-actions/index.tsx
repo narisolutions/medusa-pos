@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Bookmark, MessageSquare, User } from "lucide-react";
+import { Bookmark, Loader2, MessageSquare, User } from "lucide-react";
 import { useTranslation } from "@/i18n";
 import DiscountModal from "./discount-dialog";
 import CommentModal from "./comment-dialog";
@@ -13,6 +13,7 @@ const CartActions: React.FC = () => {
   const {
     items,
     loading,
+    isPreparingPayment,
     handleOpenDrawer,
     handleOpenModal,
     handleClearItems,
@@ -129,10 +130,12 @@ const CartActions: React.FC = () => {
           </Button>
           <Button
             onClick={() => void handleOpenModal()}
-            disabled={loading || items.length === 0}
+            disabled={loading || isPreparingPayment || items.length === 0}
+            aria-busy={isPreparingPayment}
             className="w-full min-w-0 h-20 text-base font-semibold bg-green-600 hover:bg-green-700 text-white"
           >
-            <span className="block w-full min-w-0 px-1 leading-tight text-center whitespace-normal wrap-break-word">
+            <span className="flex items-center justify-center gap-2 w-full min-w-0 px-1 leading-tight text-center whitespace-normal wrap-break-word">
+              {isPreparingPayment && <Loader2 className="size-5 shrink-0 animate-spin" />}
               {t("checkout.payment_button")}
             </span>
           </Button>
