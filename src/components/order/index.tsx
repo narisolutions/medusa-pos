@@ -24,6 +24,7 @@ import RefundDialog from "./refund-dialog";
 import PostSaleChooser from "./post-sale-chooser";
 import AddItemsDialog from "./add-items-dialog";
 import ReturnDialog from "./return-dialog";
+import ExchangeDialog from "./exchange-dialog";
 import Activity from "./activity";
 import Summary from "./summary";
 import Details from "./details";
@@ -306,6 +307,13 @@ const Order: React.FC<Props> = ({ order }) => {
         onClose={() => setPostSaleKind(null)}
         order={order}
         onReturned={handleChangeApplied}
+      />
+
+      <ExchangeDialog
+        isOpen={postSaleKind === "exchange"}
+        onClose={() => setPostSaleKind(null)}
+        order={order}
+        onExchanged={handleChangeApplied}
       />
 
       <AddItemsDialog

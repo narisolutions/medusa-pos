@@ -216,6 +216,12 @@ locked while `pending_difference` is negative, so a refund put off until later s
   option) → `request`; then receive the owned return exactly as in Phase 3; fulfil outbound; settle.
 - Pickup-option selection reuses the rule `createDraftOrder` already applies.
 
+✅ **Built 2026-09-30, awaiting manual test.** Coming back and going out in one dialog, with the
+shared return lines, picker and outbound lines. The pickup option is always added (spike S9). If the
+customer owes, payment is taken with the chosen method; if they are owed, the refund opens locked to
+it; even, nothing to settle. Found while wiring it: `exchange.request` confirms the change at once,
+and `exchange.cancel` rejects `no_notification` — see [Order changes](./03-order-changes.md).
+
 ---
 
 ## Cross-cutting, per phase

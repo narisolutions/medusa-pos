@@ -1,0 +1,127 @@
+import React from "react";
+import { AdminOrder } from "@medusajs/types";
+import { Loader2 } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import ProductPicker from "@/components/base/product-picker";
+import PostSaleDifference from "../post-sale-difference";
+import ReturnLines from "../return-lines";
+import OutboundLines from "../outbound-lines";
+import PaymentMethodPicker from "../payment-method-picker";
+import { useTranslation } from "@/i18n";
+import { useExchangeItems } from "./hooks";
+
+interface Props {
+  isOpen: boolean;
+  onClose: () => void;
+  order: AdminOrder;
+  /** Called with the backend's outstanding amount once the exchange is applied. */
+  onExchanged: (outstanding: number) => void;
+}
+
+const ExchangeDialog: React.FC<Props> = ({ isOpen, onClose, order, onExchanged }) => {
+  const { t } = useTranslation();
+  const {
+    products,
+    currency,
+    back,
+    out,
+    methods,
+    selectedMethod,
+    setSelectedMethod,
+    canConfirm,
+    handleConfirm,
+    isBusy,
+    progressLabel,
+  } = useExchangeItems(order, isOpen, onClose, onExchanged);
+
+  return (
+    <Dialog open={isOpen} onOpenChange={(open) => !open && !isBusy && onClose()}>
+      <DialogContent
+        className="max-w-3xl max-h-[92vh] overflow-y-auto"
+        preventOutsideClose={isBusy}
+      >
+        <DialogHeader>
+          <DialogTitle className="text-2xl font-semibold text-fg">
+            {t("orders.post_sale.exchange_title")}
+          </DialogTitle>
+          <DialogDescription className="text-base">
+            {t("orders.post_sale.exchange_description")}
+          </DialogDescription>
+        </DialogHeader>
+
+        <div className="space-y-5">
+          <section className="space-y-2">
+            <h3 className="text-lg font-semibold text-fg">
+              {t("orders.post_sale.exchange_back_heading")}
+            </h3>
+            <ReturnLines
+              lines={back.lines}
+              selection={back.selection}
+              change={back.change}
+              disabled={isBusy}
+            />
+          </section>
+
+          <section className="space-y-2">
+            <h3 className="text-lg font-semibold text-fg">
+              {t("orders.post_sale.exchange_out_heading")}
+            </h3>
+            {!isBusy && (
+              <ProductPicker products={products} currency={currency} onSelect={out.handleSelect} />
+            )}
+            <OutboundLines
+              lines={out.lines}
+              currency={currency}
+              changeQuantity={out.changeQuantity}
+              disabled={isBusy}
+            />
+          </section>
+
+          <PostSaleDifference
+            currency={currency}
+            goingOut={out.goingOut}
+            comingBack={back.comingBack}
+          />
+
+          <PaymentMethodPicker
+            methods={methods}
+            selected={selectedMethod}
+            onSelect={setSelectedMethod}
+            disabled={isBusy}
+            label={t("orders.post_sale.exchange_payment_label")}
+          />
+
+          <div className="flex gap-3 pt-2">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={onClose}
+              disabled={isBusy}
+              className="flex-1 h-14 text-lg font-medium"
+            >
+              {t("common.cancel")}
+            </Button>
+            <Button
+              type="button"
+              onClick={() => void handleConfirm()}
+              disabled={isBusy || !canConfirm}
+              className="flex-1 h-14 text-lg font-semibold bg-primary hover:bg-primary/90 text-white"
+            >
+              {isBusy && <Loader2 className="size-5 mr-2 animate-spin" />}
+              {progressLabel ?? t("orders.post_sale.exchange_confirm")}
+            </Button>
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+};
+
+export default ExchangeDialog;

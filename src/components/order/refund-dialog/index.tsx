@@ -125,14 +125,16 @@ const RefundDialog: React.FC<Props> = ({ isOpen, onClose, order, amount: lockedA
         ) : (
           <Form {...form}>
             <form onSubmit={handleValidate} className="space-y-5">
-              <div className="bg-surface-muted border border-theme-border rounded-lg p-4 text-center">
-                <div className="text-xs font-semibold text-fg-subtle uppercase tracking-wider mb-1">
-                  {t("orders.refund_refundable_label")}
+              {!isLocked && (
+                <div className="bg-surface-muted border border-theme-border rounded-lg p-4 text-center">
+                  <div className="text-xs font-semibold text-fg-subtle uppercase tracking-wider mb-1">
+                    {t("orders.refund_refundable_label")}
+                  </div>
+                  <div className="text-3xl font-bold text-fg">
+                    {formatPrice(refundable, currency)}
+                  </div>
                 </div>
-                <div className="text-3xl font-bold text-fg">
-                  {formatPrice(refundable, currency)}
-                </div>
-              </div>
+              )}
 
               {!isLocked && payments.length > 1 && (
                 <div>
@@ -166,7 +168,9 @@ const RefundDialog: React.FC<Props> = ({ isOpen, onClose, order, amount: lockedA
                   <FormItem>
                     <div className="flex items-center justify-between">
                       <FormLabel className="text-base font-medium">
-                        {t("orders.refund_amount_label")}
+                        {isLocked
+                          ? t("orders.post_sale.refund_owed_label")
+                          : t("orders.refund_amount_label")}
                       </FormLabel>
                       {!isLocked && (
                         <Button

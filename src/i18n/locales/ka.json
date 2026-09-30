@@ -431,7 +431,21 @@
       "step_receive": "ნივთები საწყობში ბრუნდება…",
       "step_dismiss": "დაზიანებული ნივთები ფიქსირდება…",
       "step_confirm_receive": "სრულდება…",
-      "refund_locked_description": "ეს არის თანხა, რომელიც დაბრუნების ან გაცვლის შემდეგ მომხმარებელს ეკუთვნის."
+      "refund_locked_description": "ეს არის თანხა, რომელიც დაბრუნების ან გაცვლის შემდეგ მომხმარებელს ეკუთვნის.",
+      "exchange_title": "ნივთების გაცვლა",
+      "exchange_description": "აირჩიეთ, რა ბრუნდება, შემდეგ დაასკანერეთ ან მოძებნეთ, რას იღებს მომხმარებელი სანაცვლოდ.",
+      "exchange_back_heading": "ბრუნდება",
+      "exchange_out_heading": "გადის",
+      "exchange_payment_label": "გადახდის მეთოდი, თუ მომხმარებელი იხდის",
+      "exchange_confirm": "ნივთების გაცვლა",
+      "exchange_success": "ნივთები გაიცვალა",
+      "no_shipping_option": "ამ მაღაზიას არ აქვს მიწოდების ვარიანტი, რომელიც გაცვლას სალაროსთანაც სჭირდება. დაამატეთ ადგილზე გატანის ვარიანტი Medusa Admin-ში.",
+      "step_exchange_create": "გაცვლა იხსნება…",
+      "step_add_inbound": "ემატება, რაც ბრუნდება…",
+      "step_add_outbound": "ემატება, რაც გადის…",
+      "step_add_shipping": "ემატება ადგილზე გატანა…",
+      "step_exchange_request": "გაცვლა ფიქსირდება…",
+      "refund_owed_label": "მომხმარებელს ეკუთვნის"
     }
   },
   "parked": {

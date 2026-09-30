@@ -431,7 +431,21 @@
       "step_receive": "Putting items back in stock…",
       "step_dismiss": "Recording damaged items…",
       "step_confirm_receive": "Finishing…",
-      "refund_locked_description": "This is what the return or exchange left owing to the customer."
+      "refund_locked_description": "This is what the return or exchange left owing to the customer.",
+      "exchange_title": "Exchange items",
+      "exchange_description": "Choose what comes back, then scan or search what the customer takes instead.",
+      "exchange_back_heading": "Coming back",
+      "exchange_out_heading": "Going out",
+      "exchange_payment_label": "Payment method, if the customer pays",
+      "exchange_confirm": "Exchange items",
+      "exchange_success": "Items exchanged",
+      "no_shipping_option": "This store has no shipping option, which an exchange needs even at the counter. Add a pickup option in Medusa Admin.",
+      "step_exchange_create": "Opening the exchange…",
+      "step_add_inbound": "Adding what comes back…",
+      "step_add_outbound": "Adding what goes out…",
+      "step_add_shipping": "Adding pickup…",
+      "step_exchange_request": "Recording the exchange…",
+      "refund_owed_label": "Owed to customer"
     }
   },
   "parked": {

@@ -431,7 +431,21 @@
       "step_receive": "Przywracanie na stan…",
       "step_dismiss": "Rejestrowanie uszkodzonych artykułów…",
       "step_confirm_receive": "Kończenie…",
-      "refund_locked_description": "Tyle zwrot lub wymiana pozostawiły do oddania klientowi."
+      "refund_locked_description": "Tyle zwrot lub wymiana pozostawiły do oddania klientowi.",
+      "exchange_title": "Wymień artykuły",
+      "exchange_description": "Wybierz, co wraca, a potem zeskanuj lub wyszukaj, co klient bierze w zamian.",
+      "exchange_back_heading": "Wraca",
+      "exchange_out_heading": "Wychodzi",
+      "exchange_payment_label": "Metoda płatności, jeśli klient dopłaca",
+      "exchange_confirm": "Wymień artykuły",
+      "exchange_success": "Wymieniono artykuły",
+      "no_shipping_option": "Ten sklep nie ma opcji wysyłki, której wymiana wymaga nawet przy kasie. Dodaj opcję odbioru w Medusa Admin.",
+      "step_exchange_create": "Otwieranie wymiany…",
+      "step_add_inbound": "Dodawanie tego, co wraca…",
+      "step_add_outbound": "Dodawanie tego, co wychodzi…",
+      "step_add_shipping": "Dodawanie odbioru…",
+      "step_exchange_request": "Rejestrowanie wymiany…",
+      "refund_owed_label": "Należne klientowi"
     }
   },
   "parked": {

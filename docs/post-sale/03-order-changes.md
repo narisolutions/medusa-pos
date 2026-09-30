@@ -64,6 +64,10 @@ So the POS must:
    | Return | `return.cancelRequest` | `return.cancel`; `cancelRequest` is rejected. With a receive open, `cancelReceive` first — `cancel` is rejected while it is open |
    | Exchange | `exchange.cancelRequest` | `exchange.cancel`, **then delete the payment collection the request created** — cancel leaves it behind as `not_paid` and the order reads `partially_captured` |
 
+   `exchange.request` **confirms** the exchange's change at once (its items are on the order and the
+   difference is owed) — it is not left `requested` like a return. `exchange.cancel` still reverses it.
+   `exchange.cancel` accepts no `no_notification` (400 "Unrecognized fields"); `exchange.request` does.
+
 4. **If cancelling also fails, say so plainly** and name the order. A stranded change is
    recoverable in Medusa Admin, but only if someone knows it exists.
 

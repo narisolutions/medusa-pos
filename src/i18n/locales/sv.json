@@ -431,7 +431,21 @@
       "step_receive": "Lägger tillbaka i lager…",
       "step_dismiss": "Registrerar skadade varor…",
       "step_confirm_receive": "Avslutar…",
-      "refund_locked_description": "Detta är vad returen eller bytet lämnade skyldigt till kunden."
+      "refund_locked_description": "Detta är vad returen eller bytet lämnade skyldigt till kunden.",
+      "exchange_title": "Byt varor",
+      "exchange_description": "Välj vad som kommer tillbaka och skanna eller sök sedan det kunden tar istället.",
+      "exchange_back_heading": "Kommer tillbaka",
+      "exchange_out_heading": "Går ut",
+      "exchange_payment_label": "Betalningssätt, om kunden betalar",
+      "exchange_confirm": "Byt varor",
+      "exchange_success": "Varor bytta",
+      "no_shipping_option": "Butiken saknar leveransalternativ, som ett byte behöver även i kassan. Lägg till ett upphämtningsalternativ i Medusa Admin.",
+      "step_exchange_create": "Öppnar bytet…",
+      "step_add_inbound": "Lägger till det som kommer tillbaka…",
+      "step_add_outbound": "Lägger till det som går ut…",
+      "step_add_shipping": "Lägger till upphämtning…",
+      "step_exchange_request": "Registrerar bytet…",
+      "refund_owed_label": "Skyldigt kunden"
     }
   },
   "parked": {

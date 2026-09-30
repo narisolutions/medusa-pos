@@ -431,7 +431,21 @@
       "step_receive": "Remise en stock…",
       "step_dismiss": "Enregistrement des articles endommagés…",
       "step_confirm_receive": "Finalisation…",
-      "refund_locked_description": "C'est ce que le retour ou l'échange laisse dû au client."
+      "refund_locked_description": "C'est ce que le retour ou l'échange laisse dû au client.",
+      "exchange_title": "Échanger des articles",
+      "exchange_description": "Choisissez ce qui revient, puis scannez ou recherchez ce que le client prend à la place.",
+      "exchange_back_heading": "Revient",
+      "exchange_out_heading": "Sort",
+      "exchange_payment_label": "Moyen de paiement, si le client paie",
+      "exchange_confirm": "Échanger les articles",
+      "exchange_success": "Articles échangés",
+      "no_shipping_option": "Cette boutique n'a pas d'option de livraison, nécessaire à un échange même en caisse. Ajoutez une option de retrait dans Medusa Admin.",
+      "step_exchange_create": "Ouverture de l'échange…",
+      "step_add_inbound": "Ajout de ce qui revient…",
+      "step_add_outbound": "Ajout de ce qui sort…",
+      "step_add_shipping": "Ajout du retrait…",
+      "step_exchange_request": "Enregistrement de l'échange…",
+      "refund_owed_label": "Dû au client"
     }
   },
   "parked": {

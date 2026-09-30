@@ -431,7 +431,21 @@
       "step_receive": "Devolviendo al stock…",
       "step_dismiss": "Registrando artículos dañados…",
       "step_confirm_receive": "Finalizando…",
-      "refund_locked_description": "Esto es lo que la devolución o el cambio dejó pendiente al cliente."
+      "refund_locked_description": "Esto es lo que la devolución o el cambio dejó pendiente al cliente.",
+      "exchange_title": "Cambiar artículos",
+      "exchange_description": "Elija qué vuelve y luego escanee o busque lo que el cliente se lleva a cambio.",
+      "exchange_back_heading": "Vuelve",
+      "exchange_out_heading": "Sale",
+      "exchange_payment_label": "Método de pago, si el cliente paga",
+      "exchange_confirm": "Cambiar artículos",
+      "exchange_success": "Artículos cambiados",
+      "no_shipping_option": "Esta tienda no tiene opción de envío, que un cambio necesita incluso en el mostrador. Añada una opción de recogida en Medusa Admin.",
+      "step_exchange_create": "Abriendo el cambio…",
+      "step_add_inbound": "Añadiendo lo que vuelve…",
+      "step_add_outbound": "Añadiendo lo que sale…",
+      "step_add_shipping": "Añadiendo recogida…",
+      "step_exchange_request": "Registrando el cambio…",
+      "refund_owed_label": "Adeudado al cliente"
     }
   },
   "parked": {
