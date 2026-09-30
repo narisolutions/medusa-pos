@@ -9,21 +9,22 @@ import {
   CommandList,
 } from "@/components/ui/command";
 import { X, Loader2 } from "lucide-react";
-import { useCheckoutFilter } from "./hooks";
-import { AdminProduct } from "@medusajs/types";
+import { useProductPicker, type ProductPickerResult } from "./hooks";
+import { AdminProduct, AdminProductVariant } from "@medusajs/types";
 import { formatPrice } from "@/utils/helpers";
 import { ExtendedAdminProduct } from "@/types/utils";
-import ItemDialog from "../cart-items/variant-dialog";
-import { useCheckout } from "../hooks";
+import ItemDialog from "./variant-dialog";
 import { getVariantAvailableQuantity, getVariantUnitPrice } from "@/utils/pos/cart";
 import { useQueryPosPlugin } from "@/hooks/queries/useQueryPosPlugin";
 import { useTranslation } from "@/i18n";
 
 interface Props {
   products: AdminProduct[];
+  currency: string;
+  onSelect: (variant: AdminProductVariant) => ProductPickerResult;
 }
 
-const CheckoutFilter: React.FC<Props> = ({ products }) => {
+const ProductPicker: React.FC<Props> = ({ products, currency, onSelect }) => {
   const inputRef = useRef<HTMLInputElement>(null);
   const dialogClickedRef = useRef(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -40,14 +41,13 @@ const CheckoutFilter: React.FC<Props> = ({ products }) => {
     isButtonEnabled,
     handleMouseDown,
     getInputPlaceholder,
-    handleAddToCart,
+    handleSelect,
     filteredVariants,
     showDropdown,
     updateFilterState,
     getBrandTitle,
-  } = useCheckoutFilter({ products, inputRef });
+  } = useProductPicker({ products, inputRef, onSelect });
 
-  const { currency } = useCheckout();
   const { data: pluginInstalled } = useQueryPosPlugin();
   const { t } = useTranslation();
 
@@ -155,7 +155,7 @@ const CheckoutFilter: React.FC<Props> = ({ products }) => {
                           dialogClickedRef.current = false;
                           return;
                         }
-                        handleAddToCart(variant);
+                        handleSelect(variant);
                       }}
                       className={`flex items-center justify-between p-5  min-h-[80px] border-b border-theme-border last:border-b-0 ${isOutOfStock ? "opacity-50 bg-red-50 dark:bg-red-900/20 border-l-4 border-l-red-500 cursor-not-allowed" : "cursor-pointer hover:bg-(--color-bg-base)"}`}
                     >
@@ -213,6 +213,7 @@ const CheckoutFilter: React.FC<Props> = ({ products }) => {
                         >
                           <ItemDialog
                             item={variant}
+                            currency={currency}
                             onDialogClick={() => {
                               dialogClickedRef.current = true;
                             }}
@@ -271,4 +272,4 @@ const CheckoutFilter: React.FC<Props> = ({ products }) => {
   );
 };
 
-export default CheckoutFilter;
+export default ProductPicker;

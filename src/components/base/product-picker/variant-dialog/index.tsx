@@ -6,17 +6,18 @@ import { AdminProductVariant, AdminProduct } from "@medusajs/types";
 import { formatPrice } from "@/utils/helpers";
 import { Image, Info, Package, LoaderCircle } from "lucide-react";
 import { useItemDialog } from "./hooks";
-import { useCheckout } from "../../hooks";
 import { useTranslation } from "@/i18n";
 
 interface Props {
   item: CartItem | (AdminProductVariant & { product: AdminProduct });
+  currency: string;
   onDialogClick?: () => void;
   onDialogClose?: () => void;
 }
 
 const ItemDialog: React.FC<Props> = ({
   item,
+  currency,
   onDialogClick,
   onDialogClose,
 }) => {
@@ -47,7 +48,6 @@ const ItemDialog: React.FC<Props> = ({
     kitItemsError,
   } = useItemDialog(item, open);
 
-  const { currency } = useCheckout();
   const { t } = useTranslation();
 
   // Extract comment from metadata if it exists

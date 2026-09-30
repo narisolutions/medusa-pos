@@ -4,7 +4,6 @@ import { useBarcodeBackgroundPaste } from "@/hooks/barcode/useBarcodePaste";
 import { useSerialScanner } from "@/hooks/barcode/useSerialScanner";
 import { useScannerPreferences } from "@/hooks/barcode/useScannerPreferences";
 import { useDebounce } from "@/hooks/ui/useDebounce";
-import { useCartStore } from "@/context/cart";
 import { toast } from "sonner";
 import { handleErrorToast } from "@/utils/helpers";
 import { playErrorSound, playSuccessSound } from "@/utils/sounds";
@@ -30,13 +29,16 @@ const handleMouseDown = (e: React.MouseEvent<HTMLButtonElement>) => {
   e.preventDefault();
 };
 
+/** What the host did with a picked variant; the picker turns it into feedback. */
+type ProductPickerResult = { success: boolean; message?: string };
+
 interface Props {
   products?: AdminProduct[];
   inputRef?: React.RefObject<HTMLInputElement>;
+  onSelect: (variant: AdminProductVariant) => ProductPickerResult;
 }
 
-const useCheckoutFilter = (props?: Props) => {
-  const { products = [], inputRef } = props || {};
+const useProductPicker = ({ products = [], inputRef, onSelect }: Props) => {
   const { t } = useTranslation();
   const salesChannelId = useSalesChannel((s) => s.salesChannelId);
   const setNeedsWarning = useSalesChannel((s) => s.setNeedsWarning);
@@ -47,8 +49,6 @@ const useCheckoutFilter = (props?: Props) => {
     showDropdown: false,
     isProcessing: false,
   });
-
-  const addItemToCart = useCartStore((state) => state.addItem);
 
   // Helper function to update state partially
   const updateFilterState = useCallback((updates: Partial<FilterState>) => {
@@ -93,29 +93,29 @@ const useCheckoutFilter = (props?: Props) => {
       .slice(0, constants.CHECKOUT_CONFIG.SEARCH_RESULTS_LIMIT);
   }, [products, debouncedInputValue, mode]);
 
-  const handleAddToCart = useCallback(
+  const pick = useCallback(
+    (variant: AdminProductVariant): boolean => {
+      const result = onSelect(variant);
+      if (!result.success) {
+        handleErrorToast(result.message || t("checkout.cannot_add_to_cart"));
+        playErrorSound();
+        return false;
+      }
+      if (result.message) toast.success(result.message);
+      playSuccessSound();
+      return true;
+    },
+    [onSelect, t]
+  );
+
+  const handleSelect = useCallback(
     async (variant: AdminProductVariant & { product: AdminProduct }) => {
       if (isProcessing) return;
 
       try {
         updateFilterState({ isProcessing: true });
 
-        const result = addItemToCart(variant);
-
-        if (!result.success) {
-          handleErrorToast(result.message || t("checkout.cannot_add_to_cart"));
-          playErrorSound();
-          return;
-        }
-
-        const itemTitle = variant.product?.title || variant.title;
-        const message =
-          result.action === "added"
-            ? t("checkout.item_added", { title: itemTitle })
-            : t("checkout.quantity_increased", { title: itemTitle });
-
-        toast.success(message);
-        playSuccessSound();
+        if (!pick(variant)) return;
 
         updateFilterState({
           inputValue: "",
@@ -130,7 +130,7 @@ const useCheckoutFilter = (props?: Props) => {
         updateFilterState({ isProcessing: false });
       }
     },
-    [isProcessing, addItemToCart, updateFilterState, t]
+    [isProcessing, pick, updateFilterState]
   );
 
   const handleBarcodeSubmit = useCallback(
@@ -160,22 +160,7 @@ const useCheckoutFilter = (props?: Props) => {
           return;
         }
 
-        const result = addItemToCart(productVariant);
-
-        if (!result.success) {
-          handleErrorToast(result.message || t("checkout.cannot_add_to_cart"));
-          playErrorSound();
-          return;
-        }
-
-        const itemTitle = productVariant.product?.title || productVariant.title;
-        const message =
-          result.action === "added"
-            ? t("checkout.item_added", { title: itemTitle })
-            : t("checkout.quantity_increased", { title: itemTitle });
-
-        toast.success(message);
-        playSuccessSound();
+        if (!pick(productVariant)) return;
 
         updateFilterState({
           inputValue: "",
@@ -191,7 +176,7 @@ const useCheckoutFilter = (props?: Props) => {
     },
     [
       isProcessing,
-      addItemToCart,
+      pick,
       updateFilterState,
       salesChannelId,
       setNeedsWarning,
@@ -307,7 +292,7 @@ const useCheckoutFilter = (props?: Props) => {
     handleKeyDown,
     handleClear,
     handleBarcodeSubmit,
-    handleAddToCart,
+    handleSelect,
 
     // Data
     filteredVariants,
@@ -325,4 +310,5 @@ const useCheckoutFilter = (props?: Props) => {
   };
 };
 
-export { useCheckoutFilter };
+export { useProductPicker };
+export type { ProductPickerResult };

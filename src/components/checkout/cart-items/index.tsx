@@ -11,7 +11,7 @@ import { Minus, Plus, ShoppingCart, Trash2 } from "lucide-react";
 import React from "react";
 import Backdrop from "@/components/base/backdrop";
 import { formatPrice } from "@/utils/helpers";
-import ItemDialog from "./variant-dialog";
+import ItemDialog from "@/components/base/product-picker/variant-dialog";
 import { useCartItems } from "./hooks";
 import { useCheckout } from "../hooks";
 import { useCartStore } from "@/context/cart";
@@ -113,7 +113,7 @@ const CartItems: React.FC = () => {
                     >
                       <TableCell>
                         <div className="flex items-center gap-3 min-w-0">
-                          <ItemDialog item={item} />
+                          <ItemDialog item={item} currency={currency} />
                           <div className="font-medium text-base min-w-0 flex-1">
                             <div className="truncate" title={title || "-"}>
                               {title || "-"}

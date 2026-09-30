@@ -93,6 +93,11 @@ one mounted picker per route.
 This is a **refactor of working checkout code** and ships on its own, with no user-visible change,
 before anything depends on it.
 
+✅ **Done 2026-09-30.** The picker is `base/product-picker/` with its variant dialog inside it; the
+cart list imports that dialog and passes `currency`. `onSelect(variant)` returns
+`{ success, message? }` and the picker turns that into the toast and sound. The planned `quantity`
+argument was left out: every caller adds one, and the exchange list adjusts quantities itself.
+
 ### 1b. Order query: fetch item detail
 
 `src/hooks/queries/useQueryOrder.ts` fetches `*items` and `*summary` but not `items.detail`, which
