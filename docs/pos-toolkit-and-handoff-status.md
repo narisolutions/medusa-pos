@@ -46,7 +46,7 @@ Candidates: a `metadata.name_ka` on the variant/product, a Medusa translation mo
 
 ### 2.2 Transfer counterparty — one, or several?
 
-`transfer_counterparty` is stored in store metadata and printed on the ticket, but **has no settings UI**. It can only be set via the API today. The shape of that UI depends on the answer: a single text field, or a picker per counterparty.
+`transfer_counterparty` is stored in store metadata and printed on the ticket. ✅ It is now a single text field in Settings → Store, shown once a payment method's type is `transfer`. If more than one counterparty is ever needed, that field becomes a picker per counterparty.
 
 The hand-off brief anticipates more than one eventually (another restaurant, a bar) but says a single hardcoded one unblocks the first location.
 
@@ -86,7 +86,9 @@ The order fetched immediately after checkout does not request `currency_code`, s
 
 Its sibling `getOrderPaymentMethodLabel` matches case-**in**sensitively. A configured id differing only in case therefore shows the right label on a receipt while silently resolving to type `card` — wrong drawer behaviour, no transfer ticket, no visible error.
 
-### 3.3 The Icon and Type dropdowns are indistinguishable
+### 3.3 ~~The Icon and Type dropdowns are indistinguishable~~ — fixed
+
+✅ The payment-method rows now have column headers: *Button icon* and *Processed as*. Kept for the record:
 
 Adjacent, identical options, no column headers. Setting Icon instead of Type produces a silent no-op that costs a test cycle to diagnose — it already did once. They need labels.
 
@@ -102,14 +104,14 @@ Related, ✅ fixed: `getMethodType` now infers from `icon` for `transfer` as wel
 
 ---
 
-## 4. Follow-ups now unblocked in pos-toolkit
+## 4. ~~Follow-ups now unblocked in pos-toolkit~~ — applied
 
-pos-toolkit `d9c78da` added two things specifically to undo compromises made in workstream E, and **neither has been applied yet**:
+pos-toolkit `d9c78da` added two things specifically to undo compromises made in workstream E:
 
 - **`TextRow`** — `Payment Method` was moved into the receipt's meta block because `MoneyRow` carries an amount and no text. It can move back next to Amount Paid where it belongs.
 - **`onUnmapped`** — the cp852 "unmapped character" warning was lost when `buildReceiptText` took over sanitising. It can be re-wired to the logger.
 
-Both pins — TypeScript and Rust — are now at `d9c78da`, so nothing blocks either; they just have not been applied.
+✅ Both are applied: Payment Method is a `TextRow` above Amount Paid again, and unmapped characters are logged once per receipt as a single warning.
 
 Also worth upstreaming eventually: an **`align` field on `PrintOp::QrCode`**. Centring the hand-off QR currently uses raw `ESC a` bytes around the op, which is what `Raw` is for but is less tidy than the op carrying its own alignment.
 
