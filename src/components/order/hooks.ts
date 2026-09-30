@@ -25,6 +25,7 @@ import { toNumber } from "@/utils/pos/pricing";
 import { getPostSaleOptions, showPostSaleEntry, type PostSaleKind } from "@/utils/pos/post-sale";
 import { useQueryOpenOrderChange } from "@/hooks/queries/useQueryOrderChanges";
 import { useQueryTerminalStockLocationId } from "@/hooks/queries/useQueryStockLocation";
+import { useQueryRegion } from "@/hooks/queries/useQueryRegion";
 import { usePostSaleSlip } from "@/hooks/order/usePostSaleSlip";
 import type { PostSaleSlipDraft } from "@/utils/pos/receipt/post-sale-slip";
 
@@ -77,6 +78,7 @@ export const useOrder = (order: AdminOrder) => {
   const printSlip = usePostSaleSlip();
   const { data: openChange } = useQueryOpenOrderChange(order.id);
   const { data: stockLocationId } = useQueryTerminalStockLocationId();
+  const { data: regionData } = useQueryRegion();
 
   const fulfillmentStatus = order.fulfillment_status;
   const isNegativeFulfillmentStatus =
@@ -322,6 +324,7 @@ export const useOrder = (order: AdminOrder) => {
   const postSaleOptions = getPostSaleOptions(order, {
     hasOpenChange: !!openChange,
     hasStockLocation: !!stockLocationId,
+    tillCurrency: regionData?.defaultRegion?.currency_code,
   });
   const canPostSale = showPostSaleEntry(postSaleOptions);
   const handleChoosePostSale = (kind: PostSaleKind) => {

@@ -11,7 +11,8 @@ export type PostSaleBlock =
   | "unpaid"
   | "not_fulfilled"
   | "all_returned"
-  | "no_stock_location";
+  | "no_stock_location"
+  | "currency";
 
 export type PostSaleOption = { enabled: true } | { enabled: false; reason: PostSaleBlock };
 
@@ -50,9 +51,10 @@ export function isUnpaidStatus(status: string | null | undefined): boolean {
  */
 export function getPostSaleOptions(
   order: Pick<AdminOrder, "status" | "payment_status"> & {
+    currency_code?: string | null;
     items?: { detail?: ItemDetail | null }[] | null;
   },
-  context: { hasOpenChange: boolean; hasStockLocation: boolean }
+  context: { hasOpenChange: boolean; hasStockLocation: boolean; tillCurrency?: string | null }
 ): Record<PostSaleKind, PostSaleOption> {
   const all = (reason: PostSaleBlock) => ({
     return: { enabled: false, reason },
@@ -76,7 +78,20 @@ export function getPostSaleOptions(
           ? { enabled: false, reason: "no_stock_location" }
           : { enabled: true };
 
-  return { return: goodsBack, exchange: goodsBack, add: { enabled: true } };
+  // The picker prices goods in this till's currency; on an order in another one
+  // the numbers would be wrong and the backend rejects the lines anyway.
+  const goodsOut: PostSaleOption =
+    context.tillCurrency &&
+    order.currency_code &&
+    context.tillCurrency.toLowerCase() !== order.currency_code.toLowerCase()
+      ? { enabled: false, reason: "currency" }
+      : { enabled: true };
+
+  return {
+    return: goodsBack,
+    exchange: goodsBack.enabled ? goodsOut : goodsBack,
+    add: goodsOut,
+  };
 }
 
 /** The entry button shows when anything is possible, or when an open change explains why not. */

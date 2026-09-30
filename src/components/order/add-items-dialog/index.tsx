@@ -68,7 +68,7 @@ const AddItemsDialog: React.FC<Props> = ({ isOpen, onClose, order }) => {
             disabled={isBusy}
           />
 
-          <PostSaleDifference currency={currency} goingOut={goingOut} />
+          <PostSaleDifference currency={currency} goingOut={goingOut} settleLater={isUnpaidOrder} />
 
           {!isUnpaidOrder && (
             <PaymentMethodPicker

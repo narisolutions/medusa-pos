@@ -61,6 +61,23 @@ describe("getPostSaleOptions", () => {
   });
 });
 
+describe("getPostSaleOptions on an order in another currency", () => {
+  it("allows a return but not goods going out", () => {
+    const o = getPostSaleOptions(
+      { ...paid, currency_code: "eur", items: [line(1)] },
+      { ...ok, tillCurrency: "GEL" }
+    );
+    expect(o.return).toEqual({ enabled: true });
+    expect(o.exchange).toEqual({ enabled: false, reason: "currency" });
+    expect(o.add).toEqual({ enabled: false, reason: "currency" });
+  });
+
+  it("is not fooled by letter case", () => {
+    const o = getPostSaleOptions({ ...paid, currency_code: "gel", items: [line(1)] }, { ...ok, tillCurrency: "GEL" });
+    expect(o.add).toEqual({ enabled: true });
+  });
+});
+
 describe("showPostSaleEntry", () => {
   it("hides the entry on a canceled order but shows it when an open change needs explaining", () => {
     const canceled = getPostSaleOptions({ status: "canceled", payment_status: "captured", items: [] }, ok);
