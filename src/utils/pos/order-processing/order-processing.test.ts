@@ -4,7 +4,7 @@ vi.mock("@/config/medusa", () => ({ getSdk: vi.fn() }));
 vi.mock("@/utils/storage", () => ({ default: {} }));
 vi.mock("@/utils/logger", () => ({ logger: {}, safeStringify: String }));
 
-import { findOutstandingCollection, unfulfilledQuantities } from ".";
+import { findOpenCollection, findOutstandingCollection, unfulfilledQuantities } from ".";
 
 describe("findOutstandingCollection", () => {
   const original = { id: "pc_sale", status: "completed", amount: 5 };
@@ -53,5 +53,22 @@ describe("unfulfilledQuantities", () => {
       { id: "partly", quantity: 2 },
       { id: "no_detail", quantity: 1 },
     ]);
+  });
+});
+
+describe("findOpenCollection", () => {
+  it("returns a fresh sale's only collection", () => {
+    const only = { id: "pc", status: "not_paid" };
+    expect(findOpenCollection([only])).toBe(only);
+  });
+
+  it("skips the collection an edit canceled in favour of the one it created", () => {
+    const canceled = { id: "pc_old", status: "canceled" };
+    const fresh = { id: "pc_new", status: "not_paid" };
+    expect(findOpenCollection([canceled, fresh])).toBe(fresh);
+  });
+
+  it("returns nothing when every collection is canceled", () => {
+    expect(findOpenCollection([{ id: "pc", status: "canceled" }])).toBeUndefined();
   });
 });

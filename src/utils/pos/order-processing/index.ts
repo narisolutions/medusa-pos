@@ -23,11 +23,11 @@ async function processPaymentCollection(
     return;
   }
 
-  let collectionId: string;
+  // An edit on an unpaid order cancels its collection and creates a new one, so
+  // the first collection is not always the one to pay.
+  let collectionId = findOpenCollection(order.payment_collections ?? [])?.id;
 
-  if (order.payment_collections && order.payment_collections.length > 0) {
-    collectionId = order.payment_collections[0].id;
-  } else {
+  if (!collectionId) {
     const paymentAmount = order.summary?.accounting_total || order.total || 0;
     const { payment_collection } = await sdk.admin.paymentCollection.create({
       order_id: order.id,
@@ -95,6 +95,14 @@ async function settleCollection(
 }
 
 type CollectionLike = { id: string; status?: string | null; amount?: unknown };
+
+/** The collection still waiting to be paid; a fresh sale has exactly one. */
+function findOpenCollection<T extends CollectionLike>(collections: T[]): T | undefined {
+  return (
+    collections.find((c) => c.status !== "canceled" && c.status !== "completed") ??
+    collections.find((c) => c.status !== "canceled")
+  );
+}
 
 /**
  * The unpaid collection a confirmed edit or exchange created for the
@@ -245,4 +253,5 @@ export {
   settleCollection,
   settleOutstanding,
   findOutstandingCollection,
+  findOpenCollection,
 };
