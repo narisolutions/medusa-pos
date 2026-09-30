@@ -94,7 +94,9 @@ Adjacent, identical options, no column headers. Setting Icon instead of Type pro
 
 Related, ✅ fixed: `getMethodType` now infers from `icon` for `transfer` as well as `cash`, so `icon: "transfer"` with no `type` no longer reads as `card`.
 
-### 3.4 Network cash-drawer kick rejects hostnames
+### 3.4 ~~Network cash-drawer kick rejects hostnames~~ — fixed
+
+✅ Fixed upstream in pos-toolkit `8b2b802` and pinned here. The bug was wider than described below: network printing and status queries rejected hostnames too, because escpos only accepts an IP literal once a timeout is set. Hostnames are now resolved once, IPv4 first. Kept for the record:
 
 `open_cash_drawer`'s network path parses the address with `SocketAddr::parse`, so `192.168.1.50` works and `printer.local` fails — while printing to the same hostname works fine. Lives upstream in pos-toolkit; worth an issue there.
 
