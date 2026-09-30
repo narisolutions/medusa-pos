@@ -66,10 +66,10 @@ const PreferencesSettings: React.FC = () => {
           className="flex flex-col space-y-5 max-w-2xl min-h-0"
         >
           {/* Appearance (language + theme + fullscreen) */}
-          <fieldset className="space-y-4">
-            <legend className="text-lg font-semibold text-fg">
+          <section className="space-y-4">
+            <h3 className="text-lg font-semibold text-fg">
               {t("settings.preferences.appearance")}
-            </legend>
+            </h3>
 
             <FormField
               control={control}
@@ -162,15 +162,15 @@ const PreferencesSettings: React.FC = () => {
                 )}
               />
             )}
-          </fieldset>
+          </section>
 
           <div className="border-t border-theme-border" />
 
           {/* Date & Time */}
-          <fieldset className="space-y-4">
-            <legend className="text-lg font-semibold text-fg">
+          <section className="space-y-4">
+            <h3 className="text-lg font-semibold text-fg">
               {t("settings.preferences.date_time")}
-            </legend>
+            </h3>
 
             <FormField
               control={control}
@@ -245,15 +245,15 @@ const PreferencesSettings: React.FC = () => {
                 </FormItem>
               )}
             />
-          </fieldset>
+          </section>
 
           <div className="border-t border-theme-border" />
 
           {/* Currency Format */}
-          <fieldset className="space-y-4">
-            <legend className="text-lg font-semibold text-fg">
+          <section className="space-y-4">
+            <h3 className="text-lg font-semibold text-fg">
               {t("settings.preferences.currency_format")}
-            </legend>
+            </h3>
 
             <FormField
               control={control}
@@ -371,15 +371,15 @@ const PreferencesSettings: React.FC = () => {
                 )}
               />
             )}
-          </fieldset>
+          </section>
 
           <div className="border-t border-theme-border" />
 
           {/* Register (cash reconciliation) — optional, off by default */}
-          <fieldset className="space-y-4">
-            <legend className="text-lg font-semibold text-fg">
+          <section className="space-y-4">
+            <h3 className="text-lg font-semibold text-fg">
               {t("settings.preferences.register.title")}
-            </legend>
+            </h3>
 
             <FormField
               control={control}
@@ -461,7 +461,7 @@ const PreferencesSettings: React.FC = () => {
 
               </div>
             )}
-          </fieldset>
+          </section>
 
           <div className="border-t border-theme-border pt-4 shrink-0">
             <Button
