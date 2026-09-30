@@ -1,6 +1,6 @@
 # pos-toolkit adoption & Tamada QR hand-off — what is still open
 
-*Last updated 2026-08-12. Covers `develop` @ `264e9d9`.*
+*Last updated 2026-09-30. Covers `develop` @ `68e95e8`.*
 
 Everything below is known-outstanding work, deliberate omissions, or defects found and not yet fixed. What is already done and merged is summarised only enough to make the gaps legible.
 
@@ -72,13 +72,17 @@ reopening are the three actions that want the same gate.
 
 ## 3. Known defects, not fixed
 
-### 3.1 Receipts printed at checkout show the wrong currency
+### 3.1 ~~Receipts printed at checkout show the wrong currency~~ — fixed
+
+✅ `currency_code` is now in all three `fields` strings in [payment-dialog/hooks.ts](../src/components/checkout/payment-dialog/hooks.ts). Kept for the record:
 
 The order fetched immediately after checkout does not request `currency_code`, so `getOrderCurrency` falls back to the hardcoded `USD` in [constants](../src/utils/constants/index.ts). A ₾3.00 sale prints `3.00 USD`. Reprinting the same order from the order page is correct, because that path does request the field.
 
 **Fix:** add `currency_code` to the three `fields` strings in [payment-dialog/hooks.ts](../src/components/checkout/payment-dialog/hooks.ts). Pre-existing, not introduced by this work, but customer-facing and about money.
 
-### 3.2 `getMethodType` matches provider ids case-sensitively
+### 3.2 ~~`getMethodType` matches provider ids case-sensitively~~ — fixed
+
+✅ It now lowercases both sides, like its sibling. Kept for the record:
 
 Its sibling `getOrderPaymentMethodLabel` matches case-**in**sensitively. A configured id differing only in case therefore shows the right label on a receipt while silently resolving to type `card` — wrong drawer behaviour, no transfer ticket, no visible error.
 
@@ -86,7 +90,7 @@ Its sibling `getOrderPaymentMethodLabel` matches case-**in**sensitively. A confi
 
 Adjacent, identical options, no column headers. Setting Icon instead of Type produces a silent no-op that costs a test cycle to diagnose — it already did once. They need labels.
 
-Related: `getMethodType` infers from `icon` only for `cash`, so `icon: "transfer"` with no `type` reads as `card`.
+Related, ✅ fixed: `getMethodType` now infers from `icon` for `transfer` as well as `cash`, so `icon: "transfer"` with no `type` no longer reads as `card`.
 
 ### 3.4 Network cash-drawer kick rejects hostnames
 
@@ -105,7 +109,7 @@ pos-toolkit `d9c78da` added two things specifically to undo compromises made in 
 - **`TextRow`** — `Payment Method` was moved into the receipt's meta block because `MoneyRow` carries an amount and no text. It can move back next to Amount Paid where it belongs.
 - **`onUnmapped`** — the cp852 "unmapped character" warning was lost when `buildReceiptText` took over sanitising. It can be re-wired to the logger.
 
-Applying either requires bumping the **TypeScript** pin, which still points at `f8e9274` (pre-merge). The Rust pin is already at `d9c78da`.
+Both pins — TypeScript and Rust — are now at `d9c78da`, so nothing blocks either; they just have not been applied.
 
 Also worth upstreaming eventually: an **`align` field on `PrintOp::QrCode`**. Centring the hand-off QR currently uses raw `ESC a` bytes around the op, which is what `Raw` is for but is less tidy than the op carrying its own alignment.
 
