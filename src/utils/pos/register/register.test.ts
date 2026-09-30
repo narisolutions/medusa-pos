@@ -135,6 +135,33 @@ describe("orderCashContribution", () => {
     expect(orderCashContribution(order, store)).toBe(45.5);
   });
 
+  it("adds cash top-ups after the sale to the stamped sale cash", () => {
+    const order = {
+      status: "completed",
+      total: 108.49,
+      metadata: { cash_collected: 100 },
+      payment_collections: [
+        // Listed out of order: the earliest collection is the sale.
+        { created_at: "2026-08-01T12:00:00Z", payments: [{ provider_id: "pp_cash_pos", amount: 8.49, refunds: [{ amount: 3 }] }] },
+        { created_at: "2026-08-01T10:00:00Z", payments: [{ provider_id: "pp_cash_pos", amount: 99.97 }] },
+      ],
+    } as unknown as AdminOrder;
+    expect(orderCashContribution(order, store)).toBeCloseTo(100 + 8.49 - 3);
+  });
+
+  it("does not count a card top-up as cash", () => {
+    const order = {
+      status: "completed",
+      total: 108.49,
+      metadata: { cash_collected: 100 },
+      payment_collections: [
+        { created_at: "2026-08-01T10:00:00Z", payments: [{ provider_id: "pp_cash_pos", amount: 99.97 }] },
+        { created_at: "2026-08-01T12:00:00Z", payments: [{ provider_id: "pp_manual_pos", amount: 8.49 }] },
+      ],
+    } as unknown as AdminOrder;
+    expect(orderCashContribution(order, store)).toBe(100);
+  });
+
   it("ignores a non-numeric cash_collected and falls through", () => {
     const order = {
       status: "completed",

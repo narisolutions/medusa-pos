@@ -68,16 +68,21 @@ export function orderCashContribution(
 ): number {
   if (order.status === "canceled") return 0;
 
-  const collections = order.payment_collections ?? [];
+  const collections = [...(order.payment_collections ?? [])].sort(
+    (a, b) => new Date(a.created_at ?? 0).getTime() - new Date(b.created_at ?? 0).getTime()
+  );
   let cashPayments = 0;
+  let cashTopUps = 0;
   let cashRefunds = 0;
   let cashPaymentSeen = false;
 
-  for (const collection of collections) {
+  for (const [index, collection] of collections.entries()) {
     for (const payment of collection.payments ?? []) {
       if (getMethodType(store, payment.provider_id) === "cash") {
         cashPaymentSeen = true;
         cashPayments += toNumber(payment.amount);
+        // Later collections are post-sale top-ups (added items, an exchange difference).
+        if (index > 0) cashTopUps += toNumber(payment.amount);
         const refunds = (payment as { refunds?: { amount?: unknown }[] }).refunds ?? [];
         for (const refund of refunds) cashRefunds += toNumber(refund.amount);
       }
@@ -85,9 +90,10 @@ export function orderCashContribution(
   }
 
   // Prefer the rounded cash actually collected (stamped at checkout) so expected
-  // cash matches the physical drawer in cash-rounding markets; refunds still net out.
+  // cash matches the physical drawer in cash-rounding markets. The stamp covers the
+  // sale only, so cash top-ups after it are added; refunds still net out.
   const collected = cashCollectedFromMeta(order);
-  if (collected != null) return collected - cashRefunds;
+  if (collected != null) return collected + cashTopUps - cashRefunds;
 
   if (cashPaymentSeen) return cashPayments - cashRefunds;
 
