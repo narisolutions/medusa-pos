@@ -436,7 +436,6 @@
       "exchange_description": "Wählen Sie, was zurückkommt, und scannen oder suchen Sie dann, was der Kunde stattdessen mitnimmt.",
       "exchange_back_heading": "Kommt zurück",
       "exchange_out_heading": "Geht raus",
-      "exchange_payment_label": "Zahlungsart, falls der Kunde zahlt",
       "exchange_confirm": "Artikel umtauschen",
       "exchange_success": "Artikel umgetauscht",
       "no_shipping_option": "Dieser Shop hat keine Versandoption, die ein Umtausch auch an der Kasse benötigt. Fügen Sie in Medusa Admin eine Abholoption hinzu.",

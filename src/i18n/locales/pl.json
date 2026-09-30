@@ -436,7 +436,6 @@
       "exchange_description": "Wybierz, co wraca, a potem zeskanuj lub wyszukaj, co klient bierze w zamian.",
       "exchange_back_heading": "Wraca",
       "exchange_out_heading": "Wychodzi",
-      "exchange_payment_label": "Metoda płatności, jeśli klient dopłaca",
       "exchange_confirm": "Wymień artykuły",
       "exchange_success": "Wymieniono artykuły",
       "no_shipping_option": "Ten sklep nie ma opcji wysyłki, której wymiana wymaga nawet przy kasie. Dodaj opcję odbioru w Medusa Admin.",

@@ -90,13 +90,14 @@ const ExchangeDialog: React.FC<Props> = ({ isOpen, onClose, order, onExchanged }
             comingBack={back.comingBack}
           />
 
-          <PaymentMethodPicker
-            methods={methods}
-            selected={selectedMethod}
-            onSelect={setSelectedMethod}
-            disabled={isBusy}
-            label={t("orders.post_sale.exchange_payment_label")}
-          />
+          {out.goingOut > back.comingBack && (
+            <PaymentMethodPicker
+              methods={methods}
+              selected={selectedMethod}
+              onSelect={setSelectedMethod}
+              disabled={isBusy}
+            />
+          )}
 
           <div className="flex gap-3 pt-2">
             <Button

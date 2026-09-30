@@ -436,7 +436,6 @@
       "exchange_description": "Choisissez ce qui revient, puis scannez ou recherchez ce que le client prend à la place.",
       "exchange_back_heading": "Revient",
       "exchange_out_heading": "Sort",
-      "exchange_payment_label": "Moyen de paiement, si le client paie",
       "exchange_confirm": "Échanger les articles",
       "exchange_success": "Articles échangés",
       "no_shipping_option": "Cette boutique n'a pas d'option de livraison, nécessaire à un échange même en caisse. Ajoutez une option de retrait dans Medusa Admin.",

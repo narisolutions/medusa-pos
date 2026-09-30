@@ -436,7 +436,6 @@
       "exchange_description": "Välj vad som kommer tillbaka och skanna eller sök sedan det kunden tar istället.",
       "exchange_back_heading": "Kommer tillbaka",
       "exchange_out_heading": "Går ut",
-      "exchange_payment_label": "Betalningssätt, om kunden betalar",
       "exchange_confirm": "Byt varor",
       "exchange_success": "Varor bytta",
       "no_shipping_option": "Butiken saknar leveransalternativ, som ett byte behöver även i kassan. Lägg till ett upphämtningsalternativ i Medusa Admin.",

@@ -436,7 +436,6 @@
       "exchange_description": "Choose what comes back, then scan or search what the customer takes instead.",
       "exchange_back_heading": "Coming back",
       "exchange_out_heading": "Going out",
-      "exchange_payment_label": "Payment method, if the customer pays",
       "exchange_confirm": "Exchange items",
       "exchange_success": "Items exchanged",
       "no_shipping_option": "This store has no shipping option, which an exchange needs even at the counter. Add a pickup option in Medusa Admin.",

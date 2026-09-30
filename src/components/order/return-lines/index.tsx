@@ -34,14 +34,16 @@ const ReturnLines: React.FC<Props> = ({ lines, selection, change, disabled }) =>
                 label={t("orders.post_sale.return_restock")}
                 icon={<PackageCheck className="size-5 text-green-600" />}
                 value={s.restock}
-                disabled={disabled || (full && s.restock === 0)}
+                disabled={disabled}
+                canIncrease={!full}
                 onChange={(delta) => change(item.id, "restock", delta, returnable)}
               />
               <ConditionStepper
                 label={t("orders.post_sale.return_damaged")}
                 icon={<PackageX className="size-5 text-red-600" />}
                 value={s.damaged}
-                disabled={disabled || (full && s.damaged === 0)}
+                disabled={disabled}
+                canIncrease={!full}
                 onChange={(delta) => change(item.id, "damaged", delta, returnable)}
               />
             </div>

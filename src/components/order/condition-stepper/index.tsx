@@ -8,11 +8,13 @@ interface Props {
   icon: React.ReactNode;
   value: number;
   disabled: boolean;
+  /** False once the line's total is reached, so + looks as unavailable as it is. */
+  canIncrease: boolean;
   onChange: (delta: number) => void;
 }
 
 /** A labelled −/+ counter with touch-sized buttons. */
-const ConditionStepper: React.FC<Props> = ({ label, icon, value, disabled, onChange }) => {
+const ConditionStepper: React.FC<Props> = ({ label, icon, value, disabled, canIncrease, onChange }) => {
   const { t } = useTranslation();
   return (
     <div className="flex items-center gap-2">
@@ -35,7 +37,7 @@ const ConditionStepper: React.FC<Props> = ({ label, icon, value, disabled, onCha
         type="button"
         variant="outline"
         size="icon"
-        disabled={disabled}
+        disabled={disabled || !canIncrease}
         onClick={() => onChange(1)}
         aria-label={`${t("orders.post_sale.increase")}: ${label}`}
       >

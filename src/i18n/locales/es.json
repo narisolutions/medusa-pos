@@ -436,7 +436,6 @@
       "exchange_description": "Elija qué vuelve y luego escanee o busque lo que el cliente se lleva a cambio.",
       "exchange_back_heading": "Vuelve",
       "exchange_out_heading": "Sale",
-      "exchange_payment_label": "Método de pago, si el cliente paga",
       "exchange_confirm": "Cambiar artículos",
       "exchange_success": "Artículos cambiados",
       "no_shipping_option": "Esta tienda no tiene opción de envío, que un cambio necesita incluso en el mostrador. Añada una opción de recogida en Medusa Admin.",
