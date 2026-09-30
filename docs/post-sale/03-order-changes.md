@@ -55,8 +55,15 @@ So the POS must:
 1. **Stage everything locally first.** The dialog builds the change in memory. No
    backend call is made until the operator confirms.
 2. **Run the sequence only on confirm**, and track how far it got.
-3. **On failure, cancel the open change** (`cancelRequest`, or `cancel` once requested)
-   rather than leaving it hanging.
+3. **On failure, cancel the open change** rather than leaving it hanging. What cancels it
+   depends on how far the sequence got (verified on staging, 2026-09-30):
+
+   | Operation | Before the request step | After it |
+   |---|---|---|
+   | Charge (edit) | `orderEdit.cancelRequest` | `orderEdit.cancelRequest` (until `confirm`) |
+   | Return | `return.cancelRequest` | `return.cancel`; `cancelRequest` is rejected. With a receive open, `cancelReceive` first — `cancel` is rejected while it is open |
+   | Exchange | `exchange.cancelRequest` | `exchange.cancel`, **then delete the payment collection the request created** — cancel leaves it behind as `not_paid` and the order reads `partially_captured` |
+
 4. **If cancelling also fails, say so plainly** and name the order. A stranded change is
    recoverable in Medusa Admin, but only if someone knows it exists.
 

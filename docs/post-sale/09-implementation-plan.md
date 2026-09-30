@@ -114,6 +114,12 @@ amount or throws having applied nothing. Exposes the current step for the dialog
 
 Pure step-sequencing logic in `src/utils/pos/order-change/index.ts`, unit-tested.
 
+✅ **Done 2026-09-30.** Each step registers an undo; failures undo newest first, and a step can
+replace earlier undos (`return.cancel` supersedes `cancelRequest`). Outcomes are *applied*,
+*rolled back* or *stranded* (the undo failed too). The rollback calls per operation are in
+[Order changes](./03-order-changes.md#the-rule-a-change-is-either-fully-applied-or-fully-discarded),
+checked on staging order #492, which was left unchanged.
+
 ### 1d. Open-change guard
 
 Before any operation, read the order's changes (`sdk.admin.order.listChanges`, already used
