@@ -382,7 +382,9 @@
       "reason_unpaid": "To zamówienie nie zostało opłacone",
       "reason_not_fulfilled": "Nic z tego zamówienia nie zostało jeszcze wydane",
       "reason_all_returned": "Wszystko z tego zamówienia zostało już zwrócone",
-      "reason_no_stock_location": "Najpierw ustaw lokalizację magazynu tej kasy w Ustawieniach"
+      "reason_no_stock_location": "Najpierw ustaw lokalizację magazynu tej kasy w Ustawieniach",
+      "movement_refund": "Zamówienie #{{id}}: zwrócono gotówkę",
+      "movement_payment": "Zamówienie #{{id}}: gotówka przyjęta po sprzedaży"
     }
   },
   "parked": {

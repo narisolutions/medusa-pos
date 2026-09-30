@@ -382,7 +382,9 @@
       "reason_unpaid": "Denna order har inte betalats",
       "reason_not_fulfilled": "Inget från denna order har lämnats ut ännu",
       "reason_all_returned": "Allt från denna order har redan kommit tillbaka",
-      "reason_no_stock_location": "Ange först denna kassas lagerplats i Inställningar"
+      "reason_no_stock_location": "Ange först denna kassas lagerplats i Inställningar",
+      "movement_refund": "Order #{{id}}: kontanter återbetalda",
+      "movement_payment": "Order #{{id}}: kontanter mottagna efter försäljningen"
     }
   },
   "parked": {

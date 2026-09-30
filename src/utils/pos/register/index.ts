@@ -150,3 +150,16 @@ export function newSessionId(): string {
 export function newMovementId(): string {
   return `mov_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
 }
+
+/**
+ * Cash moved on an order created before this session opened. The session's
+ * expected cash only scans orders created since it opened, so that cash must be
+ * recorded as a movement; an order created in the session is already counted.
+ */
+export function needsSessionMovement(
+  order: { created_at?: string | Date | null },
+  session: RegisterSession | null
+): boolean {
+  if (!session || session.status !== "open" || !order.created_at) return false;
+  return new Date(order.created_at).getTime() < new Date(session.openedAt).getTime();
+}

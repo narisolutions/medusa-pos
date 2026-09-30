@@ -382,7 +382,9 @@
       "reason_unpaid": "Diese Bestellung wurde nicht bezahlt",
       "reason_not_fulfilled": "Aus dieser Bestellung wurde noch nichts ausgegeben",
       "reason_all_returned": "Alles aus dieser Bestellung wurde bereits zurückgegeben",
-      "reason_no_stock_location": "Legen Sie zuerst den Lagerort dieser Kasse in den Einstellungen fest"
+      "reason_no_stock_location": "Legen Sie zuerst den Lagerort dieser Kasse in den Einstellungen fest",
+      "movement_refund": "Bestellung #{{id}}: Bargeld erstattet",
+      "movement_payment": "Bestellung #{{id}}: Bargeld nach dem Verkauf angenommen"
     }
   },
   "parked": {

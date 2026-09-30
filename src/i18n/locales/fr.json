@@ -382,7 +382,9 @@
       "reason_unpaid": "Cette commande n'a pas été payée",
       "reason_not_fulfilled": "Rien de cette commande n'a encore été remis",
       "reason_all_returned": "Tout ce qui figure sur cette commande a déjà été retourné",
-      "reason_no_stock_location": "Définissez d'abord l'emplacement de stock de cette caisse dans les Paramètres"
+      "reason_no_stock_location": "Définissez d'abord l'emplacement de stock de cette caisse dans les Paramètres",
+      "movement_refund": "Commande #{{id}} : espèces remboursées",
+      "movement_payment": "Commande #{{id}} : espèces encaissées après la vente"
     }
   },
   "parked": {

@@ -8,6 +8,7 @@ import {
   movementTotals,
   computeExpectedCash,
   orderCashContribution,
+  needsSessionMovement,
 } from ".";
 
 const session = (over: Partial<RegisterSession> = {}): RegisterSession =>
@@ -176,5 +177,24 @@ describe("computeExpectedCash", () => {
 
   it("is just the float when nothing has happened", () => {
     expect(computeExpectedCash(session({ openingFloat: 75 }), [], store)).toBe(75);
+  });
+});
+
+describe("needsSessionMovement", () => {
+  const open = session({ openedAt: "2026-08-01T10:00:00.000Z" });
+
+  it("is true for an order created before the open session", () => {
+    expect(needsSessionMovement({ created_at: "2026-07-31T18:00:00.000Z" }, open)).toBe(true);
+  });
+
+  it("is false for an order the session already counts", () => {
+    expect(needsSessionMovement({ created_at: "2026-08-01T10:30:00.000Z" }, open)).toBe(false);
+  });
+
+  it("is false without an open session", () => {
+    expect(needsSessionMovement({ created_at: "2026-07-31T18:00:00.000Z" }, null)).toBe(false);
+    expect(
+      needsSessionMovement({ created_at: "2026-07-31T18:00:00.000Z" }, session({ status: "closed" }))
+    ).toBe(false);
   });
 });

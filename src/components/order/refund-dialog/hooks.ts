@@ -20,6 +20,8 @@ import { logger, safeStringify } from "@/utils/logger";
 import { useQueryStore } from "@/hooks/queries/useQueryStore";
 import { useQueryRefundReasons } from "@/hooks/queries/useQueryRefundReasons";
 import { usePrinterService } from "@/hooks/printer/usePrinterService";
+import { usePostSaleCash } from "@/hooks/order/usePostSaleCash";
+import { getMethodType } from "@/utils/settings/store/metadata";
 import {
   allocateRefund,
   getRefundablePayments,
@@ -39,6 +41,7 @@ export const useRefund = (
   const { data: store } = useQueryStore();
   const { data: refundReasons = [] } = useQueryRefundReasons(isOpen);
   const { openCashDrawer, getDefaultPrinter } = usePrinterService();
+  const { record: recordCash, isCashBlocked } = usePostSaleCash();
 
   const [step, setStep] = useState<"form" | "confirm">("form");
   const [isProcessing, setIsProcessing] = useState(false);
@@ -164,6 +167,16 @@ export const useRefund = (
 
     const { amount, refundReasonId, note } = form.getValues();
     const refunds = allocation ?? [{ id: selectedPayment.id, amount }];
+    const cashRefunded = refunds
+      .filter((r) => getMethodType(store, payments.find((p) => p.id === r.id)?.providerId) === "cash")
+      .reduce((sum, r) => sum + r.amount, 0);
+
+    if (cashRefunded > 0 && isCashBlocked) {
+      handleErrorToast(t("checkout.register_closed"));
+      submissionRef.current = false;
+      setIsProcessing(false);
+      return;
+    }
 
     try {
       const sdk = getSdk();
@@ -180,6 +193,13 @@ export const useRefund = (
         queryKey: queryKeys.orders.detail(order.id),
       });
       void queryClient.invalidateQueries({ queryKey: queryKeys.orders.all });
+
+      await recordCash(
+        order,
+        "drop",
+        cashRefunded,
+        t("orders.post_sale.movement_refund", { id: order.display_id })
+      );
 
       toast.success(
         t("orders.refund_success", { amount: formatPrice(amount, currency) })
@@ -199,9 +219,13 @@ export const useRefund = (
   }, [
     selectedPayment,
     allocation,
+    payments,
+    store,
+    isCashBlocked,
+    recordCash,
+    order,
     form,
     queryClient,
-    order.id,
     currency,
     openDrawerForCashRefund,
     onClose,

@@ -382,7 +382,9 @@
       "reason_unpaid": "This order has not been paid",
       "reason_not_fulfilled": "Nothing on this order has been handed over yet",
       "reason_all_returned": "Everything on this order has already come back",
-      "reason_no_stock_location": "Set this till's stock location in Settings first"
+      "reason_no_stock_location": "Set this till's stock location in Settings first",
+      "movement_refund": "Order #{{id}}: cash refunded",
+      "movement_payment": "Order #{{id}}: cash taken after the sale"
     }
   },
   "parked": {

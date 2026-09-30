@@ -382,7 +382,9 @@
       "reason_unpaid": "Este pedido no se ha pagado",
       "reason_not_fulfilled": "Aún no se ha entregado nada de este pedido",
       "reason_all_returned": "Todo lo de este pedido ya se ha devuelto",
-      "reason_no_stock_location": "Primero configure la ubicación de stock de esta caja en Ajustes"
+      "reason_no_stock_location": "Primero configure la ubicación de stock de esta caja en Ajustes",
+      "movement_refund": "Pedido #{{id}}: efectivo reembolsado",
+      "movement_payment": "Pedido #{{id}}: efectivo cobrado después de la venta"
     }
   },
   "parked": {
