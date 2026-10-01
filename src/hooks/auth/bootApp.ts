@@ -1,5 +1,4 @@
 import type { AdminUser } from "@medusajs/types";
-import type { AppConfig } from "@/types/utils";
 
 export type CachedTheme = {
   primaryColor?: string;
@@ -31,7 +30,6 @@ export type BootDeps = {
   readCachedAdmin: () => Promise<AdminUser | undefined>;
   runPostAuthInit: () => Promise<void>;
   logout: () => Promise<void>;
-  setConfig: (config: AppConfig | null) => void;
   setUser: (user: AdminUser | null) => void;
   setMessage: (message: BootMessage) => void;
   notify: (message: BootMessage, tone: "error" | "info") => void;
@@ -39,6 +37,30 @@ export type BootDeps = {
   /** True once a retry has replaced this run; a replaced run must not touch anything. */
   isSuperseded: () => boolean;
 };
+
+/** How long the session check may take; past this the backend counts as unreachable. */
+export const SESSION_CHECK_TIMEOUT_MS = 8_000;
+
+/**
+ * Rejects (without a status, so it counts as an outage) if the promise takes too long.
+ * A backend that hangs rather than refusing — a captive-portal Wi-Fi, say — would
+ * otherwise hold the splash screen, or block every later re-check, indefinitely.
+ */
+export function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
+  return new Promise<T>((resolve, reject) => {
+    const timer = setTimeout(() => reject(new Error("Request timed out")), ms);
+    promise.then(
+      (value) => {
+        clearTimeout(timer);
+        resolve(value);
+      },
+      (error) => {
+        clearTimeout(timer);
+        reject(error);
+      }
+    );
+  });
+}
 
 const statusOf = (error: unknown): number | undefined =>
   (error as { status?: number } | null)?.status;
@@ -66,7 +88,7 @@ export async function verifyOfflineSession(
   deps: Pick<BootDeps, "fetchMe" | "setUser" | "notify" | "logout" | "runPostAuthInit">
 ): Promise<"verified" | "expired" | "pending"> {
   try {
-    deps.setUser(await deps.fetchMe());
+    deps.setUser(await withTimeout(deps.fetchMe(), SESSION_CHECK_TIMEOUT_MS));
     await deps.runPostAuthInit();
     return "verified";
   } catch (error) {
@@ -95,11 +117,9 @@ export async function bootApp(deps: BootDeps): Promise<BootResult> {
 
     const backendUrl = deps.getActiveBackendUrl();
     if (backendUrl === undefined) {
-      deps.setConfig(null);
       deps.setUser(null);
       return none;
     }
-    deps.setConfig({ backend_url: backendUrl });
 
     deps.setMessage("applying_theme");
     const theme = await deps.readCachedTheme();
@@ -111,7 +131,7 @@ export async function bootApp(deps: BootDeps): Promise<BootResult> {
 
     deps.setMessage("restoring_session");
     try {
-      const user = await deps.fetchMe();
+      const user = await withTimeout(deps.fetchMe(), SESSION_CHECK_TIMEOUT_MS);
       if (deps.isSuperseded()) return none;
       deps.setUser(user);
     } catch (error) {
@@ -145,7 +165,6 @@ export async function bootApp(deps: BootDeps): Promise<BootResult> {
     // login over a transient error. The user is simply shown the sign-in screen.
     deps.logError(error);
     deps.setMessage("init_failed");
-    deps.setConfig(null);
     deps.setUser(null);
     deps.notify("init_failed", "error");
     return none;

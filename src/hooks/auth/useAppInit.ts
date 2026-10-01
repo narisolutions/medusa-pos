@@ -1,8 +1,7 @@
 import { logger, safeStringify } from "@/utils/logger";
-import { useEffect, useState, useMemo, useCallback, useRef } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { AdminUser } from "@medusajs/types";
 import { toast } from "sonner";
-import { AppConfig } from "@/types/utils";
 import { getSdk } from "@/config/medusa";
 import { useUser } from "@/context/user";
 import { useStoreManager } from "@/context/store-manager";
@@ -11,11 +10,16 @@ import { t } from "@/i18n";
 import { queryClient } from "@/config/query";
 import { resetPosPluginCache } from "@/utils/pos/plugin";
 import { runPostAuthInit } from "./postAuthInit";
-import { bootApp, verifyOfflineSession, type BootMessage, type CachedTheme } from "./bootApp";
+import { bootApp, verifyOfflineSession, type BootDeps, type BootMessage, type CachedTheme } from "./bootApp";
 
 const OFFLINE_RECHECK_MS = 10_000;
 
 const bootText = (message: BootMessage) => t(`boot.${message}`);
+
+const fetchMe = () => getSdk().client.fetch<AdminUser>("/admin/users/me");
+
+const notify: BootDeps["notify"] = (message, tone) =>
+  toast[tone === "error" ? "error" : "info"](bootText(message));
 
 const applyCachedTheme = (theme: CachedTheme) => {
   const style = document.documentElement.style;
@@ -26,7 +30,6 @@ const applyCachedTheme = (theme: CachedTheme) => {
 };
 
 const useAppInit = () => {
-  const [config, setConfig] = useState<AppConfig | null>(null);
   const [bootLoading, setBootLoading] = useState(true);
   const [bootMessage, setBootMessage] = useState(() => bootText("starting"));
   const [offlineSession, setOfflineSession] = useState(false);
@@ -50,14 +53,13 @@ const useAppInit = () => {
         readCachedTheme: () => storage.getItem<CachedTheme>("store_theme"),
         applyTheme: applyCachedTheme,
         readLastLogin: () => storage.getItem("last_login"),
-        fetchMe: () => getSdk().client.fetch<AdminUser>("/admin/users/me"),
+        fetchMe,
         readCachedAdmin: () => storage.getItem<AdminUser>("last_admin"),
         runPostAuthInit,
         logout,
-        setConfig,
         setUser: update,
         setMessage: (message) => setBootMessage(bootText(message)),
-        notify: (message, tone) => toast[tone === "error" ? "error" : "info"](bootText(message)),
+        notify,
         logError: (error) => void logger.error(`App initialization failed: ${safeStringify(error)}`),
         isSuperseded,
       });
@@ -90,9 +92,9 @@ const useAppInit = () => {
       if (busy || stopped) return;
       busy = true;
       const outcome = await verifyOfflineSession({
-        fetchMe: () => getSdk().client.fetch<AdminUser>("/admin/users/me"),
+        fetchMe,
         setUser: update,
-        notify: (message, tone) => toast[tone === "error" ? "error" : "info"](bootText(message)),
+        notify,
         logout,
         runPostAuthInit,
       });
@@ -114,13 +116,11 @@ const useAppInit = () => {
     };
   }, [offlineSession, update, logout]);
 
-  const isReady = useMemo(() => !!config && !bootLoading, [config, bootLoading]);
-
   const retry = useCallback(() => {
     initApp();
   }, [initApp]);
 
-  return { config, bootLoading, bootMessage, isReady, retry };
+  return { bootLoading, bootMessage, retry };
 };
 
 export default useAppInit;

@@ -1,6 +1,6 @@
-import { describe, it, expect, vi } from "vitest";
+import { describe, it, expect, vi, afterEach } from "vitest";
 import type { AdminUser } from "@medusajs/types";
-import { bootApp, verifyOfflineSession, type BootDeps } from "./bootApp";
+import { bootApp, verifyOfflineSession, withTimeout, SESSION_CHECK_TIMEOUT_MS, type BootDeps } from "./bootApp";
 
 const user = { id: "user_live" } as AdminUser;
 const cachedAdmin = { id: "user_cached" } as AdminUser;
@@ -24,7 +24,6 @@ const setup = (over: Partial<BootDeps> = {}) => {
     readCachedAdmin: rec("readCachedAdmin", () => cachedAdmin),
     runPostAuthInit: rec("runPostAuthInit"),
     logout: rec("logout"),
-    setConfig: vi.fn(),
     setUser: vi.fn(),
     setMessage: vi.fn(),
     notify: vi.fn(),
@@ -42,7 +41,6 @@ describe("bootApp", () => {
 
     expect(result).toEqual({ offlineSession: false });
     expect(calls.indexOf("applyTheme")).toBeLessThan(calls.indexOf("fetchMe"));
-    expect(deps.setConfig).toHaveBeenCalledWith({ backend_url: "https://backend" });
     expect(deps.setUser).toHaveBeenCalledWith(user);
     expect(calls).toContain("runPostAuthInit");
     expect(deps.notify).not.toHaveBeenCalled();
@@ -52,7 +50,6 @@ describe("bootApp", () => {
     const { deps, calls } = setup({ getActiveBackendUrl: vi.fn(() => undefined) });
     await bootApp(deps);
 
-    expect(deps.setConfig).toHaveBeenCalledWith(null);
     expect(deps.setUser).toHaveBeenCalledWith(null);
     expect(calls).not.toContain("fetchMe");
   });
@@ -119,7 +116,6 @@ describe("bootApp", () => {
     await bootApp(deps);
 
     expect(deps.logError).toHaveBeenCalledWith(boom);
-    expect(deps.setConfig).toHaveBeenCalledWith(null);
     expect(deps.setUser).toHaveBeenCalledWith(null);
     expect(deps.notify).toHaveBeenCalledWith("init_failed", "error");
     expect(deps.logout).not.toHaveBeenCalled();
@@ -131,7 +127,6 @@ describe("bootApp", () => {
 
     expect(calls).toEqual(["loadStores"]);
     expect(deps.setUser).not.toHaveBeenCalled();
-    expect(deps.setConfig).not.toHaveBeenCalled();
   });
 
   it("does not sign the user out when a replaced run's request fails late", async () => {
@@ -184,5 +179,59 @@ describe("verifyOfflineSession", () => {
     expect(deps.setUser).not.toHaveBeenCalled();
     expect(deps.logout).not.toHaveBeenCalled();
     expect(calls).not.toContain("runPostAuthInit");
+  });
+});
+
+describe("a backend that hangs instead of answering", () => {
+  afterEach(() => vi.useRealTimers());
+
+  const hangs = () => new Promise<AdminUser>(() => {});
+
+  it("falls back to the saved session once the check times out", async () => {
+    vi.useFakeTimers();
+    const { deps } = setup({ fetchMe: vi.fn(hangs) });
+    const boot = bootApp(deps);
+    await vi.advanceTimersByTimeAsync(SESSION_CHECK_TIMEOUT_MS);
+
+    expect(await boot).toEqual({ offlineSession: true });
+    expect(deps.setUser).toHaveBeenCalledWith(cachedAdmin);
+    expect(deps.logout).not.toHaveBeenCalled();
+  });
+
+  it("does not leave a re-check stuck waiting for ever", async () => {
+    vi.useFakeTimers();
+    const { deps } = setup({ fetchMe: vi.fn(hangs) });
+    const check = verifyOfflineSession({
+      fetchMe: deps.fetchMe,
+      setUser: deps.setUser,
+      notify: deps.notify,
+      logout: deps.logout,
+      runPostAuthInit: deps.runPostAuthInit,
+    });
+    await vi.advanceTimersByTimeAsync(SESSION_CHECK_TIMEOUT_MS);
+
+    expect(await check).toBe("pending");
+  });
+});
+
+describe("withTimeout", () => {
+  afterEach(() => vi.useRealTimers());
+
+  it("passes a result or an error through, and stops its timer", async () => {
+    vi.useFakeTimers();
+    expect(await withTimeout(Promise.resolve(7), 1000)).toBe(7);
+    await expect(withTimeout(Promise.reject(new Error("boom")), 1000)).rejects.toThrow("boom");
+    expect(vi.getTimerCount()).toBe(0);
+  });
+
+  it("rejects without a status when the time is up", async () => {
+    vi.useFakeTimers();
+    const pending = withTimeout(new Promise<never>(() => {}), 1000);
+    const caught = pending.catch((e) => e);
+    await vi.advanceTimersByTimeAsync(1000);
+    const error = await caught;
+
+    expect((error as { status?: number }).status).toBeUndefined();
+    expect((error as Error).message).toBe("Request timed out");
   });
 });
