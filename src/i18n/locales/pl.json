@@ -801,7 +801,8 @@
     "something_went_wrong_title": "Hmm... coś poszło nie tak.",
     "something_went_wrong_description": "Odśwież stronę, aby kontynuować.",
     "something_went_wrong_toast": "Coś poszło nie tak! Odśwież stronę i spróbuj ponownie.",
-    "refresh_page_button": "Odśwież stronę"
+    "refresh_page_button": "Odśwież stronę",
+    "network_unreachable": "Brak połączenia z serwerem. Sprawdź połączenie."
   },
   "boot": {
     "starting": "Uruchamianie…",

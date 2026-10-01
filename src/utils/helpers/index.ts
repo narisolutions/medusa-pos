@@ -59,6 +59,13 @@ const getApiErrorMessage = (error: unknown, fallback: string): string => {
   return fallback;
 };
 
+/** A request that got no answer at all — Tauri's HTTP plugin reports these without a status. */
+const isNetworkError = (error: unknown): boolean => {
+  if (!(error instanceof Error)) return false;
+  if ((error as { status?: number }).status !== undefined) return false;
+  return /error sending request|failed to fetch|network ?error|load failed/i.test(error.message);
+};
+
 const handleErrorToast = (
   error: unknown,
   options?: { posEndpointError?: boolean }
@@ -90,6 +97,12 @@ const handleErrorToast = (
       );
       return;
     }
+  }
+
+  // Several queries fail together when the connection drops: one explanation, not one raw error each.
+  if (isNetworkError(error)) {
+    toast.error(t("errors.network_unreachable"), { id: "network-unreachable" });
+    return;
   }
 
   if (error instanceof Error) {
@@ -280,6 +293,7 @@ export {
   getTauriInvokeErrorMessage,
   getApiErrorMessage,
   handleErrorToast,
+  isNetworkError,
   formatDate,
   formatTimeAgo,
   formatPrice,

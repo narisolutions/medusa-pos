@@ -801,7 +801,8 @@
     "something_went_wrong_title": "Hmm... etwas ist schiefgelaufen.",
     "something_went_wrong_description": "Aktualisieren Sie die Seite, um fortzufahren.",
     "something_went_wrong_toast": "Etwas ist schiefgelaufen! Bitte aktualisieren Sie die Seite und versuchen Sie es erneut.",
-    "refresh_page_button": "Seite aktualisieren"
+    "refresh_page_button": "Seite aktualisieren",
+    "network_unreachable": "Server nicht erreichbar. Prüfen Sie die Verbindung."
   },
   "boot": {
     "starting": "Wird gestartet…",

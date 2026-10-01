@@ -8,10 +8,12 @@ import { useUser } from "@/context/user";
 import { useStoreManager } from "@/context/store-manager";
 import storage from "@/utils/storage";
 import { t } from "@/i18n";
+import { queryClient } from "@/config/query";
+import { resetPosPluginCache } from "@/utils/pos/plugin";
 import { runPostAuthInit } from "./postAuthInit";
 import { bootApp, verifyOfflineSession, type BootMessage, type CachedTheme } from "./bootApp";
 
-const OFFLINE_RECHECK_MS = 15_000;
+const OFFLINE_RECHECK_MS = 10_000;
 
 const bootText = (message: BootMessage) => t(`boot.${message}`);
 
@@ -95,6 +97,11 @@ const useAppInit = () => {
         runPostAuthInit,
       });
       busy = false;
+      if (outcome === "verified") {
+        // Everything that failed while the backend was out of reach loads again by itself.
+        resetPosPluginCache();
+        void queryClient.invalidateQueries();
+      }
       if (outcome !== "pending" && !stopped) setOfflineSession(false);
     };
 

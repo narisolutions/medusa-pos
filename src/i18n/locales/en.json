@@ -801,7 +801,8 @@
     "something_went_wrong_title": "Hmm... something went wrong.",
     "something_went_wrong_description": "Try refreshing the page to continue.",
     "something_went_wrong_toast": "Something went wrong! Please refresh the page and try again.",
-    "refresh_page_button": "Refresh Page"
+    "refresh_page_button": "Refresh Page",
+    "network_unreachable": "Can't reach the server. Check the connection."
   },
   "boot": {
     "starting": "Starting…",

@@ -801,7 +801,8 @@
     "something_went_wrong_title": "ჰმ... რაღაც შეცდომა მოხდა.",
     "something_went_wrong_description": "სცადეთ გვერდის განახლება გასაგრძელებლად.",
     "something_went_wrong_toast": "რაღაც შეცდომა მოხდა! გთხოვთ განაახლოთ გვერდი და სცადოთ თავიდან.",
-    "refresh_page_button": "გვერდის განახლება"
+    "refresh_page_button": "გვერდის განახლება",
+    "network_unreachable": "სერვერთან დაკავშირება ვერ ხერხდება. შეამოწმეთ კავშირი."
   },
   "boot": {
     "starting": "იწყება…",

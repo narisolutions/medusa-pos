@@ -801,7 +801,8 @@
     "something_went_wrong_title": "Hum… une erreur s’est produite.",
     "something_went_wrong_description": "Actualisez la page pour continuer.",
     "something_went_wrong_toast": "Une erreur s’est produite ! Veuillez actualiser la page et réessayer.",
-    "refresh_page_button": "Actualiser la page"
+    "refresh_page_button": "Actualiser la page",
+    "network_unreachable": "Serveur injoignable. Vérifiez la connexion."
   },
   "boot": {
     "starting": "Démarrage…",

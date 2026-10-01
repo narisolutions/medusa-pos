@@ -801,7 +801,8 @@
     "something_went_wrong_title": "Hmm... något gick fel.",
     "something_went_wrong_description": "Försök att uppdatera sidan för att fortsätta.",
     "something_went_wrong_toast": "Något gick fel! Uppdatera sidan och försök igen.",
-    "refresh_page_button": "Uppdatera sidan"
+    "refresh_page_button": "Uppdatera sidan",
+    "network_unreachable": "Kan inte nå servern. Kontrollera anslutningen."
   },
   "boot": {
     "starting": "Startar…",

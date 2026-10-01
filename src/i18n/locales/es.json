@@ -801,7 +801,8 @@
     "something_went_wrong_title": "Vaya... algo ha salido mal.",
     "something_went_wrong_description": "Actualiza la página para continuar.",
     "something_went_wrong_toast": "¡Algo ha salido mal! Actualiza la página e inténtalo de nuevo.",
-    "refresh_page_button": "Actualizar página"
+    "refresh_page_button": "Actualizar página",
+    "network_unreachable": "No se puede conectar con el servidor. Compruebe la conexión."
   },
   "boot": {
     "starting": "Iniciando…",
