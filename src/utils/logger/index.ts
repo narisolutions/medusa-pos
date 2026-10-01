@@ -40,9 +40,28 @@ export const logger = {
   },
 };
 
+// An Error's message and stack are not enumerable, so JSON.stringify prints "{}" — every
+// logged error lost its reason. Errors are expanded, including the HTTP status/body our
+// patched fetch attaches; cycles print as "[Circular]" instead of failing.
 export const safeStringify = (obj: unknown): string => {
+  const seen = new WeakSet<object>();
   try {
-    return JSON.stringify(obj, null, 2);
+    const out = JSON.stringify(
+      obj,
+      (_key, value: unknown) => {
+        if (value instanceof Error) {
+          const { name, message, stack } = value;
+          return { name, message, ...(value as unknown as Record<string, unknown>), stack };
+        }
+        if (typeof value === "object" && value !== null) {
+          if (seen.has(value)) return "[Circular]";
+          seen.add(value);
+        }
+        return value;
+      },
+      2
+    );
+    return out ?? String(obj);
   } catch {
     return String(obj);
   }
