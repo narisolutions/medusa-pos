@@ -59,11 +59,15 @@ const getApiErrorMessage = (error: unknown, fallback: string): string => {
   return fallback;
 };
 
-/** A request that got no answer at all — Tauri's HTTP plugin reports these without a status. */
+/**
+ * A request that got no answer at all. Tauri's HTTP plugin rejects with a plain string,
+ * a browser fetch with an Error; neither carries a status.
+ */
 const isNetworkError = (error: unknown): boolean => {
-  if (!(error instanceof Error)) return false;
-  if ((error as { status?: number }).status !== undefined) return false;
-  return /error sending request|failed to fetch|network ?error|load failed/i.test(error.message);
+  if (typeof error !== "string" && !(error instanceof Error)) return false;
+  if (typeof error !== "string" && (error as { status?: number }).status !== undefined) return false;
+  const message = typeof error === "string" ? error : error.message;
+  return /error sending request|failed to fetch|network ?error|load failed/i.test(message);
 };
 
 const handleErrorToast = (

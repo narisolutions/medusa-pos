@@ -218,7 +218,9 @@
     "view_parked_action": "Voir les ventes en attente",
     "parking": "Mise en attente…",
     "park_name_label": "Nom",
-    "park_name_optional": "facultatif"
+    "park_name_optional": "facultatif",
+    "products_load_failed": "Impossible de charger les produits.",
+    "products_load_failed_hint": "C'est généralement la connexion. Ils se rechargent seuls dès que le serveur est joignable."
   },
   "orders": {
     "search_placeholder": "Rechercher des commandes...",

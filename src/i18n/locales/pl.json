@@ -218,7 +218,9 @@
     "view_parked_action": "Zobacz odłożone",
     "parking": "Odkładanie…",
     "park_name_label": "Nazwa",
-    "park_name_optional": "opcjonalne"
+    "park_name_optional": "opcjonalne",
+    "products_load_failed": "Nie udało się wczytać produktów.",
+    "products_load_failed_hint": "Zwykle to problem z połączeniem. Wczytają się ponownie same, gdy serwer będzie osiągalny."
   },
   "orders": {
     "search_placeholder": "Szukaj zamówień...",

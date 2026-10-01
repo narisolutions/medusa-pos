@@ -218,7 +218,9 @@
     "view_parked_action": "ნახვა",
     "parking": "მიმდინარეობს გადადება…",
     "park_name_label": "სახელი",
-    "park_name_optional": "არასავალდებულო"
+    "park_name_optional": "არასავალდებულო",
+    "products_load_failed": "პროდუქტების ჩატვირთვა ვერ მოხერხდა.",
+    "products_load_failed_hint": "ჩვეულებრივ ეს კავშირის პრობლემაა. სერვერის ხელმისაწვდომობისას ისინი თავისით ჩაიტვირთება."
   },
   "orders": {
     "search_placeholder": "შეკვეთების ძებნა...",

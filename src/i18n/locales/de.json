@@ -218,7 +218,9 @@
     "view_parked_action": "Geparkte ansehen",
     "parking": "Wird geparkt…",
     "park_name_label": "Name",
-    "park_name_optional": "optional"
+    "park_name_optional": "optional",
+    "products_load_failed": "Die Produkte konnten nicht geladen werden.",
+    "products_load_failed_hint": "Meist liegt es an der Verbindung. Sie werden automatisch neu geladen, sobald der Server erreichbar ist."
   },
   "orders": {
     "search_placeholder": "Bestellungen suchen...",

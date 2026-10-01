@@ -218,7 +218,9 @@
     "view_parked_action": "View parked",
     "parking": "Parking…",
     "park_name_label": "Name",
-    "park_name_optional": "optional"
+    "park_name_optional": "optional",
+    "products_load_failed": "Couldn't load the products.",
+    "products_load_failed_hint": "This is usually the connection. It loads again by itself when the server is reachable."
   },
   "orders": {
     "search_placeholder": "Search orders...",
