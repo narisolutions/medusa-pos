@@ -370,6 +370,7 @@
     "refunded_label": "Zwrócono",
     "event_refunded": "Zwrócono",
     "payment_label": "Płatność:",
+    "payment_other": "Inne",
     "filter_unpaid": "Nieopłacone",
     "status_awaiting": "Oczekuje",
     "status_captured": "Pobrane",

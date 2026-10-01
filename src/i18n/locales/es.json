@@ -370,6 +370,7 @@
     "refunded_label": "Reembolsado",
     "event_refunded": "Reembolsado",
     "payment_label": "Pago:",
+    "payment_other": "Otro",
     "filter_unpaid": "Sin pagar",
     "status_awaiting": "Pendiente",
     "status_captured": "Cobrado",

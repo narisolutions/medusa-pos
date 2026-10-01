@@ -370,6 +370,7 @@
     "refunded_label": "Refunded",
     "event_refunded": "Refunded",
     "payment_label": "Payment:",
+    "payment_other": "Other",
     "filter_unpaid": "Unpaid",
     "status_awaiting": "Awaiting",
     "status_captured": "Captured",

@@ -370,6 +370,7 @@
     "refunded_label": "Remboursé",
     "event_refunded": "Remboursé",
     "payment_label": "Paiement :",
+    "payment_other": "Autre",
     "filter_unpaid": "Impayé",
     "status_awaiting": "En attente",
     "status_captured": "Encaissé",

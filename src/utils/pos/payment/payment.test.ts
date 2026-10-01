@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { allocateRefund, defaultRefundPayment, paymentsCovering, type RefundablePayment } from ".";
+import { allocateRefund, defaultRefundPayment, getPaymentMethodLabel, paymentsCovering, type RefundablePayment } from ".";
 
 const payment = (id: string, refundable: number): RefundablePayment => ({
   id,
@@ -49,5 +49,24 @@ describe("paymentsCovering and defaultRefundPayment", () => {
     expect(defaultRefundPayment([card, cash], 3.49)).toBe(card);
     expect(defaultRefundPayment([card, cash], 3)).toBe(cash);
     expect(defaultRefundPayment([], 3)).toBeUndefined();
+  });
+});
+
+describe("getPaymentMethodLabel", () => {
+  const store = {
+    metadata: { pos: { payment_methods: [{ id: "pp_cash_pos", label: "Cash", enabled: true }] } },
+  } as never;
+
+  it("uses the configured label, matched case-insensitively", () => {
+    expect(getPaymentMethodLabel(store, "PP_CASH_POS")).toBe("Cash");
+  });
+
+  it("names Medusa's system fallback instead of showing its id", () => {
+    expect(getPaymentMethodLabel(store, "pp_system_default")).toBe("Other");
+  });
+
+  it("leaves any other unknown provider visible for diagnosis", () => {
+    expect(getPaymentMethodLabel(store, "pp_mystery")).toBe("pp_mystery");
+    expect(getPaymentMethodLabel(store, undefined)).toBe("");
   });
 });

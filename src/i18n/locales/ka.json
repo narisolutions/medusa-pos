@@ -370,6 +370,7 @@
     "refunded_label": "დაბრუნებული",
     "event_refunded": "დაბრუნებული",
     "payment_label": "გადახდა:",
+    "payment_other": "სხვა",
     "filter_unpaid": "გადაუხდელი",
     "status_awaiting": "მოლოდინში",
     "status_captured": "ჩარიცხული",

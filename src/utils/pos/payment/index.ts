@@ -1,3 +1,4 @@
+import { t as translate } from "@/i18n";
 import { AdminOrder, AdminStore } from "@medusajs/types";
 import {
   getPaymentMethodsForSettings,
@@ -5,6 +6,8 @@ import {
   type PaymentMethodType,
 } from "@/utils/settings/store/metadata";
 import { toNumber } from "@/utils/pos/pricing";
+
+const SYSTEM_DEFAULT_PROVIDER = "pp_system_default";
 
 /**
  * Returns an order's payment provider_id: payments[0] → payment_sessions[0].
@@ -50,11 +53,14 @@ export function getPaymentMethodLabel(
   if (!providerId) return "";
 
   const configuredMethods = getPaymentMethodsForSettings(store);
-  return (
-    configuredMethods.find(
-      (m) => m.id?.toLowerCase() === providerId.toLowerCase()
-    )?.label ?? providerId
-  );
+  const configured = configuredMethods.find(
+    (m) => m.id?.toLowerCase() === providerId.toLowerCase()
+  )?.label;
+  if (configured) return configured;
+
+  // Medusa's own fallback for payments marked paid outside a provider; "pp_system_default" means nothing to staff.
+  if (providerId.toLowerCase() === SYSTEM_DEFAULT_PROVIDER) return translate("orders.payment_other");
+  return providerId;
 }
 
 /**

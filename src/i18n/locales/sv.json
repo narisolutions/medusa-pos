@@ -370,6 +370,7 @@
     "refunded_label": "Återbetalat",
     "event_refunded": "Återbetalat",
     "payment_label": "Betalning:",
+    "payment_other": "Övrigt",
     "filter_unpaid": "Obetald",
     "status_awaiting": "Väntar",
     "status_captured": "Inkasserad",
