@@ -803,6 +803,16 @@
     "something_went_wrong_toast": "Coś poszło nie tak! Odśwież stronę i spróbuj ponownie.",
     "refresh_page_button": "Odśwież stronę"
   },
+  "boot": {
+    "starting": "Uruchamianie…",
+    "loading_stores": "Ładowanie konfiguracji sklepu…",
+    "applying_theme": "Stosowanie motywu…",
+    "restoring_session": "Przywracanie sesji…",
+    "loading_settings": "Ładowanie ustawień sklepu…",
+    "init_failed": "Uruchomienie nie powiodło się. Spróbuj ponownie.",
+    "session_expired": "Sesja wygasła. Zaloguj się ponownie.",
+    "user_fetch_failed": "Nie udało się pobrać użytkownika. Spróbuj ponownie."
+  },
   "pagination": {
     "first_page": "Pierwsza",
     "previous_page": "Poprzednia",

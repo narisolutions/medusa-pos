@@ -803,6 +803,16 @@
     "something_went_wrong_toast": "Något gick fel! Uppdatera sidan och försök igen.",
     "refresh_page_button": "Uppdatera sidan"
   },
+  "boot": {
+    "starting": "Startar…",
+    "loading_stores": "Läser in butikskonfiguration…",
+    "applying_theme": "Tillämpar tema…",
+    "restoring_session": "Återställer sessionen…",
+    "loading_settings": "Läser in butiksinställningar…",
+    "init_failed": "Starten misslyckades. Försök igen.",
+    "session_expired": "Sessionen har gått ut. Logga in igen.",
+    "user_fetch_failed": "Det gick inte att hämta användaren. Försök igen."
+  },
   "pagination": {
     "first_page": "Första",
     "previous_page": "Föregående",

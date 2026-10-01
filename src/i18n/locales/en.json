@@ -803,6 +803,16 @@
     "something_went_wrong_toast": "Something went wrong! Please refresh the page and try again.",
     "refresh_page_button": "Refresh Page"
   },
+  "boot": {
+    "starting": "Starting…",
+    "loading_stores": "Loading store configuration…",
+    "applying_theme": "Applying theme…",
+    "restoring_session": "Restoring session…",
+    "loading_settings": "Loading store settings…",
+    "init_failed": "Startup failed. Please try again.",
+    "session_expired": "Session expired. Please log in again.",
+    "user_fetch_failed": "Failed to fetch user. Please try again."
+  },
   "pagination": {
     "first_page": "First",
     "previous_page": "Previous",

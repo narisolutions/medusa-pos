@@ -803,6 +803,16 @@
     "something_went_wrong_toast": "Une erreur s’est produite ! Veuillez actualiser la page et réessayer.",
     "refresh_page_button": "Actualiser la page"
   },
+  "boot": {
+    "starting": "Démarrage…",
+    "loading_stores": "Chargement de la configuration de la boutique…",
+    "applying_theme": "Application du thème…",
+    "restoring_session": "Restauration de la session…",
+    "loading_settings": "Chargement des paramètres de la boutique…",
+    "init_failed": "Échec du démarrage. Veuillez réessayer.",
+    "session_expired": "Session expirée. Veuillez vous reconnecter.",
+    "user_fetch_failed": "Impossible de récupérer l'utilisateur. Veuillez réessayer."
+  },
   "pagination": {
     "first_page": "Première",
     "previous_page": "Précédente",

@@ -1,116 +1,40 @@
 import { logger, safeStringify } from "@/utils/logger";
-import { useEffect, useState, useMemo, useCallback } from "react";
-import { AdminStore, AdminUser } from "@medusajs/types";
+import { useEffect, useState, useMemo, useCallback, useRef } from "react";
+import { AdminUser } from "@medusajs/types";
 import { AppConfig } from "@/types/utils";
 import { getSdk } from "@/config/medusa";
 import { useUser } from "@/context/user";
-import { useStore } from "@/context/store";
-import { useSalesChannel } from "@/context/sales-channel";
 import { useStoreManager } from "@/context/store-manager";
 import storage from "@/utils/storage";
 import { handleErrorToast } from "@/utils/helpers";
-import { initDateTimePrefs, initCurrencyPrefs, loadPreferences } from "@/utils/settings/preferences";
-import { queryClient, queryKeys } from "@/config/query";
-import {
-  getPrimaryColor,
-  getSecondaryColor,
-  getFontSize,
-  getBrandName,
-  getLogoUrl,
-  hasPosMetadata,
-} from "@/utils/settings/store/metadata";
+import { t } from "@/i18n";
+import { runPostAuthInit } from "./postAuthInit";
 
-// Post-auth init (store meta, theme, prefs, setup + sales-channel checks). Safe from
-// boot and login flows; each section is wrapped so one failure never blocks the rest.
-export async function runPostAuthInit() {
-  try {
-    const sdk = getSdk();
-    const { stores } = await sdk.admin.store.list();
-    const store = stores[0] as AdminStore | undefined;
-
-    if (store) {
-      const dismissed = await storage.getItem("store_setup_dismissed");
-      useStore.getState().setNeedsSetup(!hasPosMetadata(store) && !dismissed);
-
-      queryClient.setQueryData(queryKeys.store, store);
-
-      await useStoreManager.getState().updateActiveName(store.name);
-      await useStoreManager.getState().updateActiveLogo(getLogoUrl(store));
-
-      const primaryColor = getPrimaryColor(store);
-      const secondaryColor = getSecondaryColor(store);
-      const fontScale = getFontSize(store);
-
-      if (primaryColor) document.documentElement.style.setProperty("--color-primary", primaryColor);
-      else document.documentElement.style.removeProperty("--color-primary");
-      if (secondaryColor) document.documentElement.style.setProperty("--color-secondary", secondaryColor);
-      else document.documentElement.style.removeProperty("--color-secondary");
-      if (fontScale) document.documentElement.style.setProperty("--font-scale", fontScale);
-      else document.documentElement.style.removeProperty("--font-scale");
-
-      await storage.setItem("store_theme", {
-        primaryColor: primaryColor ?? undefined,
-        secondaryColor: secondaryColor ?? undefined,
-        fontScale: fontScale ?? undefined,
-        brandName: getBrandName(store) || undefined,
-      });
-    }
-  } catch (storeErr) {
-    void logger.error(`Store settings init failed: ${safeStringify(storeErr)}`);
-  }
-
-  try {
-    const prefs = await loadPreferences();
-    initDateTimePrefs(prefs.dateTime);
-    initCurrencyPrefs(prefs.currency);
-  } catch (prefsErr) {
-    void logger.error(`Preferences init failed: ${safeStringify(prefsErr)}`);
-  }
-
-  try {
-    const storedId = await storage.getItem("sales_channel_id");
-    let validId: string | undefined;
-
-    if (storedId) {
-      try {
-        const sdk = getSdk();
-        const { sales_channels } = await sdk.admin.salesChannel.list();
-        const exists = sales_channels.some((ch: { id: string }) => ch.id === storedId);
-        if (exists) {
-          validId = storedId;
-        } else {
-          await storage.setItem("sales_channel_id", "");
-        }
-      } catch {
-        validId = storedId;
-      }
-    }
-
-    useSalesChannel.getState().setSalesChannelId(validId);
-    useSalesChannel.getState().setNeedsWarning(!validId);
-  } catch (scErr) {
-    void logger.error(`Sales channel init failed: ${safeStringify(scErr)}`);
-    useSalesChannel.getState().setNeedsWarning(true);
-  }
-}
+// A rejected session is the only failure that ends a login; anything else may be transient.
+const isUnauthorized = (error: unknown): boolean =>
+  (error as { status?: number } | null)?.status === 401;
 
 const useAppInit = () => {
   const [config, setConfig] = useState<AppConfig | null>(null);
   const [bootLoading, setBootLoading] = useState(true);
-  const [bootMessage, setBootMessage] = useState("Starting…");
+  const [bootMessage, setBootMessage] = useState(() => t("boot.starting"));
 
   const update = useUser((s) => s.update);
   const logout = useUser((s) => s.logout);
 
-  const currentPath = window.location.pathname;
-  const isAuthRoute = currentPath === "/sign-in";
+  // A retry starts a new run; the run it replaced must not touch state afterwards.
+  const runId = useRef(0);
 
   const initApp = useCallback(async () => {
+    const run = ++runId.current;
+    const superseded = () => run !== runId.current;
+
     setBootLoading(true);
 
     try {
-      setBootMessage("Loading store configuration…");
+      setBootMessage(t("boot.loading_stores"));
       await useStoreManager.getState().loadStores();
+      if (superseded()) return;
       const { activeStore } = useStoreManager.getState();
 
       if (!activeStore) {
@@ -121,54 +45,59 @@ const useAppInit = () => {
 
       setConfig({ backend_url: activeStore.backendUrl });
 
-      setBootMessage("Applying theme…");
+      setBootMessage(t("boot.applying_theme"));
       const cachedTheme = await storage.getItem<{
         primaryColor?: string;
         secondaryColor?: string;
         fontScale?: string;
         brandName?: string;
       }>("store_theme");
+      if (superseded()) return;
       if (cachedTheme) {
-        if (cachedTheme.primaryColor) document.documentElement.style.setProperty("--color-primary", cachedTheme.primaryColor);
-        if (cachedTheme.secondaryColor) document.documentElement.style.setProperty("--color-secondary", cachedTheme.secondaryColor);
-        if (cachedTheme.fontScale) document.documentElement.style.setProperty("--font-scale", cachedTheme.fontScale);
+        const style = document.documentElement.style;
+        if (cachedTheme.primaryColor) style.setProperty("--color-primary", cachedTheme.primaryColor);
+        if (cachedTheme.secondaryColor) style.setProperty("--color-secondary", cachedTheme.secondaryColor);
+        if (cachedTheme.fontScale) style.setProperty("--font-scale", cachedTheme.fontScale);
         document.title = cachedTheme.brandName ? `${cachedTheme.brandName} POS` : "POS";
       }
 
       const lastLogin = await storage.getItem("last_login");
-      if (!lastLogin) return;
+      if (superseded() || !lastLogin) return;
 
+      setBootMessage(t("boot.restoring_session"));
       try {
-        setBootMessage("Restoring session…");
         const user = await getSdk().client.fetch<AdminUser>("/admin/users/me");
+        if (superseded()) return;
         update(user);
       } catch (error) {
-        const status = (error as { status?: number })?.status;
+        if (superseded()) return;
         update(null);
-        if (status === 401) {
-          handleErrorToast("Session expired. Please log in again.");
+        if (isUnauthorized(error)) {
+          handleErrorToast(t("boot.session_expired"));
           await logout();
-          window.location.href = "/sign-in";
         } else {
-          handleErrorToast("Failed to fetch user. Please try again.");
+          handleErrorToast(t("boot.user_fetch_failed"));
         }
+        // Signed out either way: ProtectedRoute sends the user to sign-in, and there is
+        // no session for the post-auth init below to use.
+        return;
       }
 
-      setBootMessage("Loading store settings…");
+      setBootMessage(t("boot.loading_settings"));
       await runPostAuthInit();
     } catch (err) {
+      if (superseded()) return;
+      // Not an auth failure, so the session is kept: logging out here would wipe a good
+      // login over a transient error. The user is simply shown the sign-in screen.
       void logger.error(`App initialization failed: ${safeStringify(err)}`);
-      setBootMessage("Initialization failed");
+      setBootMessage(t("boot.init_failed"));
       setConfig(null);
       update(null);
-      await logout();
-      if (!isAuthRoute) {
-        window.location.href = "/sign-in";
-      }
+      handleErrorToast(t("boot.init_failed"));
     } finally {
-      setBootLoading(false);
+      if (!superseded()) setBootLoading(false);
     }
-  }, [logout, update, isAuthRoute]);
+  }, [logout, update]);
 
   useEffect(() => {
     // Defer to a microtask so initApp's initial state updates don't run

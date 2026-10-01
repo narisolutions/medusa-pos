@@ -5,7 +5,7 @@ import { useUser } from "@/context/user";
 import { useNavigate } from "react-router-dom";
 import { getRoutes, handleErrorToast } from "@/utils/helpers";
 import { AdminUser } from "@medusajs/types";
-import { runPostAuthInit } from "@/hooks/auth/useAppInit";
+import { runPostAuthInit } from "@/hooks/auth/postAuthInit";
 
 const useLogin = (isConfigured: boolean) => {
   const setGlobalLoading = useUser((state) => state.setGlobalLoading);
