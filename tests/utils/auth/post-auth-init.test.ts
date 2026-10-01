@@ -36,7 +36,7 @@ vi.mock("@/utils/settings/preferences", () => ({
 vi.mock("@/config/query", () => ({ queryClient: { setQueryData: h.setQueryData }, queryKeys: { store: ["store"] } }));
 vi.mock("@/utils/logger", () => ({ logger: { error: h.logError }, safeStringify: String }));
 
-import { runPostAuthInit } from "./postAuthInit";
+import { runPostAuthInit } from "@/utils/auth/post-auth-init";
 
 const store = {
   name: "Wineland",

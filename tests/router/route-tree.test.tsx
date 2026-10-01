@@ -10,8 +10,8 @@ import Settings from "@/pages/settings";
 import ProtectedRoute from "@/components/router";
 import Auth from "@/components/auth";
 import { logger } from "@/utils/logger";
-import { routes } from "./route-tree";
-import { ROUTES } from "./routes";
+import { routes } from "@/router/route-tree";
+import { ROUTES } from "@/router/routes";
 
 const { stub } = vi.hoisted(() => ({
   stub: (name: string) => ({ default: Object.assign(() => null, { displayName: name }) }),

@@ -3,7 +3,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 const h = vi.hoisted(() => ({ fetch: vi.fn() }));
 vi.mock("@/config/medusa", () => ({ getSdk: () => ({ client: { fetch: h.fetch } }) }));
 
-import { isInconclusiveProbe, isPosPluginInstalled, resetPosPluginCache } from ".";
+import { isInconclusiveProbe, isPosPluginInstalled, resetPosPluginCache } from "@/utils/pos/plugin";
 
 const httpError = (status?: number) => Object.assign(new Error("fail"), { status });
 

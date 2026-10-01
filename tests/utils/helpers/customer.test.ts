@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { getOrderCustomerLabel, getOrderDeliveryCustomer } from ".";
+import { getOrderCustomerLabel, getOrderDeliveryCustomer } from "@/utils/helpers";
 
 const GUEST = "guest@wineland.ge";
 

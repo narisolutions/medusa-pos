@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { isNetworkError } from ".";
+import { isNetworkError } from "@/utils/helpers";
 
 describe("isNetworkError", () => {
   it("recognises a request that got no answer", () => {

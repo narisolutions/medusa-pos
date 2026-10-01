@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { buildPostSaleSlipDoc, type PostSaleSlipLabels } from "./post-sale-slip";
+import { buildPostSaleSlipDoc, type PostSaleSlipLabels } from "@/utils/pos/receipt/post-sale-slip";
 
 const labels: PostSaleSlipLabels = {
   title: { return: "RETURN", exchange: "EXCHANGE", add: "ADDED ITEMS" },

@@ -9,7 +9,7 @@ vi.mock("@tauri-apps/plugin-log", () => ({
   attachConsole: vi.fn(),
 }));
 
-import { safeStringify } from ".";
+import { safeStringify } from "@/utils/logger";
 
 describe("safeStringify", () => {
   it("keeps an Error's message and stack instead of printing {}", () => {

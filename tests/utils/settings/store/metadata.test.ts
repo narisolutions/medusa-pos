@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { AdminStore } from "@medusajs/types";
-import { getMethodType } from "./metadata";
+import { getMethodType } from "@/utils/settings/store/metadata";
 
 const store = (methods: unknown[]): AdminStore =>
   ({ metadata: { pos: { payment_methods: methods } } }) as unknown as AdminStore;

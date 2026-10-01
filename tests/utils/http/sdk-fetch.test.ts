@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { buildUrl, createSdkFetch, encodeQuery, extractLoginToken, type SdkFetchDeps } from "./sdkFetch";
+import { buildUrl, createSdkFetch, encodeQuery, extractLoginToken, type SdkFetchDeps } from "@/utils/http/sdk-fetch";
 
 const BASE = "https://api.test/";
 

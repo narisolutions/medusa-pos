@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, afterEach } from "vitest";
 import type { AdminUser } from "@medusajs/types";
-import { bootApp, verifyOfflineSession, withTimeout, SESSION_CHECK_TIMEOUT_MS, type BootDeps } from "./bootApp";
+import { bootApp, verifyOfflineSession, withTimeout, SESSION_CHECK_TIMEOUT_MS, type BootDeps } from "@/utils/auth/boot-app";
 
 const user = { id: "user_live" } as AdminUser;
 const cachedAdmin = { id: "user_cached" } as AdminUser;

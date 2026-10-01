@@ -5,7 +5,7 @@ import {
   sanitizeDraftOrderMetadata,
   buildCartMetadataFromDraft,
   reconcileStock,
-} from ".";
+} from "@/utils/pos/draft-order";
 import { buildItemMetadata } from "@/utils/pos/cart";
 import { CartItem } from "@/types/utils";
 

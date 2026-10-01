@@ -9,7 +9,7 @@ import {
   computeExpectedCash,
   orderCashContribution,
   needsSessionMovement,
-} from ".";
+} from "@/utils/pos/register";
 
 const session = (over: Partial<RegisterSession> = {}): RegisterSession =>
   ({

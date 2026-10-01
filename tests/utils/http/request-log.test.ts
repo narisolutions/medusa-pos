@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { describeRequest } from "./requestLog";
+import { describeRequest } from "@/utils/http/request-log";
 
 const base = { method: "GET", url: "https://api/admin/orders?limit=10", path: "/admin/orders", ms: 142.6 };
 

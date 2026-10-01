@@ -4,7 +4,7 @@ import {
   discountPerUnit,
   applyDiscountToUnitPrice,
   orderDiscountAmount,
-} from ".";
+} from "@/utils/pos/pricing";
 
 describe("toNumber", () => {
   it("passes through finite numbers", () => {

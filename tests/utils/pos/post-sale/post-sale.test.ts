@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { buildReturnPlan, differenceDirection, getPostSaleOptions, isChangedAfterSale, netOfReturns, getReturnableQuantity, postSaleEvents, showPostSaleEntry, variantLineTitle } from ".";
+import { buildReturnPlan, differenceDirection, getPostSaleOptions, isChangedAfterSale, netOfReturns, getReturnableQuantity, postSaleEvents, showPostSaleEntry, variantLineTitle } from "@/utils/pos/post-sale";
 
 const line = (f: number, rr = 0, rv = 0, rd = 0) => ({
   detail: {

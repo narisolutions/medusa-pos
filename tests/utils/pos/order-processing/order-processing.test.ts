@@ -4,7 +4,7 @@ vi.mock("@/config/medusa", () => ({ getSdk: vi.fn() }));
 vi.mock("@/utils/storage", () => ({ default: {} }));
 vi.mock("@/utils/logger", () => ({ logger: {}, safeStringify: String }));
 
-import { findOpenCollection, findOutstandingCollection, unfulfilledQuantities } from ".";
+import { findOpenCollection, findOutstandingCollection, unfulfilledQuantities } from "@/utils/pos/order-processing";
 
 describe("findOutstandingCollection", () => {
   const original = { id: "pc_sale", status: "completed", amount: 5 };

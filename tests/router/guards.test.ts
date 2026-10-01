@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { protectedRouteOutcome, signInOutcome } from "./guards";
+import { protectedRouteOutcome, signInOutcome } from "@/router/guards";
 
 describe("protectedRouteOutcome", () => {
   it("renders for a signed-in user", () => {

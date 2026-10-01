@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { allocateRefund, defaultRefundPayment, getPaymentMethodLabel, paymentsCovering, type RefundablePayment } from ".";
+import { allocateRefund, defaultRefundPayment, getPaymentMethodLabel, paymentsCovering, type RefundablePayment } from "@/utils/pos/payment";
 
 const payment = (id: string, refundable: number): RefundablePayment => ({
   id,

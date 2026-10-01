@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { findOpenChange, runOrderChange, type OrderChangeStep } from ".";
+import { findOpenChange, runOrderChange, type OrderChangeStep } from "@/utils/pos/order-change";
 
 const boom = new Error("boom");
 

@@ -9,8 +9,8 @@ import storage from "@/utils/storage";
 import { t } from "@/i18n";
 import { queryClient } from "@/config/query";
 import { resetPosPluginCache } from "@/utils/pos/plugin";
-import { runPostAuthInit } from "./postAuthInit";
-import { bootApp, verifyOfflineSession, type BootDeps, type BootMessage, type CachedTheme } from "./bootApp";
+import { runPostAuthInit } from "@/utils/auth/post-auth-init";
+import { bootApp, verifyOfflineSession, type BootDeps, type BootMessage, type CachedTheme } from "@/utils/auth/boot-app";
 
 const OFFLINE_RECHECK_MS = 10_000;
 

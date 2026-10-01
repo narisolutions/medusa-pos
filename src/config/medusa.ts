@@ -2,8 +2,8 @@ import { logger, safeStringify } from "@/utils/logger";
 import { invoke } from "@tauri-apps/api/core";
 import constants from "@/utils/constants";
 import type Medusa from "@medusajs/js-sdk";
-import { logRequest } from "./requestLog";
-import { createSdkFetch } from "./sdkFetch";
+import { logRequest } from "@/utils/http/request-log";
+import { createSdkFetch } from "@/utils/http/sdk-fetch";
 
 const AUTH_TOKEN_KEY = "medusa_auth_token";
 

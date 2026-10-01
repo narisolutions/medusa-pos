@@ -15,7 +15,7 @@ vi.mock("@tauri-apps/plugin-store", () => ({ Store: { load: vi.fn(async () => h.
 vi.mock("@tauri-apps/api/core", () => ({ invoke: vi.fn() }));
 vi.mock("@/utils/logger", () => ({ logger: { warn: h.logWarn, error: vi.fn() }, safeStringify: String }));
 
-import { clearAuthTokenCache, clearStoredAuthToken, getAuthToken, setAuthTokenCache } from "./medusa";
+import { clearAuthTokenCache, clearStoredAuthToken, getAuthToken, setAuthTokenCache } from "@/config/medusa";
 
 beforeEach(() => {
   vi.clearAllMocks();

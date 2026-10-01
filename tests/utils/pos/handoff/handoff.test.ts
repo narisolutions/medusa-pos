@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { AdminOrder } from "@medusajs/types";
-import { buildHandoffPayload, encodeHandoffUrl, toMinorUnits } from ".";
+import { buildHandoffPayload, encodeHandoffUrl, toMinorUnits } from "@/utils/pos/handoff";
 import schemas from "@/utils/schemas";
 
 /** A completed transfer order, shaped like what the orders API returns. */

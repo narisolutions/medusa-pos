@@ -1,5 +1,5 @@
 // The Medusa SDK's transport: every API call goes through `transport` (Tauri's HTTP plugin).
-import type { RequestLogEntry } from "./requestLog";
+import type { RequestLogEntry } from "@/utils/http/request-log";
 
 export const REQUEST_TIMEOUT_MS = 15_000;
 
