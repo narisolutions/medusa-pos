@@ -9,7 +9,9 @@ import { useStoreManager } from "@/context/store-manager";
 import storage from "@/utils/storage";
 import { t } from "@/i18n";
 import { runPostAuthInit } from "./postAuthInit";
-import { bootApp, type BootMessage, type CachedTheme } from "./bootApp";
+import { bootApp, verifyOfflineSession, type BootMessage, type CachedTheme } from "./bootApp";
+
+const OFFLINE_RECHECK_MS = 15_000;
 
 const bootText = (message: BootMessage) => t(`boot.${message}`);
 
@@ -25,6 +27,7 @@ const useAppInit = () => {
   const [config, setConfig] = useState<AppConfig | null>(null);
   const [bootLoading, setBootLoading] = useState(true);
   const [bootMessage, setBootMessage] = useState(() => bootText("starting"));
+  const [offlineSession, setOfflineSession] = useState(false);
 
   const update = useUser((s) => s.update);
   const logout = useUser((s) => s.logout);
@@ -37,8 +40,9 @@ const useAppInit = () => {
     const isSuperseded = () => run !== runId.current;
 
     setBootLoading(true);
+    setOfflineSession(false);
     try {
-      await bootApp({
+      const result = await bootApp({
         loadStores: () => useStoreManager.getState().loadStores(),
         getActiveBackendUrl: () => useStoreManager.getState().activeStore?.backendUrl,
         readCachedTheme: () => storage.getItem<CachedTheme>("store_theme"),
@@ -55,6 +59,7 @@ const useAppInit = () => {
         logError: (error) => void logger.error(`App initialization failed: ${safeStringify(error)}`),
         isSuperseded,
       });
+      if (!isSuperseded()) setOfflineSession(result.offlineSession);
     } finally {
       if (!isSuperseded()) setBootLoading(false);
     }
@@ -71,6 +76,36 @@ const useAppInit = () => {
       cancelled = true;
     };
   }, [initApp]);
+
+  // A session the boot could not verify is re-checked until the backend answers, so it
+  // neither stays "signed in" on a dead token nor waits for a manual refresh.
+  useEffect(() => {
+    if (!offlineSession) return;
+    let stopped = false;
+    let busy = false;
+
+    const recheck = async () => {
+      if (busy || stopped) return;
+      busy = true;
+      const outcome = await verifyOfflineSession({
+        fetchMe: () => getSdk().client.fetch<AdminUser>("/admin/users/me"),
+        setUser: update,
+        notify: (message, tone) => toast[tone === "error" ? "error" : "info"](bootText(message)),
+        logout,
+        runPostAuthInit,
+      });
+      busy = false;
+      if (outcome !== "pending" && !stopped) setOfflineSession(false);
+    };
+
+    const timer = setInterval(recheck, OFFLINE_RECHECK_MS);
+    window.addEventListener("online", recheck);
+    return () => {
+      stopped = true;
+      clearInterval(timer);
+      window.removeEventListener("online", recheck);
+    };
+  }, [offlineSession, update, logout]);
 
   const isReady = useMemo(() => !!config && !bootLoading, [config, bootLoading]);
 

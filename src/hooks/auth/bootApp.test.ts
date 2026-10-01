@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from "vitest";
 import type { AdminUser } from "@medusajs/types";
-import { bootApp, type BootDeps } from "./bootApp";
+import { bootApp, verifyOfflineSession, type BootDeps } from "./bootApp";
 
 const user = { id: "user_live" } as AdminUser;
 const cachedAdmin = { id: "user_cached" } as AdminUser;
@@ -38,8 +38,9 @@ const setup = (over: Partial<BootDeps> = {}) => {
 describe("bootApp", () => {
   it("applies the cached theme before asking the backend, then restores the session", async () => {
     const { deps, calls } = setup();
-    await bootApp(deps);
+    const result = await bootApp(deps);
 
+    expect(result).toEqual({ offlineSession: false });
     expect(calls.indexOf("applyTheme")).toBeLessThan(calls.indexOf("fetchMe"));
     expect(deps.setConfig).toHaveBeenCalledWith({ backend_url: "https://backend" });
     expect(deps.setUser).toHaveBeenCalledWith(user);
@@ -80,10 +81,11 @@ describe("bootApp", () => {
     "keeps the saved session through an unreachable backend (status %s)",
     async (status) => {
       const { deps, calls } = setup({ fetchMe: vi.fn(async () => { throw httpError(status); }) });
-      await bootApp(deps);
+      const result = await bootApp(deps);
 
       expect(deps.setUser).toHaveBeenCalledWith(cachedAdmin);
       expect(deps.notify).toHaveBeenCalledWith("restored_offline", "info");
+      expect(result).toEqual({ offlineSession: true });
       expect(deps.logout).not.toHaveBeenCalled();
       expect(calls).toContain("runPostAuthInit");
     }
@@ -146,5 +148,41 @@ describe("bootApp", () => {
     expect(deps.logout).not.toHaveBeenCalled();
     expect(deps.setUser).not.toHaveBeenCalledWith(null);
     expect(deps.notify).not.toHaveBeenCalled();
+  });
+});
+
+describe("verifyOfflineSession", () => {
+  const pick = (deps: BootDeps) => ({
+    fetchMe: deps.fetchMe,
+    setUser: deps.setUser,
+    notify: deps.notify,
+    logout: deps.logout,
+    runPostAuthInit: deps.runPostAuthInit,
+  });
+
+  it("swaps in the real user and runs the init that was skipped once the backend answers", async () => {
+    const { deps, calls } = setup();
+    expect(await verifyOfflineSession(pick(deps))).toBe("verified");
+
+    expect(deps.setUser).toHaveBeenCalledWith(user);
+    expect(calls).toContain("runPostAuthInit");
+  });
+
+  it("ends the session when the backend rejects the saved token", async () => {
+    const { deps } = setup({ fetchMe: vi.fn(async () => { throw httpError(401); }) });
+    expect(await verifyOfflineSession(pick(deps))).toBe("expired");
+
+    expect(deps.setUser).toHaveBeenCalledWith(null);
+    expect(deps.notify).toHaveBeenCalledWith("session_expired", "error");
+    expect(deps.logout).toHaveBeenCalled();
+  });
+
+  it.each([[undefined], [503]])("waits and changes nothing while still unreachable (status %s)", async (status) => {
+    const { deps, calls } = setup({ fetchMe: vi.fn(async () => { throw httpError(status); }) });
+    expect(await verifyOfflineSession(pick(deps))).toBe("pending");
+
+    expect(deps.setUser).not.toHaveBeenCalled();
+    expect(deps.logout).not.toHaveBeenCalled();
+    expect(calls).not.toContain("runPostAuthInit");
   });
 });
