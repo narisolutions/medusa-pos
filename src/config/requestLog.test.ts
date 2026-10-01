@@ -11,6 +11,11 @@ describe("describeRequest", () => {
     expect(details).toEqual({ url: base.url, response: { orders: [] } });
   });
 
+  it("splits the time into waiting for the server and reading the response", () => {
+    const { label } = describeRequest({ ...base, status: 200, ms: 6719, headersMs: 6400 });
+    expect(label).toBe("200 GET /admin/orders 6719ms (waiting 6400 · reading 319)");
+  });
+
   it("separates client errors, server errors and calls that got no answer", () => {
     expect(describeRequest({ ...base, status: 404 }).level).toBe("warn");
     expect(describeRequest({ ...base, status: 503 }).level).toBe("error");

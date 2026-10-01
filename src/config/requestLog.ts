@@ -11,6 +11,8 @@ export type RequestLogEntry = {
   path: string;
   status?: number;
   ms: number;
+  /** Time until the response headers arrived; the rest of `ms` is the body being read. */
+  headersMs?: number;
   requestBody?: unknown;
   responseBody?: unknown;
   error?: unknown;
@@ -34,7 +36,13 @@ export function describeRequest(entry: RequestLogEntry) {
   const failed = entry.status === undefined || entry.status >= 400;
   const level: "ok" | "warn" | "error" =
     entry.status === undefined || entry.status >= 500 ? "error" : failed ? "warn" : "ok";
-  const label = `${entry.status ?? "ERR"} ${entry.method} ${entry.path} ${Math.round(entry.ms)}ms`;
+  // "waiting" is the request reaching the server and answering; "reading" is the body
+  // coming back to the page — which, in Tauri, crosses its IPC bridge chunk by chunk.
+  const timing =
+    entry.headersMs === undefined
+      ? ""
+      : ` (waiting ${Math.round(entry.headersMs)} · reading ${Math.round(Math.max(0, entry.ms - entry.headersMs))})`;
+  const label = `${entry.status ?? "ERR"} ${entry.method} ${entry.path} ${Math.round(entry.ms)}ms${timing}`;
 
   const details: Record<string, unknown> = { url: entry.url };
   if (entry.requestBody !== undefined) {

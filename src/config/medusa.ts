@@ -223,6 +223,7 @@ const createSdk = async (baseUrl?: string) => {
           };
           
           const startedAt = performance.now();
+          let headersMs: number | undefined;
           const logPath = fullUrl.slice(normalizedBaseUrl.length).split("?")[0] || pathString;
           const logMethod = (tauriInit?.method ?? "GET").toUpperCase();
 
@@ -242,6 +243,7 @@ const createSdk = async (baseUrl?: string) => {
             })
             .then(async (response) => {
               clearTimeout(timeoutId);
+              headersMs = performance.now() - startedAt;
               if (!response.ok) {
                 let errorBody: string | undefined;
                 try {
@@ -270,11 +272,11 @@ const createSdk = async (baseUrl?: string) => {
               const text = await response.text();
               // Empty body (204 No Content or empty 200) — return null instead of throwing SyntaxError
               if (!text || text.trim() === '') {
-                logRequest({ method: logMethod, url: fullUrl, path: logPath, status: response.status, ms: performance.now() - startedAt, requestBody: body });
+                logRequest({ method: logMethod, url: fullUrl, path: logPath, status: response.status, ms: performance.now() - startedAt, headersMs, requestBody: body });
                 return null;
               }
               const json = JSON.parse(text);
-              logRequest({ method: logMethod, url: fullUrl, path: logPath, status: response.status, ms: performance.now() - startedAt, requestBody: body, responseBody: json });
+              logRequest({ method: logMethod, url: fullUrl, path: logPath, status: response.status, ms: performance.now() - startedAt, headersMs, requestBody: body, responseBody: json });
               
               // Extract and store auth token from login response
               if (pathString.includes("/auth/") && (pathString.includes("/login") || pathString.includes("/emailpass"))) {
@@ -325,6 +327,7 @@ const createSdk = async (baseUrl?: string) => {
                 path: logPath,
                 status,
                 ms: performance.now() - startedAt,
+                headersMs,
                 requestBody: body,
                 responseBody: (error as { body?: unknown } | null)?.body,
                 error: status === undefined ? error : undefined,
