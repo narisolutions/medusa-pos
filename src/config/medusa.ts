@@ -21,9 +21,9 @@ export const clearAuthTokenCache = (): void => {
 
 /**
  * Removes the login token everywhere it is kept: the memory cache, the Tauri store and
- * the localStorage copy. Clearing only the cache is not enough — getAuthToken() reads the
- * disk copy back, so a logged-out terminal would keep a valid token, and a token issued
- * by one backend would be sent to the next one after a backend change.
+ * any localStorage copy left by older versions. Clearing only the cache is not enough —
+ * getAuthToken() reads the disk copy back, so a logged-out terminal would keep a valid
+ * token, and a token issued by one backend would be sent to the next one after a backend change.
  */
 export const clearStoredAuthToken = async (): Promise<void> => {
   clearAuthTokenCache();
@@ -52,33 +52,30 @@ export const getAuthToken = async (): Promise<string | null> => {
       cachedAuthToken = token;
       return token;
     }
+    // Older versions also kept the token in localStorage: move it into the store once.
     const localToken = localStorage.getItem(AUTH_TOKEN_KEY);
     if (localToken) {
       await store.set(AUTH_TOKEN_KEY, localToken);
       await store.save();
+      localStorage.removeItem(AUTH_TOKEN_KEY);
       cachedAuthToken = localToken;
     }
     return localToken;
   } catch {
-    try { return localStorage.getItem(AUTH_TOKEN_KEY); } catch { return null; }
+    return null;
   }
 };
 
 const storeAuthToken = async (token: string): Promise<void> => {
+  setAuthTokenCache(token);
   try {
     const { Store } = await import("@tauri-apps/plugin-store");
     const store = await Store.load(".auth.dat");
     await store.set(AUTH_TOKEN_KEY, token);
     await store.save();
-    localStorage.setItem(AUTH_TOKEN_KEY, token);
-    setAuthTokenCache(token);
   } catch (error) {
+    // The session still works until the app restarts; only the saved copy is missing.
     void logger.error(`Failed to store auth token: ${safeStringify(error)}`);
-    try {
-      localStorage.setItem(AUTH_TOKEN_KEY, token);
-    } catch (localError) {
-      void logger.error(`Failed to store auth token in localStorage: ${safeStringify(localError)}`);
-    }
   }
 };
 
@@ -142,7 +139,8 @@ const createSdk = async (baseUrl?: string) => {
     
     sdkInstance = new Medusa({
       baseUrl: url,
-      auth: { type: "jwt" },
+      // The token lives only in the Tauri store (see storeAuthToken), never in localStorage.
+      auth: { type: "jwt", jwtTokenStorageMethod: "nostore" },
     });
     
     try {
@@ -180,21 +178,6 @@ export const getSdkBaseUrl = () => {
     throw new Error("SDK not initialized. Call initializeSdk first.");
   }
   return sdkBaseUrl;
-};
-
-/** Copies a localStorage-held token into the Tauri store (post-login migration). */
-export const syncAuthTokenToStore = async (): Promise<void> => {
-  try {
-    const token = localStorage.getItem(AUTH_TOKEN_KEY);
-    if (token) {
-      const { Store } = await import("@tauri-apps/plugin-store");
-      const store = await Store.load(".auth.dat");
-      await store.set(AUTH_TOKEN_KEY, token);
-      await store.save();
-    }
-  } catch (error) {
-    void logger.warn(`Failed to sync auth token to Tauri store: ${safeStringify(error)}`);
-  }
 };
 
 /** Resets the SDK instance — used when the backend URL changes. */

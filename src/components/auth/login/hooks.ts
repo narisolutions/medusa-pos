@@ -1,6 +1,6 @@
 import { logger, safeStringify } from "@/utils/logger";
 import { Forms } from "@/types/form";
-import { getSdk, syncAuthTokenToStore } from "@/config/medusa";
+import { getSdk } from "@/config/medusa";
 import { useUser } from "@/context/user";
 import { useNavigate } from "react-router-dom";
 import { getRoutes, handleErrorToast, isNetworkError } from "@/utils/helpers";
@@ -26,8 +26,6 @@ const useLogin = (isConfigured: boolean) => {
         email,
         password,
       });
-
-      await syncAuthTokenToStore();
 
       const admin =
         await sdk.client.fetch<AdminUser>("/admin/users/me");

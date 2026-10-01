@@ -51,6 +51,14 @@ describe("the stored login token", () => {
     expect(await getAuthToken()).toBeNull();
   });
 
+  it("moves a token an older version left in localStorage into the store", async () => {
+    h.local.set("medusa_auth_token", "old-jwt");
+
+    expect(await getAuthToken()).toBe("old-jwt");
+    expect(h.disk.medusa_auth_token).toBe("old-jwt");
+    expect(h.local.has("medusa_auth_token")).toBe(false);
+  });
+
   it("still clears the rest when the Tauri store cannot be reached", async () => {
     h.local.set("medusa_auth_token", "jwt");
     setAuthTokenCache("jwt");

@@ -167,7 +167,6 @@ export const useOrder = (order: AdminOrder) => {
       const baseUrl = getSdkBaseUrl();
       const fullUrl = `${baseUrl}${relativeUrl}`;
 
-      // Get auth token from Tauri store (preferred) or localStorage (fallback)
       const authHeaders: Record<string, string> = {};
 
       try {
@@ -176,7 +175,7 @@ export const useOrder = (order: AdminOrder) => {
         if (token) {
           authHeaders["Authorization"] = `Bearer ${token}`;
         } else {
-          void logger.warn("No auth token found in store or localStorage, relying on cookies");
+          void logger.warn("No auth token found in store, relying on cookies");
         }
       } catch (error) {
         // If we can't access token storage, continue without token and rely on cookies
