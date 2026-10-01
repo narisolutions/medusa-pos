@@ -660,6 +660,7 @@
       "dialog_error_select_system": "Selecciona una impresora del sistema",
       "dialog_port_label": "Puerto (opcional)",
       "dialog_is_default_label": "Establecer como impresora predeterminada",
+      "dialog_auto_print_label": "Imprimir el recibo tras cada venta",
       "dialog_cash_drawer_label": "Abrir cajón portamonedas",
       "dialog_open_drawer_on": "Abrir cajón con",
       "dialog_cash_payments": "Pagos en efectivo",
@@ -834,11 +835,9 @@
     "save_pdf_error_message": "Comprueba que tu dispositivo tiene espacio de almacenamiento libre y que se permite guardar en Descargas. Si el problema persiste, contacta con soporte.",
     "hint_check_connected": "Comprueba que \"{{printer}}\" esté encendida y conectada.",
     "hint_restart": "Reinicia la impresora si sigue sin responder.",
-    "hint_review_default": "Puedes revisar o cambiar la impresora predeterminada en Ajustes → Impresoras.",
     "hint_verify_connection": "Abre Editar en esta impresora para verificar el tipo de conexión y la dirección. En Windows, Local (impresora del sistema) suele funcionar cuando el USB directo no lo hace.",
-    "hint_drawer_test": "Abre Ajustes → Impresoras y toca Probar cajón para \"{{printer}}\".",
-    "hint_drawer_check_cable": "Si la prueba no abre el cajón, comprueba que la impresora esté encendida y conectada, y que el cable del cajón esté enchufado a la impresora.",
-    "hint_drawer_restart": "Si sigue fallando, reinicia la impresora o abre Editar para verificar el tipo de conexión y la dirección (en Windows, Local / impresora del sistema suele funcionar cuando el USB directo no lo hace)."
+    "toast_hint_print": "Comprueba que \"{{printer}}\" esté encendida y conectada. Ajustes de impresora: Ajustes → Impresoras.",
+    "toast_hint_drawer": "Comprueba que \"{{printer}}\" esté encendida y que el cable del cajón esté enchufado. Toca Probar cajón en Ajustes → Impresoras."
   },
   "update": {
     "available_title": "Actualización v{{version}} disponible",

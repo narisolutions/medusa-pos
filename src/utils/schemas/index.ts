@@ -41,6 +41,7 @@ export default {
     vendorId: z.number().optional(),
     productId: z.number().optional(),
     isDefault: z.boolean().optional().default(false),
+    autoPrintReceipt: z.boolean().optional().default(true),
     openCashDrawer: z.boolean().optional().default(false),
     openCashDrawerOnCash: z.boolean().optional().default(false),
     openCashDrawerOnCard: z.boolean().optional().default(false),

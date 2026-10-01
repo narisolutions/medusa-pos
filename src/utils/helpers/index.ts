@@ -266,20 +266,12 @@ const checkBackendHealth = async (
 
 /** Plain-language hints for staff; technical errors belong in console logs only. */
 const printerIssueStaffHintToast = (printerName: string): string => {
-  return [
-    t("printer_service.hint_check_connected", { printer: printerName }),
-    t("printer_service.hint_restart"),
-    t("printer_service.hint_review_default"),
-  ].join(" ");
+  return t("printer_service.toast_hint_print", { printer: printerName });
 }
 
-/** Same connection guidance as print errors, plus Test drawer in Settings → Printers. */
+/** Points to Test drawer in Settings → Printers, where the full troubleshooting lives. */
 const cashDrawerIssueStaffHintToast = (printerName: string): string => {
-  return [
-    t("printer_service.hint_drawer_test", { printer: printerName }),
-    t("printer_service.hint_drawer_check_cable"),
-    t("printer_service.hint_drawer_restart"),
-  ].join(" ");
+  return t("printer_service.toast_hint_drawer", { printer: printerName });
 }
 
 /** Used on the Printers settings screen — users are already in Settings. */

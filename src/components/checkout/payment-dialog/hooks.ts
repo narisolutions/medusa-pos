@@ -292,14 +292,14 @@ const usePaymentModal = (
     (order: AdminOrder, paymentMethod: PaymentMethod | undefined) => {
       const defaultPrinter = getDefaultPrinter();
 
-      printOrderReceipt(order).catch((printError) => {
-        void logger.warn(`Auto-print failed: ${safeStringify(printError)}`);
-        toast.error(t("orders.receipt_did_not_print"), {
-          description: defaultPrinter
-            ? printerIssueStaffHintToast(defaultPrinter.name)
-            : t("checkout.no_default_printer"),
+      if (defaultPrinter && defaultPrinter.autoPrintReceipt !== false) {
+        printOrderReceipt(order).catch((printError) => {
+          void logger.warn(`Auto-print failed: ${safeStringify(printError)}`);
+          toast.error(t("orders.receipt_did_not_print"), {
+            description: printerIssueStaffHintToast(defaultPrinter.name),
+          });
         });
-      });
+      }
 
       // A transfer takes no money, so the paper is the whole transaction: the
       // items travel to the other till on this ticket.

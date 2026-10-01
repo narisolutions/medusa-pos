@@ -93,18 +93,20 @@ export const useRecordPayment = (order: AdminOrder, onClose?: () => void) => {
       onClose?.();
 
       // The customer has now paid: print the receipt, from the paid order, like checkout does.
-      void (async () => {
-        try {
-          const { order: paid } = await sdk.admin.order.retrieve(order.id, { fields: ORDER_DETAIL_FIELDS });
-          await printOrderReceipt(paid);
-        } catch (printError) {
-          void logger.warn(`Receipt after recorded payment did not print: ${safeStringify(printError)}`);
-          const printer = getDefaultPrinter();
-          toast.error(t("orders.receipt_did_not_print"), {
-            description: printer ? printerIssueStaffHintToast(printer.name) : t("checkout.no_default_printer"),
-          });
-        }
-      })();
+      const printer = getDefaultPrinter();
+      if (printer && printer.autoPrintReceipt !== false) {
+        void (async () => {
+          try {
+            const { order: paid } = await sdk.admin.order.retrieve(order.id, { fields: ORDER_DETAIL_FIELDS });
+            await printOrderReceipt(paid);
+          } catch (printError) {
+            void logger.warn(`Receipt after recorded payment did not print: ${safeStringify(printError)}`);
+            toast.error(t("orders.receipt_did_not_print"), {
+              description: printerIssueStaffHintToast(printer.name),
+            });
+          }
+        })();
+      }
     } catch (error) {
       handleErrorToast(
         error instanceof Error ? error.message : t("orders.record_payment_failed")

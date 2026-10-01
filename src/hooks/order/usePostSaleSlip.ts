@@ -13,11 +13,12 @@ const usePostSaleSlip = () => {
 
   return useCallback(
     (slip: PostSaleSlip) => {
+      const printer = getDefaultPrinter();
+      if (!printer || printer.autoPrintReceipt === false) return;
       printPostSaleSlip(slip).catch((error) => {
         void logger.warn(`Post-sale slip did not print: ${safeStringify(error)}`);
-        const printer = getDefaultPrinter();
         toast.error(t("orders.receipt_did_not_print"), {
-          description: printer ? printerIssueStaffHintToast(printer.name) : t("checkout.no_default_printer"),
+          description: printerIssueStaffHintToast(printer.name),
         });
       });
     },
