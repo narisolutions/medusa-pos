@@ -62,9 +62,9 @@ function createUserStore() {
       const { plugins } = await import("@/plugins");
       for (const plugin of plugins) plugin.resetSessionCaches?.(queryClient);
       queryClient.clear();
-      // Drop the cached JWT so the next login doesn't reuse the previous session's token.
-      const { clearAuthTokenCache } = await import("@/config/medusa");
-      clearAuthTokenCache();
+      // Drop the JWT everywhere it is stored, so neither the next login nor a later request can reuse it.
+      const { clearStoredAuthToken } = await import("@/config/medusa");
+      await clearStoredAuthToken();
     },
     update: (admin) => {
       set({

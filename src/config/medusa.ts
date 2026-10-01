@@ -2,6 +2,7 @@ import { logger, safeStringify } from "@/utils/logger";
 import { invoke } from "@tauri-apps/api/core";
 import constants from "@/utils/constants";
 import type Medusa from "@medusajs/js-sdk";
+import { logRequest } from "./requestLog";
 
 const AUTH_TOKEN_KEY = "medusa_auth_token";
 
@@ -15,6 +16,29 @@ export const setAuthTokenCache = (token: string | null): void => {
 
 export const clearAuthTokenCache = (): void => {
   cachedAuthToken = null;
+};
+
+/**
+ * Removes the login token everywhere it is kept: the memory cache, the Tauri store and
+ * the localStorage copy. Clearing only the cache is not enough — getAuthToken() reads the
+ * disk copy back, so a logged-out terminal would keep a valid token, and a token issued
+ * by one backend would be sent to the next one after a backend change.
+ */
+export const clearStoredAuthToken = async (): Promise<void> => {
+  clearAuthTokenCache();
+  try {
+    localStorage.removeItem(AUTH_TOKEN_KEY);
+  } catch {
+    // localStorage unavailable: nothing was kept there
+  }
+  try {
+    const { Store } = await import("@tauri-apps/plugin-store");
+    const store = await Store.load(".auth.dat");
+    await store.delete(AUTH_TOKEN_KEY);
+    await store.save();
+  } catch (error) {
+    void logger.warn(`Failed to remove the stored auth token: ${safeStringify(error)}`);
+  }
 };
 
 export const getAuthToken = async (): Promise<string | null> => {
@@ -198,6 +222,10 @@ const createSdk = async (baseUrl?: string) => {
             signal,
           };
           
+          const startedAt = performance.now();
+          const logPath = fullUrl.slice(normalizedBaseUrl.length).split("?")[0] || pathString;
+          const logMethod = (tauriInit?.method ?? "GET").toUpperCase();
+
           return tauriFetch(fullUrl, tauriInit)
             .catch((fetchError: unknown) => {
               // Re-throw with more context
@@ -242,9 +270,11 @@ const createSdk = async (baseUrl?: string) => {
               const text = await response.text();
               // Empty body (204 No Content or empty 200) — return null instead of throwing SyntaxError
               if (!text || text.trim() === '') {
+                logRequest({ method: logMethod, url: fullUrl, path: logPath, status: response.status, ms: performance.now() - startedAt, requestBody: body });
                 return null;
               }
               const json = JSON.parse(text);
+              logRequest({ method: logMethod, url: fullUrl, path: logPath, status: response.status, ms: performance.now() - startedAt, requestBody: body, responseBody: json });
               
               // Extract and store auth token from login response
               if (pathString.includes("/auth/") && (pathString.includes("/login") || pathString.includes("/emailpass"))) {
@@ -287,6 +317,18 @@ const createSdk = async (baseUrl?: string) => {
             })
             .catch((error) => {
               clearTimeout(timeoutId);
+              // HTTP errors carry a status; anything else got no answer.
+              const status = (error as { status?: number } | null)?.status;
+              logRequest({
+                method: logMethod,
+                url: fullUrl,
+                path: logPath,
+                status,
+                ms: performance.now() - startedAt,
+                requestBody: body,
+                responseBody: (error as { body?: unknown } | null)?.body,
+                error: status === undefined ? error : undefined,
+              });
               throw error;
             });
         })();
