@@ -1,4 +1,3 @@
-import withErrorBoundary from "@/components/hoc/with-error-boundary";
 import Checkout from "@/components/checkout";
 import Backdrop from "@/components/base/backdrop";
 import { Button } from "@/components/ui/button";
@@ -32,8 +31,4 @@ const CheckoutPageContainer = () => {
   return <Checkout products={data || []} />;
 };
 
-const CheckoutPageWithErrorBoundary = withErrorBoundary({
-  component: "CheckoutPage",
-})(CheckoutPageContainer);
-
-export default CheckoutPageWithErrorBoundary;
+export default CheckoutPageContainer;

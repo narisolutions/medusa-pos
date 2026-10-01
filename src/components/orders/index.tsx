@@ -21,6 +21,7 @@ import { useOrdersWithData } from "./hooks";
 import Header from "./table-header";
 import Footer from "./table-footer";
 import { useTranslation } from "@/i18n";
+import { ROUTES } from "@/router/routes";
 
 const Orders: React.FC = () => {
   const navigate = useNavigate();
@@ -112,7 +113,7 @@ const Orders: React.FC = () => {
   }, [debouncedFilters]);
 
   const handleRowClick = (orderId: string) => {
-    navigate(`/orders/${orderId}`);
+    navigate(ROUTES.order(orderId));
   };
 
   return (

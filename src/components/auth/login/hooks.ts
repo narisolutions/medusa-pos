@@ -3,7 +3,8 @@ import { Forms } from "@/types/form";
 import { getSdk } from "@/config/medusa";
 import { useUser } from "@/context/user";
 import { useNavigate } from "react-router-dom";
-import { getRoutes, handleErrorToast, isNetworkError } from "@/utils/helpers";
+import { handleErrorToast, isNetworkError } from "@/utils/helpers";
+import { ROUTES } from "@/router/routes";
 import { AdminUser } from "@medusajs/types";
 import { runPostAuthInit } from "@/hooks/auth/postAuthInit";
 
@@ -11,7 +12,6 @@ const useLogin = (isConfigured: boolean) => {
   const setGlobalLoading = useUser((state) => state.setGlobalLoading);
   const login = useUser((state) => state.login);
   const navigate = useNavigate();
-  const routes = getRoutes();
 
   const onLogin = async (data: Forms["Login"]) => {
     if (!isConfigured) return;
@@ -33,7 +33,7 @@ const useLogin = (isConfigured: boolean) => {
       await login(admin);
       await runPostAuthInit();
 
-      navigate(routes.checkout);
+      navigate(ROUTES.checkout);
     } catch (e: unknown) {
       void logger.error(`Login error: ${safeStringify(e)}`);
 

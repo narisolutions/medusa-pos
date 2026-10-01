@@ -18,6 +18,7 @@ import { useParkedSalesCount } from "@/hooks/queries/useParkedSalesCount";
 import { plugins } from "@/plugins";
 import { useTranslation } from "@/i18n";
 import RegisterMenuItem from "@/components/register/register-menu-item";
+import { ROUTES } from "@/router/routes";
 
 const AppSidebar = () => {
   const sidebar = useSidebar();
@@ -56,7 +57,7 @@ const AppSidebar = () => {
   const handleLogout = async () => {
     try {
       await logout();
-      navigate("/sign-in");
+      navigate(ROUTES.signIn);
     } catch (error) {
       void logger.error(`Logout failed: ${safeStringify(error)}`);
     }

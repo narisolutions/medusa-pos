@@ -27,6 +27,7 @@ import DiscardDialog from "./discard-dialog";
 import { useParkedSales } from "@/hooks/draft-order/useParkedSales";
 import { useCartStore } from "@/context/cart";
 import { useTranslation } from "@/i18n";
+import { ROUTES } from "@/router/routes";
 
 const ParkedSales: React.FC = () => {
   const navigate = useNavigate();
@@ -59,7 +60,7 @@ const ParkedSales: React.FC = () => {
     pageSize: 10,
   });
 
-  const goToCheckout = useCallback(() => navigate("/checkout"), [navigate]);
+  const goToCheckout = useCallback(() => navigate(ROUTES.checkout), [navigate]);
 
   const resume = useCallback(
     async (targetId: string) => {

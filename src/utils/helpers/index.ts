@@ -4,16 +4,6 @@ import { formatDateTime, formatPrice } from "@/utils/settings/preferences";
 import constants from "@/utils/constants";
 import { t } from "@/i18n";
 
-const getRoutes = () => {
-  return {
-    signIn: "/sign-in",
-    setup: "/setup",
-    orders: "/orders",
-    checkout: "/checkout",
-    settings: "/settings",
-  };
-};
-
 /** Tauri `invoke` rejections are not always `Error` instances; normalize for UI and logging. */
 const getTauriInvokeErrorMessage = (error: unknown, fallback: string): string => {
   if (typeof error === "string" && error.trim().length > 0) {
@@ -285,7 +275,6 @@ const printerIssueStaffHintSettings = (printerName: string): string => {
 
 
 export {
-  getRoutes,
   getTauriInvokeErrorMessage,
   getApiErrorMessage,
   handleErrorToast,

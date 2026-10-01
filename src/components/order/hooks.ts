@@ -28,6 +28,7 @@ import { useQueryTerminalStockLocationId } from "@/hooks/queries/useQueryStockLo
 import { useQueryRegion } from "@/hooks/queries/useQueryRegion";
 import { usePostSaleSlip } from "@/hooks/order/usePostSaleSlip";
 import type { PostSaleSlipDraft } from "@/utils/pos/receipt/post-sale-slip";
+import { ROUTES } from "@/router/routes";
 
 // Type for fulfillment with extended properties
 type ExtendedFulfillment = Record<string, unknown> & {
@@ -100,7 +101,7 @@ export const useOrder = (order: AdminOrder) => {
   };
 
   const handleBackToOrders = () => {
-    navigate("/orders");
+    navigate(ROUTES.orders);
   };
 
   const handleReprintReceipt = async () => {
@@ -273,7 +274,7 @@ export const useOrder = (order: AdminOrder) => {
 
       toast.success(t("orders.marked_as_picked_up_success"));
       invalidateOrderQueries();
-      navigate("/orders");
+      navigate(ROUTES.orders);
     } catch (error) {
       const errorMessage =
         error instanceof Error ? error.message : "Unknown error";

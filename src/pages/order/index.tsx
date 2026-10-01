@@ -1,12 +1,12 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { Params } from "@/types/utils";
-import withErrorBoundary from "@/components/hoc/with-error-boundary";
 import { useQueryOrder } from "@/hooks/queries/useQueryOrder";
 import Order from "@/components/order";
 import Backdrop from "@/components/base/backdrop";
 import { Button } from "@/components/ui/button";
 import { RefreshCw, ArrowLeft } from "lucide-react";
 import { useTranslation } from "@/i18n";
+import { ROUTES } from "@/router/routes";
 
 const OrderPage = () => {
   const { t } = useTranslation();
@@ -34,7 +34,7 @@ const OrderPage = () => {
           <div className="flex items-center justify-center gap-3">
             <Button
               variant="outline"
-              onClick={() => navigate("/orders")}
+              onClick={() => navigate(ROUTES.orders)}
               className="px-6"
             >
               <ArrowLeft className="w-4 h-4 mr-2" />
@@ -58,8 +58,4 @@ const OrderPage = () => {
   return <Order order={order} />;
 };
 
-const OrderPageWithErrorBoundary = withErrorBoundary({
-  component: "OrderPage",
-})(OrderPage);
-
-export default OrderPageWithErrorBoundary;
+export default OrderPage;

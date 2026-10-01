@@ -13,6 +13,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { ROUTES } from "@/router/routes";
 
 const SalesChannelWarningDialog: React.FC = () => {
   const navigate = useNavigate();
@@ -27,13 +28,13 @@ const SalesChannelWarningDialog: React.FC = () => {
   // Reset dismissal on navigation so each checkout visit re-evaluates.
   useChange(pathname, () => setDismissed(false));
 
-  const isCheckoutPage = pathname.startsWith("/checkout");
+  const isCheckoutPage = pathname.startsWith(ROUTES.checkout);
   const open = isAuthenticated && !dismissed && (needsWarning || (!salesChannelId && isCheckoutPage));
 
   const handleGoToSettings = async () => {
     setNeedsWarning(false);
     await storage.setItem("settings_tab", "connection");
-    navigate("/settings");
+    navigate(ROUTES.settings);
   };
 
   const handleContinueAnyway = () => {

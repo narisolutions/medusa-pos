@@ -1,25 +1,17 @@
-import React from "react";
-import { Navigate } from "react-router-dom";
+import { Navigate, Outlet } from "react-router-dom";
 import { useUser } from "@/context/user";
-import Backdrop from "../base/backdrop";
+import { ROUTES } from "@/router/routes";
+import { protectedRouteOutcome } from "@/router/guards";
 
-interface ProtectedRouteProps {
-  children: React.ReactNode;
-}
-
-const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
+const ProtectedRoute = () => {
   const isAuthenticated = useUser((state) => state.isAuthenticated);
   const globalLoading = useUser((state) => state.globalLoading);
+  const outcome = protectedRouteOutcome({ isAuthenticated, globalLoading });
 
-  if (globalLoading) {
-    return <Backdrop loading={true} />;
-  }
-
-  if (!isAuthenticated) {
-    return <Navigate to="/sign-in" replace />;
-  }
-
-  return <>{children}</>;
+  // App already shows the backdrop while a login finishes.
+  if (outcome === "wait") return null;
+  if (outcome === "sign-in") return <Navigate to={ROUTES.signIn} replace />;
+  return <Outlet />;
 };
 
 export default ProtectedRoute;

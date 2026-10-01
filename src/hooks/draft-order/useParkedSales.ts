@@ -21,6 +21,7 @@ import {
 import { handleErrorToast } from "@/utils/helpers";
 import { useTranslation } from "@/i18n";
 import storage from "@/utils/storage";
+import { ROUTES } from "@/router/routes";
 
 /** Thrown when a guard has already told the operator what is wrong — do not toast again. */
 class GuardError extends Error {
@@ -70,7 +71,7 @@ const useParkedSales = () => {
   /** Navigates to the store setting that unblocks draft creation. */
   const goToGuestEmailSetting = useCallback(() => {
     void storage.setItem("settings_tab", "store");
-    navigate("/settings");
+    navigate(ROUTES.settings);
     setTimeout(() => {
       const el = document.getElementById("guest-customer-email");
       if (!el) return;
@@ -190,7 +191,7 @@ const useParkedSales = () => {
         toast.success(t("checkout.parked_toast"), {
           action: {
             label: t("checkout.view_parked_action"),
-            onClick: () => navigate("/parked"),
+            onClick: () => navigate(ROUTES.parked),
           },
         });
 
@@ -304,7 +305,7 @@ const useParkedSales = () => {
       });
 
       invalidate();
-      navigate("/checkout");
+      navigate(ROUTES.checkout);
       toast.success(t("parked.resumed_toast"));
       warnAboutStock(warnings);
 
