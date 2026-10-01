@@ -2,7 +2,7 @@ import { logger, safeStringify } from "@/utils/logger";
 import { useEffect, useState, useCallback, useRef } from "react";
 import { AdminUser } from "@medusajs/types";
 import { toast } from "sonner";
-import { getSdk } from "@/config/medusa";
+import { getSdk, setUnauthorizedHandler } from "@/config/medusa";
 import { useUser } from "@/context/user";
 import { useStoreManager } from "@/context/store-manager";
 import storage from "@/utils/storage";
@@ -18,8 +18,18 @@ const bootText = (message: BootMessage) => t(`boot.${message}`);
 
 const fetchMe = () => getSdk().client.fetch<AdminUser>("/admin/users/me");
 
+// The id keeps the same message from stacking when two paths report it at once.
 const notify: BootDeps["notify"] = (message, tone) =>
-  toast[tone === "error" ? "error" : "info"](bootText(message));
+  toast[tone === "error" ? "error" : "info"](bootText(message), { id: `boot-${message}` });
+
+// One logout at a time: the 401 handler and the offline re-check can both end a session.
+let endingSession: Promise<void> | null = null;
+const endSession = (logout: () => Promise<void>) => {
+  endingSession ??= logout().finally(() => {
+    endingSession = null;
+  });
+  return endingSession;
+};
 
 const applyCachedTheme = (theme: CachedTheme) => {
   const style = document.documentElement.style;
@@ -35,7 +45,8 @@ const useAppInit = () => {
   const [offlineSession, setOfflineSession] = useState(false);
 
   const update = useUser((s) => s.update);
-  const logout = useUser((s) => s.logout);
+  const signOut = useUser((s) => s.logout);
+  const logout = useCallback(() => endSession(signOut), [signOut]);
 
   // A retry starts a new run; the run it replaced must not touch state afterwards.
   const runId = useRef(0);
@@ -68,6 +79,16 @@ const useAppInit = () => {
       if (!isSuperseded()) setBootLoading(false);
     }
   }, [logout, update]);
+
+  // A token the backend stops accepting mid-session (expired, revoked) signs the operator out.
+  useEffect(() => {
+    setUnauthorizedHandler(() => {
+      if (!useUser.getState().isAuthenticated) return;
+      notify("session_expired", "error");
+      void logout();
+    });
+    return () => setUnauthorizedHandler(null);
+  }, [logout]);
 
   useEffect(() => {
     // Defer to a microtask so initApp's initial state updates don't run

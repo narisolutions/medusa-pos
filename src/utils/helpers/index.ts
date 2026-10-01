@@ -67,7 +67,7 @@ const isNetworkError = (error: unknown): boolean => {
   if (typeof error !== "string" && !(error instanceof Error)) return false;
   if (typeof error !== "string" && (error as { status?: number }).status !== undefined) return false;
   const message = typeof error === "string" ? error : error.message;
-  return /error sending request|failed to fetch|network ?error|load failed/i.test(message);
+  return /error sending request|failed to fetch|network ?error|load failed|timed out/i.test(message);
 };
 
 const handleErrorToast = (

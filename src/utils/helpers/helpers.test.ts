@@ -5,6 +5,7 @@ describe("isNetworkError", () => {
   it("recognises a request that got no answer", () => {
     expect(isNetworkError(new Error("error sending request for url (https://x/admin/regions)"))).toBe(true);
     expect(isNetworkError(new Error("Failed to fetch"))).toBe(true);
+    expect(isNetworkError(new Error("Request timed out after 15s"))).toBe(true);
   });
 
   it("recognises the plain string Tauri's HTTP plugin rejects with", () => {
