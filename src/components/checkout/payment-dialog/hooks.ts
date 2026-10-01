@@ -236,8 +236,8 @@ const usePaymentModal = (
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [showPayLaterConfirmation, setShowPayLaterConfirmation] =
     useState(false);
-  // Total snapshotted at submit — clearing draftOrderId mid-flow would show 0.00 otherwise.
-  const [frozenTotal, setFrozenTotal] = useState<number | null>(null);
+  // Draft snapshotted at submit: conversion clears draftOrderId mid-flow, which would blank the dialog.
+  const [frozenDraft, setFrozenDraft] = useState<AdminDraftOrder | null>(null);
 
   const { printOrderReceipt, printHandoffTicket, openCashDrawer, getDefaultPrinter } =
     usePrinterService();
@@ -257,10 +257,11 @@ const usePaymentModal = (
   const isCashType = methodType === "cash";
 
   // Compose sub-hooks
-  const { draftOrder, fetchDraftOrder } = useDraftOrderState(
+  const { draftOrder: liveDraftOrder, fetchDraftOrder } = useDraftOrderState(
     draftOrderId,
     isOpen
   );
+  const draftOrder = frozenDraft ?? liveDraftOrder;
   const calculations = useOrderCalculations(draftOrder);
 
   // Swedish rounding: cash tenders round to the configured increment (card stays exact);
@@ -284,14 +285,6 @@ const usePaymentModal = (
     quickAmounts,
   } = useCashPayment(cashTotal, isCashType);
   const { processPaymentCollection, processFulfillment } = useOrderProcessing();
-
-  // While processing, the draft order is cleared (so its total reads 0). Show the
-  // frozen snapshot taken at submit time so the amount never flashes to 0.00.
-  const displayTotal =
-    isProcessing && frozenTotal != null ? frozenTotal : calculations.total;
-
-  // Rounded cash amount to collect (cash + rounding on); card shows exact total.
-  const cashDue = roundingActive ? roundCashAmount(displayTotal) : displayTotal;
 
   // Fire-and-forget: print receipt + open cash drawer after order succeeds.
   // Runs independently so it never blocks the modal from closing.
@@ -401,7 +394,7 @@ const usePaymentModal = (
       }
 
       submissionRef.current = true;
-      setFrozenTotal(calculations.total);
+      setFrozenDraft(draftOrder);
       setIsProcessing(true);
 
       // Tracks whether the draft order has already been consumed by convertToOrder.
@@ -529,6 +522,7 @@ const usePaymentModal = (
 
       } catch (error) {
         playErrorSound();
+        setFrozenDraft(null);
         handleErrorToast(
           error instanceof Error ? error.message : "Failed to create order. Please try again."
         );
@@ -551,6 +545,7 @@ const usePaymentModal = (
       roundingActive,
       selectedPaymentMethod,
       customerPaid,
+      draftOrder,
       calculations.total,
       processPaymentCollection,
       processFulfillment,
@@ -577,7 +572,7 @@ const usePaymentModal = (
       }
 
       submissionRef.current = true;
-      setFrozenTotal(calculations.total);
+      setFrozenDraft(draftOrder);
       setIsProcessing(true);
 
       // Tracks whether convertToOrder has consumed the draft (controls modal close on error).
@@ -626,6 +621,7 @@ const usePaymentModal = (
         return order;
       } catch (error) {
         playErrorSound();
+        setFrozenDraft(null);
         handleErrorToast(
           error instanceof Error
             ? error.message
@@ -646,7 +642,7 @@ const usePaymentModal = (
     }, [
       draftOrderId,
       selectedPaymentMethod,
-      calculations.total,
+      draftOrder,
       processFulfillment,
       cleanupAfterOrder,
       setDraftOrderId,
@@ -657,7 +653,7 @@ const usePaymentModal = (
   // Handle modal close
   const handleClose = useCallback(() => {
     resetCashState();
-    setFrozenTotal(null);
+    setFrozenDraft(null);
     setShowConfirmation(false);
     setShowPayLaterConfirmation(false);
     onClose?.();
@@ -726,10 +722,8 @@ const usePaymentModal = (
 
     // Calculations
     ...calculations,
-    // Keep the confirmed amount visible during submission instead of 0.00.
-    total: displayTotal,
     // Cash rounding: amount to collect (rounded) vs the exact total.
-    cashDue,
+    cashDue: cashTotal,
     cashRoundingActive: roundingActive,
 
     // Computed values
