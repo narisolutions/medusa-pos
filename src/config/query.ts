@@ -45,10 +45,10 @@ export const queryKeys = {
     detail: (orderId: string) => ["order", orderId] as const,
     // Under the detail key, so refreshing the order refreshes this too.
     changes: (orderId: string) => ["order", orderId, "changes"] as const,
-    // Keyed by payload shape so the light badge scan and the cash-detail scan
-    // never overwrite each other in the cache.
-    recent: (withCashDetail: boolean) =>
-      ["orders", "recent", withCashDetail ? "cash" : "badge"] as const,
+    // The sidebar badge's scan.
+    recent: ["orders", "recent"] as const,
+    // An open register's orders, from the moment it opened.
+    session: (openedAt: string | undefined) => ["orders", "session", openedAt ?? null] as const,
   },
   // Parked sales. Any surviving draft is an unfinished sale, so the list is unfiltered
   // beyond the sales channel — see docs/draft-orders/02-domain-model.md.
@@ -56,6 +56,8 @@ export const queryKeys = {
     all: ["draft-orders"] as const,
     list: (salesChannelId?: string) =>
       ["draft-orders", "list", salesChannelId ?? null] as const,
+    count: (salesChannelId?: string) =>
+      ["draft-orders", "count", salesChannelId ?? null] as const,
   },
   inventoryKitItems: (
     inventoryItemIds?: string[],

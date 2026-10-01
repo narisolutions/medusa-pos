@@ -5,23 +5,16 @@ import { logger, safeStringify } from "@/utils/logger";
 import { useUser } from "@/context/user";
 import { AdminOrder } from "@medusajs/types";
 
-// Shared recent-orders scan (badge + expected-cash project via `select`). Filtering is
-// client-side (backend can't filter fulfillment_status); errors log silently (background poll).
-
-// The sidebar badge needs a status; expected-cash needs the payment-collection
-// joins. Cash reconciliation is off by default, so most installs poll the light
-// shape and never pay for the joins.
+// The sidebar badge's scan. The backend cannot filter by fulfillment_status, so the
+// count is taken client-side — and Medusa adds every order's line items to compute that
+// status, so this response is large whatever fields are asked for (~3.7 KB an order).
+// A server-side count (a POS plugin route) is the real fix; until then it runs late and rarely.
 const BADGE_FIELDS = "id,created_at,fulfillment_status";
-const CASH_FIELDS =
-  "id,status,total,refunded_total,created_at,metadata,fulfillment_status,payment_collections.payments.provider_id,payment_collections.payments.amount,payment_collections.payments.refunds.amount,payment_collections.payment_sessions.provider_id";
 
-const fetchRecentOrders = async (
-  withCashDetail = true
-): Promise<AdminOrder[]> => {
+const fetchRecentOrders = async (): Promise<AdminOrder[]> => {
   try {
-    const sdk = getSdk();
-    const { orders } = await sdk.admin.order.list({
-      fields: withCashDetail ? CASH_FIELDS : BADGE_FIELDS,
+    const { orders } = await getSdk().admin.order.list({
+      fields: BADGE_FIELDS,
       limit: 1000,
       offset: 0,
       order: "-created_at",
@@ -36,19 +29,16 @@ const fetchRecentOrders = async (
 interface UseQueryRecentOrdersOptions<T> {
   select?: (orders: AdminOrder[]) => T;
   enabled?: boolean;
-  /** Request the payment-collection joins — expected-cash only. */
-  withCashDetail?: boolean;
 }
 
 const useQueryRecentOrders = <T = AdminOrder[]>(
   options?: UseQueryRecentOrdersOptions<T>
 ): UseQueryResult<T, Error> => {
   const isAuthenticated = useUser((state) => state.isAuthenticated);
-  const withCashDetail = options?.withCashDetail ?? false;
 
   return useQuery<AdminOrder[], Error, T>({
-    queryKey: queryKeys.orders.recent(withCashDetail),
-    queryFn: () => fetchRecentOrders(withCashDetail),
+    queryKey: queryKeys.orders.recent,
+    queryFn: fetchRecentOrders,
     enabled: isAuthenticated && (options?.enabled ?? true),
     refetchInterval: 5 * 60 * 1000,
     select: options?.select,
