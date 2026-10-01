@@ -38,6 +38,8 @@ function createUserStore() {
 
       set({ admin, isAuthenticated: true });
       await storage.setItem("last_login", Date.now());
+      // Lets the next launch keep this session through a short backend outage (see bootApp).
+      await storage.setItem("last_admin", admin);
     },
     logout: async () => {
       try {

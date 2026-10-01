@@ -811,7 +811,8 @@
     "loading_settings": "Loading store settings…",
     "init_failed": "Startup failed. Please try again.",
     "session_expired": "Session expired. Please log in again.",
-    "user_fetch_failed": "Failed to fetch user. Please try again."
+    "user_fetch_failed": "Failed to fetch user. Please try again.",
+    "restored_offline": "Can't reach the server — using your saved session."
   },
   "pagination": {
     "first_page": "First",

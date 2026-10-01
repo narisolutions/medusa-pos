@@ -811,7 +811,8 @@
     "loading_settings": "Ładowanie ustawień sklepu…",
     "init_failed": "Uruchomienie nie powiodło się. Spróbuj ponownie.",
     "session_expired": "Sesja wygasła. Zaloguj się ponownie.",
-    "user_fetch_failed": "Nie udało się pobrać użytkownika. Spróbuj ponownie."
+    "user_fetch_failed": "Nie udało się pobrać użytkownika. Spróbuj ponownie.",
+    "restored_offline": "Brak połączenia z serwerem — używana jest zapisana sesja."
   },
   "pagination": {
     "first_page": "Pierwsza",

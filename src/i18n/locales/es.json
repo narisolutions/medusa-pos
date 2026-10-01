@@ -811,7 +811,8 @@
     "loading_settings": "Cargando los ajustes de la tienda…",
     "init_failed": "Error al iniciar. Inténtelo de nuevo.",
     "session_expired": "La sesión expiró. Inicie sesión de nuevo.",
-    "user_fetch_failed": "No se pudo obtener el usuario. Inténtelo de nuevo."
+    "user_fetch_failed": "No se pudo obtener el usuario. Inténtelo de nuevo.",
+    "restored_offline": "No se puede conectar con el servidor: se usa la sesión guardada."
   },
   "pagination": {
     "first_page": "Primera",

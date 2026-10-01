@@ -1,0 +1,150 @@
+import { describe, it, expect, vi } from "vitest";
+import type { AdminUser } from "@medusajs/types";
+import { bootApp, type BootDeps } from "./bootApp";
+
+const user = { id: "user_live" } as AdminUser;
+const cachedAdmin = { id: "user_cached" } as AdminUser;
+const httpError = (status?: number) => Object.assign(new Error("fail"), { status });
+
+/** A boot that finds a saved login and a reachable backend, with everything recorded in order. */
+const setup = (over: Partial<BootDeps> = {}) => {
+  const calls: string[] = [];
+  const rec = <T extends unknown[]>(name: string, impl?: (...a: T) => unknown) =>
+    vi.fn(async (...a: T) => {
+      calls.push(name);
+      return impl?.(...a);
+    });
+  const deps = {
+    loadStores: rec("loadStores"),
+    getActiveBackendUrl: vi.fn(() => "https://backend"),
+    readCachedTheme: rec("readCachedTheme", () => ({ primaryColor: "#fff" })),
+    applyTheme: vi.fn(() => void calls.push("applyTheme")),
+    readLastLogin: rec("readLastLogin", () => 123),
+    fetchMe: rec("fetchMe", () => user),
+    readCachedAdmin: rec("readCachedAdmin", () => cachedAdmin),
+    runPostAuthInit: rec("runPostAuthInit"),
+    logout: rec("logout"),
+    setConfig: vi.fn(),
+    setUser: vi.fn(),
+    setMessage: vi.fn(),
+    notify: vi.fn(),
+    logError: vi.fn(),
+    isSuperseded: vi.fn(() => false),
+    ...over,
+  } as unknown as BootDeps;
+  return { deps, calls };
+};
+
+describe("bootApp", () => {
+  it("applies the cached theme before asking the backend, then restores the session", async () => {
+    const { deps, calls } = setup();
+    await bootApp(deps);
+
+    expect(calls.indexOf("applyTheme")).toBeLessThan(calls.indexOf("fetchMe"));
+    expect(deps.setConfig).toHaveBeenCalledWith({ backend_url: "https://backend" });
+    expect(deps.setUser).toHaveBeenCalledWith(user);
+    expect(calls).toContain("runPostAuthInit");
+    expect(deps.notify).not.toHaveBeenCalled();
+  });
+
+  it("asks for store setup when there is no active store", async () => {
+    const { deps, calls } = setup({ getActiveBackendUrl: vi.fn(() => undefined) });
+    await bootApp(deps);
+
+    expect(deps.setConfig).toHaveBeenCalledWith(null);
+    expect(deps.setUser).toHaveBeenCalledWith(null);
+    expect(calls).not.toContain("fetchMe");
+  });
+
+  it("stops at the sign-in screen when nobody was logged in", async () => {
+    const { deps, calls } = setup({ readLastLogin: vi.fn(async () => undefined) });
+    await bootApp(deps);
+
+    expect(calls).not.toContain("fetchMe");
+    expect(calls).not.toContain("runPostAuthInit");
+    expect(deps.setUser).not.toHaveBeenCalled();
+  });
+
+  it("ends the login on a 401, and does not run the post-auth init", async () => {
+    const { deps, calls } = setup({ fetchMe: vi.fn(async () => { throw httpError(401); }) });
+    await bootApp(deps);
+
+    expect(deps.setUser).toHaveBeenCalledWith(null);
+    expect(deps.notify).toHaveBeenCalledWith("session_expired", "error");
+    expect(deps.logout).toHaveBeenCalled();
+    expect(calls).not.toContain("runPostAuthInit");
+    expect(calls).not.toContain("readCachedAdmin");
+  });
+
+  it.each([[undefined], [502], [503]])(
+    "keeps the saved session through an unreachable backend (status %s)",
+    async (status) => {
+      const { deps, calls } = setup({ fetchMe: vi.fn(async () => { throw httpError(status); }) });
+      await bootApp(deps);
+
+      expect(deps.setUser).toHaveBeenCalledWith(cachedAdmin);
+      expect(deps.notify).toHaveBeenCalledWith("restored_offline", "info");
+      expect(deps.logout).not.toHaveBeenCalled();
+      expect(calls).toContain("runPostAuthInit");
+    }
+  );
+
+  it("shows sign-in, without wiping anything, when the backend is down and nothing is cached", async () => {
+    const { deps, calls } = setup({
+      fetchMe: vi.fn(async () => { throw httpError(undefined); }),
+      readCachedAdmin: vi.fn(async () => undefined),
+    });
+    await bootApp(deps);
+
+    expect(deps.setUser).toHaveBeenCalledWith(null);
+    expect(deps.notify).toHaveBeenCalledWith("user_fetch_failed", "error");
+    expect(deps.logout).not.toHaveBeenCalled();
+    expect(calls).not.toContain("runPostAuthInit");
+  });
+
+  it("does not trust the cache after a rejection that is not an outage (403)", async () => {
+    const { deps, calls } = setup({ fetchMe: vi.fn(async () => { throw httpError(403); }) });
+    await bootApp(deps);
+
+    expect(deps.setUser).toHaveBeenCalledWith(null);
+    expect(deps.notify).toHaveBeenCalledWith("user_fetch_failed", "error");
+    expect(calls).not.toContain("readCachedAdmin");
+  });
+
+  it("keeps the session when the startup itself fails", async () => {
+    const boom = new Error("storage unreadable");
+    const { deps } = setup({ loadStores: vi.fn(async () => { throw boom; }) });
+    await bootApp(deps);
+
+    expect(deps.logError).toHaveBeenCalledWith(boom);
+    expect(deps.setConfig).toHaveBeenCalledWith(null);
+    expect(deps.setUser).toHaveBeenCalledWith(null);
+    expect(deps.notify).toHaveBeenCalledWith("init_failed", "error");
+    expect(deps.logout).not.toHaveBeenCalled();
+  });
+
+  it("leaves everything alone once a retry has replaced the run", async () => {
+    const { deps, calls } = setup({ isSuperseded: vi.fn(() => true) });
+    await bootApp(deps);
+
+    expect(calls).toEqual(["loadStores"]);
+    expect(deps.setUser).not.toHaveBeenCalled();
+    expect(deps.setConfig).not.toHaveBeenCalled();
+  });
+
+  it("does not sign the user out when a replaced run's request fails late", async () => {
+    let superseded = false;
+    const { deps } = setup({
+      isSuperseded: vi.fn(() => superseded),
+      fetchMe: vi.fn(async () => {
+        superseded = true;
+        throw httpError(401);
+      }),
+    });
+    await bootApp(deps);
+
+    expect(deps.logout).not.toHaveBeenCalled();
+    expect(deps.setUser).not.toHaveBeenCalledWith(null);
+    expect(deps.notify).not.toHaveBeenCalled();
+  });
+});

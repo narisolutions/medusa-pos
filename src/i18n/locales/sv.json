@@ -811,7 +811,8 @@
     "loading_settings": "Läser in butiksinställningar…",
     "init_failed": "Starten misslyckades. Försök igen.",
     "session_expired": "Sessionen har gått ut. Logga in igen.",
-    "user_fetch_failed": "Det gick inte att hämta användaren. Försök igen."
+    "user_fetch_failed": "Det gick inte att hämta användaren. Försök igen.",
+    "restored_offline": "Kan inte nå servern — den sparade sessionen används."
   },
   "pagination": {
     "first_page": "Första",

@@ -811,7 +811,8 @@
     "loading_settings": "Shop-Einstellungen werden geladen…",
     "init_failed": "Start fehlgeschlagen. Bitte erneut versuchen.",
     "session_expired": "Sitzung abgelaufen. Bitte erneut anmelden.",
-    "user_fetch_failed": "Benutzer konnte nicht geladen werden. Bitte erneut versuchen."
+    "user_fetch_failed": "Benutzer konnte nicht geladen werden. Bitte erneut versuchen.",
+    "restored_offline": "Server nicht erreichbar – die gespeicherte Sitzung wird verwendet."
   },
   "pagination": {
     "first_page": "Erste",

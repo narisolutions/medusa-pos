@@ -811,7 +811,8 @@
     "loading_settings": "Chargement des paramètres de la boutique…",
     "init_failed": "Échec du démarrage. Veuillez réessayer.",
     "session_expired": "Session expirée. Veuillez vous reconnecter.",
-    "user_fetch_failed": "Impossible de récupérer l'utilisateur. Veuillez réessayer."
+    "user_fetch_failed": "Impossible de récupérer l'utilisateur. Veuillez réessayer.",
+    "restored_offline": "Serveur injoignable — la session enregistrée est utilisée."
   },
   "pagination": {
     "first_page": "Première",
