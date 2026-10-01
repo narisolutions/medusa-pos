@@ -42,7 +42,10 @@ export function describeRequest(entry: RequestLogEntry) {
     entry.headersMs === undefined
       ? ""
       : ` (waiting ${Math.round(entry.headersMs)} · reading ${Math.round(Math.max(0, entry.ms - entry.headersMs))})`;
-  const label = `${entry.status ?? "ERR"} ${entry.method} ${entry.path} ${Math.round(entry.ms)}ms${timing}`;
+  // Calls to one path differ by size: show the limit so they can be told apart.
+  const limit = entry.url.match(/[?&]limit=(\d+)/)?.[1];
+  const what = limit ? `${entry.path} (limit ${limit})` : entry.path;
+  const label = `${entry.status ?? "ERR"} ${entry.method} ${what} ${Math.round(entry.ms)}ms${timing}`;
 
   const details: Record<string, unknown> = { url: entry.url };
   if (entry.requestBody !== undefined) {

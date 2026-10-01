@@ -6,14 +6,14 @@ const base = { method: "GET", url: "https://api/admin/orders?limit=10", path: "/
 describe("describeRequest", () => {
   it("labels a call with its status, method, path and rounded time", () => {
     const { label, level, details } = describeRequest({ ...base, status: 200, responseBody: { orders: [] } });
-    expect(label).toBe("200 GET /admin/orders 143ms");
+    expect(label).toBe("200 GET /admin/orders (limit 10) 143ms");
     expect(level).toBe("ok");
     expect(details).toEqual({ url: base.url, response: { orders: [] } });
   });
 
   it("splits the time into waiting for the server and reading the response", () => {
     const { label } = describeRequest({ ...base, status: 200, ms: 6719, headersMs: 6400 });
-    expect(label).toBe("200 GET /admin/orders 6719ms (waiting 6400 · reading 319)");
+    expect(label).toBe("200 GET /admin/orders (limit 10) 6719ms (waiting 6400 · reading 319)");
   });
 
   it("separates client errors, server errors and calls that got no answer", () => {
@@ -21,7 +21,7 @@ describe("describeRequest", () => {
     expect(describeRequest({ ...base, status: 503 }).level).toBe("error");
     const offline = describeRequest({ ...base, error: "error sending request" });
     expect(offline.level).toBe("error");
-    expect(offline.label).toBe("ERR GET /admin/orders 143ms");
+    expect(offline.label).toBe("ERR GET /admin/orders (limit 10) 143ms");
     expect(offline.details.error).toBe("error sending request");
   });
 

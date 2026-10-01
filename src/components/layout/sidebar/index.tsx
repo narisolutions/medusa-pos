@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/sidebar";
 import { useUser } from "@/context/user";
 import { NavLink, useNavigate } from "react-router-dom";
-import { Bookmark, ChevronLeft, LogOut, Settings } from "lucide-react";
+import { Bookmark, ChevronLeft, LogOut, Settings, Loader2 } from "lucide-react";
 import Payments from "@/assets/icons/payments";
 import Checkout from "@/assets/icons/checkout";
 import { useUnfulfilledOrdersCount } from "@/hooks/queries/useUnfulfilledOrdersCount";
@@ -23,8 +23,8 @@ const AppSidebar = () => {
   const sidebar = useSidebar();
   const logout = useUser((state) => state.logout);
   const navigate = useNavigate();
-  const { data: unfulfilledCount = 0 } = useUnfulfilledOrdersCount();
-  const { data: parkedCount = 0 } = useParkedSalesCount();
+  const unfulfilled = useUnfulfilledOrdersCount();
+  const parked = useParkedSalesCount();
   const { t } = useTranslation();
 
   const mainMenuItems = [
@@ -34,14 +34,17 @@ const AppSidebar = () => {
       label: t("nav.parked"),
       to: "/parked",
       icon: Bookmark,
-      badge: parkedCount,
+      badge: parked.data ?? 0,
+      badgeLoading: parked.isLoading,
     },
     {
       id: "orders",
       label: t("nav.orders"),
       to: "/orders",
       icon: Payments,
-      badge: unfulfilledCount,
+      badge: unfulfilled.data ?? 0,
+      // Pending covers the deliberate delay before the first scan, not only the request.
+      badgeLoading: unfulfilled.isPending,
     },
   ];
 
@@ -91,7 +94,15 @@ const AppSidebar = () => {
                       <item.icon
                         className={`size-8 ${isActive ? "text-primary" : ""}`}
                       />
-                      {!!item.badge && item.badge > 0 && (
+                      {"badgeLoading" in item && item.badgeLoading ? (
+                        <span
+                          role="status"
+                          aria-label={t("common.loading")}
+                          className="absolute -top-1 -right-1 flex items-center justify-center size-[18px] rounded-full bg-primary"
+                        >
+                          <Loader2 className="size-3 animate-spin text-white" />
+                        </span>
+                      ) : !!item.badge && item.badge > 0 && (
                         <span className="absolute -top-1 -right-1 flex items-center justify-center min-w-[18px] h-[18px] px-1.5 text-xs font-medium text-white bg-primary rounded-full">
                           {item.badge > 99 ? "99+" : item.badge}
                         </span>
