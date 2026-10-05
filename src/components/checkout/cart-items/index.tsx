@@ -7,7 +7,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { Minus, Plus, ShoppingCart, Trash2 } from "lucide-react";
+import { Minus, Plus, ShoppingCart, Trash2, TriangleAlert } from "lucide-react";
 import React from "react";
 import Backdrop from "@/components/base/backdrop";
 import { formatPrice } from "@/utils/helpers";
@@ -102,7 +102,7 @@ const CartItems: React.FC = () => {
                       key={item.variant_id}
                       aria-selected={isSelected}
                       className={`h-13 cursor-pointer transition-colors
-                        ${isOutOfStock ? "opacity-50 bg-red-50 border-l-4 border-l-red-500" : ""}
+                        ${isOutOfStock ? "bg-red-500/10 border-l-4 border-l-red-500" : ""}
                         ${!isOutOfStock && isSelected ? "bg-primary/5 border-l-4 border-l-primary" : ""}
                         ${isSelected ? "ring-1 ring-primary/40" : ""}
                       `}
@@ -119,7 +119,8 @@ const CartItems: React.FC = () => {
                               {title || "-"}
                             </div>
                             {isOutOfStock && (
-                              <span className="ml-2 px-2 py-1 text-xs font-medium rounded-full bg-red-100 text-red-800">
+                              <span className="mt-1 inline-flex items-center gap-1.5 rounded-full bg-red-500/15 px-2.5 py-0.5 text-sm font-medium text-red-700 dark:text-red-300">
+                                <TriangleAlert className="size-4" />
                                 {t("checkout.out_of_stock")}
                               </span>
                             )}
@@ -163,9 +164,9 @@ const CartItems: React.FC = () => {
                             className="w-12 h-12 p-0"
                             title={
                               isOutOfStock
-                                ? "Out of stock"
+                                ? t("checkout.out_of_stock")
                                 : isLastOne
-                                  ? "Only one left in stock"
+                                  ? t("checkout.last_one")
                                   : ""
                             }
                             onClick={() => handleQuantityChange(variant_id!, 1)}
@@ -196,7 +197,7 @@ const CartItems: React.FC = () => {
                         <Button
                           variant="ghost"
                           size="sm"
-                          className={`w-8 h-8 p-0 text-destructive hover:text-destructive ${isOutOfStock ? "opacity-50 cursor-not-allowed" : ""}`}
+                          className="size-12 p-0"
                           onClick={(e) =>
                             handleButtonClick(e, () =>
                               handleRemoveItem(variant_id!)
@@ -204,11 +205,10 @@ const CartItems: React.FC = () => {
                           }
                           onMouseDown={handleMouseDown}
                           disabled={loading}
-                          title={
-                            isOutOfStock ? "Item out of stock" : "Remove item"
-                          }
+                          title={t("common.remove")}
+                          aria-label={t("common.remove")}
                         >
-                          <Trash2 className="text-red-600 size-5" />
+                          <Trash2 className="size-5 text-red-600 dark:text-red-400" />
                         </Button>
                       </TableCell>
                     </TableRow>

@@ -492,6 +492,7 @@
     "stock_changed_item": "{{title}} — solo quedan {{available}} ({{requested}} en el carrito)",
     "stock_unavailable_item": "{{title}} — sin stock",
     "stock_changed_more": "y {{value}} más",
+    "stock_check_failed": "No se pudo comprobar el stock. Confirma la disponibilidad antes de cobrar.",
     "just_now": "ahora mismo",
     "minutes_ago": "hace {{value}} min",
     "hours_ago": "hace {{value}} h",

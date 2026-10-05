@@ -492,6 +492,7 @@
     "stock_changed_item": "{{title}} — zostało tylko {{available}} ({{requested}} w koszyku)",
     "stock_unavailable_item": "{{title}} — brak w magazynie",
     "stock_changed_more": "i {{value}} więcej",
+    "stock_check_failed": "Nie udało się sprawdzić stanu magazynu. Potwierdź dostępność przed przyjęciem płatności.",
     "just_now": "przed chwilą",
     "minutes_ago": "{{value}} min temu",
     "hours_ago": "{{value}} godz. temu",

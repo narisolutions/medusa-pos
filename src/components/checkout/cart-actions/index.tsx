@@ -23,6 +23,8 @@ const CartActions: React.FC = () => {
   } = useCheckout();
 
   const { customerEmail } = useCheckout();
+  // Same test as the line's "Out of stock" badge, so a marked line is what blocks payment.
+  const hasOutOfStockItem = items.some((item) => item.metadata?.available_quantity === 0);
   const { t } = useTranslation();
   const [isDiscountOpen, setDiscountOpen] = useState(false);
   const [isCommentOpen, setCommentOpen] = useState(false);
@@ -130,7 +132,7 @@ const CartActions: React.FC = () => {
           </Button>
           <Button
             onClick={() => void handleOpenModal()}
-            disabled={loading || isPreparingPayment || items.length === 0}
+            disabled={loading || isPreparingPayment || items.length === 0 || hasOutOfStockItem}
             aria-busy={isPreparingPayment}
             className="w-full min-w-0 h-20 text-base font-semibold bg-green-600 hover:bg-green-700 text-white"
           >

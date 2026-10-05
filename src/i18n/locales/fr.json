@@ -492,6 +492,7 @@
     "stock_changed_item": "{{title}} — il n'en reste que {{available}} ({{requested}} dans le panier)",
     "stock_unavailable_item": "{{title}} — en rupture de stock",
     "stock_changed_more": "et {{value}} de plus",
+    "stock_check_failed": "Le stock n'a pas pu être vérifié. Confirmez la disponibilité avant l'encaissement.",
     "just_now": "à l'instant",
     "minutes_ago": "il y a {{value}} min",
     "hours_ago": "il y a {{value}} h",

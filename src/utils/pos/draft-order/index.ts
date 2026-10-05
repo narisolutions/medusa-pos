@@ -1,4 +1,4 @@
-import { AdminDraftOrder } from "@medusajs/types";
+import { AdminDraftOrder, AdminProduct } from "@medusajs/types";
 import { CartItem, DraftOrderMetadata, OrderDiscount, PaymentMethod } from "@/types/utils";
 import { isEmpty } from "@/utils/helpers";
 
@@ -115,18 +115,26 @@ const mapDraftOrderItemsToCartItems = (draftOrder: AdminDraftOrder): CartItem[] 
  * `availableMethodIds` guards the restored payment method: a sale parked at another
  * till may name a provider this one does not offer, which would leave the guard
  * satisfied while no button appears selected.
+ *
+ * `guestEmail`: a draft needs an email, so an anonymous sale carries the store's guest
+ * customer — that is no customer at all, and resumes as none.
  */
 const buildCartMetadataFromDraft = (
   draftOrder: AdminDraftOrder,
   fallbackPaymentMethod?: PaymentMethod,
-  availableMethodIds?: string[]
+  availableMethodIds?: string[],
+  guestEmail?: string
 ): DraftOrderMetadata => {
   const metadata = sanitizeDraftOrderMetadata(
     draftOrder.metadata as Record<string, unknown> | null
   ) as Record<string, unknown>;
 
-  if (draftOrder.customer_id) metadata.customer_id = draftOrder.customer_id;
-  if (draftOrder.email) metadata.customer_email = draftOrder.email;
+  const isGuest =
+    !!guestEmail && draftOrder.email?.toLowerCase() === guestEmail.toLowerCase();
+  if (!isGuest) {
+    if (draftOrder.customer_id) metadata.customer_id = draftOrder.customer_id;
+    if (draftOrder.email) metadata.customer_email = draftOrder.email;
+  }
 
   const stored = metadata.payment_method as string | undefined;
   const isOffered =
@@ -192,7 +200,27 @@ const reconcileStock = (
   return { items: reconciled, warnings };
 };
 
+/**
+ * Stock per variant from the catalogue. Null for an empty catalogue: that is a failed
+ * load, and reading it as "nothing in stock" would mark every line unavailable.
+ */
+const availabilityFromProducts = (
+  products: AdminProduct[] | null | undefined
+): Map<string, number> | null => {
+  if (!products?.length) return null;
+  const map = new Map<string, number>();
+  for (const product of products) {
+    for (const variant of product.variants ?? []) {
+      if (typeof variant.inventory_quantity === "number") {
+        map.set(variant.id, variant.inventory_quantity);
+      }
+    }
+  }
+  return map;
+};
+
 export {
+  availabilityFromProducts,
   DEFAULT_DRAFT_ORDER_METADATA,
   sanitizeDraftOrderMetadata,
   mapDraftOrderItemsToCartItems,

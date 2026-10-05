@@ -13,6 +13,7 @@ import { fetchProducts } from "@/hooks/queries/useQueryProducts";
 import { getGuestCustomerEmail, getPaymentMethods } from "@/utils/settings/store/metadata";
 import { queryKeys } from "@/config/query";
 import {
+  availabilityFromProducts,
   reconcileStock,
   mapDraftOrderItemsToCartItems,
   buildCartMetadataFromDraft,
@@ -21,6 +22,7 @@ import {
 import { handleErrorToast } from "@/utils/helpers";
 import { useTranslation } from "@/i18n";
 import storage from "@/utils/storage";
+import { logger, safeStringify } from "@/utils/logger";
 import { ROUTES } from "@/router/routes";
 
 /** Thrown when a guard has already told the operator what is wrong — do not toast again. */
@@ -218,33 +220,22 @@ const useParkedSales = () => {
     ]
   );
 
-  /** Fresh availability for the resumed lines, from the catalogue the till already caches. */
-  const readAvailability = useCallback(async (): Promise<Map<string, number>> => {
-    const map = new Map<string, number>();
-    if (!salesChannelId) return map;
+  /** Live availability for the resumed lines; null when it could not be read. */
+  const readAvailability = useCallback(async (): Promise<Map<string, number> | null> => {
+    if (!salesChannelId) return null;
 
     try {
-      const products =
-        queryClient.getQueryData<AdminProduct[]>(
-          queryKeys.products.list(salesChannelId)
-        ) ??
-        (await queryClient.fetchQuery({
-          queryKey: queryKeys.products.list(salesChannelId),
-          queryFn: () => fetchProducts(salesChannelId),
-        }));
-
-      for (const product of products ?? []) {
-        for (const variant of product.variants ?? []) {
-          if (typeof variant.inventory_quantity === "number") {
-            map.set(variant.id, variant.inventory_quantity);
-          }
-        }
-      }
+      const products = await queryClient.fetchQuery<AdminProduct[]>({
+        queryKey: queryKeys.products.list(salesChannelId),
+        queryFn: () => fetchProducts(salesChannelId),
+        // Always fresh: stock may have moved in the minutes the sale sat parked.
+        staleTime: 0,
+      });
+      return availabilityFromProducts(products);
     } catch (error) {
-      handleErrorToast(error);
+      void logger.warn(`Stock read on resume failed: ${safeStringify(error)}`);
+      return null;
     }
-
-    return map;
   }, [queryClient, salesChannelId]);
 
   const warnAboutStock = useCallback(
@@ -262,7 +253,7 @@ const useParkedSales = () => {
       );
 
       if (warnings.length > shown.length) {
-        shown.push(t("parked.stock_changed_more", { count: warnings.length - shown.length }));
+        shown.push(t("parked.stock_changed_more", { value: warnings.length - shown.length }));
       }
 
       toast.warning(t("parked.stock_changed_title"), {
@@ -279,7 +270,14 @@ const useParkedSales = () => {
    */
   const resumeParkedSale = useCallback(
     async (targetId: string): Promise<boolean> => {
-      const draftOrder = await fetchDraftOrder(targetId);
+      let draftOrder;
+      try {
+        draftOrder = await fetchDraftOrder(targetId);
+      } catch (error) {
+        // Offline or a server error: the sale is still parked, so say what actually failed.
+        handleErrorToast(error);
+        return false;
+      }
 
       // Paid or deleted on another till. Leave this cart alone.
       if (!draftOrder) {
@@ -288,11 +286,11 @@ const useParkedSales = () => {
         return false;
       }
 
+      const lines = mapDraftOrderItemsToCartItems(draftOrder);
       const availability = await readAvailability();
-      const { items: reconciled, warnings } = reconcileStock(
-        mapDraftOrderItemsToCartItems(draftOrder),
-        availability
-      );
+      const { items: reconciled, warnings } = availability
+        ? reconcileStock(lines, availability)
+        : { items: lines, warnings: [] };
 
       adoptDraftOrder({
         draftOrderId: targetId,
@@ -300,14 +298,16 @@ const useParkedSales = () => {
         metadata: buildCartMetadataFromDraft(
           draftOrder,
           undefined,
-          getPaymentMethods(store).map((method) => method.id)
+          getPaymentMethods(store).map((method) => method.id),
+          getGuestCustomerEmail(store)
         ),
       });
 
       invalidate();
       navigate(ROUTES.checkout);
       toast.success(t("parked.resumed_toast"));
-      warnAboutStock(warnings);
+      if (availability) warnAboutStock(warnings);
+      else toast.warning(t("parked.stock_check_failed"));
 
       return true;
     },
@@ -335,7 +335,6 @@ const useParkedSales = () => {
   return {
     isLoading,
     canCreateDraftOrder,
-    goToGuestEmailSetting,
     ensureDraftOrderSynced,
     parkCurrentSale,
     resumeParkedSale,

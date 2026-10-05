@@ -1,10 +1,11 @@
 import { describe, it, expect } from "vitest";
-import { AdminDraftOrder, AdminProductVariant } from "@medusajs/types";
+import { AdminDraftOrder, AdminProduct, AdminProductVariant } from "@medusajs/types";
 import {
   mapDraftOrderItemsToCartItems,
   sanitizeDraftOrderMetadata,
   buildCartMetadataFromDraft,
   reconcileStock,
+  availabilityFromProducts,
 } from "@/utils/pos/draft-order";
 import { buildItemMetadata } from "@/utils/pos/cart";
 import { CartItem } from "@/types/utils";
@@ -202,6 +203,33 @@ describe("payment method round trip", () => {
   });
 });
 
+describe("customer on resume", () => {
+  const draft = (email: string, customer_id: string) =>
+    ({ email, customer_id, metadata: {}, items: [] }) as unknown as AdminDraftOrder;
+
+  it("restores a real customer", () => {
+    const result = buildCartMetadataFromDraft(
+      draft("nino@example.ge", "cus_nino"),
+      undefined,
+      undefined,
+      "guest@wineland.ge"
+    );
+    expect(result.customer_id).toBe("cus_nino");
+    expect(result.customer_email).toBe("nino@example.ge");
+  });
+
+  it("resumes an anonymous sale with no customer, whatever the guest email's case", () => {
+    const result = buildCartMetadataFromDraft(
+      draft("Guest@Wineland.ge", "cus_guest"),
+      undefined,
+      undefined,
+      "guest@wineland.ge"
+    );
+    expect(result).not.toHaveProperty("customer_id");
+    expect(result).not.toHaveProperty("customer_email");
+  });
+});
+
 describe("reconcileStock", () => {
   const item = (variantId: string, quantity: number): CartItem => ({
     variant_id: variantId,
@@ -238,5 +266,25 @@ describe("reconcileStock", () => {
     const { warnings } = reconcileStock([item("gone", 1)], new Map());
 
     expect(warnings[0].status).toBe("unavailable");
+  });
+});
+
+describe("availabilityFromProducts", () => {
+  it("maps each counted variant to its stock", () => {
+    const products = [
+      { variants: [{ id: "v_1", inventory_quantity: 4 }, { id: "v_2", inventory_quantity: 0 }] },
+      { variants: [{ id: "v_3" }] },
+    ] as unknown as AdminProduct[];
+    expect(availabilityFromProducts(products)).toEqual(
+      new Map([
+        ["v_1", 4],
+        ["v_2", 0],
+      ])
+    );
+  });
+
+  it("reads an empty or missing catalogue as unknown, not as sold out", () => {
+    expect(availabilityFromProducts([])).toBeNull();
+    expect(availabilityFromProducts(undefined)).toBeNull();
   });
 });

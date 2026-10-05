@@ -492,6 +492,7 @@
     "stock_changed_item": "{{title}} — only {{available}} left ({{requested}} in cart)",
     "stock_unavailable_item": "{{title}} — out of stock",
     "stock_changed_more": "and {{value}} more",
+    "stock_check_failed": "Stock could not be checked. Confirm availability before taking payment.",
     "just_now": "just now",
     "minutes_ago": "{{value}} min ago",
     "hours_ago": "{{value}} h ago",

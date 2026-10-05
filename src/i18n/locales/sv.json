@@ -492,6 +492,7 @@
     "stock_changed_item": "{{title}} — endast {{available}} kvar ({{requested}} i varukorgen)",
     "stock_unavailable_item": "{{title}} — slut i lager",
     "stock_changed_more": "och {{value}} till",
+    "stock_check_failed": "Lagret kunde inte kontrolleras. Bekräfta tillgängligheten innan betalning.",
     "just_now": "nyss",
     "minutes_ago": "{{value}} min sedan",
     "hours_ago": "{{value}} tim sedan",

@@ -492,6 +492,7 @@
     "stock_changed_item": "{{title}} — nur noch {{available}} verfügbar ({{requested}} im Warenkorb)",
     "stock_unavailable_item": "{{title}} — nicht auf Lager",
     "stock_changed_more": "und {{value}} weitere",
+    "stock_check_failed": "Der Bestand konnte nicht geprüft werden. Prüfen Sie die Verfügbarkeit vor der Zahlung.",
     "just_now": "gerade eben",
     "minutes_ago": "vor {{value}} Min.",
     "hours_ago": "vor {{value}} Std.",

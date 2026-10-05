@@ -492,6 +492,7 @@
     "stock_changed_item": "{{title}} — დარჩა მხოლოდ {{available}} ({{requested}} კალათაში)",
     "stock_unavailable_item": "{{title}} — არ არის მარაგში",
     "stock_changed_more": "და კიდევ {{value}}",
+    "stock_check_failed": "მარაგის შემოწმება ვერ მოხერხდა. გადახდამდე გადაამოწმეთ ხელმისაწვდომობა.",
     "just_now": "ახლახან",
     "minutes_ago": "{{value}} წთ წინ",
     "hours_ago": "{{value}} სთ წინ",
