@@ -14,7 +14,8 @@ const fetchPaymentProviders = async (): Promise<AdminPaymentProvider[]> => {
     return payment_providers as AdminPaymentProvider[];
   } catch (error) {
     handleErrorToast(error);
-    return [];
+    // Rethrown so a failed load is an error, not "nothing configured".
+    throw error;
   }
 };
 

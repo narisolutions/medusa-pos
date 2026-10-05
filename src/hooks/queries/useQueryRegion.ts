@@ -20,7 +20,8 @@ const fetchRegions = async (): Promise<RegionsResult> => {
     return { regions, defaultRegion };
   } catch (error) {
     handleErrorToast(error);
-    return { regions: [], defaultRegion: null };
+    // Rethrown so a failed load is an error, not "nothing configured".
+    throw error;
   }
 };
 
