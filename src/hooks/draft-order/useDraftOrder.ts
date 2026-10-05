@@ -13,7 +13,12 @@ import {
 import { useQueryShippingOption } from "../queries/useQueryShippingOption";
 import { useQueryStore } from "@/hooks/queries/useQueryStore";
 import { getGuestCustomerEmail } from "@/utils/settings/store/metadata";
-import { sanitizeDraftOrderMetadata } from "@/utils/pos/draft-order";
+import {
+  nameVariantIds,
+  sanitizeDraftOrderMetadata,
+  unsellableItemNames,
+} from "@/utils/pos/draft-order";
+import { t } from "@/i18n";
 import {
   beginEditIfNeeded,
   diffDraftItems,
@@ -251,8 +256,15 @@ const useDraftOrder = () => {
         markAsSynced();
       } catch (error) {
         void logger.error(`Failed to sync draft order: ${safeStringify(error)}`);
+        const message = getApiErrorMessage(error, String(error));
+        const unsellable = unsellableItemNames(message, items);
         throw new Error(
-          "Failed to sync changes to draft order: " + getApiErrorMessage(error, String(error))
+          unsellable
+            ? t("checkout.items_not_for_sale", {
+                count: unsellable.length,
+                names: unsellable.join(", "),
+              })
+            : "Failed to sync changes to draft order: " + nameVariantIds(message, items)
         );
       } finally {
         endLoading();

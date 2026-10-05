@@ -50,6 +50,31 @@ describe("fetchProductByBarcode", () => {
     await expect(fetchProductByBarcode("1", "sc")).resolves.toBeNull();
   });
 
+  it("adds the variant whose code was scanned, not the first", async () => {
+    sdk.client.fetch.mockResolvedValue({
+      id: "prod_1",
+      title: "Kakhuri",
+      status: "published",
+      variants: [
+        { id: "variant_2024", barcode: "111", prices: [] },
+        { id: "variant_2025", ean: "222", prices: [] },
+      ],
+    });
+    await expect(fetchProductByBarcode("222", "sc")).resolves.toMatchObject({ id: "variant_2025" });
+  });
+
+  it("refuses a product that is not published", async () => {
+    sdk.client.fetch.mockResolvedValue({
+      id: "prod_1",
+      title: "Kisi Qvevri",
+      status: "rejected",
+      variants: [{ id: "variant_1", barcode: "333", prices: [] }],
+    });
+    await expect(fetchProductByBarcode("333", "sc")).rejects.toThrow(
+      "checkout.product_not_for_sale"
+    );
+  });
+
   it("throws any other failure instead of calling it not found", async () => {
     sdk.client.fetch.mockRejectedValue(httpError(500));
     await expect(fetchProductByBarcode("1", "sc")).rejects.toMatchObject({ status: 500 });

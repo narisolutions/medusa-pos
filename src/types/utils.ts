@@ -51,6 +51,7 @@ interface ApiProductResponse {
   id: string;
   title: string;
   handle: string;
+  status?: string;
   thumbnail?: string;
   description?: string;
   images?: Array<{ url: string }>;
@@ -59,6 +60,7 @@ interface ApiProductResponse {
     title: string;
     sku?: string;
     ean?: string;
+    barcode?: string;
     prices: Array<{
       amount: number;
       currency_code: string;

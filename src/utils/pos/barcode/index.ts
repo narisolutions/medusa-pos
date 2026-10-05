@@ -28,8 +28,15 @@ const fetchProductByBarcode = async (
     throw error;
   }
 
-  const variant = data?.variants?.[0];
+  const variants = data?.variants ?? [];
+  const variant =
+    variants.find((v) => v.barcode === barcode || v.ean === barcode) ?? variants[0];
   if (!variant) return null;
+
+  // The plugin finds any product carrying the code; Medusa sells only published ones.
+  if (data.status && data.status !== "published") {
+    throw new Error(t("checkout.product_not_for_sale", { title: data.title }));
+  }
 
   return {
     ...variant,

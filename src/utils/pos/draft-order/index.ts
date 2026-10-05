@@ -219,8 +219,29 @@ const availabilityFromProducts = (
   return map;
 };
 
+const VARIANT_ID = /variant_[0-9A-Z]{26}/g;
+const UNSELLABLE = /^Variants (.+) do not exist or belong to a product that is not published/;
+
+const cartItemName = (items: CartItem[], variantId: string): string => {
+  const item = items.find((candidate) => candidate.variant_id === variantId);
+  return item?.title || (item?.metadata?.product_title as string | undefined) || variantId;
+};
+
+/** The cart lines Medusa refused because their product is no longer published, by name. */
+const unsellableItemNames = (message: string, items: CartItem[]): string[] | null => {
+  const match = UNSELLABLE.exec(message);
+  if (!match) return null;
+  return match[1].split(", ").map((id) => cartItemName(items, id.trim()));
+};
+
+/** A backend message with the cart's variant ids replaced by what the operator sees. */
+const nameVariantIds = (message: string, items: CartItem[]): string =>
+  message.replace(VARIANT_ID, (id) => cartItemName(items, id));
+
 export {
   availabilityFromProducts,
+  nameVariantIds,
+  unsellableItemNames,
   DEFAULT_DRAFT_ORDER_METADATA,
   sanitizeDraftOrderMetadata,
   mapDraftOrderItemsToCartItems,
