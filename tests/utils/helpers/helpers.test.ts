@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { isNetworkError } from "@/utils/helpers";
+import { isNetworkError, isNotFoundError } from "@/utils/helpers";
 
 describe("isNetworkError", () => {
   it("recognises a request that got no answer", () => {
@@ -22,5 +22,14 @@ describe("isNetworkError", () => {
     expect(isNetworkError("Insufficient stock")).toBe(false);
     expect(isNetworkError(null)).toBe(false);
     expect(isNetworkError(undefined)).toBe(false);
+  });
+});
+
+describe("isNotFoundError", () => {
+  it("is true only for a 404 from the backend", () => {
+    expect(isNotFoundError(Object.assign(new Error("Not found"), { status: 404 }))).toBe(true);
+    expect(isNotFoundError(Object.assign(new Error("Server"), { status: 500 }))).toBe(false);
+    expect(isNotFoundError(new Error("error sending request"))).toBe(false);
+    expect(isNotFoundError(null)).toBe(false);
   });
 });

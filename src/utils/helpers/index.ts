@@ -60,6 +60,10 @@ const isNetworkError = (error: unknown): boolean => {
   return /error sending request|failed to fetch|network ?error|load failed|timed out/i.test(message);
 };
 
+/** A 404 from the backend: the record is gone, as opposed to unreachable or failing. */
+const isNotFoundError = (error: unknown): boolean =>
+  (error as { status?: number } | null)?.status === 404;
+
 const handleErrorToast = (
   error: unknown,
   options?: { posEndpointError?: boolean }
@@ -279,6 +283,7 @@ export {
   getApiErrorMessage,
   handleErrorToast,
   isNetworkError,
+  isNotFoundError,
   formatDate,
   formatTimeAgo,
   formatPrice,

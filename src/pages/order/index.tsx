@@ -1,6 +1,7 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { Params } from "@/types/utils";
 import { useQueryOrder } from "@/hooks/queries/useQueryOrder";
+import { isNotFoundError } from "@/utils/helpers";
 import Order from "@/components/order";
 import Backdrop from "@/components/base/backdrop";
 import { Button } from "@/components/ui/button";
@@ -19,17 +20,17 @@ const OrderPage = () => {
   }
 
   if (error || !order) {
-    const errorMessage = error instanceof Error ? error.message : String(error);
-    const isSdkError = errorMessage.includes("SDK not initialized");
-    
+    // Only a 404 means the order is gone; offline or a server error is not "not found".
+    const notFound = !error || isNotFoundError(error);
+
     return (
       <div className="bg-surface p-10 rounded-lg space-y-6 h-full flex flex-col items-center justify-center">
         <div className="text-center max-w-md">
-          <h2 className="text-2xl font-bold text-fg mb-2">{t("orders.order_not_found_title")}</h2>
+          <h2 className="text-2xl font-bold text-fg mb-2">
+            {notFound ? t("orders.order_not_found_title") : t("orders.order_load_failed_title")}
+          </h2>
           <p className="text-fg-muted mb-6">
-            {isSdkError
-              ? t("orders.sdk_initializing")
-              : t("orders.order_not_found_message")}
+            {notFound ? t("orders.order_not_found_message") : t("orders.order_load_failed_message")}
           </p>
           <div className="flex items-center justify-center gap-3">
             <Button
