@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from "react";
+import React, { useRef, useEffect, type ReactNode } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Command,
@@ -22,9 +22,11 @@ interface Props {
   products: AdminProduct[];
   currency: string;
   onSelect: (variant: AdminProductVariant) => ProductPickerResult;
+  /** Rendered after Add Item, e.g. the checkout's Catalog button. */
+  extraAction?: ReactNode;
 }
 
-const ProductPicker: React.FC<Props> = ({ products, currency, onSelect }) => {
+const ProductPicker: React.FC<Props> = ({ products, currency, onSelect, extraAction }) => {
   const inputRef = useRef<HTMLInputElement>(null);
   const dialogClickedRef = useRef(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -270,6 +272,7 @@ const ProductPicker: React.FC<Props> = ({ products, currency, onSelect }) => {
             </span>
           )}
         </Button>
+        {extraAction}
       </div>
     </div>
   );

@@ -3,8 +3,12 @@ export type DateTimePreferences = {
   timeFormat: "system" | "24h" | "12h";
 };
 
+export type CatalogView = "cards" | "list";
+
 export type DisplayPreferences = {
   startFullscreen: boolean;
+  /** Checkout catalog drawing; the set of products is the same in both. */
+  catalogView: CatalogView;
 };
 
 /**
