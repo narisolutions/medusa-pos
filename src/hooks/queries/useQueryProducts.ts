@@ -59,6 +59,8 @@ const fetchAllProductPages = async (
   return all;
 };
 
+// Failures throw after explaining themselves: an empty list would read as an empty
+// catalogue, and the checkout's retry screen would never show.
 const fetchProducts = async (
   salesChannelId: string
 ): Promise<AdminProduct[]> => {
@@ -75,7 +77,7 @@ const fetchProducts = async (
       return products;
     } catch (error) {
       handleErrorToast(error, { posEndpointError: true });
-      return [];
+      throw error;
     }
   }
 
@@ -84,7 +86,7 @@ const fetchProducts = async (
     return products.filter((p) => p.status === "published");
   } catch (error) {
     handleErrorToast(error);
-    return [];
+    throw error;
   }
 };
 
