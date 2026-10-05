@@ -1,6 +1,6 @@
 import { useState, useCallback, useMemo } from "react";
 import { useTranslation } from "@/i18n";
-import { useBarcodeBackgroundPaste } from "@/hooks/barcode/useBarcodePaste";
+import { useWedgeScanner } from "@/hooks/barcode/useWedgeScanner";
 import { useSerialScanner } from "@/hooks/barcode/useSerialScanner";
 import { useScannerPreferences } from "@/hooks/barcode/useScannerPreferences";
 import { useDebounce } from "@/hooks/ui/useDebounce";
@@ -186,10 +186,10 @@ const useProductPicker = ({ products = [], inputRef, onSelect }: Props) => {
     ]
   );
 
-  // Serial delivers framed messages, so it skips both the keystroke-timing
-  // heuristic and the digits-only guard the wedge path needs. The wedge stays
-  // listening either way: a scanner in COM mode emits no keystrokes, so there
-  // is nothing to double-handle, and typing still focuses the search box.
+  // Serial delivers framed messages, so it needs none of the wedge's keystroke
+  // timing. The wedge stays listening either way: a scanner in COM mode emits no
+  // keystrokes, so there is nothing to double-handle, and typing still focuses
+  // the search box.
   const scanner = useScannerPreferences();
   useSerialScanner({
     scanner,
@@ -197,19 +197,8 @@ const useProductPicker = ({ products = [], inputRef, onSelect }: Props) => {
     enabled: !isProcessing,
   });
 
-  useBarcodeBackgroundPaste({
-    onBarcodePaste: handleBarcodeSubmit,
-    onKeystroke: (key: string) => {
-      // Handle global keystokes - will focus input and let it handle the key
-      if (key === "Backspace") {
-        const currentValue = inputValue;
-        if (currentValue.length > 0) {
-          handleInputChange(currentValue.slice(0, -1));
-        }
-      } else {
-        handleInputChange(inputValue + key);
-      }
-    },
+  useWedgeScanner({
+    onScan: handleBarcodeSubmit,
     inputRef,
     enabled: !isProcessing,
   });

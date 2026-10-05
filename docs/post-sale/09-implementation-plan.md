@@ -90,7 +90,7 @@ The search, barcode and variant chooser are coupled to checkout in two ways:
 
 **Change:** lift the picker into `src/components/base/product-picker/` taking `currency` and
 `onSelect(variant, quantity)` as props. Checkout passes a callback that calls `addItem`, so its
-behaviour is unchanged. Scanner hooks (`useSerialScanner`, `useBarcodeBackgroundPaste`) move with
+behaviour is unchanged. Scanner hooks (`useSerialScanner`, `useWedgeScanner`) move with
 it — they are currently mounted only in the checkout filter, which is correct and must stay true:
 one mounted picker per route.
 

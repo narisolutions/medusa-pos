@@ -259,12 +259,15 @@ const ProductPicker: React.FC<Props> = ({ products, currency, onSelect }) => {
           onMouseDown={handleMouseDown}
           disabled={!isButtonEnabled || isProcessing}
           size="lg"
-          className="bg-primary hover:bg-primary/90 text-white h-14 px-8 text-lg font-medium"
+          aria-busy={isProcessing}
+          className="relative bg-primary hover:bg-primary/90 text-white h-14 px-8 text-lg font-medium"
         >
-          {isProcessing ? (
-            <Loader2 className="h-6 w-6 animate-spin" />
-          ) : (
-            t("checkout.add_item")
+          {/* Fixed width while loading: hidden label keeps its space; spinner wrapped to dodge has-[>svg] padding. */}
+          <span className={isProcessing ? "invisible" : undefined}>{t("checkout.add_item")}</span>
+          {isProcessing && (
+            <span className="absolute inset-0 flex items-center justify-center">
+              <Loader2 className="h-6 w-6 animate-spin" />
+            </span>
           )}
         </Button>
       </div>
