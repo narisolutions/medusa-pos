@@ -95,10 +95,10 @@ The backend URL can also be configured at runtime via Store Setup.
 
 | Topic | Support in Medusa (current observed behavior) |
 |---|---|
-| Draft order discount totals from Sale Price Lists (`original_amount - calculated_amount`) | ❌ Not automatically reflected in draft-order discount totals unless Promotions are applied separately |
 | Creating admin payment collections with `payments[]`, `provider_id`, `provider_data` in one call | ❌ Not supported by current `AdminCreatePaymentCollection` typing/API shape (still `order_id` + `amount` only); since 2.16 a `provider_id` can be passed when marking a collection as paid |
 
-These are tracked as known limitations for now and can affect POS discount/payment reporting workflows.
+This has no effect in the app, which records the provider through a payment session (or `markAsPaid` with `provider_id`) after creating the collection.
+For every known limitation of the app — with impact, workarounds and the path to a fix — see [Known limitations](docs/known-limitations.md).
 
 ## Downloads
 

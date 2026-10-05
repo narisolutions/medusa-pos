@@ -40,3 +40,4 @@ Each feature lives in its own subdirectory. Within a feature, docs are split int
 | Doc | What it covers |
 |---|---|
 | [pos-toolkit & QR hand-off status](./pos-toolkit-and-handoff-status.md) | What is still open on the pos-toolkit adoption and the Brindola transfer ticket: work blocked on other teams, open decisions, known defects, and verification gaps |
+| [Known limitations](./known-limitations.md) | Gaps we know about and chose not to fix yet: what the operator sees, why, and what a fix would take |
