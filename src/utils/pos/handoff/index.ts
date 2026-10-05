@@ -37,6 +37,22 @@ function itemMeta(item: OrderLineItem): Record<string, unknown> | undefined {
   return typeof vintage === "string" && vintage ? { vintage } : undefined;
 }
 
+/**
+ * The name the restaurant bill shows: the product, then the variant (size, vintage) unless
+ * it is Medusa's placeholder or already part of the title — the brief asks for what matters.
+ */
+export function handoffItemName(item: {
+  title?: string | null;
+  variant_title?: string | null;
+}): string {
+  const title = item.title?.trim() ?? "";
+  const variant = item.variant_title?.trim() ?? "";
+  if (!variant || variant === "Default variant" || title.toLowerCase().includes(variant.toLowerCase())) {
+    return title;
+  }
+  return title ? `${title}, ${variant}` : variant;
+}
+
 /** The subset of a Medusa line item this builder reads. */
 type OrderLineItem = NonNullable<AdminOrder["items"]>[number] & {
   variant_sku?: string | null;
@@ -61,7 +77,7 @@ export function buildHandoffPayload(order: AdminOrder): HandoffPayload {
       // variant_id is the fallback identity: sku is optional in Medusa but the
       // line id on Brindola's side has to be stable.
       sku: item.variant_sku || item.variant_id || item.id,
-      name: item.title ?? "",
+      name: handoffItemName(item),
       qty: Math.max(1, Math.round(toNumber(item.quantity))),
       // Prices are tax-inclusive here and the contract wants gross of VAT.
       priceMinor: toMinorUnits(toNumber(item.unit_price)),

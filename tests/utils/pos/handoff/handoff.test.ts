@@ -1,6 +1,11 @@
 import { describe, it, expect } from "vitest";
 import { AdminOrder } from "@medusajs/types";
-import { buildHandoffPayload, encodeHandoffUrl, toMinorUnits } from "@/utils/pos/handoff";
+import {
+  buildHandoffPayload,
+  encodeHandoffUrl,
+  handoffItemName,
+  toMinorUnits,
+} from "@/utils/pos/handoff";
 import schemas from "@/utils/schemas";
 
 /** A completed transfer order, shaped like what the orders API returns. */
@@ -139,5 +144,30 @@ describe("encodeHandoffUrl", () => {
     const json = Buffer.from(d.replace(/-/g, "+").replace(/_/g, "/"), "base64").toString();
 
     expect(JSON.parse(json).items[0].nameKa).toBe("წინანდალი");
+  });
+});
+
+describe("handoffItemName", () => {
+  it("adds the variant, so the bill shows the size and vintage", () => {
+    expect(handoffItemName({ title: "Saperavi", variant_title: "750ml / 2020" })).toBe(
+      "Saperavi, 750ml / 2020"
+    );
+  });
+
+  it("leaves out Medusa's placeholder variant", () => {
+    expect(handoffItemName({ title: "Cheese plate", variant_title: "Default variant" })).toBe(
+      "Cheese plate"
+    );
+  });
+
+  it("does not repeat a variant the title already names", () => {
+    expect(handoffItemName({ title: "Tsinandali 2019, Shumi", variant_title: "2019" })).toBe(
+      "Tsinandali 2019, Shumi"
+    );
+  });
+
+  it("falls back to whichever part exists", () => {
+    expect(handoffItemName({ title: "Saperavi", variant_title: null })).toBe("Saperavi");
+    expect(handoffItemName({ title: null, variant_title: "750ml" })).toBe("750ml");
   });
 });

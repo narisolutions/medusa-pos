@@ -1,6 +1,6 @@
 # pos-toolkit adoption & Brindola QR hand-off — what is still open
 
-*Last updated 2026-09-30. Covers `develop` @ `68e95e8`.*
+*Last updated 2026-10-05. Covers `develop` @ `4a5e14a` plus the item-name change below.*
 
 Everything below is known-outstanding work, deliberate omissions, or defects found and not yet fixed. What is already done and merged is summarised only enough to make the gaps legible.
 
@@ -103,6 +103,26 @@ Related, ✅ fixed: `getMethodType` now infers from `icon` for `transfer` as wel
 ### 3.5 The test page lost underline and reverse video
 
 `PrintOp::Text` carries bold, alignment and size only. Cosmetic, test page only, but a visible change to anyone who knows that page.
+
+### 3.6 An order-level discount does not reach the ticket
+
+`priceMinor` is each line's unit price ([handoff/index.ts](../src/utils/pos/handoff/index.ts)).
+An item discount changes that price and travels correctly; a discount on the **whole order**
+lives only in the order's metadata (`order_discount`) and is not distributed over the lines. A
+transfer sale with an order-level discount therefore puts the full prices on the restaurant
+bill. Until the discount is spread across the lines, apply transfer discounts per item.
+
+### 3.7 Minor units assume two decimals
+
+`toMinorUnits` multiplies by 100. The brief asks for the ISO 4217 exponent of `currency`
+(2 for GEL, 0 for JPY, 3 for KWD). Correct for every currency Wineland uses; a till selling in
+a zero- or three-decimal currency would print prices off by a factor of 100 or 10.
+
+### ~~3.8 The bill showed the product without its size or vintage~~ — fixed
+
+✅ The payload's `name` (and the ticket's item line) now append the line's `variant_title` —
+"Saperavi, 750ml / 2020" — unless it is Medusa's "Default variant" or already in the title, as
+the brief asks for what matters (producer, vintage). Before, a bottle went over as "Saperavi".
 
 ---
 
