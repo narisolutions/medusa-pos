@@ -17,6 +17,7 @@ import {
   checkBackendHealth,
 } from "@/utils/helpers";
 import { useStoreManager } from "@/context/store-manager";
+import { useCartStore } from "@/context/cart";
 
 interface Props {
   form: ReturnType<typeof useForm<Forms["ApiSettings"]>>;
@@ -121,6 +122,13 @@ export const useConnectionSettings = ({ form }: Props) => {
             data.stock_location !== initialValues.stock_location,
         };
 
+        // A sale's prices and stock belong to the channel it was rung up in.
+        const { items, draftOrderId } = useCartStore.getState();
+        if (changes.hasSalesChannelChanges && (items.length > 0 || draftOrderId)) {
+          handleErrorToast(t("settings.connection.sales_channel_cart_not_empty"));
+          return;
+        }
+
         // Update Tauri config if backend URL changed
         if (changes.hasBackendChanges && data.backend_url) {
           const url = data.backend_url.replace(/\/$/, "").trim();
@@ -169,12 +177,14 @@ export const useConnectionSettings = ({ form }: Props) => {
           for (const plugin of plugins) plugin.resetBackendCaches?.(queryClient);
         }
 
-        // Update initial values after successful save
-        setInitialValues({
+        // The saved values become the form's baseline, so Save tracks changes from here.
+        const saved = {
           backend_url: data.backend_url || "",
           sales_channel: data.sales_channel || "",
           stock_location: data.stock_location || "",
-        });
+        };
+        setInitialValues(saved);
+        reset(saved);
 
         toast.success(t("settings.connection.saved"));
       } catch (error) {
@@ -194,7 +204,7 @@ export const useConnectionSettings = ({ form }: Props) => {
         setIsLoading(false);
       }
     },
-    [initialValues, queryClient, setSalesChannelId, setNeedsWarning, t]
+    [initialValues, queryClient, setSalesChannelId, setNeedsWarning, reset, t]
   );
 
   // Get current selected sales channel name for display

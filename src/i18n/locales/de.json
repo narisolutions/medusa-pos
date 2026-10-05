@@ -695,7 +695,8 @@
       "load_error": "Keine vorhandene Konfiguration gefunden oder Laden fehlgeschlagen",
       "saved": "Konfiguration erfolgreich gespeichert",
       "save_failed": "Konfiguration konnte nicht gespeichert werden: {{error}}",
-      "cannot_reach_backend": "Backend nicht erreichbar: {{error}}. Bitte überprüfen Sie die URL und versuchen Sie es erneut."
+      "cannot_reach_backend": "Backend nicht erreichbar: {{error}}. Bitte überprüfen Sie die URL und versuchen Sie es erneut.",
+      "sales_channel_cart_not_empty": "Parken oder leeren Sie den aktuellen Verkauf, bevor Sie den Vertriebskanal ändern."
     },
     "store": {
       "title": "Filiale",

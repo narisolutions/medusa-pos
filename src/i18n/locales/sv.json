@@ -695,7 +695,8 @@
       "load_error": "Ingen befintlig konfiguration hittades eller misslyckades att läsa in",
       "saved": "Konfiguration sparad",
       "save_failed": "Det gick inte att spara konfigurationen: {{error}}",
-      "cannot_reach_backend": "Kan inte nå backend: {{error}}. Kontrollera URL:en och försök igen."
+      "cannot_reach_backend": "Kan inte nå backend: {{error}}. Kontrollera URL:en och försök igen.",
+      "sales_channel_cart_not_empty": "Parkera eller töm den pågående försäljningen innan du byter försäljningskanal."
     },
     "store": {
       "title": "Butik",

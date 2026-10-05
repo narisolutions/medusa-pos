@@ -695,7 +695,8 @@
       "load_error": "No se ha encontrado configuración existente o ha fallado la carga",
       "saved": "Configuración guardada correctamente",
       "save_failed": "Error al guardar la configuración: {{error}}",
-      "cannot_reach_backend": "No se puede conectar con el backend: {{error}}. Comprueba la URL e inténtalo de nuevo."
+      "cannot_reach_backend": "No se puede conectar con el backend: {{error}}. Comprueba la URL e inténtalo de nuevo.",
+      "sales_channel_cart_not_empty": "Aparca o vacía la venta actual antes de cambiar el canal de venta."
     },
     "store": {
       "title": "Tienda",

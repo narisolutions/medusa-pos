@@ -695,7 +695,8 @@
       "load_error": "Aucune configuration existante trouvée ou échec du chargement",
       "saved": "Configuration enregistrée avec succès",
       "save_failed": "Échec de l’enregistrement de la configuration : {{error}}",
-      "cannot_reach_backend": "Impossible de joindre le backend : {{error}}. Vérifiez l’URL et réessayez."
+      "cannot_reach_backend": "Impossible de joindre le backend : {{error}}. Vérifiez l’URL et réessayez.",
+      "sales_channel_cart_not_empty": "Mettez en attente ou videz la vente en cours avant de changer de canal de vente."
     },
     "store": {
       "title": "Magasin",

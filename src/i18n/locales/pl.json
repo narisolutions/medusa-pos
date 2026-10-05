@@ -695,7 +695,8 @@
       "load_error": "Nie znaleziono konfiguracji lub ładowanie nie powiodło się",
       "saved": "Konfiguracja zapisana pomyślnie",
       "save_failed": "Nie udało się zapisać konfiguracji: {{error}}",
-      "cannot_reach_backend": "Nie można połączyć się z backendem: {{error}}. Sprawdź URL i spróbuj ponownie."
+      "cannot_reach_backend": "Nie można połączyć się z backendem: {{error}}. Sprawdź URL i spróbuj ponownie.",
+      "sales_channel_cart_not_empty": "Odłóż lub wyczyść bieżącą sprzedaż przed zmianą kanału sprzedaży."
     },
     "store": {
       "title": "Sklep",

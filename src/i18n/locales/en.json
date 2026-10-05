@@ -695,7 +695,8 @@
       "load_error": "No existing config found or failed to load",
       "saved": "Configuration saved successfully",
       "save_failed": "Failed to save configuration: {{error}}",
-      "cannot_reach_backend": "Cannot reach backend: {{error}}. Please check the URL and try again."
+      "cannot_reach_backend": "Cannot reach backend: {{error}}. Please check the URL and try again.",
+      "sales_channel_cart_not_empty": "Park or clear the current sale before changing the sales channel."
     },
     "store": {
       "title": "Store",
