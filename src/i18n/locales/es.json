@@ -220,7 +220,8 @@
     "park_name_label": "Nombre",
     "park_name_optional": "opcional",
     "products_load_failed": "No se pudieron cargar los productos.",
-    "products_load_failed_hint": "Suele ser la conexión. Se cargan de nuevo solos cuando el servidor vuelve a estar disponible."
+    "products_load_failed_hint": "Suele ser la conexión. Se cargan de nuevo solos cuando el servidor vuelve a estar disponible.",
+    "fulfillment_failed_order_created": "El pedido se creó, pero los artículos no se pudieron marcar como entregados: {{reason}}"
   },
   "orders": {
     "search_placeholder": "Buscar pedidos...",

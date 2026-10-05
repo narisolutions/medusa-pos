@@ -220,7 +220,8 @@
     "park_name_label": "Nom",
     "park_name_optional": "facultatif",
     "products_load_failed": "Impossible de charger les produits.",
-    "products_load_failed_hint": "C'est généralement la connexion. Ils se rechargent seuls dès que le serveur est joignable."
+    "products_load_failed_hint": "C'est généralement la connexion. Ils se rechargent seuls dès que le serveur est joignable.",
+    "fulfillment_failed_order_created": "La commande a été créée, mais les articles n'ont pas pu être marqués comme remis : {{reason}}"
   },
   "orders": {
     "search_placeholder": "Rechercher des commandes...",

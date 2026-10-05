@@ -132,6 +132,19 @@ export function movementTotals(session: RegisterSession): {
 }
 
 /**
+ * The session's own orders among those created since it opened. An order stamped with a
+ * register session belongs to that session only; an unstamped one (from before stamping
+ * existed) is attributed by its created_at window, which the caller's query already applied.
+ */
+export function ordersForSession(orders: AdminOrder[], session: RegisterSession): AdminOrder[] {
+  return orders.filter((order) => {
+    const stamped = (order.metadata as Record<string, unknown> | null | undefined)
+      ?.register_session_id;
+    return typeof stamped === "string" && stamped.length > 0 ? stamped === session.id : true;
+  });
+}
+
+/**
  * Expected drawer cash for a session:
  *   openingFloat + cash sales - cash refunds + pay-ins - drops
  */

@@ -1,10 +1,7 @@
 import { useCallback, useState } from "react";
 import { getSdk } from "@/config/medusa";
 import { queryClient, queryKeys } from "@/config/query";
-import { AdminOrder } from "@medusajs/types";
 import { toNumber } from "@/utils/pos/pricing";
-import { getApiErrorMessage } from "@/utils/helpers";
-import type { TFunction } from "i18next";
 import {
   findOpenChange,
   OrderChangeBlockedError,
@@ -16,23 +13,6 @@ import {
 const getOpenOrderChange = async (orderId: string) => {
   const { order_changes } = await getSdk().admin.order.listChanges(orderId);
   return findOpenChange(order_changes) ?? null;
-};
-
-/** What went wrong with an order change, in the cashier's words. */
-const describeChangeError = (
-  error: unknown,
-  order: AdminOrder,
-  t: TFunction
-): string => {
-  if (error instanceof OrderChangeBlockedError) return t("orders.post_sale.reason_open_change");
-  if (error instanceof OrderChangeError) {
-    return error.outcome.status === "stranded"
-      ? t("orders.post_sale.error_stranded", { id: order.display_id })
-      : t("orders.post_sale.error_rolled_back", {
-          error: getApiErrorMessage(error.outcome.error, t("common.error")),
-        });
-  }
-  return getApiErrorMessage(error, t("common.error"));
 };
 
 /**
@@ -71,4 +51,4 @@ const useOrderChange = (orderId: string) => {
   return { run, currentStep, isRunning: currentStep !== null };
 };
 
-export { useOrderChange, getOpenOrderChange, describeChangeError };
+export { useOrderChange };

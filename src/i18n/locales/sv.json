@@ -220,7 +220,8 @@
     "park_name_label": "Namn",
     "park_name_optional": "valfritt",
     "products_load_failed": "Det gick inte att läsa in produkterna.",
-    "products_load_failed_hint": "Oftast beror det på anslutningen. De läses in igen av sig själva när servern nås."
+    "products_load_failed_hint": "Oftast beror det på anslutningen. De läses in igen av sig själva när servern nås.",
+    "fulfillment_failed_order_created": "Ordern skapades, men varorna kunde inte markeras som överlämnade: {{reason}}"
   },
   "orders": {
     "search_placeholder": "Sök order...",

@@ -9,6 +9,7 @@ import {
   computeExpectedCash,
   orderCashContribution,
   needsSessionMovement,
+  ordersForSession,
 } from "@/utils/pos/register";
 
 const session = (over: Partial<RegisterSession> = {}): RegisterSession =>
@@ -223,5 +224,15 @@ describe("needsSessionMovement", () => {
     expect(
       needsSessionMovement({ created_at: "2026-07-31T18:00:00.000Z" }, session({ status: "closed" }))
     ).toBe(false);
+  });
+});
+
+describe("ordersForSession", () => {
+  const stamped = (id: string, sessionId?: string) =>
+    ({ id, metadata: sessionId ? { register_session_id: sessionId } : {} }) as unknown as AdminOrder;
+
+  it("keeps orders stamped with this session and unstamped ones, drops another session's", () => {
+    const orders = [stamped("a", "s1"), stamped("b", "s2"), stamped("c"), stamped("d", "")];
+    expect(ordersForSession(orders, session({ id: "s1" })).map((o) => o.id)).toEqual(["a", "c", "d"]);
   });
 });

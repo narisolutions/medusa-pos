@@ -1,5 +1,13 @@
 import { describe, it, expect } from "vitest";
-import { findOpenChange, runOrderChange, type OrderChangeStep } from "@/utils/pos/order-change";
+import type { TFunction } from "i18next";
+import {
+  describeChangeError,
+  findOpenChange,
+  OrderChangeBlockedError,
+  OrderChangeError,
+  runOrderChange,
+  type OrderChangeStep,
+} from "@/utils/pos/order-change";
 
 const boom = new Error("boom");
 
@@ -89,5 +97,37 @@ describe("findOpenChange", () => {
     expect(
       findOpenChange([{ status: "confirmed" }, { status: "canceled" }, { status: "declined" }, { status: null }])
     ).toBeUndefined();
+  });
+});
+
+describe("describeChangeError", () => {
+  // Echoes the key and its values, so each test sees which message was chosen.
+  const t = ((key: string, values?: Record<string, unknown>) =>
+    values ? `${key} ${JSON.stringify(values)}` : key) as unknown as TFunction;
+  const order = { display_id: 518 };
+
+  it("explains an order that already has an open change", () => {
+    expect(describeChangeError(new OrderChangeBlockedError("order_1", "return"), order, t)).toBe(
+      "orders.post_sale.reason_open_change"
+    );
+  });
+
+  it("names the order when a change is stranded and needs a person", () => {
+    const error = new OrderChangeError("order_1", {
+      status: "stranded",
+      failedStep: "confirmRequest",
+      error: boom,
+      undoError: boom,
+    });
+    expect(describeChangeError(error, order, t)).toBe('orders.post_sale.error_stranded {"id":518}');
+  });
+
+  it("passes the backend's reason through when a change rolled back", () => {
+    const error = new OrderChangeError("order_1", {
+      status: "rolled_back",
+      failedStep: "addReturnItem",
+      error: new Error("Item is not fulfilled"),
+    });
+    expect(describeChangeError(error, order, t)).toContain("Item is not fulfilled");
   });
 });

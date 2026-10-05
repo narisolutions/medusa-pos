@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import { useQuerySessionOrders } from "@/hooks/queries/useQuerySessionOrders";
 import { useQueryStore } from "@/hooks/queries/useQueryStore";
-import { computeExpectedCash } from "@/utils/pos/register";
+import { computeExpectedCash, ordersForSession } from "@/utils/pos/register";
 import type { RegisterSession } from "@/types/register";
 
 /**
@@ -15,13 +15,7 @@ export const useExpectedCash = (session: RegisterSession | null) => {
 
   const expectedCash = useMemo(() => {
     if (!session) return 0;
-    const relevant = (orders ?? []).filter((order) => {
-      const sid = (order.metadata as Record<string, unknown> | null | undefined)
-        ?.register_session_id;
-      if (typeof sid === "string" && sid.length > 0) return sid === session.id;
-      return true;
-    });
-    return computeExpectedCash(session, relevant, store);
+    return computeExpectedCash(session, ordersForSession(orders ?? [], session), store);
   }, [session, orders, store]);
 
   return { expectedCash, isLoading, orders: orders ?? [] };

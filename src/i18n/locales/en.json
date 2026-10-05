@@ -220,7 +220,8 @@
     "park_name_label": "Name",
     "park_name_optional": "optional",
     "products_load_failed": "Couldn't load the products.",
-    "products_load_failed_hint": "This is usually the connection. It loads again by itself when the server is reachable."
+    "products_load_failed_hint": "This is usually the connection. It loads again by itself when the server is reachable.",
+    "fulfillment_failed_order_created": "The order was created, but the items could not be marked as handed over: {{reason}}"
   },
   "orders": {
     "search_placeholder": "Search orders...",

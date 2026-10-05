@@ -2,6 +2,7 @@ import { useCallback } from "react";
 import { AdminOrder } from "@medusajs/types";
 import { getApiErrorMessage, handleErrorToast } from "@/utils/helpers";
 import { logger, safeStringify } from "@/utils/logger";
+import { useTranslation } from "@/i18n";
 import {
   processPaymentCollection,
   processFulfillment as fulfillOrder,
@@ -19,6 +20,8 @@ import {
  *   resolves false when the goods were not handed over.
  */
 const useOrderProcessing = () => {
+  const { t } = useTranslation();
+
   const processFulfillment = useCallback(
     async (order: AdminOrder): Promise<boolean> => {
       try {
@@ -27,12 +30,14 @@ const useOrderProcessing = () => {
       } catch (error) {
         void logger.error(`Fulfillment failed: ${safeStringify(error)}`);
         handleErrorToast(
-          `Fulfillment failed (${getApiErrorMessage(error, "Unknown")}), but order created`
+          t("checkout.fulfillment_failed_order_created", {
+            reason: getApiErrorMessage(error, t("common.error")),
+          })
         );
         return false;
       }
     },
-    []
+    [t]
   );
 
   return { processPaymentCollection, processFulfillment };

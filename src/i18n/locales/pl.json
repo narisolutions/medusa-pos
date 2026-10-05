@@ -220,7 +220,8 @@
     "park_name_label": "Nazwa",
     "park_name_optional": "opcjonalne",
     "products_load_failed": "Nie udało się wczytać produktów.",
-    "products_load_failed_hint": "Zwykle to problem z połączeniem. Wczytają się ponownie same, gdy serwer będzie osiągalny."
+    "products_load_failed_hint": "Zwykle to problem z połączeniem. Wczytają się ponownie same, gdy serwer będzie osiągalny.",
+    "fulfillment_failed_order_created": "Zamówienie zostało utworzone, ale nie udało się oznaczyć towarów jako wydanych: {{reason}}"
   },
   "orders": {
     "search_placeholder": "Szukaj zamówień...",

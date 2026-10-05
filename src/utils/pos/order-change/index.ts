@@ -1,3 +1,6 @@
+import type { TFunction } from "i18next";
+import { getApiErrorMessage } from "@/utils/helpers";
+
 /**
  * Runs a post-sale operation (charge, return, exchange) as one all-or-nothing
  * sequence of backend calls. See docs/post-sale/03-order-changes.md.
@@ -48,6 +51,23 @@ export class OrderChangeError extends Error {
     super(`Order change on ${orderId} ${outcome.status} at ${outcome.failedStep}`);
     this.name = "OrderChangeError";
   }
+}
+
+/** What went wrong with an order change, in the cashier's words. */
+export function describeChangeError(
+  error: unknown,
+  order: { display_id?: number | null },
+  t: TFunction
+): string {
+  if (error instanceof OrderChangeBlockedError) return t("orders.post_sale.reason_open_change");
+  if (error instanceof OrderChangeError) {
+    return error.outcome.status === "stranded"
+      ? t("orders.post_sale.error_stranded", { id: order.display_id })
+      : t("orders.post_sale.error_rolled_back", {
+          error: getApiErrorMessage(error.outcome.error, t("common.error")),
+        });
+  }
+  return getApiErrorMessage(error, t("common.error"));
 }
 
 export async function runOrderChange(
