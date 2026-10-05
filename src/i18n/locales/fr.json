@@ -852,7 +852,8 @@
     "downloading_progress": "Téléchargement de la mise à jour… {{pct}}%",
     "installing": "Installation de la mise à jour…",
     "failed_title": "Échec de la mise à jour",
-    "failed_description": "Échec de l’installation de la mise à jour."
+    "failed_description": "Échec de l’installation de la mise à jour.",
+    "finish_sale_first": "Terminez ou mettez en attente la vente en cours, puis installez la mise à jour."
   },
   "register": {
     "open": {

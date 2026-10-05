@@ -852,7 +852,8 @@
     "downloading_progress": "Laddar ner uppdatering… {{pct}}%",
     "installing": "Installerar uppdatering…",
     "failed_title": "Uppdateringen misslyckades",
-    "failed_description": "Det gick inte att installera uppdateringen."
+    "failed_description": "Det gick inte att installera uppdateringen.",
+    "finish_sale_first": "Slutför eller parkera den pågående försäljningen och installera sedan uppdateringen."
   },
   "register": {
     "open": {

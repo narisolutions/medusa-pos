@@ -852,7 +852,8 @@
     "downloading_progress": "Descargando actualización… {{pct}}%",
     "installing": "Instalando actualización…",
     "failed_title": "Error de actualización",
-    "failed_description": "No se ha podido instalar la actualización."
+    "failed_description": "No se ha podido instalar la actualización.",
+    "finish_sale_first": "Termina o aparca la venta actual y luego instala la actualización."
   },
   "register": {
     "open": {

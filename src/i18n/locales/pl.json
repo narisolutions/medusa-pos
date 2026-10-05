@@ -852,7 +852,8 @@
     "downloading_progress": "Pobieranie aktualizacji… {{pct}}%",
     "installing": "Instalowanie...",
     "failed_title": "Aktualizacja nie powiodła się",
-    "failed_description": "Nie udało się zainstalować aktualizacji."
+    "failed_description": "Nie udało się zainstalować aktualizacji.",
+    "finish_sale_first": "Zakończ lub odłóż bieżącą sprzedaż, a następnie zainstaluj aktualizację."
   },
   "register": {
     "open": {

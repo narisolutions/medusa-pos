@@ -852,7 +852,8 @@
     "downloading_progress": "Update wird heruntergeladen… {{pct}}%",
     "installing": "Update wird installiert…",
     "failed_title": "Update fehlgeschlagen",
-    "failed_description": "Update konnte nicht installiert werden."
+    "failed_description": "Update konnte nicht installiert werden.",
+    "finish_sale_first": "Schließen Sie den aktuellen Verkauf ab oder parken Sie ihn, dann installieren Sie das Update."
   },
   "register": {
     "open": {

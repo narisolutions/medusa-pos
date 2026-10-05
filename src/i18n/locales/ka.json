@@ -852,7 +852,8 @@
     "downloading_progress": "განახლება იტვირთება… {{pct}}%",
     "installing": "ინსტალდება...",
     "failed_title": "განახლება ვერ მოხერხდა",
-    "failed_description": "შეცდომა განახლებისას"
+    "failed_description": "შეცდომა განახლებისას",
+    "finish_sale_first": "დაასრულეთ ან გადადეთ მიმდინარე გაყიდვა, შემდეგ დააინსტალირეთ განახლება."
   },
   "register": {
     "open": {

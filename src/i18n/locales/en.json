@@ -852,7 +852,8 @@
     "downloading_progress": "Downloading update… {{pct}}%",
     "installing": "Installing update…",
     "failed_title": "Update failed",
-    "failed_description": "Failed to install the update."
+    "failed_description": "Failed to install the update.",
+    "finish_sale_first": "Finish or park the current sale, then install the update."
   },
   "register": {
     "open": {
