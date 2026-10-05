@@ -1,4 +1,5 @@
 import { ORDER_DETAIL_FIELDS } from "@/hooks/queries/useQueryOrder";
+import { metadataUpdate } from "@/utils/pos/draft-order/sync";
 import { logger, safeStringify } from "@/utils/logger";
 import { t } from "@/i18n";
 import { useState, useCallback, useEffect, useMemo, useRef } from "react";
@@ -25,7 +26,8 @@ import {
   printerIssueStaffHintToast,
 } from "@/utils/helpers";
 
-// UI-only keys that must not outlive the draft. payment_method is the cashier's
+// UI-only keys that must not outlive the draft (sent as "" via metadataUpdate: Medusa merges
+// metadata, so a key merely left out survives). payment_method is the cashier's
 // selection for resuming a parked sale; the provider that actually settles the order
 // is recorded on the payment session, so it has no place in order history.
 const DRAFT_ONLY_METADATA_KEYS = ["payment_method"] as const;
@@ -427,7 +429,7 @@ const usePaymentModal = (
         );
         if (stripped || Object.keys(metadataPatch).length > 0) {
           await sdk.admin.draftOrder.update(draftOrderId!, {
-            metadata: { ...cleanedMetadata, ...metadataPatch },
+            metadata: metadataUpdate(preConvert.metadata, { ...cleanedMetadata, ...metadataPatch }),
           });
         }
 
@@ -590,11 +592,11 @@ const usePaymentModal = (
           unknown
         >;
         await sdk.admin.draftOrder.update(draftOrderId, {
-          metadata: {
+          metadata: metadataUpdate(currentMetadata, {
             ...stripDraftOnlyKeys(currentMetadata).metadata,
             pay_later: true,
             ...(registerSessionId ? { register_session_id: registerSessionId } : {}),
-          },
+          }),
         });
 
         // Step 2: Convert draft → order, then clear the id immediately.
