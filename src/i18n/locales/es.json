@@ -226,6 +226,8 @@
     "search_placeholder": "Buscar pedidos...",
     "loading": "Cargando...",
     "empty_state": "No se han encontrado pedidos",
+    "load_failed": "No se pudieron cargar los pedidos.",
+    "load_failed_hint": "Suele ser la conexión. Se cargan de nuevo solos cuando el servidor vuelve a estar disponible.",
     "active_filter": "Filtro activo:",
     "filter_search_prefix": "Buscar: ",
     "fulfillment_label": "Cumplimiento:",

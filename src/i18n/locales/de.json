@@ -226,6 +226,8 @@
     "search_placeholder": "Bestellungen suchen...",
     "loading": "Wird geladen...",
     "empty_state": "Keine Bestellungen gefunden",
+    "load_failed": "Die Bestellungen konnten nicht geladen werden.",
+    "load_failed_hint": "Meist liegt es an der Verbindung. Sie werden automatisch neu geladen, sobald der Server erreichbar ist.",
     "active_filter": "Aktiver Filter:",
     "filter_search_prefix": "Suche: ",
     "fulfillment_label": "Fulfillment:",

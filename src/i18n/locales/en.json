@@ -226,6 +226,8 @@
     "search_placeholder": "Search orders...",
     "loading": "Loading...",
     "empty_state": "No orders found",
+    "load_failed": "Couldn't load the orders.",
+    "load_failed_hint": "This is usually the connection. They load again by themselves when the server is reachable.",
     "active_filter": "Active filter:",
     "filter_search_prefix": "Search: ",
     "fulfillment_label": "Fulfillment:",

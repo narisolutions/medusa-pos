@@ -226,6 +226,8 @@
     "search_placeholder": "Rechercher des commandes...",
     "loading": "Chargement...",
     "empty_state": "Aucune commande trouvée",
+    "load_failed": "Impossible de charger les commandes.",
+    "load_failed_hint": "C'est généralement la connexion. Elles se rechargent seules dès que le serveur est joignable.",
     "active_filter": "Filtre actif :",
     "filter_search_prefix": "Recherche : ",
     "fulfillment_label": "Traitement :",

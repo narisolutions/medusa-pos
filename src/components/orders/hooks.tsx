@@ -218,7 +218,7 @@ const useOrdersWithData = () => {
   // value just hydrated from storage (which would echo a redundant write).
   const userChangedFilters = useRef(false);
 
-  const { data, isLoading, refetch, isFetching } = useQueryOrders({
+  const { data, isLoading, isError, refetch, isFetching } = useQueryOrders({
     // Load a sufficiently large page so filtering & pagination can be handled on the client
     limit: 500,
     offset: 0,
@@ -271,6 +271,8 @@ const useOrdersWithData = () => {
   return {
     data: orders,
     isLoading,
+    // Only when nothing loaded: a failed refresh keeps the last good list on screen.
+    loadFailed: isError && !data,
     filters,
     debouncedFilters,
     columns,

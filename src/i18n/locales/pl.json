@@ -226,6 +226,8 @@
     "search_placeholder": "Szukaj zamówień...",
     "loading": "Ładowanie...",
     "empty_state": "Nie znaleziono zamówień",
+    "load_failed": "Nie udało się wczytać zamówień.",
+    "load_failed_hint": "Zwykle to problem z połączeniem. Wczytają się ponownie same, gdy serwer będzie osiągalny.",
     "active_filter": "Aktywny filtr:",
     "filter_search_prefix": "Szukaj: ",
     "fulfillment_label": "Realizacja:",

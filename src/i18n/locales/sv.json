@@ -226,6 +226,8 @@
     "search_placeholder": "Sök order...",
     "loading": "Laddar...",
     "empty_state": "Inga order hittades",
+    "load_failed": "Det gick inte att läsa in ordrarna.",
+    "load_failed_hint": "Oftast beror det på anslutningen. De läses in igen av sig själva när servern nås.",
     "active_filter": "Aktivt filter:",
     "filter_search_prefix": "Sök: ",
     "fulfillment_label": "Leveransstatus:",
