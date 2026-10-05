@@ -10,13 +10,17 @@ export const STALE_TIME = {
 
 export const queryClient = new QueryClient({
     defaultOptions: {
+        // "always": a till offline must hear "can't reach the server", not wait on a request
+        // React Query paused because the browser reports no network.
         queries: {
             gcTime: 1000 * 60 * 30,
             staleTime: STALE_TIME.standard,
             retry: false,
+            networkMode: "always",
         },
         mutations: {
             retry: false,
+            networkMode: "always",
         },
     },
 });
@@ -36,7 +40,8 @@ export const queryKeys = {
   products: {
     all: ["products"] as const,
     list: (salesChannelId?: string) => ["products", salesChannelId] as const,
-    byBarcode: (barcode: string) => ["product-by-barcode", barcode] as const,
+    byBarcode: (salesChannelId: string, barcode: string) =>
+      ["product-by-barcode", salesChannelId, barcode] as const,
   },
   orders: {
     all: ["orders"] as const,

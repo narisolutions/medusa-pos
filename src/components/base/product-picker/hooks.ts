@@ -10,7 +10,7 @@ import { playErrorSound, playSuccessSound } from "@/utils/sounds";
 import { queryClient, queryKeys } from "@/config/query";
 import { AdminProduct, AdminProductVariant } from "@medusajs/types";
 import constants from "@/utils/constants";
-import { fetchProductByBarcode } from "@/hooks/queries/useQueryProductByBarcode";
+import { fetchProductByBarcode } from "@/utils/pos/barcode";
 import { ExtendedAdminProduct } from "@/types/utils";
 import { useSalesChannel } from "@/context/sales-channel";
 
@@ -147,10 +147,12 @@ const useProductPicker = ({ products = [], inputRef, onSelect }: Props) => {
       try {
         updateFilterState({ isProcessing: true });
 
-        let productVariant = null;
-        productVariant = await queryClient.fetchQuery({
-          queryKey: queryKeys.products.byBarcode(barcode),
-          queryFn: () => fetchProductByBarcode(barcode),
+        const productVariant = await queryClient.fetchQuery({
+          queryKey: queryKeys.products.byBarcode(salesChannelId, barcode),
+          queryFn: () => fetchProductByBarcode(barcode, salesChannelId),
+          // Every scan reads live price and stock; a repeat scan of a line in the cart
+          // only bumps its quantity, so nothing is gained by caching.
+          staleTime: 0,
         });
 
         if (!productVariant) {
@@ -168,7 +170,7 @@ const useProductPicker = ({ products = [], inputRef, onSelect }: Props) => {
           filterValue: "",
         });
       } catch (error) {
-        handleErrorToast(error);
+        handleErrorToast(error, { posEndpointError: true });
         playErrorSound();
       } finally {
         updateFilterState({ isProcessing: false });
