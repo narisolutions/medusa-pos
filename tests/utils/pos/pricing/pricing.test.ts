@@ -3,7 +3,6 @@ import {
   toNumber,
   discountPerUnit,
   applyDiscountToUnitPrice,
-  orderDiscountAmount,
 } from "@/utils/pos/pricing";
 
 describe("toNumber", () => {
@@ -66,27 +65,5 @@ describe("applyDiscountToUnitPrice", () => {
   it("never returns a negative price", () => {
     expect(applyDiscountToUnitPrice({ type: "amount", value: 999 }, 10)).toBe(0);
     expect(applyDiscountToUnitPrice({ type: "percent", value: 300 }, 10)).toBe(0);
-  });
-});
-
-describe("orderDiscountAmount", () => {
-  it("returns zero without a usable discount", () => {
-    expect(orderDiscountAmount(undefined, 100)).toBe(0);
-    expect(orderDiscountAmount({ type: "amount", value: 0 }, 100)).toBe(0);
-  });
-
-  it("computes a percentage of the running total", () => {
-    expect(orderDiscountAmount({ type: "percent", value: 10 }, 250)).toBe(25);
-  });
-
-  it("clamps a fixed discount to the total", () => {
-    expect(orderDiscountAmount({ type: "amount", value: 40 }, 100)).toBe(40);
-    expect(orderDiscountAmount({ type: "amount", value: 400 }, 100)).toBe(100);
-  });
-
-  // Percent is deliberately unclamped — a >100% order discount is a data error
-  // upstream, and silently clamping it would hide that from the operator.
-  it("does not clamp percentage discounts above the total", () => {
-    expect(orderDiscountAmount({ type: "percent", value: 150 }, 100)).toBe(150);
   });
 });

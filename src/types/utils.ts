@@ -138,7 +138,6 @@ interface AppConfig {
 
 interface DraftOrderMetadata extends Record<string, unknown> {
   payment_method?: PaymentMethod;
-  order_discount?: OrderDiscount;
   order_comment?: string;
   /** Operator-chosen name for a parked sale ("Table 4") — a label, not a status flag. */
   park_label?: string;
@@ -158,7 +157,6 @@ type AddItemResult = {
 interface DiscountBreakdown {
   backendDiscount: number;
   itemDiscounts: number;
-  orderDiscount: number;
   total: number;
 }
 

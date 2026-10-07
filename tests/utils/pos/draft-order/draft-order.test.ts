@@ -131,7 +131,7 @@ describe("sanitizeDraftOrderMetadata", () => {
 
   it("drops empty POS-owned values when writing", () => {
     const result = sanitizeDraftOrderMetadata(
-      { order_comment: "   ", order_discount: null, park_label: "" },
+      { order_comment: "   ", park_label: "" },
       { removeEmpty: true }
     );
 
@@ -153,7 +153,6 @@ describe("sanitizeDraftOrderMetadata", () => {
   it("fills defaults when reading", () => {
     const result = sanitizeDraftOrderMetadata({});
 
-    expect(result.order_discount).toBeNull();
     expect(result.order_comment).toBe("");
     expect(result).not.toHaveProperty("park_label");
   });

@@ -1,6 +1,5 @@
 import { StateCreator } from "zustand";
 import { CartItem, DiscountBreakdown, DraftOrderMetadata } from "@/types/utils";
-import { orderDiscountAmount } from "@/utils/pos/pricing";
 
 export interface CartCalculationsSlice {
   getTotalItems: () => number;
@@ -54,21 +53,18 @@ export const createCartCalculationsSlice: StateCreator<
   },
 
   getTotalAfterDiscount: () => {
-    const { items, metadata } = get();
+    const { items } = get();
     
-    // Sum of items (unit_price already includes manual item discounts)
-    let total = items.reduce((sum, item) => {
+    // unit_price already includes manual item discounts.
+    const total = items.reduce((sum, item) => {
       return sum + (item.unit_price || 0) * item.quantity;
     }, 0);
-
-    // Apply order-level discount
-    total -= orderDiscountAmount(metadata.order_discount, total);
 
     return Math.max(0, total);
   },
 
   getDiscountBreakdown: () => {
-    const { items, metadata } = get();
+    const { items } = get();
     
     // 1. Backend discounts (from price lists)
     const backendDiscount = items.reduce((sum, item) => {
@@ -96,23 +92,15 @@ export const createCartCalculationsSlice: StateCreator<
       return sum + (discountPerUnit * item.quantity);
     }, 0);
 
-    // 3. Manual order-level discount (applied on the current total, which
-    // already includes item discounts in unit_price)
-    const currentTotal = items.reduce((sum, item) => {
-      return sum + (item.unit_price || 0) * item.quantity;
-    }, 0);
-    const orderDiscount = orderDiscountAmount(metadata.order_discount, currentTotal);
-
     return {
       backendDiscount,
       itemDiscounts,
-      orderDiscount,
-      total: backendDiscount + itemDiscounts + orderDiscount,
+      total: backendDiscount + itemDiscounts,
     };
   },
 
   getManualDiscountAmount: () => {
     const breakdown = get().getDiscountBreakdown();
-    return breakdown.itemDiscounts + breakdown.orderDiscount;
+    return breakdown.itemDiscounts;
   },
 });

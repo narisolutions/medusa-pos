@@ -21,7 +21,6 @@ import { ArrowLeftRight } from "lucide-react";
 import {
   CartItem,
   DraftOrderMetadata,
-  OrderDiscount,
   PaymentMethod,
 } from "@/types/utils";
 import {
@@ -72,8 +71,6 @@ type CheckoutContextValue = {
   draftOrderMetaData: DraftOrderMetadata;
   orderComment: string;
   setOrderComment: (comment: string) => void;
-  orderDiscount: OrderDiscount | null;
-  setOrderDiscount: (discount: OrderDiscount | null) => void;
   paymentMethods: PaymentMethodOption[];
   selectedPaymentMethod: PaymentMethod;
   setPaymentMethod: (method: PaymentMethod) => void;
@@ -232,13 +229,6 @@ const useProvideCheckout = (): CheckoutContextValue => {
     [updateMetadata]
   );
 
-  const setOrderDiscount = useCallback(
-    (discount: OrderDiscount | null) => {
-      updateMetadata({ order_discount: discount });
-    },
-    [updateMetadata]
-  );
-
   const setPaymentMethod = useCallback(
     (method: PaymentMethod) => {
       updateMetadata({ payment_method: method });
@@ -317,8 +307,6 @@ const useProvideCheckout = (): CheckoutContextValue => {
       draftOrderMetaData: metadata,
       orderComment: metadata.order_comment || "",
       setOrderComment,
-      orderDiscount: metadata.order_discount || null,
-      setOrderDiscount,
       paymentMethods: paymentMethodOptions,
       selectedPaymentMethod: metadata.payment_method as PaymentMethod,
       setPaymentMethod,
@@ -347,7 +335,6 @@ const useProvideCheckout = (): CheckoutContextValue => {
       items,
       selectedItemId,
       setOrderComment,
-      setOrderDiscount,
       setPaymentMethod,
       setSelectedItemId,
       setItemMetadata,

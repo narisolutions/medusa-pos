@@ -2,7 +2,7 @@ import { logger, safeStringify } from "@/utils/logger";
 import { useState, useEffect, useCallback } from "react";
 import { AdminOrder } from "@medusajs/types";
 import { buildReceipt, buildReceiptPDF, ReceiptData, DEFAULT_RECEIPT_LABELS } from "@/utils/pos/receipt";
-import { discountPerUnit, orderDiscountAmount } from "@/utils/pos/pricing";
+import { discountPerUnit } from "@/utils/pos/pricing";
 import { useTranslation } from "@/i18n";
 import { toast } from "sonner";
 import storage from "@/utils/storage";
@@ -173,16 +173,6 @@ const usePrinterService = () => {
       0
     );
 
-    // Add order-level discount from metadata
-    const orderMeta = order.metadata as
-      | { order_discount?: { type: "amount" | "percent"; value: number } }
-      | null
-      | undefined;
-    const orderLevelDiscount = orderDiscountAmount(
-      orderMeta?.order_discount,
-      (order.subtotal || 0) - itemDiscountsTotal
-    );
-
     const subtotal = order.subtotal || 0;
     const tax = order.tax_total || 0;
     // Sale value, not order.total — a refund credit line drives that to 0.
@@ -197,7 +187,7 @@ const usePrinterService = () => {
           0
         )
       : getOrderSaleTotal(order);
-    const discount = (order.discount_total || 0) + itemDiscountsTotal + orderLevelDiscount;
+    const discount = (order.discount_total || 0) + itemDiscountsTotal;
     const cashPaid: number = typeof order.metadata?.cash_paid === "number"
       ? order.metadata.cash_paid
       : 0;

@@ -104,14 +104,12 @@ Related, ✅ fixed: `getMethodType` now infers from `icon` for `transfer` as wel
 
 `PrintOp::Text` carries bold, alignment and size only. Cosmetic, test page only, but a visible change to anyone who knows that page.
 
-### 3.6 An order-level discount would not reach the ticket — not reachable today
+### ~~3.6 An order-level discount would not reach the ticket~~ — removed
 
-`priceMinor` is each line's unit price ([handoff/index.ts](../src/utils/pos/handoff/index.ts)), so
-item discounts travel correctly. An **order-level** discount lives only in the order's metadata
-(`order_discount`) and is not spread over the lines — but checked 2026-10-07, **no screen sets
-one**: the discount dialog writes item discounts only, and `setOrderDiscount` has no caller. If an
-order-level discount is ever added, it must be spread across the lines (earliest-first remainder),
-and reach Medusa's totals too — today the payment charges the draft's total, which ignores it.
+✅ No screen ever set an order-level discount, so the unreachable code behind it was removed
+(2026-10-07): `setOrderDiscount`, `order_discount` metadata handling and the receipt/summary lines.
+If order-level discounts are ever wanted, build them so they reach Medusa's totals (promotions, or
+spread over the line prices) — and therefore the ticket's per-line `priceMinor` too.
 
 ### ~~3.7 Minor units assume two decimals~~ — fixed
 

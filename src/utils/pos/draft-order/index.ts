@@ -1,15 +1,12 @@
 import { AdminDraftOrder, AdminProduct } from "@medusajs/types";
-import { CartItem, DraftOrderMetadata, OrderDiscount, PaymentMethod } from "@/types/utils";
-import { isEmpty } from "@/utils/helpers";
+import { CartItem, DraftOrderMetadata, PaymentMethod } from "@/types/utils";
 
 const DEFAULT_DRAFT_ORDER_METADATA: DraftOrderMetadata = {
-  order_discount: null,
   order_comment: "",
 };
 
 /** Order-level metadata keys the POS owns and normalizes. Anything else is passed through. */
 const POS_OWNED_METADATA_KEYS = [
-  "order_discount",
   "order_comment",
   "park_label",
   "payment_method",
@@ -32,7 +29,6 @@ const sanitizeDraftOrderMetadata = (
   metadata: Record<string, unknown> | null | undefined,
   { removeEmpty = false, preserve }: SanitizeOptions = {}
 ): DraftOrderMetadata => {
-  const orderDiscount = metadata?.order_discount as OrderDiscount | undefined;
   const orderComment = metadata?.order_comment;
   const parkLabel = metadata?.park_label;
   const paymentMethod = metadata?.payment_method;
@@ -46,10 +42,6 @@ const sanitizeDraftOrderMetadata = (
 
   if (removeEmpty) {
     const sanitized: Record<string, unknown> = { ...passthrough };
-
-    if (!isEmpty(orderDiscount)) {
-      sanitized.order_discount = orderDiscount;
-    }
 
     if (typeof orderComment === "string" && orderComment.trim() !== "") {
       sanitized.order_comment = orderComment;
@@ -71,10 +63,6 @@ const sanitizeDraftOrderMetadata = (
 
   const normalized: Record<string, unknown> = {
     ...passthrough,
-    order_discount:
-      typeof orderDiscount === "object" || orderDiscount === null
-        ? (orderDiscount as OrderDiscount | null)
-        : DEFAULT_DRAFT_ORDER_METADATA.order_discount,
     order_comment:
       typeof orderComment === "string"
         ? orderComment

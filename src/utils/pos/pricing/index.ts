@@ -44,15 +44,5 @@ const applyDiscountToUnitPrice = (
   return Math.max(0, baseUnitPrice - discountPerUnit(discount, baseUnitPrice));
 };
 
-/** Order-level discount amount against the current total (post item discounts). */
-const orderDiscountAmount = (
-  discount: OrderDiscount | undefined,
-  currentTotal: number
-): number => {
-  if (!discount || !discount.value) return 0;
-  return discount.type === "percent"
-    ? (currentTotal * discount.value) / 100
-    : Math.min(discount.value, currentTotal);
-};
 
-export { toNumber, discountPerUnit, applyDiscountToUnitPrice, orderDiscountAmount };
+export { toNumber, discountPerUnit, applyDiscountToUnitPrice };
