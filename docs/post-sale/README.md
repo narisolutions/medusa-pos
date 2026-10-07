@@ -4,7 +4,7 @@ Handle what happens to a sale **after** it is paid: goods coming back, goods swa
 and extra items added to an order that already exists.
 
 Refunds already shipped in v0.5.0 and are not covered here — this set of documents
-covers the three post-sale operations that do not exist yet, and reuses refunds as the
+covers the three post-sale operations built on top of them, and reuses refunds as the
 way money goes back to a customer.
 
 ## Why it exists
@@ -59,7 +59,7 @@ See [Stock](./05-stock.md) and [Money](./04-money.md).
 
 ## Status
 
-**Specified, not built.** The backend behaviours the Medusa documentation does not state
-were verified against staging on 2026-09-30; the answers are in the
-[implementation plan](./09-implementation-plan.md#spike-results--2026-09-30) and the concept
-docs are corrected to match. Phase 1 can begin.
+**Built — released in v0.7.0.** Returns, exchanges and added items work from the order page,
+with slips printed for each. The backend behaviours the Medusa documentation does not state were
+verified against staging on 2026-09-30; the answers are in the
+[implementation plan](./09-implementation-plan.md#spike-results--2026-09-30).

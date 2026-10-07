@@ -131,10 +131,11 @@ We're actively building out Medusa POS into a full-featured retail system. Here'
 - **Manual card transactions** *(released)* — Accept card payments through any external terminal and record the method used against the order, no payment provider integration required.
 - **Draft orders & parked sales** *(released)* — A dedicated Parked sales tab lets staff park an in-progress sale and pick it up later, from any till. Stock is **not** held while a sale is parked; availability is re-checked on resume and the operator is told what changed. Holding stock is planned.
 - **Refunds & partial refunds** *(released)* — Full or partial refunds against a captured payment from the order page, with a reason recorded against the refund and the drawer opened for cash.
-- **Exchanges & additional charges** — Complete the post-sale lifecycle from the order page: product exchanges and additional charges, with a full audit trail.
+- **Returns, exchanges & additional charges** *(released)* — Complete the post-sale lifecycle from the order page: take goods back (restocked or written off as damaged), swap them for other products, or add items to an existing order, with a printed slip and a full activity trail.
+- **Catalog browsing** *(released)* — Browse the catalog from the checkout by category, as cards or a list, alongside search and barcode scanning.
 - **Quotations** — Create and send formal quotations to customers directly from the POS, useful for large or made-to-order purchases.
 - **Accounting & Z-Reports (v2)** *(coming soon)* — End-of-day Z-Reports across all payment methods, built on top of v1's closed register sessions, with history and PDF/CSV export.
-- **Role management (v2)** *(coming soon)* — Roles defined and enforced by the Medusa backend, replacing v1's interim local manager PIN for sensitive actions.
+- **Role management** — Roles defined and enforced by the Medusa backend, once Medusa supports them; the POS adds no role system of its own.
 
 ## Useful Links
 
