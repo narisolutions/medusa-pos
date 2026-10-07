@@ -8,6 +8,7 @@ import {
 import { toNumber } from "@/utils/pos/pricing";
 import { formatCurrencyRaw, formatDateOnly, formatTimeOnly } from "@/utils/settings/preferences";
 import { getOrderCurrency } from "@/utils/helpers";
+import { handoffItemName } from ".";
 
 export type HandoffTicketLabels = {
   title: string;
@@ -52,7 +53,7 @@ export function buildHandoffTicketText(
   }
 
   const items = (order.items ?? []).map((item) => ({
-    title: item.title ?? "",
+    title: handoffItemName(item),
     qty: toNumber(item.quantity),
     unitPrice: toNumber(item.unit_price),
     total: toNumber(item.unit_price) * toNumber(item.quantity),

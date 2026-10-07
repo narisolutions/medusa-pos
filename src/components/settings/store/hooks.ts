@@ -8,7 +8,6 @@ import { useQueryStore, useUpdateStore } from "@/hooks/queries/useQueryStore";
 import { useStore } from "@/context/store";
 import {
   getStoreMetadata,
-  getTransferCounterparty,
   DEFAULT_PAYMENT_METHODS,
   buildStoreMetadataPayload,
 } from "@/utils/settings/store/metadata";
@@ -88,6 +87,7 @@ const useStoreSettings = ({ form }: Props): UseStoreSettingsReturn => {
       paymentMethods:
         meta.payment_methods?.length ? meta.payment_methods : DEFAULT_PAYMENT_METHODS,
       guestCustomerEmail: meta.guest_customer_email ?? "",
+      transferCounterparty: meta.transfer_counterparty ?? "",
     });
   }, [store, reset]);
 
@@ -106,8 +106,7 @@ const useStoreSettings = ({ form }: Props): UseStoreSettingsReturn => {
         store_phone: data.storePhone,
         payment_methods: data.paymentMethods ?? undefined,
         guest_customer_email: data.guestCustomerEmail || undefined,
-        // No UI for this yet; carry it through so a save doesn't drop it.
-        transfer_counterparty: getTransferCounterparty(store),
+        transfer_counterparty: data.transferCounterparty?.trim() || undefined,
       };
       await updateStore({
         storeId: store.id,

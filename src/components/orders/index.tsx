@@ -20,7 +20,9 @@ import {
 import { useOrdersWithData } from "./hooks";
 import Header from "./table-header";
 import Footer from "./table-footer";
+import { Button } from "@/components/ui/button";
 import { useTranslation } from "@/i18n";
+import { ROUTES } from "@/router/routes";
 
 const Orders: React.FC = () => {
   const navigate = useNavigate();
@@ -28,6 +30,7 @@ const Orders: React.FC = () => {
   const {
     data: orders,
     isLoading,
+    loadFailed,
     filters,
     debouncedFilters,
     columns,
@@ -112,7 +115,7 @@ const Orders: React.FC = () => {
   }, [debouncedFilters]);
 
   const handleRowClick = (orderId: string) => {
-    navigate(`/orders/${orderId}`);
+    navigate(ROUTES.order(orderId));
   };
 
   return (
@@ -188,6 +191,14 @@ const Orders: React.FC = () => {
                       <div className="flex items-center justify-center gap-3">
                         <div className="w-5 h-5 border-2 border-theme-border border-t-theme-border-strong rounded-full animate-spin"></div>
                         <span className="text-base">{t("orders.loading")}</span>
+                      </div>
+                    ) : loadFailed ? (
+                      <div className="flex flex-col items-center justify-center gap-4">
+                        <p className="text-lg font-medium text-fg">{t("orders.load_failed")}</p>
+                        <p className="text-base text-fg-muted">{t("orders.load_failed_hint")}</p>
+                        <Button onClick={() => void refetch()} className="h-12 px-8">
+                          {t("common.retry")}
+                        </Button>
                       </div>
                     ) : (
                       <span className="text-base">{t("orders.empty_state")}</span>

@@ -1,4 +1,6 @@
 @import "tailwindcss";
+/* Mounted plugins are gitignored, which Tailwind skips; only a pattern naming each mount gets past that. */
+@source "./plugins/*";
 
 @custom-variant dark (&:where(.dark, .dark *));
 

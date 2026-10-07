@@ -1,3 +1,4 @@
+import { t as translate } from "@/i18n";
 import { AdminOrder, AdminStore } from "@medusajs/types";
 import {
   getPaymentMethodsForSettings,
@@ -5,6 +6,8 @@ import {
   type PaymentMethodType,
 } from "@/utils/settings/store/metadata";
 import { toNumber } from "@/utils/pos/pricing";
+
+const SYSTEM_DEFAULT_PROVIDER = "pp_system_default";
 
 /**
  * Returns an order's payment provider_id: payments[0] → payment_sessions[0].
@@ -39,15 +42,25 @@ export function getOrderPaymentMethodLabel(
   order: AdminOrder,
   store: AdminStore | null | undefined
 ): string {
-  const providerId = getOrderPaymentProviderId(order);
+  return getPaymentMethodLabel(store, getOrderPaymentProviderId(order));
+}
+
+/** The configured label for a provider id, e.g. "Cash"; the id itself when unconfigured. */
+export function getPaymentMethodLabel(
+  store: AdminStore | null | undefined,
+  providerId: string | null | undefined
+): string {
   if (!providerId) return "";
 
   const configuredMethods = getPaymentMethodsForSettings(store);
-  return (
-    configuredMethods.find(
-      (m) => m.id?.toLowerCase() === providerId.toLowerCase()
-    )?.label ?? providerId
-  );
+  const configured = configuredMethods.find(
+    (m) => m.id?.toLowerCase() === providerId.toLowerCase()
+  )?.label;
+  if (configured) return configured;
+
+  // Medusa's own fallback for payments marked paid outside a provider; "pp_system_default" means nothing to staff.
+  if (providerId.toLowerCase() === SYSTEM_DEFAULT_PROVIDER) return translate("orders.payment_other");
+  return providerId;
 }
 
 /**
@@ -130,4 +143,50 @@ export function getOrderRefundedTotal(order: AdminOrder): number {
 export function getOrderSaleTotal(order: AdminOrder): number {
   const original = toNumber(order.summary?.original_order_total);
   return original > 0 ? original : toNumber(order.total);
+}
+
+/**
+ * Splits a refund across payments, largest first so it takes as few refund
+ * calls as possible — one refund can never exceed one payment's captured
+ * amount. Null when the payments cannot cover it.
+ */
+export function allocateRefund(
+  payments: RefundablePayment[],
+  amount: number
+): { id: string; amount: number }[] | null {
+  let remaining = Math.round(amount * 100);
+  const allocation: { id: string; amount: number }[] = [];
+
+  for (const payment of [...payments].sort((a, b) => b.refundable - a.refundable)) {
+    if (remaining <= 0) break;
+    const take = Math.min(remaining, Math.round(payment.refundable * 100));
+    if (take <= 0) continue;
+    allocation.push({ id: payment.id, amount: take / 100 });
+    remaining -= take;
+  }
+
+  return remaining > 0 ? null : allocation;
+}
+
+const cents = (amount: number) => Math.round(amount * 100);
+
+/** Payments that can each give back the whole amount alone — no split needed. */
+export function paymentsCovering(
+  payments: RefundablePayment[],
+  amount: number
+): RefundablePayment[] {
+  return payments.filter((p) => cents(p.refundable) >= cents(amount));
+}
+
+/**
+ * Which covering payment to suggest: the one for exactly this amount (most
+ * likely what paid for the goods coming back), else the most recent.
+ */
+export function defaultRefundPayment(
+  covering: RefundablePayment[],
+  amount: number
+): RefundablePayment | undefined {
+  return (
+    covering.find((p) => cents(p.refundable) === cents(amount)) ?? covering[covering.length - 1]
+  );
 }

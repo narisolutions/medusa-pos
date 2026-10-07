@@ -37,7 +37,8 @@ type ReturnLine = {
   variant can appear on an order more than once at different prices, and the refund
   value is the price that line was actually sold at.
 - **`quantity`** is capped at what has not already been returned. A line of 6 with 2
-  already returned has 4 returnable — never 6.
+  already returned has 4 returnable — never 6. The POS enforces this itself: the backend
+  only subtracts returns still *requested*, not ones already received (spike S8).
 - **`condition`** is the most important field in this model and has **no default**.
   `restock` puts the goods back on the shelf; `damaged` records them as returned but
   never makes them sellable. The operator must choose, because the wrong answer either
@@ -97,7 +98,4 @@ negative amount means goods came back and the customer was never refunded.
 > charge → **order edit** restricted to `ITEM_ADD` actions; outstanding amount →
 > `order.summary.pending_difference`.
 >
-> **Verify in spike:** the sign convention of `pending_difference`. Medusa's types carry
-> no docstring for it and the documentation does not state it. The convention above —
-> positive means the customer owes — is the assumption to confirm, and every settlement
-> branch depends on it being right.
+> **Verified in spike (S1):** positive means the customer owes, as assumed above.

@@ -29,7 +29,11 @@ const RecordPaymentDialog: React.FC<Props> = ({ isOpen, onClose, order }) => {
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && !isProcessing && onClose()}>
-      <DialogContent className="max-w-md">
+      <DialogContent
+        className="max-w-md"
+        preventOutsideClose={isProcessing}
+        showCloseButton={!isProcessing}
+      >
         <DialogTitle className="text-2xl font-semibold text-fg text-center">
           {t("orders.record_payment")}
         </DialogTitle>

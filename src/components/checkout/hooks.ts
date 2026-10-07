@@ -21,7 +21,6 @@ import { ArrowLeftRight } from "lucide-react";
 import {
   CartItem,
   DraftOrderMetadata,
-  OrderDiscount,
   PaymentMethod,
 } from "@/types/utils";
 import {
@@ -59,6 +58,7 @@ type CheckoutContextValue = {
   loading: boolean;
   currency: string;
   isPaymentModalOpen: boolean;
+  isPreparingPayment: boolean;
   handleOpenModal: () => Promise<void>;
   handleCloseModal: () => void;
   handleParkSale: (label?: string) => Promise<boolean>;
@@ -71,8 +71,6 @@ type CheckoutContextValue = {
   draftOrderMetaData: DraftOrderMetadata;
   orderComment: string;
   setOrderComment: (comment: string) => void;
-  orderDiscount: OrderDiscount | null;
-  setOrderDiscount: (discount: OrderDiscount | null) => void;
   paymentMethods: PaymentMethodOption[];
   selectedPaymentMethod: PaymentMethod;
   setPaymentMethod: (method: PaymentMethod) => void;
@@ -101,6 +99,7 @@ const useProvideCheckout = (): CheckoutContextValue => {
     [store]
   );
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
+  const [isPreparingPayment, setIsPreparingPayment] = useState(false);
 
   const items = useCartStore((state) => state.items);
   const draftOrderId = useCartStore((state) => state.draftOrderId);
@@ -186,12 +185,15 @@ const useProvideCheckout = (): CheckoutContextValue => {
       }
 
       // Shared with park, so both paths apply the same create-or-sync guards.
+      setIsPreparingPayment(true);
       await ensureDraftOrderSynced();
 
       setIsPaymentModalOpen(true);
     } catch (error) {
       if (isGuardError(error)) return;
       handleErrorToast(t("checkout.failed_to_prepare_checkout", { error: (error as Error).message }));
+    } finally {
+      setIsPreparingPayment(false);
     }
   }, [
     ensureDraftOrderSynced,
@@ -223,13 +225,6 @@ const useProvideCheckout = (): CheckoutContextValue => {
   const setOrderComment = useCallback(
     (comment: string) => {
       updateMetadata({ order_comment: comment });
-    },
-    [updateMetadata]
-  );
-
-  const setOrderDiscount = useCallback(
-    (discount: OrderDiscount | null) => {
-      updateMetadata({ order_discount: discount });
     },
     [updateMetadata]
   );
@@ -299,6 +294,7 @@ const useProvideCheckout = (): CheckoutContextValue => {
       loading: isLoading,
       currency,
       isPaymentModalOpen,
+      isPreparingPayment,
       handleOpenModal,
       handleCloseModal,
       handleParkSale,
@@ -311,8 +307,6 @@ const useProvideCheckout = (): CheckoutContextValue => {
       draftOrderMetaData: metadata,
       orderComment: metadata.order_comment || "",
       setOrderComment,
-      orderDiscount: metadata.order_discount || null,
-      setOrderDiscount,
       paymentMethods: paymentMethodOptions,
       selectedPaymentMethod: metadata.payment_method as PaymentMethod,
       setPaymentMethod,
@@ -337,10 +331,10 @@ const useProvideCheckout = (): CheckoutContextValue => {
       getTotal,
       isLoading,
       isPaymentModalOpen,
+      isPreparingPayment,
       items,
       selectedItemId,
       setOrderComment,
-      setOrderDiscount,
       setPaymentMethod,
       setSelectedItemId,
       setItemMetadata,

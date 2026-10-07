@@ -366,6 +366,27 @@ const PrinterDialog: React.FC<Props> = ({
 
             <FormField
               control={control}
+              name="autoPrintReceipt"
+              render={({ field }) => (
+                <FormItem>
+                  <div className="flex items-center justify-between py-2">
+                    <FormLabel className="text-lg font-medium">
+                      {t("settings.printer.dialog_auto_print_label")}
+                    </FormLabel>
+                    <FormControl>
+                      <Switch
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                      />
+                    </FormControl>
+                  </div>
+                  <FormMessage className="text-base" />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={control}
               name="openCashDrawer"
               render={({ field }) => (
                 <FormItem>

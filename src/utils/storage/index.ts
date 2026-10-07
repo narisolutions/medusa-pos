@@ -24,7 +24,8 @@ type ObjectKeys =
   | "user_preferences"
   | "date_time_preferences"
   | "register_session"
-  | "closed_register_sessions";
+  | "closed_register_sessions"
+  | "last_admin";
 
 type Keys = StringKeys | NumberKeys | BooleanKeys | ObjectKeys;
 

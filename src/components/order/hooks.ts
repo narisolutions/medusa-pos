@@ -21,6 +21,14 @@ import { useQueryStore } from "@/hooks/queries/useQueryStore";
 import { getOrderPaymentMethodType } from "@/utils/pos/payment";
 import { classifyFulfillment, classifyOrderShippingMethod } from "@/utils/pos/fulfillment";
 import { getOrderRefundableTotal } from "@/utils/pos/payment";
+import { toNumber } from "@/utils/pos/pricing";
+import { getPostSaleOptions, showPostSaleEntry, type PostSaleKind } from "@/utils/pos/post-sale";
+import { useQueryOpenOrderChange } from "@/hooks/queries/useQueryOrderChanges";
+import { useQueryTerminalStockLocationId } from "@/hooks/queries/useQueryStockLocation";
+import { useQueryRegion } from "@/hooks/queries/useQueryRegion";
+import { usePostSaleSlip } from "@/hooks/order/usePostSaleSlip";
+import type { PostSaleSlipDraft } from "@/utils/pos/receipt/post-sale-slip";
+import { ROUTES } from "@/router/routes";
 
 // Type for fulfillment with extended properties
 type ExtendedFulfillment = Record<string, unknown> & {
@@ -62,6 +70,16 @@ export const useOrder = (order: AdminOrder) => {
     useState(false);
   const [isRecordPaymentOpen, setIsRecordPaymentOpen] = useState(false);
   const [isRefundOpen, setIsRefundOpen] = useState(false);
+  const [isPostSaleChooserOpen, setIsPostSaleChooserOpen] = useState(false);
+  const [postSaleKind, setPostSaleKind] = useState<PostSaleKind | null>(null);
+  // Set straight from a return's result, before the refetched order carries it.
+  const [owedAfterChange, setOwedAfterChange] = useState<number | null>(null);
+  // The return/exchange slip waits for the refund, so it can say how the money went back.
+  const [pendingSlip, setPendingSlip] = useState<PostSaleSlipDraft | null>(null);
+  const printSlip = usePostSaleSlip();
+  const { data: openChange } = useQueryOpenOrderChange(order.id);
+  const { data: stockLocationId } = useQueryTerminalStockLocationId();
+  const { data: regionData } = useQueryRegion();
 
   const fulfillmentStatus = order.fulfillment_status;
   const isNegativeFulfillmentStatus =
@@ -83,7 +101,7 @@ export const useOrder = (order: AdminOrder) => {
   };
 
   const handleBackToOrders = () => {
-    navigate("/orders");
+    navigate(ROUTES.orders);
   };
 
   const handleReprintReceipt = async () => {
@@ -150,7 +168,6 @@ export const useOrder = (order: AdminOrder) => {
       const baseUrl = getSdkBaseUrl();
       const fullUrl = `${baseUrl}${relativeUrl}`;
 
-      // Get auth token from Tauri store (preferred) or localStorage (fallback)
       const authHeaders: Record<string, string> = {};
 
       try {
@@ -159,7 +176,7 @@ export const useOrder = (order: AdminOrder) => {
         if (token) {
           authHeaders["Authorization"] = `Bearer ${token}`;
         } else {
-          void logger.warn("No auth token found in store or localStorage, relying on cookies");
+          void logger.warn("No auth token found in store, relying on cookies");
         }
       } catch (error) {
         // If we can't access token storage, continue without token and rely on cookies
@@ -257,7 +274,7 @@ export const useOrder = (order: AdminOrder) => {
 
       toast.success(t("orders.marked_as_picked_up_success"));
       invalidateOrderQueries();
-      navigate("/orders");
+      navigate(ROUTES.orders);
     } catch (error) {
       const errorMessage =
         error instanceof Error ? error.message : "Unknown error";
@@ -304,6 +321,44 @@ export const useOrder = (order: AdminOrder) => {
   const refundableTotal = getOrderRefundableTotal(order);
   const canRefund = order.status !== "canceled" && refundableTotal > 0;
 
+  const postSaleOptions = getPostSaleOptions(order, {
+    hasOpenChange: !!openChange,
+    hasStockLocation: !!stockLocationId,
+    tillCurrency: regionData?.defaultRegion?.currency_code,
+  });
+  const canPostSale = showPostSaleEntry(postSaleOptions);
+  const handleChoosePostSale = (kind: PostSaleKind) => {
+    setIsPostSaleChooserOpen(false);
+    setPostSaleKind(kind);
+  };
+
+  // What the customer is owed after a return or exchange; the refund is locked to it.
+  const pendingDifference = toNumber(order.summary?.pending_difference);
+  const lockedRefundAmount =
+    owedAfterChange ?? (pendingDifference < 0 ? -pendingDifference : undefined);
+
+  const handleChangeApplied = (outstanding: number, slip: PostSaleSlipDraft) => {
+    if (outstanding < 0) {
+      setOwedAfterChange(-outstanding);
+      setPendingSlip(slip);
+      setIsRefundOpen(true);
+    }
+  };
+
+  const handleRefunded = (amount: number, method: string) => {
+    if (pendingSlip) {
+      printSlip({ ...pendingSlip, settlement: { direction: "refund", amount, method } });
+      setPendingSlip(null);
+    }
+  };
+
+  // The slip stays pending if the dialog is closed unrefunded, so a refund made
+  // later from the Refund button still prints it.
+  const handleCloseRefund = () => {
+    setIsRefundOpen(false);
+    setOwedAfterChange(null);
+  };
+
   return {
     getStatusColor,
     getFulfillmentStatusColor,
@@ -338,6 +393,17 @@ export const useOrder = (order: AdminOrder) => {
     refundableTotal,
     isRefundOpen,
     setIsRefundOpen,
+    canPostSale,
+    postSaleOptions,
+    isPostSaleChooserOpen,
+    setIsPostSaleChooserOpen,
+    postSaleKind,
+    setPostSaleKind,
+    handleChoosePostSale,
+    lockedRefundAmount,
+    handleChangeApplied,
+    handleRefunded,
+    handleCloseRefund,
     handleDownloadReceiptPDF,
   };
 };

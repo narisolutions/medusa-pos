@@ -7,6 +7,7 @@ export const DEFAULT_PREFERENCES: UserPreferences = {
   },
   display: {
     startFullscreen: true,
+    catalogView: "cards",
   },
   currency: {
     symbolPosition: "before",

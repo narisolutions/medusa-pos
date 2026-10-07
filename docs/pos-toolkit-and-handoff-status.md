@@ -1,6 +1,6 @@
-# pos-toolkit adoption & Tamada QR hand-off — what is still open
+# pos-toolkit adoption & Brindola QR hand-off — what is still open
 
-*Last updated 2026-08-12. Covers `develop` @ `264e9d9`.*
+*Last updated 2026-10-07.*
 
 Everything below is known-outstanding work, deliberate omissions, or defects found and not yet fixed. What is already done and merged is summarised only enough to make the gaps legible.
 
@@ -30,7 +30,7 @@ Until it exists, the transfer flow is simulated by setting an existing payment m
 
 `minimumAge` is read from the line item's `product_type`, matching `restriction:(\d+)\+`. No product currently carries it, so **every ticket ships unrestricted** and the restaurant till never raises its age prompt.
 
-Wine is the motivating case for that entire feature on Tamada's side. This is a data gap, not a code defect: either tag the wines `restriction:18+`, or tell us the convention actually in use and the parser in [handoff/index.ts](../src/utils/pos/handoff/index.ts) will be matched to it.
+Wine is the motivating case for that entire feature on Brindola's side. This is a data gap, not a code defect: either tag the wines `restriction:18+`, or tell us the convention actually in use and the parser in [handoff/index.ts](../src/utils/pos/handoff/index.ts) will be matched to it.
 
 **This should be closed before the feature goes live.**
 
@@ -40,13 +40,13 @@ Wine is the motivating case for that entire feature on Tamada's side. This is a 
 
 ### 2.1 `nameKa` — Georgian names on the restaurant bill
 
-Omitted from the payload. Medusa's titles here are English and there is no Georgian source. The field is optional and Tamada falls back to `name`, so this is a valid v1 — but Georgian receipts at the restaurant will show English wine names.
+Omitted from the payload. Medusa's titles here are English and there is no Georgian source. The field is optional and Brindola falls back to `name`, so this is a valid v1 — but Georgian receipts at the restaurant will show English wine names.
 
 Candidates: a `metadata.name_ka` on the variant/product, a Medusa translation module, or accepting the fallback.
 
 ### 2.2 Transfer counterparty — one, or several?
 
-`transfer_counterparty` is stored in store metadata and printed on the ticket, but **has no settings UI**. It can only be set via the API today. The shape of that UI depends on the answer: a single text field, or a picker per counterparty.
+`transfer_counterparty` is stored in store metadata and printed on the ticket. ✅ It is now a single text field in Settings → Store, shown once a payment method's type is `transfer`. If more than one counterparty is ever needed, that field becomes a picker per counterparty.
 
 The hand-off brief anticipates more than one eventually (another restaurant, a bar) but says a single hardcoded one unblocks the first location.
 
@@ -72,23 +72,31 @@ reopening are the three actions that want the same gate.
 
 ## 3. Known defects, not fixed
 
-### 3.1 Receipts printed at checkout show the wrong currency
+### 3.1 ~~Receipts printed at checkout show the wrong currency~~ — fixed
+
+✅ `currency_code` is now in all three `fields` strings in [payment-dialog/hooks.ts](../src/components/checkout/payment-dialog/hooks.ts). Kept for the record:
 
 The order fetched immediately after checkout does not request `currency_code`, so `getOrderCurrency` falls back to the hardcoded `USD` in [constants](../src/utils/constants/index.ts). A ₾3.00 sale prints `3.00 USD`. Reprinting the same order from the order page is correct, because that path does request the field.
 
 **Fix:** add `currency_code` to the three `fields` strings in [payment-dialog/hooks.ts](../src/components/checkout/payment-dialog/hooks.ts). Pre-existing, not introduced by this work, but customer-facing and about money.
 
-### 3.2 `getMethodType` matches provider ids case-sensitively
+### 3.2 ~~`getMethodType` matches provider ids case-sensitively~~ — fixed
+
+✅ It now lowercases both sides, like its sibling. Kept for the record:
 
 Its sibling `getOrderPaymentMethodLabel` matches case-**in**sensitively. A configured id differing only in case therefore shows the right label on a receipt while silently resolving to type `card` — wrong drawer behaviour, no transfer ticket, no visible error.
 
-### 3.3 The Icon and Type dropdowns are indistinguishable
+### 3.3 ~~The Icon and Type dropdowns are indistinguishable~~ — fixed
+
+✅ The payment-method rows now have column headers: *Button icon* and *Processed as*. Kept for the record:
 
 Adjacent, identical options, no column headers. Setting Icon instead of Type produces a silent no-op that costs a test cycle to diagnose — it already did once. They need labels.
 
-Related: `getMethodType` infers from `icon` only for `cash`, so `icon: "transfer"` with no `type` reads as `card`.
+Related, ✅ fixed: `getMethodType` now infers from `icon` for `transfer` as well as `cash`, so `icon: "transfer"` with no `type` no longer reads as `card`.
 
-### 3.4 Network cash-drawer kick rejects hostnames
+### 3.4 ~~Network cash-drawer kick rejects hostnames~~ — fixed
+
+✅ Fixed upstream in pos-toolkit `8b2b802` and pinned here. The bug was wider than described below: network printing and status queries rejected hostnames too, because escpos only accepts an IP literal once a timeout is set. Hostnames are now resolved once, IPv4 first. Kept for the record:
 
 `open_cash_drawer`'s network path parses the address with `SocketAddr::parse`, so `192.168.1.50` works and `printer.local` fails — while printing to the same hostname works fine. Lives upstream in pos-toolkit; worth an issue there.
 
@@ -96,16 +104,35 @@ Related: `getMethodType` infers from `icon` only for `cash`, so `icon: "transfer
 
 `PrintOp::Text` carries bold, alignment and size only. Cosmetic, test page only, but a visible change to anyone who knows that page.
 
+### ~~3.6 An order-level discount would not reach the ticket~~ — removed
+
+✅ No screen ever set an order-level discount, so the unreachable code behind it was removed
+(2026-10-07): `setOrderDiscount`, `order_discount` metadata handling and the receipt/summary lines.
+If order-level discounts are ever wanted, build them so they reach Medusa's totals (promotions, or
+spread over the line prices) — and therefore the ticket's per-line `priceMinor` too.
+
+### ~~3.7 Minor units assume two decimals~~ — fixed
+
+✅ `toMinorUnits` now uses the currency's ISO 4217 decimals from `Intl` (`currencyExponent`: GEL 2,
+JPY 0, KWD 3; 2 when unknown), as the brief asks. Kept for the record: it multiplied by 100, which
+was right for GEL only.
+
+### ~~3.8 The bill showed the product without its size or vintage~~ — fixed
+
+✅ The payload's `name` (and the ticket's item line) now append the line's `variant_title` —
+"Saperavi, 750ml / 2020" — unless it is Medusa's "Default variant" or already in the title, as
+the brief asks for what matters (producer, vintage). Before, a bottle went over as "Saperavi".
+
 ---
 
-## 4. Follow-ups now unblocked in pos-toolkit
+## 4. ~~Follow-ups now unblocked in pos-toolkit~~ — applied
 
-pos-toolkit `d9c78da` added two things specifically to undo compromises made in workstream E, and **neither has been applied yet**:
+pos-toolkit `d9c78da` added two things specifically to undo compromises made in workstream E:
 
 - **`TextRow`** — `Payment Method` was moved into the receipt's meta block because `MoneyRow` carries an amount and no text. It can move back next to Amount Paid where it belongs.
 - **`onUnmapped`** — the cp852 "unmapped character" warning was lost when `buildReceiptText` took over sanitising. It can be re-wired to the logger.
 
-Applying either requires bumping the **TypeScript** pin, which still points at `f8e9274` (pre-merge). The Rust pin is already at `d9c78da`.
+✅ Both are applied: Payment Method is a `TextRow` above Amount Paid again, and unmapped characters are logged once per receipt as a single warning.
 
 Also worth upstreaming eventually: an **`align` field on `PrintOp::QrCode`**. Centring the hand-off QR currently uses raw `ESC a` bytes around the op, which is what `Raw` is for but is less tidy than the op carrying its own alignment.
 
@@ -113,7 +140,7 @@ Also worth upstreaming eventually: an **`align` field on `PrintOp::QrCode`**. Ce
 
 ## 5. Verification gaps
 
-The QR hand-off ticket is **confirmed working end to end** against a real printer and a real Tamada till (2026-08-12).
+The QR hand-off ticket is **confirmed working end to end** against a real printer and a real Brindola till (2026-08-12).
 
 Still to confirm — check with whoever ran the hardware pass before trusting any of these:
 
@@ -126,12 +153,14 @@ Still to confirm — check with whoever ran the hardware pass before trusting an
 
 ## 6. The payload contract moves — check it before touching it
 
-The QR payload is owned by **Tamada's `docs/22-external-items-qr.md`**, mirrored into `docs/handoffs/medusa-qr-hand-off.md`. It has already changed once under us, on 2026-08-10:
+The QR payload is owned by **Brindola's `docs/22-external-items-qr.md`**, mirrored into `docs/handoffs/medusa-qr-hand-off.md`. It has already changed once under us, on 2026-08-10:
 
 - `priceTetri` → **`priceMinor`** (the payload carries its own ISO 4217 `currency`, so naming the field after Georgia's minor unit was wrong)
-- the base64url **URL form** became the one to print — `https://<host>/tamada/handoff/v1?d=…` — because a keyboard wedge cannot be assumed to carry non-ASCII, and `nameKa` would be at risk
+- the base64url **URL form** became the one to print — `https://<host>/brindola/handoff/v1?d=…` — because a keyboard wedge cannot be assumed to carry non-ASCII, and `nameKa` would be at risk
 - a new optional **`prepArea`** (kitchen routing). We do not emit it; a bottle needs no kitchen ticket. It would matter if a deli counter ever transferred something that needs finishing.
 
 Tickets built to the old contract are **rejected on scan** with "That code carries an amount this terminal cannot charge exactly" — their parser finds no price at all.
 
-⚠ Read that doc on Tamada's **`origin/develop`**. It is hundreds of commits ahead of `main`, and a stale local clone will show the old contract with no indication that it is out of date.
+It changed again on 2026-09-16, when Tamada was renamed **Brindola**: the printed path is now `/brindola/handoff/v1`. The recognizer still accepts `/tamada/handoff/` so paper printed before the rename keeps scanning, but it is never generated.
+
+⚠ Read that doc on Brindola's **`origin/develop`**. It is hundreds of commits ahead of `main`, and a stale local clone will show the old contract with no indication that it is out of date.

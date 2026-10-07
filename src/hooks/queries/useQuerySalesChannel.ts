@@ -12,7 +12,8 @@ const fetchSalesChannels = async (): Promise<AdminSalesChannel[]> => {
     return sales_channels;
   } catch (error) {
     handleErrorToast(error);
-    return [];
+    // Rethrown so a failed load is an error, not "nothing configured".
+    throw error;
   }
 };
 

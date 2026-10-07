@@ -41,6 +41,7 @@ export default {
     vendorId: z.number().optional(),
     productId: z.number().optional(),
     isDefault: z.boolean().optional().default(false),
+    autoPrintReceipt: z.boolean().optional().default(true),
     openCashDrawer: z.boolean().optional().default(false),
     openCashDrawerOnCash: z.boolean().optional().default(false),
     openCashDrawerOnCard: z.boolean().optional().default(false),
@@ -119,7 +120,7 @@ export default {
   }),
 
   /**
-   * The QR hand-off payload. Owned by Tamada's docs/22-external-items-qr.md —
+   * The QR hand-off payload. Owned by Brindola's docs/22-external-items-qr.md —
    * raise changes there first, not here.
    */
   handoffPayload: z.object({
@@ -135,7 +136,7 @@ export default {
           name: z.string().min(1),
           nameKa: z.string().optional(),
           qty: z.number().int().min(1),
-          // Integer minor units, gross of VAT. Tamada never parses decimals.
+          // Integer minor units, gross of VAT. Brindola never parses decimals.
           priceMinor: z.number().int().nonnegative(),
           vatBp: z.number().int().nonnegative().optional(),
           minimumAge: z.number().int().positive().optional(),
@@ -159,6 +160,7 @@ export default {
       .string()
       .email({ message: "Please enter a valid email address" })
       .optional(),
+    transferCounterparty: z.string().optional(),
     paymentMethods: z
       .array(
         z.object({

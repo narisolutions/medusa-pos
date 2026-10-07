@@ -13,7 +13,9 @@ order that does nothing until confirmed.
 
 Actions accumulate while the change is open — add a return line, add an outbound item,
 add a shipping method — and each one returns a **preview** of the order as it would
-look. Nothing touches the order, its totals, or stock until confirmation.
+look. Nothing touches the order, its totals, or stock until confirmation. The preview's
+`pending_difference` is not the figure that will be settled until the request step has run
+(spike: 0 for a return, and missing the inbound credit for an exchange).
 
 ## Why a till cannot use it as designed
 
@@ -53,8 +55,19 @@ So the POS must:
 1. **Stage everything locally first.** The dialog builds the change in memory. No
    backend call is made until the operator confirms.
 2. **Run the sequence only on confirm**, and track how far it got.
-3. **On failure, cancel the open change** (`cancelRequest`, or `cancel` once requested)
-   rather than leaving it hanging.
+3. **On failure, cancel the open change** rather than leaving it hanging. What cancels it
+   depends on how far the sequence got (verified on staging, 2026-09-30):
+
+   | Operation | Before the request step | After it |
+   |---|---|---|
+   | Charge (edit) | `orderEdit.cancelRequest` | `orderEdit.cancelRequest` (until `confirm`) |
+   | Return | `return.cancelRequest` | `return.cancel`; `cancelRequest` is rejected. With a receive open, `cancelReceive` first — `cancel` is rejected while it is open |
+   | Exchange | `exchange.cancelRequest` | `exchange.cancel`, **then delete the payment collection the request created** — cancel leaves it behind as `not_paid` and the order reads `partially_captured` |
+
+   `exchange.request` **confirms** the exchange's change at once (its items are on the order and the
+   difference is owed) — it is not left `requested` like a return. `exchange.cancel` still reverses it.
+   `exchange.cancel` accepts no `no_notification` (400 "Unrecognized fields"); `exchange.request` does.
+
 4. **If cancelling also fails, say so plainly** and name the order. A stranded change is
    recoverable in Medusa Admin, but only if someone knows it exists.
 
@@ -67,12 +80,12 @@ An order can have **one open change**. Before starting any operation, the POS ch
 an existing open change on the order. If one exists — from Medusa Admin, another till,
 or an earlier failure — it must be resolved first, never silently stacked.
 
-> **Verify in spike:** whether the backend rejects a second change or silently allows it.
-> The POS must enforce this itself either way; the spike determines whether it is also a
-> backend guarantee or purely a POS one.
+> **Verified in spike (S6):** the backend rejects a second open change of any type. The POS
+> check stays, so the operator gets a readable reason instead of a 400.
 
 ## Notifications
 
-Every backend call that accepts `no_notification` is sent with it **set to true**. The
+Every backend call that accepts `no_notification` is sent with it **set to true**
+(`exchange.create` does not accept it and rejects the request if it is sent). The
 customer is at the counter; an email saying their return was "requested" hours after
 they walked out with a refund is confusing and wrong.

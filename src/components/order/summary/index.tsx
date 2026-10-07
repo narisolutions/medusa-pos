@@ -2,7 +2,7 @@ import React from "react";
 import { AdminOrder } from "@medusajs/types";
 import { Receipt } from "lucide-react";
 import { formatPrice, getOrderCurrency } from "@/utils/helpers";
-import { discountPerUnit, orderDiscountAmount } from "@/utils/pos/pricing";
+import { discountPerUnit } from "@/utils/pos/pricing";
 import { getOrderSaleTotal } from "@/utils/pos/payment";
 import { useTranslation } from "@/i18n";
 
@@ -18,7 +18,6 @@ const Summary: React.FC<SummaryProps> = ({ order }) => {
     shipping_total,
     tax_total,
     items,
-    metadata,
   } = order;
 
   const total = getOrderSaleTotal(order);
@@ -33,15 +32,7 @@ const Summary: React.FC<SummaryProps> = ({ order }) => {
     return acc + discountPerUnit(meta.item_discount, base) * item.quantity;
   }, 0);
 
-  const orderMeta = metadata as {
-    order_discount?: { type: "amount" | "percent"; value: number };
-  } | null | undefined;
-  const orderLevelDiscount = orderDiscountAmount(
-    orderMeta?.order_discount,
-    (subtotal ?? 0) - itemDiscountsTotal
-  );
-
-  const displayed_discount = (discount_total ?? 0) + itemDiscountsTotal + orderLevelDiscount;
+  const displayed_discount = (discount_total ?? 0) + itemDiscountsTotal;
 
   const currency = getOrderCurrency(order);
 

@@ -133,6 +133,19 @@ dependencies = [
 ]
 
 [[package]]
+name = "async-compression"
+version = "0.4.33"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "93c1f86859c1af3d514fa19e8323147ff10ea98684e6c7b307912509f50e67b2"
+dependencies = [
+ "compression-codecs",
+ "compression-core",
+ "futures-core",
+ "pin-project-lite",
+ "tokio",
+]
+
+[[package]]
 name = "async-executor"
 version = "1.13.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -330,6 +343,12 @@ name = "base64"
 version = "0.22.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "72b3254f16251a8381aa12e40e3c4d2f0199f8c6508fbecb9d91f575e0fbb8c6"
+
+[[package]]
+name = "basic-udev"
+version = "0.1.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "5a45f9771ced8a774de5e5ebffbe520f52e3943bf5a9a6baa3a5d14a5de1afe6"
 
 [[package]]
 name = "bit-set"
@@ -600,6 +619,23 @@ dependencies = [
  "bytes",
  "memchr",
 ]
+
+[[package]]
+name = "compression-codecs"
+version = "0.4.32"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "680dc087785c5230f8e8843e2e57ac7c1c90488b6a91b88caa265410568f441b"
+dependencies = [
+ "compression-core",
+ "flate2",
+ "memchr",
+]
+
+[[package]]
+name = "compression-core"
+version = "0.4.33"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "6e8ccc4ea9f6acc32d102c0f6d471d11d913ad15f20c04de743374861fa1d414"
 
 [[package]]
 name = "concurrent-queue"
@@ -974,7 +1010,7 @@ dependencies = [
  "libc",
  "option-ext",
  "redox_users",
- "windows-sys 0.61.2",
+ "windows-sys 0.60.2",
 ]
 
 [[package]]
@@ -1832,6 +1868,21 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7f24254aa9a54b5c858eaee2f5bccdb46aaf0e486a595ed5fd8f86ba55232a70"
 
 [[package]]
+name = "hidapi"
+version = "2.6.7"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "818c0e1d27887aaf76fe737042e27a66b796a7b099e6d2e1a72d106c2dff3fa6"
+dependencies = [
+ "basic-udev",
+ "cc",
+ "cfg-if",
+ "libc",
+ "nix 0.30.1",
+ "pkg-config",
+ "windows-sys 0.61.2",
+]
+
+[[package]]
 name = "html5ever"
 version = "0.29.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2437,9 +2488,9 @@ dependencies = [
 
 [[package]]
 name = "log"
-version = "0.4.33"
+version = "0.4.34"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0ceec5bc11778974d1bcb055b18002eba7f4b3518b6a0081b3af5f21666da9ad"
+checksum = "f9f8bd3e56ce4dfc153cf470fffbfa98c7620958b312ca5c3a4b8d5181fd13c6"
 
 [[package]]
 name = "loop9"
@@ -2628,7 +2679,7 @@ dependencies = [
  "png 0.18.1",
  "serde",
  "thiserror 2.0.12",
- "windows-sys 0.61.2",
+ "windows-sys 0.60.2",
 ]
 
 [[package]]
@@ -3932,12 +3983,14 @@ version = "0.12.22"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "cbc931937e6ca3a06e3b6c0aa7841849b160a90351d6ab467a8b9b9959767531"
 dependencies = [
+ "async-compression",
  "base64 0.22.1",
  "bytes",
  "cookie",
  "cookie_store 0.21.1",
  "encoding_rs",
  "futures-core",
+ "futures-util",
  "h2",
  "http",
  "http-body",
@@ -3959,6 +4012,7 @@ dependencies = [
  "sync_wrapper",
  "tokio",
  "tokio-rustls",
+ "tokio-util",
  "tower",
  "tower-http",
  "tower-service",
@@ -4144,7 +4198,7 @@ dependencies = [
  "security-framework",
  "security-framework-sys",
  "webpki-root-certs",
- "windows-sys 0.61.2",
+ "windows-sys 0.60.2",
 ]
 
 [[package]]
@@ -4599,7 +4653,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "52d1cfed4120b4d927bf7c0f86d2087a4a7d6027c906d9f9d525a80573b9be51"
 dependencies = [
  "libc",
- "windows-sys 0.61.2",
+ "windows-sys 0.60.2",
 ]
 
 [[package]]
@@ -5023,9 +5077,9 @@ dependencies = [
 
 [[package]]
 name = "tauri-plugin-dialog"
-version = "2.7.1"
+version = "2.7.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "65981abb771e74e571a38196c3baa11c459379164791eba0e67abc1a5fac9884"
+checksum = "b2d3c1dbe38037e7f590cdf2492594d5ceebe031e7bc7e827509b22a999d2940"
 dependencies = [
  "log",
  "raw-window-handle",
@@ -5133,9 +5187,10 @@ dependencies = [
 [[package]]
 name = "tauri-plugin-pos-hardware"
 version = "0.1.0"
-source = "git+https://github.com/narisolutions/pos-toolkit?branch=main#d9c78da85b83065ec3a8baa48f1e734afbc3190c"
+source = "git+https://github.com/narisolutions/pos-toolkit?branch=main#8b2b8021869ae1dc81da45737b63f466f309bdc6"
 dependencies = [
  "escpos",
+ "hidapi",
  "log",
  "rusb",
  "serde",

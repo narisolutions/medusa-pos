@@ -1,0 +1,305 @@
+import { useState, useCallback, useMemo } from "react";
+import { useTranslation } from "@/i18n";
+import { useWedgeScanner } from "@/hooks/barcode/useWedgeScanner";
+import { useSerialScanner } from "@/hooks/barcode/useSerialScanner";
+import { useScannerPreferences } from "@/hooks/barcode/useScannerPreferences";
+import { useDebounce } from "@/hooks/ui/useDebounce";
+import { toast } from "sonner";
+import { handleErrorToast } from "@/utils/helpers";
+import { playErrorSound, playSuccessSound } from "@/utils/sounds";
+import { queryClient, queryKeys } from "@/config/query";
+import { AdminProduct, AdminProductVariant } from "@medusajs/types";
+import constants from "@/utils/constants";
+import { fetchProductByBarcode } from "@/utils/pos/barcode";
+import { ExtendedAdminProduct } from "@/types/utils";
+import { useSalesChannel } from "@/context/sales-channel";
+
+const BARCODE_PATTERN = constants.CHECKOUT_CONFIG.BARCODE_VALIDATION_PATTERN;
+const INITIAL_MODE = "search" as const;
+
+interface FilterState {
+  filterValue: string;
+  inputValue: string;
+  mode: "search" | "barcode";
+  showDropdown: boolean;
+  isProcessing: boolean;
+}
+
+const handleMouseDown = (e: React.MouseEvent<HTMLButtonElement>) => {
+  e.preventDefault();
+};
+
+/** What the host did with a picked variant; the picker turns it into feedback. */
+type ProductPickerResult = { success: boolean; message?: string };
+
+interface Props {
+  products?: AdminProduct[];
+  inputRef?: React.RefObject<HTMLInputElement>;
+  onSelect: (variant: AdminProductVariant) => ProductPickerResult;
+}
+
+const useProductPicker = ({ products = [], inputRef, onSelect }: Props) => {
+  const { t } = useTranslation();
+  const salesChannelId = useSalesChannel((s) => s.salesChannelId);
+  const setNeedsWarning = useSalesChannel((s) => s.setNeedsWarning);
+  const [filterState, setFilterState] = useState<FilterState>({
+    filterValue: "",
+    inputValue: "",
+    mode: INITIAL_MODE,
+    showDropdown: false,
+    isProcessing: false,
+  });
+
+  // Helper function to update state partially
+  const updateFilterState = useCallback((updates: Partial<FilterState>) => {
+    setFilterState((prev) => ({ ...prev, ...updates }));
+  }, []);
+
+  // Destructure state for easier access
+  const { filterValue, inputValue, mode, showDropdown, isProcessing } =
+    filterState;
+
+  const debouncedInputValue = useDebounce(
+    inputValue,
+    constants.CHECKOUT_CONFIG.SEARCH_DEBOUNCE_MS
+  );
+
+  const filteredVariants = useMemo(() => {
+    if (!debouncedInputValue || mode === "barcode") {
+      return [];
+    }
+
+    const searchText = debouncedInputValue.toLowerCase();
+    const variants = [];
+
+    for (const product of products) {
+      if (product.variants && Array.isArray(product.variants)) {
+        for (const variant of product.variants) {
+          const variantWithProduct = { ...variant, product };
+          variants.push(variantWithProduct);
+        }
+      }
+    }
+
+    return variants
+      .filter((variant) => {
+        return (
+          variant.product?.title?.toLowerCase().includes(searchText) ||
+          variant.title?.toLowerCase().includes(searchText) ||
+          variant.sku?.toLowerCase().includes(searchText) ||
+          variant.ean?.toLowerCase().includes(searchText)
+        );
+      })
+      .slice(0, constants.CHECKOUT_CONFIG.SEARCH_RESULTS_LIMIT);
+  }, [products, debouncedInputValue, mode]);
+
+  const pick = useCallback(
+    (variant: AdminProductVariant): boolean => {
+      const result = onSelect(variant);
+      if (!result.success) {
+        handleErrorToast(result.message || t("checkout.cannot_add_to_cart"));
+        playErrorSound();
+        return false;
+      }
+      if (result.message) toast.success(result.message);
+      playSuccessSound();
+      return true;
+    },
+    [onSelect, t]
+  );
+
+  const handleSelect = useCallback(
+    async (variant: AdminProductVariant & { product: AdminProduct }) => {
+      if (isProcessing) return;
+
+      try {
+        updateFilterState({ isProcessing: true });
+
+        if (!pick(variant)) return;
+
+        updateFilterState({
+          inputValue: "",
+          filterValue: "",
+          mode: INITIAL_MODE,
+          showDropdown: false,
+        });
+      } catch (error) {
+        handleErrorToast(error);
+        playErrorSound();
+      } finally {
+        updateFilterState({ isProcessing: false });
+      }
+    },
+    [isProcessing, pick, updateFilterState]
+  );
+
+  const handleBarcodeSubmit = useCallback(
+    async (barcode: string) => {
+      if (isProcessing || !barcode) return;
+
+      if (!salesChannelId) {
+        setNeedsWarning(true);
+        toast.error(t("checkout.no_sales_channel_configured"));
+        playErrorSound();
+        return;
+      }
+
+      try {
+        updateFilterState({ isProcessing: true });
+
+        const productVariant = await queryClient.fetchQuery({
+          queryKey: queryKeys.products.byBarcode(salesChannelId, barcode),
+          queryFn: () => fetchProductByBarcode(barcode, salesChannelId),
+          // Every scan reads live price and stock; a repeat scan of a line in the cart
+          // only bumps its quantity, so nothing is gained by caching.
+          staleTime: 0,
+        });
+
+        if (!productVariant) {
+          playErrorSound();
+          handleErrorToast(t("checkout.product_not_found"));
+          setFilterState((prev) => ({ ...prev, inputValue: "" }));
+          return;
+        }
+
+        if (!pick(productVariant)) return;
+
+        updateFilterState({
+          inputValue: "",
+          mode: INITIAL_MODE,
+          filterValue: "",
+        });
+      } catch (error) {
+        handleErrorToast(error, { posEndpointError: true });
+        playErrorSound();
+      } finally {
+        updateFilterState({ isProcessing: false });
+      }
+    },
+    [
+      isProcessing,
+      pick,
+      updateFilterState,
+      salesChannelId,
+      setNeedsWarning,
+      t,
+    ]
+  );
+
+  // Serial delivers framed messages, so it needs none of the wedge's keystroke
+  // timing. The wedge stays listening either way: a scanner in COM mode emits no
+  // keystrokes, so there is nothing to double-handle, and typing still focuses
+  // the search box.
+  const scanner = useScannerPreferences();
+  useSerialScanner({
+    scanner,
+    onScan: handleBarcodeSubmit,
+    enabled: !isProcessing,
+  });
+
+  useWedgeScanner({
+    onScan: handleBarcodeSubmit,
+    inputRef,
+    enabled: !isProcessing,
+  });
+
+  const handleInputChange = useCallback(
+    (value: string) => {
+      if (BARCODE_PATTERN.test(value.trim())) {
+        updateFilterState({
+          inputValue: value,
+          mode: "barcode",
+          filterValue: "",
+          showDropdown: false,
+        });
+      } else {
+        const newFilterValue = value.toLowerCase();
+        updateFilterState({
+          inputValue: value,
+          mode: "search",
+          filterValue: newFilterValue,
+          showDropdown: value.length > 0,
+        });
+      }
+    },
+    [updateFilterState]
+  );
+
+  const handleKeyDown = useCallback(
+    (e: React.KeyboardEvent) => {
+      if (
+        e.key === "Enter" &&
+        mode === "barcode" &&
+        BARCODE_PATTERN.test(inputValue.trim())
+      ) {
+        handleBarcodeSubmit(inputValue.trim());
+      }
+    },
+    [mode, inputValue, handleBarcodeSubmit]
+  );
+
+  const handleClear = useCallback(() => {
+    updateFilterState({
+      inputValue: "",
+      filterValue: "",
+      mode: INITIAL_MODE,
+      showDropdown: false,
+    });
+  }, [updateFilterState]);
+
+  const getBrandTitle = (product: ExtendedAdminProduct): string | null => {
+    const brand = product?.metadata?.brand || product?.brand || null;
+    const rawTitle = brand?.title || brand?.name || null;
+
+    if (!rawTitle) return null;
+    if (typeof rawTitle === "string") return rawTitle;
+    if (typeof rawTitle === "object") {
+      const localized = rawTitle as Record<string, string>;
+      return localized.en || Object.values(localized)[0] || null;
+    }
+    return null;
+  };
+
+  // Computed values
+  const isValidBarcode = BARCODE_PATTERN.test(inputValue.trim());
+  const showClearButton = inputValue.length > 0;
+  const isButtonEnabled = mode === "barcode" && isValidBarcode;
+
+  return {
+    // State
+    inputValue,
+    mode,
+    filterValue,
+
+    // Status flags
+    isProcessing,
+    isValidBarcode,
+    showClearButton,
+    isButtonEnabled,
+    showDropdown,
+
+    // Handlers
+    handleInputChange,
+    handleKeyDown,
+    handleClear,
+    handleBarcodeSubmit,
+    handleSelect,
+
+    // Data
+    filteredVariants,
+
+    // State management
+    updateFilterState,
+
+    // Utility functions
+    handleMouseDown,
+    getInputPlaceholder: () =>
+      mode === "search"
+        ? t("checkout.search_placeholder")
+        : t("checkout.barcode_placeholder"),
+    getBrandTitle,
+  };
+};
+
+export { useProductPicker };
+export type { ProductPickerResult };

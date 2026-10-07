@@ -28,12 +28,9 @@ simply add to what is owed.
 
 ### An order not yet fulfilled or delivered
 
-Medusa returns operate on **delivered** goods. POS sales are fulfilled and marked
-delivered at payment, so they qualify. An order created elsewhere and still unfulfilled
-does not, and the actions are disabled with a reason.
-
-> **Verify in spike:** the exact fulfilment state the backend requires before it accepts a
-> return, and whether a POS sale's pickup fulfilment satisfies it.
+Medusa returns operate on **fulfilled** goods; delivery is not required (spike S5). POS
+sales are fulfilled at payment, so they qualify. An order created elsewhere and still
+unfulfilled does not, and the actions are disabled with a reason.
 
 ### A canceled order
 
@@ -51,8 +48,9 @@ The POS must detect this **before** confirming, not after: an exchange confirmed
 way to refund the difference leaves the customer owed money with no path to pay it. In that
 case, cash from the drawer is the settlement, recorded against the order.
 
-> **Verify in spike:** which payment states can be refunded, and whether a refund can
-> exceed a single payment by spanning several.
+> **Verified in spike (S7):** only captured payments can be refunded, each up to its own
+> captured amount. One refund call covers one payment, so a larger refund is split across
+> payments by the POS.
 
 ### The backend difference disagrees with the local estimate
 

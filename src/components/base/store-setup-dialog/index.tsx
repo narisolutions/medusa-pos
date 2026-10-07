@@ -11,6 +11,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { ROUTES } from "@/router/routes";
 
 const StoreSetupDialog: React.FC = () => {
   const navigate = useNavigate();
@@ -33,7 +34,7 @@ const StoreSetupDialog: React.FC = () => {
     setNeedsSetup(false);
     void storage.setItem("store_setup_dismissed", true);
     void storage.setItem("settings_tab", "store");
-    navigate("/settings");
+    navigate(ROUTES.settings);
   };
 
   return (

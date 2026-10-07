@@ -58,10 +58,10 @@ amount, as a **new** payment, regardless of whether the order is already marked 
 - **Confirming a return does not restock** — only confirming *receipt* does.
 - **Damaged goods** are a distinct receive action (`dismissItems`) that never restocks.
 - **An exchange owns a return**, received through the return API.
-- **Outbound exchange shipping is required**, even at a counter; a pickup shipping option
-  satisfies it.
-- **Returnable quantity** is derived from `delivered_quantity` minus the returned and
-  dismissed counts on each item's `detail`.
+- **Outbound exchange shipping is required**, even at a counter: without it no stock is
+  reserved and the outbound items cannot be fulfilled. A pickup shipping option satisfies it.
+- **Returnable quantity** is `fulfilled_quantity` minus the requested, received and
+  dismissed return counts on each item's `detail`.
 - **The outstanding amount** is `summary.pending_difference`.
 
 ## What is Tauri / React-specific

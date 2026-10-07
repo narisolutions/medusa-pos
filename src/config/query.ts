@@ -10,13 +10,17 @@ export const STALE_TIME = {
 
 export const queryClient = new QueryClient({
     defaultOptions: {
+        // "always": a till offline must hear "can't reach the server", not wait on a request
+        // React Query paused because the browser reports no network.
         queries: {
             gcTime: 1000 * 60 * 30,
             staleTime: STALE_TIME.standard,
             retry: false,
+            networkMode: "always",
         },
         mutations: {
             retry: false,
+            networkMode: "always",
         },
     },
 });
@@ -29,23 +33,27 @@ export const queryKeys = {
   salesChannels: ["sales-channels"] as const,
   shippingOptions: ["shipping-options"] as const,
   stockLocations: ["stock-locations"] as const,
+  terminalStockLocationId: ["stock-locations", "terminal"] as const,
   paymentProviders: ["payment-providers"] as const,
   refundReasons: ["refund-reasons"] as const,
   posPlugin: ["pos-plugin-installed"] as const,
   products: {
     all: ["products"] as const,
     list: (salesChannelId?: string) => ["products", salesChannelId] as const,
-    byBarcode: (barcode: string) => ["product-by-barcode", barcode] as const,
+    byBarcode: (salesChannelId: string, barcode: string) =>
+      ["product-by-barcode", salesChannelId, barcode] as const,
   },
   orders: {
     all: ["orders"] as const,
     list: (options?: UseQueryOrdersOptions) =>
       ["orders", "list", options ?? {}] as const,
     detail: (orderId: string) => ["order", orderId] as const,
-    // Keyed by payload shape so the light badge scan and the cash-detail scan
-    // never overwrite each other in the cache.
-    recent: (withCashDetail: boolean) =>
-      ["orders", "recent", withCashDetail ? "cash" : "badge"] as const,
+    // Under the detail key, so refreshing the order refreshes this too.
+    changes: (orderId: string) => ["order", orderId, "changes"] as const,
+    // The sidebar badge's scan.
+    recent: ["orders", "recent"] as const,
+    // An open register's orders, from the moment it opened.
+    session: (openedAt: string | undefined) => ["orders", "session", openedAt ?? null] as const,
   },
   // Parked sales. Any surviving draft is an unfinished sale, so the list is unfiltered
   // beyond the sales channel — see docs/draft-orders/02-domain-model.md.
@@ -53,6 +61,8 @@ export const queryKeys = {
     all: ["draft-orders"] as const,
     list: (salesChannelId?: string) =>
       ["draft-orders", "list", salesChannelId ?? null] as const,
+    count: (salesChannelId?: string) =>
+      ["draft-orders", "count", salesChannelId ?? null] as const,
   },
   inventoryKitItems: (
     inventoryItemIds?: string[],

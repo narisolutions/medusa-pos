@@ -5,8 +5,10 @@ import storage from "@/utils/storage";
 
 /** Full reset on backend-URL change — clears caches, state and storage. */
 const resetOnBackendChange = async (): Promise<void> => {
-  const { resetSdk } = await import("@/config/medusa");
+  const { resetSdk, clearStoredAuthToken } = await import("@/config/medusa");
   resetSdk();
+  // The old backend's token must not outlive it: it would be sent to the new one.
+  await clearStoredAuthToken();
 
   queryClient.clear();
 

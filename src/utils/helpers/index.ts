@@ -4,16 +4,6 @@ import { formatDateTime, formatPrice } from "@/utils/settings/preferences";
 import constants from "@/utils/constants";
 import { t } from "@/i18n";
 
-const getRoutes = () => {
-  return {
-    signIn: "/sign-in",
-    setup: "/setup",
-    orders: "/orders",
-    checkout: "/checkout",
-    settings: "/settings",
-  };
-};
-
 /** Tauri `invoke` rejections are not always `Error` instances; normalize for UI and logging. */
 const getTauriInvokeErrorMessage = (error: unknown, fallback: string): string => {
   if (typeof error === "string" && error.trim().length > 0) {
@@ -59,6 +49,21 @@ const getApiErrorMessage = (error: unknown, fallback: string): string => {
   return fallback;
 };
 
+/**
+ * A request that got no answer at all. Tauri's HTTP plugin rejects with a plain string,
+ * a browser fetch with an Error; neither carries a status.
+ */
+const isNetworkError = (error: unknown): boolean => {
+  if (typeof error !== "string" && !(error instanceof Error)) return false;
+  if (typeof error !== "string" && (error as { status?: number }).status !== undefined) return false;
+  const message = typeof error === "string" ? error : error.message;
+  return /error sending request|failed to fetch|network ?error|load failed|timed out/i.test(message);
+};
+
+/** A 404 from the backend: the record is gone, as opposed to unreachable or failing. */
+const isNotFoundError = (error: unknown): boolean =>
+  (error as { status?: number } | null)?.status === 404;
+
 const handleErrorToast = (
   error: unknown,
   options?: { posEndpointError?: boolean }
@@ -90,6 +95,12 @@ const handleErrorToast = (
       );
       return;
     }
+  }
+
+  // Several queries fail together when the connection drops: one explanation, not one raw error each.
+  if (isNetworkError(error)) {
+    toast.error(t("errors.network_unreachable"), { id: "network-unreachable" });
+    return;
   }
 
   if (error instanceof Error) {
@@ -249,20 +260,12 @@ const checkBackendHealth = async (
 
 /** Plain-language hints for staff; technical errors belong in console logs only. */
 const printerIssueStaffHintToast = (printerName: string): string => {
-  return [
-    t("printer_service.hint_check_connected", { printer: printerName }),
-    t("printer_service.hint_restart"),
-    t("printer_service.hint_review_default"),
-  ].join(" ");
+  return t("printer_service.toast_hint_print", { printer: printerName });
 }
 
-/** Same connection guidance as print errors, plus Test drawer in Settings → Printers. */
+/** Points to Test drawer in Settings → Printers, where the full troubleshooting lives. */
 const cashDrawerIssueStaffHintToast = (printerName: string): string => {
-  return [
-    t("printer_service.hint_drawer_test", { printer: printerName }),
-    t("printer_service.hint_drawer_check_cable"),
-    t("printer_service.hint_drawer_restart"),
-  ].join(" ");
+  return t("printer_service.toast_hint_drawer", { printer: printerName });
 }
 
 /** Used on the Printers settings screen — users are already in Settings. */
@@ -276,10 +279,11 @@ const printerIssueStaffHintSettings = (printerName: string): string => {
 
 
 export {
-  getRoutes,
   getTauriInvokeErrorMessage,
   getApiErrorMessage,
   handleErrorToast,
+  isNetworkError,
+  isNotFoundError,
   formatDate,
   formatTimeAgo,
   formatPrice,

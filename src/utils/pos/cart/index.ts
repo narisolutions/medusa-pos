@@ -63,7 +63,6 @@ const getVariantAvailableQuantity = (
 
 const DEFAULT_CART_METADATA: DraftOrderMetadata = {
   payment_method: undefined,
-  order_discount: null,
   order_comment: "",
 };
 

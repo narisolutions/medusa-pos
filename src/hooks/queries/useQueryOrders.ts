@@ -6,9 +6,10 @@ import { useUser } from "@/context/user";
 import { AdminOrder } from "@medusajs/types";
 import { OrdersResult, UseQueryOrdersOptions } from "@/types/utils";
 
+// Failures throw after explaining themselves: returning nothing read as "No orders found".
 const fetchOrders = async (
   options?: UseQueryOrdersOptions
-): Promise<OrdersResult | undefined> => {
+): Promise<OrdersResult> => {
   try {
     const baseParams = {
       fields:
@@ -40,19 +41,19 @@ const fetchOrders = async (
     };
   } catch (error) {
     handleErrorToast(error);
-    return undefined;
+    throw error;
   }
 };
 
 const useQueryOrders = (
   options?: UseQueryOrdersOptions & { refetchInterval?: number }
-): UseQueryResult<OrdersResult | undefined, Error> => {
+): UseQueryResult<OrdersResult, Error> => {
   const isAuthenticated = useUser((state) => state.isAuthenticated);
 
   // Extract refetchInterval from options to avoid passing it to the SDK
   const { refetchInterval, ...sdkOptions } = options || {};
 
-  return useQuery<OrdersResult | undefined, Error>({
+  return useQuery<OrdersResult, Error>({
     // Whole options object as key — new filters automatically join the cache identity.
     queryKey: queryKeys.orders.list(sdkOptions),
     queryFn: () => fetchOrders(sdkOptions),

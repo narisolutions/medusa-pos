@@ -1,16 +1,16 @@
-# CI gate — runs the frontend checks (lint, typecheck, production build) on every
-# push to and PR into `main`. This is the safety layer for releases: the tag-driven
-# Release workflow only runs after `main` is updated, so catching lint/type/build
-# errors here means a broken commit fails on the merge to `main` instead of midway
-# through the much heavier release/installer pipeline.
+# CI gate — runs the frontend checks (lint, typecheck, tests, production build) on
+# every push to and PR into `develop` and `main`. This is the safety layer for
+# releases: work lands on `develop` first, so a broken commit fails there instead
+# of on the merge to `main` or midway through the much heavier release/installer
+# pipeline.
 
 name: CI
 
 on:
   push:
-    branches: [main]
+    branches: [develop, main]
   pull_request:
-    branches: [main]
+    branches: [develop, main]
 
 concurrency:
   group: ci-${{ github.workflow }}-${{ github.ref }}
@@ -49,6 +49,9 @@ jobs:
 
       - name: Typecheck
         run: yarn typecheck
+
+      - name: Test
+        run: yarn test
 
       - name: Build
         run: yarn build

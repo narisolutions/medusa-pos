@@ -14,23 +14,36 @@ import {
   getApiErrorMessage,
   getOrderCurrency,
   handleErrorToast,
-  cashDrawerIssueStaffHintToast,
 } from "@/utils/helpers";
-import { logger, safeStringify } from "@/utils/logger";
 import { useQueryStore } from "@/hooks/queries/useQueryStore";
 import { useQueryRefundReasons } from "@/hooks/queries/useQueryRefundReasons";
-import { usePrinterService } from "@/hooks/printer/usePrinterService";
+import { usePostSaleCash } from "@/hooks/order/usePostSaleCash";
+import { getMethodType } from "@/utils/settings/store/metadata";
 import {
+  allocateRefund,
+  defaultRefundPayment,
+  getPaymentMethodLabel,
   getRefundablePayments,
-  getOrderPaymentMethodType,
+  paymentsCovering,
 } from "@/utils/pos/payment";
 
-export const useRefund = (order: AdminOrder, isOpen: boolean, onClose: () => void) => {
+/**
+ * `lockedAmount`: what a post-sale change left owing, not editable. The cashier
+ * picks which payment returns it when one can alone; otherwise it is split.
+ */
+export const useRefund = (
+  order: AdminOrder,
+  isOpen: boolean,
+  onClose: () => void,
+  lockedAmount?: number,
+  onRefunded?: (amount: number, method: string) => void
+) => {
+  const isLocked = lockedAmount !== undefined;
   const { t } = useTranslation();
   const queryClient = useQueryClient();
   const { data: store } = useQueryStore();
   const { data: refundReasons = [] } = useQueryRefundReasons(isOpen);
-  const { openCashDrawer, getDefaultPrinter } = usePrinterService();
+  const { record: recordCash, openDrawer, isCashBlocked } = usePostSaleCash();
 
   const [step, setStep] = useState<"form" | "confirm">("form");
   const [isProcessing, setIsProcessing] = useState(false);
@@ -38,27 +51,45 @@ export const useRefund = (order: AdminOrder, isOpen: boolean, onClose: () => voi
   const submissionRef = useRef(false);
 
   const payments = useMemo(() => getRefundablePayments(order), [order]);
-  const [selectedPaymentId, setSelectedPaymentId] = useState(
-    () => payments[0]?.id ?? ""
+  const covering = useMemo(
+    () => (isLocked ? paymentsCovering(payments, lockedAmount) : []),
+    [isLocked, payments, lockedAmount]
   );
+  const defaultPaymentId = () =>
+    (isLocked ? defaultRefundPayment(covering, lockedAmount) : undefined)?.id ??
+    payments[0]?.id ??
+    "";
+  const [selectedPaymentId, setSelectedPaymentId] = useState(defaultPaymentId);
 
   const selectedPayment =
     payments.find((payment) => payment.id === selectedPaymentId) ?? payments[0];
-  const refundable = selectedPayment?.refundable ?? 0;
+  const refundable = isLocked
+    ? payments.reduce((sum, payment) => sum + payment.refundable, 0)
+    : selectedPayment?.refundable ?? 0;
   const currency = getOrderCurrency(order);
+  const allocation = useMemo(() => {
+    if (!isLocked) return null;
+    if (covering.length === 0) return allocateRefund(payments, lockedAmount);
+    const chosen =
+      covering.find((p) => p.id === selectedPaymentId) ?? defaultRefundPayment(covering, lockedAmount);
+    return chosen ? [{ id: chosen.id, amount: lockedAmount }] : null;
+  }, [isLocked, covering, payments, lockedAmount, selectedPaymentId]);
+  const initialAmount = (first?: { refundable: number }) =>
+    isLocked ? lockedAmount : first?.refundable ?? 0;
 
   const form = useForm<Forms["Refund"]>({
     resolver: coercedZodResolver(schemas.refund),
     defaultValues: {
-      amount: refundable,
+      amount: initialAmount(payments[0]),
       refundReasonId: "",
       note: "",
     },
   });
 
-  const [amountText, setAmountText] = useState(() =>
-    refundable > 0 ? String(refundable) : ""
-  );
+  const [amountText, setAmountText] = useState(() => {
+    const initial = initialAmount(payments[0]);
+    return initial > 0 ? String(initial) : "";
+  });
 
   const setAmount = useCallback(
     (value: string) => {
@@ -77,10 +108,11 @@ export const useRefund = (order: AdminOrder, isOpen: boolean, onClose: () => voi
     if (isOpen) {
       const first = payments[0];
       setStep("form");
-      setSelectedPaymentId(first?.id ?? "");
-      setAmountText(first ? String(first.refundable) : "");
+      setSelectedPaymentId(defaultPaymentId());
+      const initial = initialAmount(first);
+      setAmountText(initial > 0 ? String(initial) : "");
       form.reset({
-        amount: first?.refundable ?? 0,
+        amount: initial,
         refundReasonId: "",
         note: "",
         });
@@ -90,10 +122,12 @@ export const useRefund = (order: AdminOrder, isOpen: boolean, onClose: () => voi
   const handleSelectPayment = useCallback(
     (paymentId: string) => {
       setSelectedPaymentId(paymentId);
+      // Locked: the amount is what is owed, whichever payment returns it.
+      if (isLocked) return;
       const next = payments.find((payment) => payment.id === paymentId);
       setAmount(next ? String(next.refundable) : "");
     },
-    [payments, setAmount]
+    [isLocked, payments, setAmount]
   );
 
   const handleRefundFull = useCallback(() => {
@@ -105,6 +139,15 @@ export const useRefund = (order: AdminOrder, isOpen: boolean, onClose: () => voi
   const handleValidate = form.handleSubmit((data) => {
     if (!selectedPayment) return;
 
+    if (isLocked && !allocation) {
+      form.setError("amount", {
+        message: translate("orders.refund_locked_uncovered", {
+          available: formatPrice(refundable, currency),
+        }),
+      });
+      return;
+    }
+
     if (data.amount > refundable) {
       form.setError("amount", {
         message: translate("orders.refund_exceeds_refundable"),
@@ -115,69 +158,128 @@ export const useRefund = (order: AdminOrder, isOpen: boolean, onClose: () => voi
     setStep("confirm");
   });
 
-  // Cash paid back out of the drawer — mirrors the post-order hardware step.
-  const openDrawerForCashRefund = useCallback(() => {
-    if (getOrderPaymentMethodType(order, store) !== "cash") return;
-
-    const printer = getDefaultPrinter();
-    if (!printer?.openCashDrawer || !printer.openCashDrawerOnCash) return;
-
-    openCashDrawer(printer).catch((drawerError) => {
-      void logger.warn(`Refund cash drawer failed: ${safeStringify(drawerError)}`);
-      toast.error(t("checkout.cash_drawer_error_title"), {
-        description: cashDrawerIssueStaffHintToast(printer.name),
-      });
-    });
-  }, [order, store, getDefaultPrinter, openCashDrawer, t]);
-
   const handleConfirm = useCallback(async () => {
     if (submissionRef.current || !selectedPayment) return;
     submissionRef.current = true;
     setIsProcessing(true);
 
     const { amount, refundReasonId, note } = form.getValues();
+    const refunds = allocation ?? [{ id: selectedPayment.id, amount }];
+    const isCashRefund = (r: { id: string }) =>
+      getMethodType(store, payments.find((p) => p.id === r.id)?.providerId) === "cash";
+    const cashIn = (list: { id: string; amount: number }[]) =>
+      list.filter(isCashRefund).reduce((sum, r) => sum + r.amount, 0);
+    const cashRefunded = cashIn(refunds);
 
+    if (cashRefunded > 0 && isCashBlocked) {
+      handleErrorToast(t("checkout.register_closed"));
+      submissionRef.current = false;
+      setIsProcessing(false);
+      return;
+    }
+
+    const done: typeof refunds = [];
     try {
       const sdk = getSdk();
-      await sdk.admin.payment.refund(selectedPayment.id, {
-        amount,
-        ...(refundReasonId ? { refund_reason_id: refundReasonId } : {}),
-        ...(note?.trim() ? { note: note.trim() } : {}),
-      });
+      // Sequential: if one fails, what already went through is still on record.
+      for (const refund of refunds) {
+        await sdk.admin.payment.refund(refund.id, {
+          amount: refund.amount,
+          ...(refundReasonId ? { refund_reason_id: refundReasonId } : {}),
+          ...(note?.trim() ? { note: note.trim() } : {}),
+        });
+        done.push(refund);
+      }
 
       void queryClient.invalidateQueries({
         queryKey: queryKeys.orders.detail(order.id),
       });
       void queryClient.invalidateQueries({ queryKey: queryKeys.orders.all });
 
+      await recordCash(
+        order,
+        "drop",
+        cashRefunded,
+        t("orders.post_sale.movement_refund", { id: order.display_id })
+      );
+
+      const methods = [
+        ...new Set(
+          refunds.map((r) =>
+            getPaymentMethodLabel(store, payments.find((p) => p.id === r.id)?.providerId)
+          )
+        ),
+      ].filter(Boolean);
+      onRefunded?.(amount, methods.join(", "));
+
       toast.success(
         t("orders.refund_success", { amount: formatPrice(amount, currency) })
       );
-      openDrawerForCashRefund();
+      if (cashRefunded > 0) openDrawer();
       onClose();
     } catch (error) {
-      handleErrorToast(getApiErrorMessage(error, t("orders.refund_failed")));
-      setStep("form");
+      void queryClient.invalidateQueries({
+        queryKey: queryKeys.orders.detail(order.id),
+      });
+      // A split refund can fail after its first part: that money has left, so it is
+      // recorded and the cashier is told, rather than reported as nothing happened.
+      const partial = done.reduce((sum, r) => sum + r.amount, 0);
+      if (partial > 0) {
+        await recordCash(
+          order,
+          "drop",
+          cashIn(done),
+          t("orders.post_sale.movement_refund", { id: order.display_id })
+        );
+        if (cashIn(done) > 0) openDrawer();
+        handleErrorToast(
+          t("orders.refund_partial", {
+            amount: formatPrice(partial, currency),
+            error: getApiErrorMessage(error, t("orders.refund_failed")),
+          })
+        );
+        onClose();
+      } else {
+        handleErrorToast(getApiErrorMessage(error, t("orders.refund_failed")));
+        setStep("form");
+      }
     } finally {
       submissionRef.current = false;
       setIsProcessing(false);
     }
   }, [
     selectedPayment,
+    allocation,
+    payments,
+    store,
+    isCashBlocked,
+    recordCash,
+    order,
     form,
     queryClient,
-    order.id,
     currency,
-    openDrawerForCashRefund,
+    openDrawer,
     onClose,
+    onRefunded,
     t,
   ]);
 
+  const labelOf = (id: string) =>
+    getPaymentMethodLabel(store, payments.find((p) => p.id === id)?.providerId);
+  const targets = allocation ?? (selectedPayment ? [{ id: selectedPayment.id, amount: 0 }] : []);
+
   return {
+    isLocked,
     form,
     step,
     setStep,
-    payments,
+    payments: isLocked ? covering : payments,
+    // Where the money goes back to, for the confirmation text.
+    refundMethodLabel: [...new Set(targets.map((r) => labelOf(r.id)).filter(Boolean))].join(", "),
+    splitParts:
+      allocation && allocation.length > 1
+        ? allocation.map((a) => ({ label: labelOf(a.id), amount: a.amount }))
+        : [],
     selectedPayment,
     selectedPaymentId: selectedPayment?.id ?? "",
     handleSelectPayment,

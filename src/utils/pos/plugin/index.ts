@@ -9,16 +9,31 @@ import { getSdk } from "@/config/medusa";
  */
 let installedCache: Promise<boolean> | null = null;
 
+/**
+ * Only an answer proves the route is missing. No answer at all (offline) or a failing
+ * backend (5xx) proves nothing, so it is neither reported as "not installed" nor cached:
+ * a network blip would otherwise switch the plugin off until the next logout.
+ */
+export const isInconclusiveProbe = (error: unknown): boolean => {
+  const status = (error as { status?: number } | null)?.status;
+  return status === undefined || status >= 500;
+};
+
 export async function isPosPluginInstalled(): Promise<boolean> {
   if (!installedCache) {
-    installedCache = (async () => {
+    const probe = (async () => {
       try {
         await getSdk().client.fetch("/pos/health", { method: "GET" });
         return true;
-      } catch {
+      } catch (error) {
+        if (isInconclusiveProbe(error)) throw error;
         return false;
       }
     })();
+    installedCache = probe;
+    probe.catch(() => {
+      if (installedCache === probe) installedCache = null;
+    });
   }
   return installedCache;
 }

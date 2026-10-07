@@ -1,174 +1,94 @@
 import { logger, safeStringify } from "@/utils/logger";
-import { useEffect, useState, useMemo, useCallback } from "react";
-import { AdminStore, AdminUser } from "@medusajs/types";
-import { AppConfig } from "@/types/utils";
-import { getSdk } from "@/config/medusa";
+import { useEffect, useState, useCallback, useRef } from "react";
+import { AdminUser } from "@medusajs/types";
+import { toast } from "sonner";
+import { getSdk, setUnauthorizedHandler } from "@/config/medusa";
 import { useUser } from "@/context/user";
-import { useStore } from "@/context/store";
-import { useSalesChannel } from "@/context/sales-channel";
 import { useStoreManager } from "@/context/store-manager";
 import storage from "@/utils/storage";
-import { handleErrorToast } from "@/utils/helpers";
-import { initDateTimePrefs, initCurrencyPrefs, loadPreferences } from "@/utils/settings/preferences";
-import { queryClient, queryKeys } from "@/config/query";
-import {
-  getPrimaryColor,
-  getSecondaryColor,
-  getFontSize,
-  getBrandName,
-  getLogoUrl,
-  hasPosMetadata,
-} from "@/utils/settings/store/metadata";
+import { t } from "@/i18n";
+import { queryClient } from "@/config/query";
+import { resetPosPluginCache } from "@/utils/pos/plugin";
+import { runPostAuthInit } from "@/utils/auth/post-auth-init";
+import { bootApp, verifyOfflineSession, type BootDeps, type BootMessage, type CachedTheme } from "@/utils/auth/boot-app";
 
-// Post-auth init (store meta, theme, prefs, setup + sales-channel checks). Safe from
-// boot and login flows; each section is wrapped so one failure never blocks the rest.
-export async function runPostAuthInit() {
-  try {
-    const sdk = getSdk();
-    const { stores } = await sdk.admin.store.list();
-    const store = stores[0] as AdminStore | undefined;
+const OFFLINE_RECHECK_MS = 10_000;
 
-    if (store) {
-      const dismissed = await storage.getItem("store_setup_dismissed");
-      useStore.getState().setNeedsSetup(!hasPosMetadata(store) && !dismissed);
+const bootText = (message: BootMessage) => t(`boot.${message}`);
 
-      queryClient.setQueryData(queryKeys.store, store);
+const fetchMe = () => getSdk().client.fetch<AdminUser>("/admin/users/me");
 
-      await useStoreManager.getState().updateActiveName(store.name);
-      await useStoreManager.getState().updateActiveLogo(getLogoUrl(store));
+// The id keeps the same message from stacking when two paths report it at once.
+const notify: BootDeps["notify"] = (message, tone) =>
+  toast[tone === "error" ? "error" : "info"](bootText(message), { id: `boot-${message}` });
 
-      const primaryColor = getPrimaryColor(store);
-      const secondaryColor = getSecondaryColor(store);
-      const fontScale = getFontSize(store);
+// One logout at a time: the 401 handler and the offline re-check can both end a session.
+let endingSession: Promise<void> | null = null;
+const endSession = (logout: () => Promise<void>) => {
+  endingSession ??= logout().finally(() => {
+    endingSession = null;
+  });
+  return endingSession;
+};
 
-      if (primaryColor) document.documentElement.style.setProperty("--color-primary", primaryColor);
-      else document.documentElement.style.removeProperty("--color-primary");
-      if (secondaryColor) document.documentElement.style.setProperty("--color-secondary", secondaryColor);
-      else document.documentElement.style.removeProperty("--color-secondary");
-      if (fontScale) document.documentElement.style.setProperty("--font-scale", fontScale);
-      else document.documentElement.style.removeProperty("--font-scale");
-
-      await storage.setItem("store_theme", {
-        primaryColor: primaryColor ?? undefined,
-        secondaryColor: secondaryColor ?? undefined,
-        fontScale: fontScale ?? undefined,
-        brandName: getBrandName(store) || undefined,
-      });
-    }
-  } catch (storeErr) {
-    void logger.error(`Store settings init failed: ${safeStringify(storeErr)}`);
-  }
-
-  try {
-    const prefs = await loadPreferences();
-    initDateTimePrefs(prefs.dateTime);
-    initCurrencyPrefs(prefs.currency);
-  } catch (prefsErr) {
-    void logger.error(`Preferences init failed: ${safeStringify(prefsErr)}`);
-  }
-
-  try {
-    const storedId = await storage.getItem("sales_channel_id");
-    let validId: string | undefined;
-
-    if (storedId) {
-      try {
-        const sdk = getSdk();
-        const { sales_channels } = await sdk.admin.salesChannel.list();
-        const exists = sales_channels.some((ch: { id: string }) => ch.id === storedId);
-        if (exists) {
-          validId = storedId;
-        } else {
-          await storage.setItem("sales_channel_id", "");
-        }
-      } catch {
-        validId = storedId;
-      }
-    }
-
-    useSalesChannel.getState().setSalesChannelId(validId);
-    useSalesChannel.getState().setNeedsWarning(!validId);
-  } catch (scErr) {
-    void logger.error(`Sales channel init failed: ${safeStringify(scErr)}`);
-    useSalesChannel.getState().setNeedsWarning(true);
-  }
-}
+const applyCachedTheme = (theme: CachedTheme) => {
+  const style = document.documentElement.style;
+  if (theme.primaryColor) style.setProperty("--color-primary", theme.primaryColor);
+  if (theme.secondaryColor) style.setProperty("--color-secondary", theme.secondaryColor);
+  if (theme.fontScale) style.setProperty("--font-scale", theme.fontScale);
+  document.title = theme.brandName ? `${theme.brandName} POS` : "POS";
+};
 
 const useAppInit = () => {
-  const [config, setConfig] = useState<AppConfig | null>(null);
   const [bootLoading, setBootLoading] = useState(true);
-  const [bootMessage, setBootMessage] = useState("Starting…");
+  const [bootMessage, setBootMessage] = useState(() => bootText("starting"));
+  const [offlineSession, setOfflineSession] = useState(false);
 
   const update = useUser((s) => s.update);
-  const logout = useUser((s) => s.logout);
+  const signOut = useUser((s) => s.logout);
+  const logout = useCallback(() => endSession(signOut), [signOut]);
 
-  const currentPath = window.location.pathname;
-  const isAuthRoute = currentPath === "/sign-in";
+  // A retry starts a new run; the run it replaced must not touch state afterwards.
+  const runId = useRef(0);
 
   const initApp = useCallback(async () => {
+    const run = ++runId.current;
+    const isSuperseded = () => run !== runId.current;
+
     setBootLoading(true);
-
+    setOfflineSession(false);
     try {
-      setBootMessage("Loading store configuration…");
-      await useStoreManager.getState().loadStores();
-      const { activeStore } = useStoreManager.getState();
-
-      if (!activeStore) {
-        setConfig(null);
-        update(null);
-        return;
-      }
-
-      setConfig({ backend_url: activeStore.backendUrl });
-
-      setBootMessage("Applying theme…");
-      const cachedTheme = await storage.getItem<{
-        primaryColor?: string;
-        secondaryColor?: string;
-        fontScale?: string;
-        brandName?: string;
-      }>("store_theme");
-      if (cachedTheme) {
-        if (cachedTheme.primaryColor) document.documentElement.style.setProperty("--color-primary", cachedTheme.primaryColor);
-        if (cachedTheme.secondaryColor) document.documentElement.style.setProperty("--color-secondary", cachedTheme.secondaryColor);
-        if (cachedTheme.fontScale) document.documentElement.style.setProperty("--font-scale", cachedTheme.fontScale);
-        document.title = cachedTheme.brandName ? `${cachedTheme.brandName} POS` : "POS";
-      }
-
-      const lastLogin = await storage.getItem("last_login");
-      if (!lastLogin) return;
-
-      try {
-        setBootMessage("Restoring session…");
-        const user = await getSdk().client.fetch<AdminUser>("/admin/users/me");
-        update(user);
-      } catch (error) {
-        const status = (error as { status?: number })?.status;
-        update(null);
-        if (status === 401) {
-          handleErrorToast("Session expired. Please log in again.");
-          await logout();
-          window.location.href = "/sign-in";
-        } else {
-          handleErrorToast("Failed to fetch user. Please try again.");
-        }
-      }
-
-      setBootMessage("Loading store settings…");
-      await runPostAuthInit();
-    } catch (err) {
-      void logger.error(`App initialization failed: ${safeStringify(err)}`);
-      setBootMessage("Initialization failed");
-      setConfig(null);
-      update(null);
-      await logout();
-      if (!isAuthRoute) {
-        window.location.href = "/sign-in";
-      }
+      const result = await bootApp({
+        loadStores: () => useStoreManager.getState().loadStores(),
+        getActiveBackendUrl: () => useStoreManager.getState().activeStore?.backendUrl,
+        readCachedTheme: () => storage.getItem<CachedTheme>("store_theme"),
+        applyTheme: applyCachedTheme,
+        readLastLogin: () => storage.getItem("last_login"),
+        fetchMe,
+        readCachedAdmin: () => storage.getItem<AdminUser>("last_admin"),
+        runPostAuthInit,
+        logout,
+        setUser: update,
+        setMessage: (message) => setBootMessage(bootText(message)),
+        notify,
+        logError: (error) => void logger.error(`App initialization failed: ${safeStringify(error)}`),
+        isSuperseded,
+      });
+      if (!isSuperseded()) setOfflineSession(result.offlineSession);
     } finally {
-      setBootLoading(false);
+      if (!isSuperseded()) setBootLoading(false);
     }
-  }, [logout, update, isAuthRoute]);
+  }, [logout, update]);
+
+  // A token the backend stops accepting mid-session (expired, revoked) signs the operator out.
+  useEffect(() => {
+    setUnauthorizedHandler(() => {
+      if (!useUser.getState().isAuthenticated) return;
+      notify("session_expired", "error");
+      void logout();
+    });
+    return () => setUnauthorizedHandler(null);
+  }, [logout]);
 
   useEffect(() => {
     // Defer to a microtask so initApp's initial state updates don't run
@@ -182,13 +102,46 @@ const useAppInit = () => {
     };
   }, [initApp]);
 
-  const isReady = useMemo(() => !!config && !bootLoading, [config, bootLoading]);
+  // A session the boot could not verify is re-checked until the backend answers, so it
+  // neither stays "signed in" on a dead token nor waits for a manual refresh.
+  useEffect(() => {
+    if (!offlineSession) return;
+    let stopped = false;
+    let busy = false;
+
+    const recheck = async () => {
+      if (busy || stopped) return;
+      busy = true;
+      const outcome = await verifyOfflineSession({
+        fetchMe,
+        setUser: update,
+        notify,
+        logout,
+        runPostAuthInit,
+      });
+      busy = false;
+      if (outcome === "verified") {
+        // Everything that failed while the backend was out of reach loads again by itself.
+        resetPosPluginCache();
+        void queryClient.invalidateQueries();
+      }
+      if (outcome !== "pending" && !stopped) setOfflineSession(false);
+    };
+
+    const timer = setInterval(recheck, OFFLINE_RECHECK_MS);
+    window.addEventListener("online", recheck);
+    return () => {
+      stopped = true;
+      clearInterval(timer);
+      window.removeEventListener("online", recheck);
+    };
+  }, [offlineSession, update, logout]);
 
   const retry = useCallback(() => {
     initApp();
   }, [initApp]);
 
-  return { config, bootLoading, bootMessage, isReady, retry };
+  return { bootLoading, bootMessage, retry };
 };
 
 export default useAppInit;

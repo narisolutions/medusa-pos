@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { getCurrentWindow } from "@tauri-apps/api/window";
 
-export default function useFullscreenToggle() {
+function useFullscreenToggle() {
   useEffect(() => {
     if (!("__TAURI_INTERNALS__" in window)) return;
 
@@ -18,3 +18,5 @@ export default function useFullscreenToggle() {
     return () => document.removeEventListener("keydown", handler);
   }, []);
 }
+
+export { useFullscreenToggle };

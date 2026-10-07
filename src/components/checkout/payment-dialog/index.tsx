@@ -60,7 +60,7 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
   const isLoading = !draftOrder;
 
   const handleDialogChange = (open: boolean) => {
-    if (!open) {
+    if (!open && !isProcessing) {
       handleClose();
     }
   };
@@ -247,7 +247,7 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
                           value={customerPaid}
                           onChange={handleCashValueChange}
                           onEnter={
-                            canProcessPayment
+                            !isLoading && canProcessPayment
                               ? handleCompleteClick
                               : undefined
                           }
@@ -303,7 +303,7 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
                       </Button>
                       <Button
                         onClick={handleCompleteClick}
-                        disabled={!canProcessPayment || isProcessing}
+                        disabled={isLoading || !canProcessPayment || isProcessing}
                         className="h-16 text-xl font-bold bg-primary hover:bg-primary/90 disabled:opacity-40 text-white"
                       >
                         {isProcessing ? t("common.processing") : t("checkout.complete_payment_button")}
@@ -368,7 +368,7 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
                     </Button>
                     <Button
                       onClick={handleCompleteClick}
-                      disabled={!canProcessPayment || isProcessing}
+                      disabled={isLoading || !canProcessPayment || isProcessing}
                       className="flex-2 h-16 text-xl font-bold bg-primary hover:bg-primary/90 disabled:opacity-40 text-white"
                     >
                       {isProcessing ? t("common.processing") : t("checkout.confirm_payment_button")}

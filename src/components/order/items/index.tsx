@@ -1,10 +1,11 @@
 import React from "react";
 import { AdminOrder } from "@medusajs/types";
 import { Button } from "@/components/ui/button";
-import { Package } from "lucide-react";
+import { Package, Undo2 } from "lucide-react";
 import { formatPrice, getOrderCurrency } from "@/utils/helpers";
 import { getOrderContactEmail } from "../hooks";
 import { useTranslation } from "@/i18n";
+import { toNumber } from "@/utils/pos/pricing";
 
 interface ItemsProps {
   order: AdminOrder;
@@ -62,6 +63,10 @@ const Items: React.FC<ItemsProps> = ({
           const primaryTitle = item.product_title || item.title;
           const secondaryTitle =
             item.variant_title && item.variant_title !== primaryTitle ? item.variant_title : null;
+          const restocked = toNumber(item.detail?.return_received_quantity);
+          const damaged = toNumber(item.detail?.return_dismissed_quantity);
+          // The backend values a returned bottle at 0; say why instead of showing a bare 0.00.
+          const fullyReturned = restocked + damaged > 0 && restocked + damaged >= item.quantity;
 
           return (
             <div
@@ -112,9 +117,25 @@ const Items: React.FC<ItemsProps> = ({
                 <p className="text-base text-fg-muted mb-1">
                   {t("orders.qty_label")}: {item.quantity} × {formatPrice(item.unit_price, currency)}
                 </p>
+                {restocked + damaged > 0 && (
+                  <p className="flex items-center gap-2 text-base text-fg-muted">
+                    <Undo2 className="size-4 shrink-0" />
+                    {[
+                      t("orders.item_returned"),
+                      restocked > 0 ? t("orders.event_restocked", { count: restocked }) : null,
+                      damaged > 0 ? t("orders.event_damaged", { count: damaged }) : null,
+                    ]
+                      .filter(Boolean)
+                      .join(" · ")}
+                  </p>
+                )}
               </div>
               <div className="text-right">
-                {hasManualDiscount && originalTotal != null ? (
+                {fullyReturned ? (
+                  <p className="text-lg font-semibold text-fg-muted line-through">
+                    {formatPrice(toNumber(item.unit_price) * item.quantity, currency)}
+                  </p>
+                ) : hasManualDiscount && originalTotal != null ? (
                   <>
                     <p className="text-sm text-fg-muted line-through">
                       {formatPrice(originalTotal, currency)}

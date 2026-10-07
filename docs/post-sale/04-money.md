@@ -76,10 +76,12 @@ checkout's behaviour.
 > collection for the difference, then a payment session, then capture or `markAsPaid`.
 > Refund → `payment.refund` against an existing captured payment.
 >
-> **Verify in spike, all three before writing settlement code:**
-> 1. The **sign** of `pending_difference`.
-> 2. Whether confirming an edit or exchange **creates a payment collection** for the
->    difference automatically, or whether the POS must create it.
-> 3. What `payment_status` an already-paid order reports once an edit raises its total —
->    `captured`, `partially_captured`, or something else. This decides whether anything
->    else in the app that reads `payment_status` starts misreporting the order.
+> **Verified in spike (S1–S3, S7):**
+> 1. Positive `pending_difference` means the customer owes.
+> 2. Confirming an edit or requesting an exchange **creates** a `not_paid` payment
+>    collection for the difference; the POS finds it and settles it, and does not create one.
+> 3. An already-paid order reports `partially_captured` until that collection is settled,
+>    then `captured` again. A return that leaves money owed leaves it at `captured`.
+> 4. ⚠ The backend does **not** cap a refund at what is owed: an extra refund became a
+>    credit line and lowered the order total. The locked refund amount is a real guard, not
+>    a convenience. A refund larger than one payment is split across payments by the POS.

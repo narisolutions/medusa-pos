@@ -51,6 +51,7 @@ interface ApiProductResponse {
   id: string;
   title: string;
   handle: string;
+  status?: string;
   thumbnail?: string;
   description?: string;
   images?: Array<{ url: string }>;
@@ -59,6 +60,7 @@ interface ApiProductResponse {
     title: string;
     sku?: string;
     ean?: string;
+    barcode?: string;
     prices: Array<{
       amount: number;
       currency_code: string;
@@ -93,6 +95,8 @@ interface ReceiptData {
   currency: string;
   paymentMethod: string;
   amountPaid?: number;
+  /** Money given back after the sale; shown on a reprint of a changed order. */
+  refunded?: number;
   change?: number;
   /** Signed cash-rounding adjustment (cash collected − exact total); cash only. */
   cashRounding?: number;
@@ -134,7 +138,6 @@ interface AppConfig {
 
 interface DraftOrderMetadata extends Record<string, unknown> {
   payment_method?: PaymentMethod;
-  order_discount?: OrderDiscount;
   order_comment?: string;
   /** Operator-chosen name for a parked sale ("Table 4") — a label, not a status flag. */
   park_label?: string;
@@ -154,7 +157,6 @@ type AddItemResult = {
 interface DiscountBreakdown {
   backendDiscount: number;
   itemDiscounts: number;
-  orderDiscount: number;
   total: number;
 }
 
@@ -216,12 +218,14 @@ interface OrdersResult {
 
 interface ActivityEvent {
   id: string;
-  type: "delivered" | "fulfilled" | "payment_captured" | "awaiting_payment" | "refunded" | "order_placed" | "shipment_created" | "shipped" | "marked_picked_up";
+  type: "delivered" | "fulfilled" | "payment_captured" | "awaiting_payment" | "refunded" | "order_placed" | "shipment_created" | "shipped" | "marked_picked_up" | "items_added" | "items_returned" | "items_exchanged";
   title: string;
   timestamp: string;
   amount?: number;
   currency?: string;
   itemCount?: number;
+  /** Second line: what moved, and for money, by which method. */
+  detail?: string;
 }
 
 

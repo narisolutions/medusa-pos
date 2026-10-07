@@ -1,15 +1,12 @@
-import { AdminDraftOrder } from "@medusajs/types";
-import { CartItem, DraftOrderMetadata, OrderDiscount, PaymentMethod } from "@/types/utils";
-import { isEmpty } from "@/utils/helpers";
+import { AdminDraftOrder, AdminProduct } from "@medusajs/types";
+import { CartItem, DraftOrderMetadata, PaymentMethod } from "@/types/utils";
 
 const DEFAULT_DRAFT_ORDER_METADATA: DraftOrderMetadata = {
-  order_discount: null,
   order_comment: "",
 };
 
 /** Order-level metadata keys the POS owns and normalizes. Anything else is passed through. */
 const POS_OWNED_METADATA_KEYS = [
-  "order_discount",
   "order_comment",
   "park_label",
   "payment_method",
@@ -32,7 +29,6 @@ const sanitizeDraftOrderMetadata = (
   metadata: Record<string, unknown> | null | undefined,
   { removeEmpty = false, preserve }: SanitizeOptions = {}
 ): DraftOrderMetadata => {
-  const orderDiscount = metadata?.order_discount as OrderDiscount | undefined;
   const orderComment = metadata?.order_comment;
   const parkLabel = metadata?.park_label;
   const paymentMethod = metadata?.payment_method;
@@ -46,10 +42,6 @@ const sanitizeDraftOrderMetadata = (
 
   if (removeEmpty) {
     const sanitized: Record<string, unknown> = { ...passthrough };
-
-    if (!isEmpty(orderDiscount)) {
-      sanitized.order_discount = orderDiscount;
-    }
 
     if (typeof orderComment === "string" && orderComment.trim() !== "") {
       sanitized.order_comment = orderComment;
@@ -71,10 +63,6 @@ const sanitizeDraftOrderMetadata = (
 
   const normalized: Record<string, unknown> = {
     ...passthrough,
-    order_discount:
-      typeof orderDiscount === "object" || orderDiscount === null
-        ? (orderDiscount as OrderDiscount | null)
-        : DEFAULT_DRAFT_ORDER_METADATA.order_discount,
     order_comment:
       typeof orderComment === "string"
         ? orderComment
@@ -115,18 +103,26 @@ const mapDraftOrderItemsToCartItems = (draftOrder: AdminDraftOrder): CartItem[] 
  * `availableMethodIds` guards the restored payment method: a sale parked at another
  * till may name a provider this one does not offer, which would leave the guard
  * satisfied while no button appears selected.
+ *
+ * `guestEmail`: a draft needs an email, so an anonymous sale carries the store's guest
+ * customer — that is no customer at all, and resumes as none.
  */
 const buildCartMetadataFromDraft = (
   draftOrder: AdminDraftOrder,
   fallbackPaymentMethod?: PaymentMethod,
-  availableMethodIds?: string[]
+  availableMethodIds?: string[],
+  guestEmail?: string
 ): DraftOrderMetadata => {
   const metadata = sanitizeDraftOrderMetadata(
     draftOrder.metadata as Record<string, unknown> | null
   ) as Record<string, unknown>;
 
-  if (draftOrder.customer_id) metadata.customer_id = draftOrder.customer_id;
-  if (draftOrder.email) metadata.customer_email = draftOrder.email;
+  const isGuest =
+    !!guestEmail && draftOrder.email?.toLowerCase() === guestEmail.toLowerCase();
+  if (!isGuest) {
+    if (draftOrder.customer_id) metadata.customer_id = draftOrder.customer_id;
+    if (draftOrder.email) metadata.customer_email = draftOrder.email;
+  }
 
   const stored = metadata.payment_method as string | undefined;
   const isOffered =
@@ -192,7 +188,48 @@ const reconcileStock = (
   return { items: reconciled, warnings };
 };
 
+/**
+ * Stock per variant from the catalogue. Null for an empty catalogue: that is a failed
+ * load, and reading it as "nothing in stock" would mark every line unavailable.
+ */
+const availabilityFromProducts = (
+  products: AdminProduct[] | null | undefined
+): Map<string, number> | null => {
+  if (!products?.length) return null;
+  const map = new Map<string, number>();
+  for (const product of products) {
+    for (const variant of product.variants ?? []) {
+      if (typeof variant.inventory_quantity === "number") {
+        map.set(variant.id, variant.inventory_quantity);
+      }
+    }
+  }
+  return map;
+};
+
+const VARIANT_ID = /variant_[0-9A-Z]{26}/g;
+const UNSELLABLE = /^Variants (.+) do not exist or belong to a product that is not published/;
+
+const cartItemName = (items: CartItem[], variantId: string): string => {
+  const item = items.find((candidate) => candidate.variant_id === variantId);
+  return item?.title || (item?.metadata?.product_title as string | undefined) || variantId;
+};
+
+/** The cart lines Medusa refused because their product is no longer published, by name. */
+const unsellableItemNames = (message: string, items: CartItem[]): string[] | null => {
+  const match = UNSELLABLE.exec(message);
+  if (!match) return null;
+  return match[1].split(", ").map((id) => cartItemName(items, id.trim()));
+};
+
+/** A backend message with the cart's variant ids replaced by what the operator sees. */
+const nameVariantIds = (message: string, items: CartItem[]): string =>
+  message.replace(VARIANT_ID, (id) => cartItemName(items, id));
+
 export {
+  availabilityFromProducts,
+  nameVariantIds,
+  unsellableItemNames,
   DEFAULT_DRAFT_ORDER_METADATA,
   sanitizeDraftOrderMetadata,
   mapDraftOrderItemsToCartItems,

@@ -28,10 +28,10 @@ Each feature lives in its own subdirectory. Within a feature, docs are split int
 
 | Feature | Status | Docs |
 |---|---|---|
-| [Cash Reconciliation](./cash-reconciliation/README.md) | v1 (in development) | Register open/close, expected-cash tracking, discrepancy reporting |
+| [Cash Reconciliation](./cash-reconciliation/README.md) | v1 (released) | Register open/close, expected-cash tracking, discrepancy reporting |
 | [Draft Orders & Parked Sales](./draft-orders/README.md) | phase 1 (released v0.6.0) | Park an in-progress sale and resume it later; stock re-check on resume, inventory holds spec'd for phase 2 |
-| [Post-Sale](./post-sale/README.md) | planned (spec + implementation plan) | Returns, exchanges and additional charges from the order page, settled at the till |
-| [Role Management](./role-management/README.md) | planned (design only) | Operator identity, staff roles, permissions and manager approval — replaces the register-scoped manager PIN |
+| [Post-Sale](./post-sale/README.md) | built (released v0.7.0) | Returns, exchanges and additional charges from the order page, settled at the till |
+| [Role Management](./role-management/README.md) | on hold — waits for Medusa's own roles; no custom system | Operator identity, staff roles, permissions and manager approval — replaces the register-scoped manager PIN |
 
 > More feature subdirectories will be added here over time.
 
@@ -39,4 +39,5 @@ Each feature lives in its own subdirectory. Within a feature, docs are split int
 
 | Doc | What it covers |
 |---|---|
-| [pos-toolkit & QR hand-off status](./pos-toolkit-and-handoff-status.md) | What is still open on the pos-toolkit adoption and the Tamada transfer ticket: work blocked on other teams, open decisions, known defects, and verification gaps |
+| [pos-toolkit & QR hand-off status](./pos-toolkit-and-handoff-status.md) | What is still open on the pos-toolkit adoption and the Brindola transfer ticket: work blocked on other teams, open decisions, known defects, and verification gaps |
+| [Known limitations](./known-limitations.md) | Gaps we know about and chose not to fix yet: what the operator sees, why, and what a fix would take |

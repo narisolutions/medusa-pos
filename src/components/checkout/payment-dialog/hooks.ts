@@ -1,3 +1,5 @@
+import { ORDER_DETAIL_FIELDS } from "@/hooks/queries/useQueryOrder";
+import { metadataUpdate } from "@/utils/pos/draft-order/sync";
 import { logger, safeStringify } from "@/utils/logger";
 import { t } from "@/i18n";
 import { useState, useCallback, useEffect, useMemo, useRef } from "react";
@@ -24,7 +26,8 @@ import {
   printerIssueStaffHintToast,
 } from "@/utils/helpers";
 
-// UI-only keys that must not outlive the draft. payment_method is the cashier's
+// UI-only keys that must not outlive the draft (sent as "" via metadataUpdate: Medusa merges
+// metadata, so a key merely left out survives). payment_method is the cashier's
 // selection for resuming a parked sale; the provider that actually settles the order
 // is recorded on the payment session, so it has no place in order history.
 const DRAFT_ONLY_METADATA_KEYS = ["payment_method"] as const;
@@ -235,8 +238,8 @@ const usePaymentModal = (
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [showPayLaterConfirmation, setShowPayLaterConfirmation] =
     useState(false);
-  // Total snapshotted at submit — clearing draftOrderId mid-flow would show 0.00 otherwise.
-  const [frozenTotal, setFrozenTotal] = useState<number | null>(null);
+  // Draft snapshotted at submit: conversion clears draftOrderId mid-flow, which would blank the dialog.
+  const [frozenDraft, setFrozenDraft] = useState<AdminDraftOrder | null>(null);
 
   const { printOrderReceipt, printHandoffTicket, openCashDrawer, getDefaultPrinter } =
     usePrinterService();
@@ -256,10 +259,11 @@ const usePaymentModal = (
   const isCashType = methodType === "cash";
 
   // Compose sub-hooks
-  const { draftOrder, fetchDraftOrder } = useDraftOrderState(
+  const { draftOrder: liveDraftOrder, fetchDraftOrder } = useDraftOrderState(
     draftOrderId,
     isOpen
   );
+  const draftOrder = frozenDraft ?? liveDraftOrder;
   const calculations = useOrderCalculations(draftOrder);
 
   // Swedish rounding: cash tenders round to the configured increment (card stays exact);
@@ -284,28 +288,20 @@ const usePaymentModal = (
   } = useCashPayment(cashTotal, isCashType);
   const { processPaymentCollection, processFulfillment } = useOrderProcessing();
 
-  // While processing, the draft order is cleared (so its total reads 0). Show the
-  // frozen snapshot taken at submit time so the amount never flashes to 0.00.
-  const displayTotal =
-    isProcessing && frozenTotal != null ? frozenTotal : calculations.total;
-
-  // Rounded cash amount to collect (cash + rounding on); card shows exact total.
-  const cashDue = roundingActive ? roundCashAmount(displayTotal) : displayTotal;
-
   // Fire-and-forget: print receipt + open cash drawer after order succeeds.
   // Runs independently so it never blocks the modal from closing.
   const runPostOrderHardware = useCallback(
     (order: AdminOrder, paymentMethod: PaymentMethod | undefined) => {
       const defaultPrinter = getDefaultPrinter();
 
-      printOrderReceipt(order).catch((printError) => {
-        void logger.warn(`Auto-print failed: ${safeStringify(printError)}`);
-        toast.error(t("orders.receipt_did_not_print"), {
-          description: defaultPrinter
-            ? printerIssueStaffHintToast(defaultPrinter.name)
-            : t("checkout.no_default_printer"),
+      if (defaultPrinter && defaultPrinter.autoPrintReceipt !== false) {
+        printOrderReceipt(order).catch((printError) => {
+          void logger.warn(`Auto-print failed: ${safeStringify(printError)}`);
+          toast.error(t("orders.receipt_did_not_print"), {
+            description: printerIssueStaffHintToast(defaultPrinter.name),
+          });
         });
-      });
+      }
 
       // A transfer takes no money, so the paper is the whole transaction: the
       // items travel to the other till on this ticket.
@@ -400,7 +396,7 @@ const usePaymentModal = (
       }
 
       submissionRef.current = true;
-      setFrozenTotal(calculations.total);
+      setFrozenDraft(draftOrder);
       setIsProcessing(true);
 
       // Tracks whether the draft order has already been consumed by convertToOrder.
@@ -433,7 +429,7 @@ const usePaymentModal = (
         );
         if (stripped || Object.keys(metadataPatch).length > 0) {
           await sdk.admin.draftOrder.update(draftOrderId!, {
-            metadata: { ...cleanedMetadata, ...metadataPatch },
+            metadata: metadataUpdate(preConvert.metadata, { ...cleanedMetadata, ...metadataPatch }),
           });
         }
 
@@ -511,12 +507,24 @@ const usePaymentModal = (
           // non-fatal
         }
 
+        // The receipt must show the sale as paid: the copy above was read before
+        // capture, and without its totals or status.
+        try {
+          const { order: paidOrder } = await sdk.admin.order.retrieve(finalOrder.id, {
+            fields: ORDER_DETAIL_FIELDS,
+          });
+          finalOrder = paidOrder;
+        } catch (refetchError) {
+          void logger.warn(`Receipt re-read failed; printing from the earlier copy: ${safeStringify(refetchError)}`);
+        }
+
         // Step 7: Clean up and finalize
         await cleanupAfterOrder(finalOrder, selectedPaymentMethod);
         return finalOrder;
 
       } catch (error) {
         playErrorSound();
+        setFrozenDraft(null);
         handleErrorToast(
           error instanceof Error ? error.message : "Failed to create order. Please try again."
         );
@@ -539,6 +547,7 @@ const usePaymentModal = (
       roundingActive,
       selectedPaymentMethod,
       customerPaid,
+      draftOrder,
       calculations.total,
       processPaymentCollection,
       processFulfillment,
@@ -565,7 +574,7 @@ const usePaymentModal = (
       }
 
       submissionRef.current = true;
-      setFrozenTotal(calculations.total);
+      setFrozenDraft(draftOrder);
       setIsProcessing(true);
 
       // Tracks whether convertToOrder has consumed the draft (controls modal close on error).
@@ -583,11 +592,11 @@ const usePaymentModal = (
           unknown
         >;
         await sdk.admin.draftOrder.update(draftOrderId, {
-          metadata: {
+          metadata: metadataUpdate(currentMetadata, {
             ...stripDraftOnlyKeys(currentMetadata).metadata,
             pay_later: true,
             ...(registerSessionId ? { register_session_id: registerSessionId } : {}),
-          },
+          }),
         });
 
         // Step 2: Convert draft → order, then clear the id immediately.
@@ -596,23 +605,25 @@ const usePaymentModal = (
         setDraftOrderId(null);
         orderConversionDone = true;
 
-        // Step 3: Fetch full order with expanded fields.
+        // Step 3: Fetch full order — the "amount due" receipt prints from it, totals included.
         const { order } = await sdk.admin.order.retrieve(convertedOrder.id, {
-          fields:
-            "display_id,*payment_collections,*payment_collections.payments,*summary,*fulfillments,*items,*customer,*sales_channel,*shipping_methods,currency_code",
+          fields: ORDER_DETAIL_FIELDS,
         });
 
         // Step 4: Deliver now (decrements inventory). Skip payment capture and
         // order.complete; do NOT cancel on any failure.
-        await processFulfillment(order);
+        const delivered = await processFulfillment(order);
 
         // Step 5: Clean up and finalize with an "outstanding" toast.
         await cleanupAfterOrder(order, selectedPaymentMethod, {
-          successMessage: `Order #${order.display_id} delivered — payment outstanding`,
+          successMessage: delivered
+            ? `Order #${order.display_id} delivered — payment outstanding`
+            : `Order #${order.display_id} created, not delivered — payment outstanding`,
         });
         return order;
       } catch (error) {
         playErrorSound();
+        setFrozenDraft(null);
         handleErrorToast(
           error instanceof Error
             ? error.message
@@ -633,7 +644,7 @@ const usePaymentModal = (
     }, [
       draftOrderId,
       selectedPaymentMethod,
-      calculations.total,
+      draftOrder,
       processFulfillment,
       cleanupAfterOrder,
       setDraftOrderId,
@@ -644,7 +655,7 @@ const usePaymentModal = (
   // Handle modal close
   const handleClose = useCallback(() => {
     resetCashState();
-    setFrozenTotal(null);
+    setFrozenDraft(null);
     setShowConfirmation(false);
     setShowPayLaterConfirmation(false);
     onClose?.();
@@ -713,10 +724,8 @@ const usePaymentModal = (
 
     // Calculations
     ...calculations,
-    // Keep the confirmed amount visible during submission instead of 0.00.
-    total: displayTotal,
     // Cash rounding: amount to collect (rounded) vs the exact total.
-    cashDue,
+    cashDue: cashTotal,
     cashRoundingActive: roundingActive,
 
     // Computed values

@@ -27,6 +27,7 @@ type PrinterFormValues = {
   vendorId?: number;
   productId?: number;
   isDefault: boolean;
+  autoPrintReceipt: boolean;
   openCashDrawer: boolean;
   openCashDrawerOnCash: boolean;
   openCashDrawerOnCard: boolean;
@@ -43,6 +44,7 @@ const initialFormData: PrinterFormValues = {
   vendorId: undefined,
   productId: undefined,
   isDefault: false,
+  autoPrintReceipt: true,
   openCashDrawer: false,
   openCashDrawerOnCash: false,
   openCashDrawerOnCard: false,
@@ -129,6 +131,7 @@ const usePrinterDialog = (
         vendorId: editingPrinter.vendorId,
         productId: editingPrinter.productId,
         isDefault: editingPrinter.isDefault,
+        autoPrintReceipt: editingPrinter.autoPrintReceipt ?? true,
         openCashDrawer: editingPrinter.openCashDrawer ?? false,
         openCashDrawerOnCash: editingPrinter.openCashDrawerOnCash ?? false,
         openCashDrawerOnCard: editingPrinter.openCashDrawerOnCard ?? false,

@@ -5,13 +5,24 @@ import { toNumber } from "@/utils/pos/pricing";
 /** Matches the `restriction:18+` convention carried in Medusa's product_type. */
 const AGE_RESTRICTION_PATTERN = /restriction:(\d+)\+/;
 
+/** ISO 4217 decimals of a currency (GEL 2, JPY 0, KWD 3); 2 when unknown. */
+export function currencyExponent(currency?: string | null): number {
+  if (!currency) return 2;
+  try {
+    return new Intl.NumberFormat("en", { style: "currency", currency }).resolvedOptions()
+      .maximumFractionDigits ?? 2;
+  } catch {
+    return 2;
+  }
+}
+
 /**
- * Decimal major units → integer minor units. The ONLY place this app converts;
- * everything else holds money in display units. Must round, not truncate:
+ * Decimal major units → integer minor units of `currency`. The ONLY place this app
+ * converts; everything else holds money in display units. Must round, not truncate:
  * 4.5 * 100 is 450.00000000000006 in IEEE-754.
  */
-export function toMinorUnits(amount: number): number {
-  return Math.round(toNumber(amount) * 100);
+export function toMinorUnits(amount: number, currency?: string | null): number {
+  return Math.round(toNumber(amount) * 10 ** currencyExponent(currency));
 }
 
 /** Minimum serving age from `product_type`, or undefined when unrestricted. */
@@ -30,11 +41,27 @@ function vatBasisPoints(item: OrderLineItem): number | undefined {
   return Math.round(toNumber(rate) * 100);
 }
 
-/** Display-only extras Tamada shows on the line detail. */
+/** Display-only extras Brindola shows on the line detail. */
 function itemMeta(item: OrderLineItem): Record<string, unknown> | undefined {
   const metadata = item.metadata as Record<string, unknown> | null | undefined;
   const vintage = metadata?.vintage;
   return typeof vintage === "string" && vintage ? { vintage } : undefined;
+}
+
+/**
+ * The name the restaurant bill shows: the product, then the variant (size, vintage) unless
+ * it is Medusa's placeholder or already part of the title — the brief asks for what matters.
+ */
+export function handoffItemName(item: {
+  title?: string | null;
+  variant_title?: string | null;
+}): string {
+  const title = item.title?.trim() ?? "";
+  const variant = item.variant_title?.trim() ?? "";
+  if (!variant || variant === "Default variant" || title.toLowerCase().includes(variant.toLowerCase())) {
+    return title;
+  }
+  return title ? `${title}, ${variant}` : variant;
 }
 
 /** The subset of a Medusa line item this builder reads. */
@@ -48,7 +75,7 @@ type OrderLineItem = NonNullable<AdminOrder["items"]>[number] & {
  * A completed transfer order → the ticket's QR payload.
  *
  * `ref` is the order id, which makes the payload deterministic: a reprint
- * carries the same ref, and Tamada refuses the duplicate scan rather than
+ * carries the same ref, and Brindola refuses the duplicate scan rather than
  * charging the guest twice.
  */
 export function buildHandoffPayload(order: AdminOrder): HandoffPayload {
@@ -59,12 +86,12 @@ export function buildHandoffPayload(order: AdminOrder): HandoffPayload {
 
     return {
       // variant_id is the fallback identity: sku is optional in Medusa but the
-      // line id on Tamada's side has to be stable.
+      // line id on Brindola's side has to be stable.
       sku: item.variant_sku || item.variant_id || item.id,
-      name: item.title ?? "",
+      name: handoffItemName(item),
       qty: Math.max(1, Math.round(toNumber(item.quantity))),
       // Prices are tax-inclusive here and the contract wants gross of VAT.
-      priceMinor: toMinorUnits(toNumber(item.unit_price)),
+      priceMinor: toMinorUnits(toNumber(item.unit_price), order.currency_code),
       ...(vatBp !== undefined ? { vatBp } : {}),
       ...(age !== undefined ? { minimumAge: age } : {}),
       ...(meta ? { meta } : {}),
@@ -86,7 +113,7 @@ export function buildHandoffPayload(order: AdminOrder): HandoffPayload {
  * anything fetches it, this feature has the runtime coupling it exists to avoid.
  */
 const HANDOFF_HOST = "wineland.ge";
-const HANDOFF_PATH = "/tamada/handoff/v1";
+const HANDOFF_PATH = "/brindola/handoff/v1";
 
 /** base64url, matching pos-toolkit-side `encodeBase64Url` byte for byte. */
 function encodeBase64Url(input: string): string {
@@ -97,7 +124,7 @@ function encodeBase64Url(input: string): string {
 }
 
 /**
- * The printable form of the payload. Tamada accepts raw JSON too, but a
+ * The printable form of the payload. Brindola accepts raw JSON too, but a
  * keyboard-wedge scanner cannot be assumed to transmit non-ASCII, so `nameKa`
  * would be at risk; base64url is ASCII by construction.
  */

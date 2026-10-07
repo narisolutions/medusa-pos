@@ -18,7 +18,8 @@ const fetchStore = async (): Promise<AdminStore | null> => {
     return (stores[0] as AdminStore) ?? null;
   } catch (error) {
     handleErrorToast(error);
-    return null;
+    // Rethrown so a failed load is an error, not "nothing configured".
+    throw error;
   }
 };
 

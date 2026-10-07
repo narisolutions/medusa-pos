@@ -19,6 +19,8 @@ export type PosPlugin = {
   SettingsPanel?: ComponentType;
   /** App-wide provider mounted in the Layout (subscriptions, sounds, badges). */
   Provider?: ComponentType<{ children: ReactNode }>;
+  /** Replaces the orders list's method badge for an order this plugin created; null for any other order. */
+  orderBadge?: (order: { metadata?: Record<string, unknown> | null }) => ReactNode;
   /** Called on login/logout so session-scoped caches can't leak across users. */
   resetSessionCaches?: (queryClient: QueryClient) => void;
   /** Called when the backend URL changes. */

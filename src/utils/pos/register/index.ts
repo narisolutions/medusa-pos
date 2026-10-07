@@ -68,16 +68,21 @@ export function orderCashContribution(
 ): number {
   if (order.status === "canceled") return 0;
 
-  const collections = order.payment_collections ?? [];
+  const collections = [...(order.payment_collections ?? [])].sort(
+    (a, b) => new Date(a.created_at ?? 0).getTime() - new Date(b.created_at ?? 0).getTime()
+  );
   let cashPayments = 0;
+  let cashTopUps = 0;
   let cashRefunds = 0;
   let cashPaymentSeen = false;
 
-  for (const collection of collections) {
+  for (const [index, collection] of collections.entries()) {
     for (const payment of collection.payments ?? []) {
       if (getMethodType(store, payment.provider_id) === "cash") {
         cashPaymentSeen = true;
         cashPayments += toNumber(payment.amount);
+        // Later collections are post-sale top-ups (added items, an exchange difference).
+        if (index > 0) cashTopUps += toNumber(payment.amount);
         const refunds = (payment as { refunds?: { amount?: unknown }[] }).refunds ?? [];
         for (const refund of refunds) cashRefunds += toNumber(refund.amount);
       }
@@ -85,9 +90,10 @@ export function orderCashContribution(
   }
 
   // Prefer the rounded cash actually collected (stamped at checkout) so expected
-  // cash matches the physical drawer in cash-rounding markets; refunds still net out.
+  // cash matches the physical drawer in cash-rounding markets. The stamp covers the
+  // sale only, so cash top-ups after it are added; refunds still net out.
   const collected = cashCollectedFromMeta(order);
-  if (collected != null) return collected - cashRefunds;
+  if (collected != null) return collected + cashTopUps - cashRefunds;
 
   if (cashPaymentSeen) return cashPayments - cashRefunds;
 
@@ -126,6 +132,19 @@ export function movementTotals(session: RegisterSession): {
 }
 
 /**
+ * The session's own orders among those created since it opened. An order stamped with a
+ * register session belongs to that session only; an unstamped one (from before stamping
+ * existed) is attributed by its created_at window, which the caller's query already applied.
+ */
+export function ordersForSession(orders: AdminOrder[], session: RegisterSession): AdminOrder[] {
+  return orders.filter((order) => {
+    const stamped = (order.metadata as Record<string, unknown> | null | undefined)
+      ?.register_session_id;
+    return typeof stamped === "string" && stamped.length > 0 ? stamped === session.id : true;
+  });
+}
+
+/**
  * Expected drawer cash for a session:
  *   openingFloat + cash sales - cash refunds + pay-ins - drops
  */
@@ -149,4 +168,17 @@ export function newSessionId(): string {
 
 export function newMovementId(): string {
   return `mov_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+}
+
+/**
+ * Cash moved on an order created before this session opened. The session's
+ * expected cash only scans orders created since it opened, so that cash must be
+ * recorded as a movement; an order created in the session is already counted.
+ */
+export function needsSessionMovement(
+  order: { created_at?: string | Date | null },
+  session: RegisterSession | null
+): boolean {
+  if (!session || session.status !== "open" || !order.created_at) return false;
+  return new Date(order.created_at).getTime() < new Date(session.openedAt).getTime();
 }
