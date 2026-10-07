@@ -1,6 +1,6 @@
 # pos-toolkit adoption & Brindola QR hand-off — what is still open
 
-*Last updated 2026-10-05. Covers `develop` @ `4a5e14a` plus the item-name change below.*
+*Last updated 2026-10-07.*
 
 Everything below is known-outstanding work, deliberate omissions, or defects found and not yet fixed. What is already done and merged is summarised only enough to make the gaps legible.
 
@@ -104,19 +104,20 @@ Related, ✅ fixed: `getMethodType` now infers from `icon` for `transfer` as wel
 
 `PrintOp::Text` carries bold, alignment and size only. Cosmetic, test page only, but a visible change to anyone who knows that page.
 
-### 3.6 An order-level discount does not reach the ticket
+### 3.6 An order-level discount would not reach the ticket — not reachable today
 
-`priceMinor` is each line's unit price ([handoff/index.ts](../src/utils/pos/handoff/index.ts)).
-An item discount changes that price and travels correctly; a discount on the **whole order**
-lives only in the order's metadata (`order_discount`) and is not distributed over the lines. A
-transfer sale with an order-level discount therefore puts the full prices on the restaurant
-bill. Until the discount is spread across the lines, apply transfer discounts per item.
+`priceMinor` is each line's unit price ([handoff/index.ts](../src/utils/pos/handoff/index.ts)), so
+item discounts travel correctly. An **order-level** discount lives only in the order's metadata
+(`order_discount`) and is not spread over the lines — but checked 2026-10-07, **no screen sets
+one**: the discount dialog writes item discounts only, and `setOrderDiscount` has no caller. If an
+order-level discount is ever added, it must be spread across the lines (earliest-first remainder),
+and reach Medusa's totals too — today the payment charges the draft's total, which ignores it.
 
-### 3.7 Minor units assume two decimals
+### ~~3.7 Minor units assume two decimals~~ — fixed
 
-`toMinorUnits` multiplies by 100. The brief asks for the ISO 4217 exponent of `currency`
-(2 for GEL, 0 for JPY, 3 for KWD). Correct for every currency Wineland uses; a till selling in
-a zero- or three-decimal currency would print prices off by a factor of 100 or 10.
+✅ `toMinorUnits` now uses the currency's ISO 4217 decimals from `Intl` (`currencyExponent`: GEL 2,
+JPY 0, KWD 3; 2 when unknown), as the brief asks. Kept for the record: it multiplied by 100, which
+was right for GEL only.
 
 ### ~~3.8 The bill showed the product without its size or vintage~~ — fixed
 

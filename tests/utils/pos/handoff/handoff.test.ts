@@ -3,6 +3,7 @@ import { AdminOrder } from "@medusajs/types";
 import {
   buildHandoffPayload,
   encodeHandoffUrl,
+  currencyExponent,
   handoffItemName,
   toMinorUnits,
 } from "@/utils/pos/handoff";
@@ -47,6 +48,22 @@ describe("toMinorUnits", () => {
   it("handles zero and Medusa's string amounts", () => {
     expect(toMinorUnits(0)).toBe(0);
     expect(toMinorUnits("32.50" as unknown as number)).toBe(3250);
+  });
+
+  it("uses the currency's own decimals, as the hand-off contract asks", () => {
+    expect(toMinorUnits(45, "GEL")).toBe(4500);
+    expect(toMinorUnits(1200, "jpy")).toBe(1200);
+    expect(toMinorUnits(1.234, "KWD")).toBe(1234);
+  });
+});
+
+describe("currencyExponent", () => {
+  it("reads ISO 4217 decimals, and assumes two when it cannot tell", () => {
+    expect(currencyExponent("GEL")).toBe(2);
+    expect(currencyExponent("JPY")).toBe(0);
+    expect(currencyExponent("KWD")).toBe(3);
+    expect(currencyExponent(undefined)).toBe(2);
+    expect(currencyExponent("not-a-currency")).toBe(2);
   });
 });
 

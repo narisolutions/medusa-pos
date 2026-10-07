@@ -30,4 +30,4 @@ const useApplyStoreTheme = () => {
   }, [store]);
 };
 
-export default useApplyStoreTheme;
+export { useApplyStoreTheme };
