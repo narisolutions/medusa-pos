@@ -16,10 +16,10 @@ import { PaymentMethod } from "@/types/utils";
 import { useCheckout } from "../hooks";
 import { useQueryStore } from "@/hooks/queries/useQueryStore";
 import { useOrderProcessing } from "@/hooks/order/useOrderProcessing";
-import { getPaymentMethods, getMethodType } from "@/utils/settings/store/metadata";
+import { getBankDetails, getPaymentMethods, getMethodType } from "@/utils/settings/store/metadata";
 import { getCashRounding, roundCashAmount } from "@/utils/settings/preferences";
 import constants from "@/utils/constants";
-import { CreditCard, Banknote, ArrowLeftRight } from "lucide-react";
+import { CreditCard, Banknote, ArrowLeftRight, Landmark } from "lucide-react";
 import {
   cashDrawerIssueStaffHintToast,
   handleErrorToast,
@@ -50,6 +50,7 @@ const iconByType = {
   cash: Banknote,
   card: CreditCard,
   transfer: ArrowLeftRight,
+  bank_transfer: Landmark,
 } as const;
 
 const usePaymentMethodDisplay = (selectedPaymentMethod?: PaymentMethod) => {
@@ -595,6 +596,7 @@ const usePaymentModal = (
           metadata: metadataUpdate(currentMetadata, {
             ...stripDraftOnlyKeys(currentMetadata).metadata,
             pay_later: true,
+            ...(selectedPaymentMethod ? { pay_later_method: selectedPaymentMethod } : {}),
             ...(registerSessionId ? { register_session_id: registerSessionId } : {}),
           }),
         });
@@ -678,8 +680,8 @@ const usePaymentModal = (
   // Handle complete button click
   const handleCompleteClick = useCallback(() => {
     // Cash needs no confirmation — counting the money out is the confirmation.
-    // Card confirms the terminal went through; transfer confirms an internal
-    // settlement that takes no money at all and cannot be undone at the till.
+    // Card confirms the terminal went through, a bank transfer that it arrived;
+    // transfer confirms an internal settlement that takes no money at all.
     const needsConfirmation = methodType !== "cash";
 
     if (needsConfirmation) {
@@ -736,6 +738,8 @@ const usePaymentModal = (
     items,
     paymentMethodInfo,
     isCashPayment: isCashType,
+    isBankTransfer: methodType === "bank_transfer",
+    hasBankDetails: getBankDetails(store) !== undefined,
 
     // Functions
     handleCashValueChange,

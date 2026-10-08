@@ -11,7 +11,7 @@ import { useCheckout } from "../hooks";
 import { usePaymentModal } from "./hooks";
 import ConfirmationDialog from "./confirmation-dialog";
 import PayLaterConfirmationDialog from "./pay-later-confirmation-dialog";
-import { CreditCard } from "lucide-react";
+import { CreditCard, Landmark } from "lucide-react";
 import { useTranslation } from "@/i18n";
 
 interface PaymentModalProps {
@@ -50,6 +50,8 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
     items,
     paymentMethodInfo,
     isCashPayment,
+    isBankTransfer,
+    hasBankDetails,
     draftOrder,
     billCounts,
   } = usePaymentModal(draftOrderId, onClose, isOpen);
@@ -66,6 +68,7 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
   };
 
   const PaymentIcon = paymentMethodInfo.icon;
+  const PanelIcon = isBankTransfer ? Landmark : CreditCard;
 
   return (
     <Dialog open={isOpen} onOpenChange={handleDialogChange}>
@@ -321,7 +324,7 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
                 </div>
               </div>
             ) : (
-              /* CARD PAYMENT  */
+              /* CARD OR BANK TRANSFER PAYMENT */
               <div className="flex-1 min-h-0 overflow-y-auto flex items-center justify-center p-8">
                 <div className="max-w-lg w-full text-center space-y-8">
                   <div>
@@ -349,12 +352,12 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
 
                   <div className="flex justify-center py-6">
                     <div className="w-32 h-32 rounded-2xl bg-surface-subtle flex items-center justify-center">
-                      <CreditCard className="w-16 h-16 text-fg-subtle" />
+                      <PanelIcon className="w-16 h-16 text-fg-subtle" />
                     </div>
                   </div>
 
                   <p className="text-lg text-fg-muted">
-                    {t("checkout.present_card_message")}
+                    {isBankTransfer ? t("checkout.bank_transfer_message") : t("checkout.present_card_message")}
                   </p>
 
                   <div className="flex gap-4 pt-8">
@@ -371,16 +374,24 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
                       disabled={isLoading || !canProcessPayment || isProcessing}
                       className="flex-2 h-16 text-xl font-bold bg-primary hover:bg-primary/90 disabled:opacity-40 text-white"
                     >
-                      {isProcessing ? t("common.processing") : t("checkout.confirm_payment_button")}
+                      {isProcessing
+                        ? t("common.processing")
+                        : isBankTransfer
+                          ? t("checkout.transfer_received_button")
+                          : t("checkout.confirm_payment_button")}
                     </Button>
                   </div>
                   <Button
                     variant="outline"
                     onClick={handleDeliverPayLaterClick}
                     disabled={isLoading || isProcessing}
-                    className="w-full h-14 text-base font-medium border-theme-border text-fg-muted hover:text-fg hover:bg-surface-hover"
+                    className={
+                      isBankTransfer
+                        ? "w-full h-16 text-lg font-semibold"
+                        : "w-full h-14 text-base font-medium border-theme-border text-fg-muted hover:text-fg hover:bg-surface-hover"
+                    }
                   >
-                    {t("checkout.deliver_pay_later")}
+                    {isBankTransfer ? t("checkout.awaiting_transfer_button") : t("checkout.deliver_pay_later")}
                   </Button>
                 </div>
               </div>
@@ -396,6 +407,8 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
         onConfirm={handleConfirmPayment}
         isProcessing={isProcessing}
         total={total}
+        message={isBankTransfer ? t("checkout.confirm_transfer_message") : undefined}
+        confirmLabel={isBankTransfer ? t("checkout.transfer_received_button") : undefined}
       />
 
       {/* Pay-later Confirmation Dialog */}
@@ -405,6 +418,7 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
         onConfirm={handleConfirmPayLater}
         isProcessing={isProcessing}
         total={total}
+        message={isBankTransfer && hasBankDetails ? t("checkout.awaiting_transfer_confirm_message") : undefined}
       />
     </Dialog>
   );

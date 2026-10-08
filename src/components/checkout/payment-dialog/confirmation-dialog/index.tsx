@@ -11,6 +11,9 @@ interface ConfirmationDialogProps {
   onConfirm: () => void;
   isProcessing: boolean;
   total: number;
+  /** Overrides the default explanation, e.g. for a bank transfer. */
+  message?: string;
+  confirmLabel?: string;
 }
 
 const ConfirmationDialog: React.FC<ConfirmationDialogProps> = ({
@@ -19,6 +22,8 @@ const ConfirmationDialog: React.FC<ConfirmationDialogProps> = ({
   onConfirm,
   isProcessing,
   total,
+  message,
+  confirmLabel,
 }) => {
   const { currency } = useCheckout();
   const { t } = useTranslation();
@@ -31,7 +36,7 @@ const ConfirmationDialog: React.FC<ConfirmationDialogProps> = ({
 
         <div className="space-y-6 py-4">
           <p className="text-lg text-fg-muted text-center">
-            {t("checkout.confirm_payment_message")}
+            {message ?? t("checkout.confirm_payment_message")}
           </p>
 
           <div className="bg-blue-50 border-2 border-blue-200 rounded-lg p-4">
@@ -58,7 +63,7 @@ const ConfirmationDialog: React.FC<ConfirmationDialogProps> = ({
             disabled={isProcessing}
             className="flex-1 h-14 text-lg font-medium bg-green-600 hover:bg-green-700 text-white"
           >
-            {isProcessing ? t("common.processing") : t("checkout.payment_successful_button")}
+            {isProcessing ? t("common.processing") : confirmLabel ?? t("checkout.payment_successful_button")}
           </Button>
         </div>
       </DialogContent>

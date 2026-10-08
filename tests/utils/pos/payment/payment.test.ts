@@ -1,5 +1,14 @@
 import { describe, it, expect } from "vitest";
-import { allocateRefund, defaultRefundPayment, getPaymentMethodLabel, paymentsCovering, type RefundablePayment } from "@/utils/pos/payment";
+import { AdminOrder, AdminStore } from "@medusajs/types";
+import {
+  allocateRefund,
+  defaultRefundPayment,
+  getOrderChosenProviderId,
+  getOrderPaymentMethodType,
+  getPaymentMethodLabel,
+  paymentsCovering,
+  type RefundablePayment,
+} from "@/utils/pos/payment";
 
 const payment = (id: string, refundable: number): RefundablePayment => ({
   id,
@@ -68,5 +77,28 @@ describe("getPaymentMethodLabel", () => {
   it("leaves any other unknown provider visible for diagnosis", () => {
     expect(getPaymentMethodLabel(store, "pp_mystery")).toBe("pp_mystery");
     expect(getPaymentMethodLabel(store, undefined)).toBe("");
+  });
+});
+
+describe("getOrderChosenProviderId", () => {
+  const order = (fields: Record<string, unknown>) => fields as unknown as AdminOrder;
+  const paidWith = (provider_id: string) => ({ payment_collections: [{ payments: [{ provider_id }] }] });
+
+  it("shows the method chosen for an unpaid pay-later order", () => {
+    expect(getOrderChosenProviderId(order({ metadata: { pay_later_method: "pp_banktransfer_pos" } }))).toBe(
+      "pp_banktransfer_pos"
+    );
+  });
+
+  it("prefers the provider that actually paid", () => {
+    const paid = order({ ...paidWith("pp_tbc_pos"), metadata: { pay_later_method: "pp_banktransfer_pos" } });
+    expect(getOrderChosenProviderId(paid)).toBe("pp_tbc_pos");
+  });
+
+  it("never makes an unpaid cash order behave as cash", () => {
+    const store = { metadata: {} } as unknown as AdminStore;
+    const unpaid = order({ metadata: { pay_later_method: "pp_cash_pos" } });
+    expect(getOrderChosenProviderId(unpaid)).toBe("pp_cash_pos");
+    expect(getOrderPaymentMethodType(unpaid, store)).toBe("card");
   });
 });

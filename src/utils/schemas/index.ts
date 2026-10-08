@@ -161,14 +161,17 @@ export default {
       .email({ message: "Please enter a valid email address" })
       .optional(),
     transferCounterparty: z.string().optional(),
+    bankBeneficiary: z.string().optional(),
+    bankName: z.string().optional(),
+    bankIban: z.string().optional(),
     paymentMethods: z
       .array(
         z.object({
           id: z.string().min(1),
           label: z.string().min(1),
           enabled: z.boolean(),
-          icon: z.enum(["cash", "card", "transfer"]).optional(),
-          type: z.enum(["cash", "card", "transfer"]).optional(),
+          icon: z.enum(["cash", "card", "transfer", "bank_transfer"]).optional(),
+          type: z.enum(["cash", "card", "transfer", "bank_transfer"]).optional(),
         })
       )
       .optional(),

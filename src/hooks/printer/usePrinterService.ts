@@ -17,6 +17,7 @@ import {
   getStorePhone,
   getGuestCustomerEmail,
   getTransferCounterparty,
+  getBankDetails,
 } from "@/utils/settings/store/metadata";
 import { buildHandoffPayload, encodeHandoffUrl } from "@/utils/pos/handoff";
 import schemas from "@/utils/schemas";
@@ -199,7 +200,7 @@ const usePrinterService = () => {
         : null;
     const cashDue = cashCollected ?? total;
     
-    const paymentMethodLabel = getOrderPaymentMethodLabel(order, store) || "PP_CASH_POS";
+    const paymentMethodLabel = getOrderPaymentMethodLabel(order, store);
     const isCashMethod = getOrderPaymentMethodType(order, store) === "cash";
 
     // Order is delivered but payment is outstanding (pay later) — render an
@@ -210,6 +211,8 @@ const usePrinterService = () => {
       paymentStatus === "awaiting" ||
       paymentStatus === "requires_action" ||
       (order.metadata?.pay_later === true && paymentStatus !== "captured");
+
+    const bank = isUnpaid ? getBankDetails(store) : undefined;
 
     // The cash handed over and its change belong to the original sale only.
     const amountPaid: number = isUnpaid
@@ -260,6 +263,7 @@ const usePrinterService = () => {
       cashRounding,
       isUnpaid,
       amountDue: isUnpaid ? total : undefined,
+      bankDetails: bank && { beneficiary: bank.beneficiary, bankName: bank.bank_name, iban: bank.iban },
       footer: "Thank you for your business!",
     };
   }, [store]);
@@ -287,6 +291,10 @@ const usePrinterService = () => {
     change: t("receipt.change"),
     amountDue: t("receipt.amount_due"),
     unpaid: t("receipt.unpaid"),
+    payTo: t("receipt.pay_to"),
+    bank: t("receipt.bank"),
+    iban: t("receipt.iban"),
+    reference: t("receipt.reference"),
     thankYou: t("receipt.thank_you"),
   }), [t]);
 

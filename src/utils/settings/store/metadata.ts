@@ -3,16 +3,24 @@ import { AdminStore } from "@medusajs/types";
 /**
  * "transfer" settles an order against an internal counterparty rather than a
  * customer — no money is taken at the till, so no numpad, no change, no drawer.
+ * "bank_transfer" is the customer paying from their bank: no numpad, no drawer.
  */
-export type PaymentMethodType = "cash" | "card" | "transfer";
+export type PaymentMethodType = "cash" | "card" | "transfer" | "bank_transfer";
 
 export type PaymentMethodConfig = {
   id: string;
   label: string;
   enabled: boolean;
-  icon?: "cash" | "card" | "transfer";
+  icon?: PaymentMethodType;
   /** Drives payment processing behavior (numpad, change calc, confirmation dialog). */
   type?: PaymentMethodType;
+};
+
+/** Where a customer sends a bank transfer; printed on unpaid receipts. */
+export type BankDetails = {
+  beneficiary?: string;
+  bank_name?: string;
+  iban?: string;
 };
 
 /** POS-specific store settings, nested under metadata.pos */
@@ -29,6 +37,7 @@ export type PosMetadata = {
   guest_customer_email?: string;
   /** Who a transfer settlement is owed to; printed on the hand-off ticket. */
   transfer_counterparty?: string;
+  bank_details?: BankDetails;
 };
 
 /** Raw store metadata shape (may have pos object and/or legacy flat keys) */
@@ -82,6 +91,7 @@ export function getStoreMetadata(
     payment_methods: pos.payment_methods ?? raw.payment_methods,
     guest_customer_email: pos.guest_customer_email ?? raw.guest_customer_email,
     transfer_counterparty: pos.transfer_counterparty ?? raw.transfer_counterparty,
+    bank_details: pos.bank_details,
   };
 }
 
@@ -125,6 +135,22 @@ export function getTransferCounterparty(
   store: AdminStore | null | undefined
 ): string | undefined {
   return getStoreMetadata(store).transfer_counterparty;
+}
+
+/** Country code, check digits, then 11–30 letters/digits (the IBAN shape every country shares). */
+export const IBAN_PATTERN = /^[A-Z]{2}\d{2}[A-Z0-9]{11,30}$/;
+
+/** An IBAN as typed or pasted ("ge29 nb00 …") in the compact form it is stored and printed in. */
+export function normalizeIban(value: string): string {
+  return value.replace(/\s+/g, "").toUpperCase();
+}
+
+/** The store's bank details, only when an IBAN is set — without one there is nothing to pay to. */
+export function getBankDetails(
+  store: AdminStore | null | undefined
+): (BankDetails & { iban: string }) | undefined {
+  const details = getStoreMetadata(store).bank_details;
+  return details?.iban ? { ...details, iban: details.iban } : undefined;
 }
 
 export function getStoreAddress2(
@@ -214,7 +240,7 @@ export function getMethodType(
   if (!found) return "card";
   // Legacy configs carry only an icon; infer every type from it, not just cash.
   if (found.type) return found.type;
-  if (found.icon === "cash" || found.icon === "transfer") return found.icon;
+  if (found.icon === "cash" || found.icon === "transfer" || found.icon === "bank_transfer") return found.icon;
   return "card";
 }
 

@@ -1,6 +1,6 @@
 import React from "react";
 import { useForm, useFieldArray, useWatch } from "react-hook-form";
-import { ImageIcon, Upload, X, Banknote, CreditCard, ArrowLeftRight, Plus, Trash2, Info, AlertTriangle } from "lucide-react";
+import { ImageIcon, Upload, X, Banknote, CreditCard, ArrowLeftRight, Landmark, Plus, Trash2, Info, AlertTriangle } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -19,6 +19,7 @@ import {
   FormField,
   FormItem,
   FormLabel,
+  FormMessage,
 } from "@/components/ui/form";
 import {
   Tooltip,
@@ -26,7 +27,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { Forms } from "@/types/form";
-import { DEFAULT_PAYMENT_METHODS } from "@/utils/settings/store/metadata";
+import { DEFAULT_PAYMENT_METHODS, IBAN_PATTERN, normalizeIban } from "@/utils/settings/store/metadata";
 import { useQueryPaymentProviders } from "@/hooks/queries/useQueryPaymentProviders";
 import { useStoreSettings } from "./hooks";
 import ColorField from "./color-field";
@@ -48,6 +49,9 @@ const StoreSettings: React.FC = () => {
       paymentMethods: DEFAULT_PAYMENT_METHODS,
       guestCustomerEmail: "",
       transferCounterparty: "",
+      bankBeneficiary: "",
+      bankName: "",
+      bankIban: "",
     },
   });
 
@@ -64,6 +68,9 @@ const StoreSettings: React.FC = () => {
   const paymentMethods = useWatch({ control, name: "paymentMethods" });
   const hasTransferMethod = paymentMethods?.some(
     (m) => (m.type ?? m.icon) === "transfer"
+  );
+  const hasBankTransferMethod = paymentMethods?.some(
+    (m) => (m.type ?? m.icon) === "bank_transfer"
   );
 
   const { data: installedProviders, isError: providersError } = useQueryPaymentProviders();
@@ -284,8 +291,8 @@ const StoreSettings: React.FC = () => {
                   <span className="w-4 shrink-0" />
                   <span className="w-48 shrink-0">{t("settings.store.column_provider_id")}</span>
                   <span className="flex-1 min-w-0">{t("settings.store.column_display_name")}</span>
-                  <span className="w-28 shrink-0">{t("settings.store.column_icon")}</span>
-                  <span className="w-28 shrink-0">{t("settings.store.column_type")}</span>
+                  <span className="w-40 shrink-0">{t("settings.store.column_icon")}</span>
+                  <span className="w-40 shrink-0">{t("settings.store.column_type")}</span>
                   <span className="size-12 shrink-0" />
                 </div>
                 {fields.map((field, index) => (
@@ -368,7 +375,7 @@ const StoreSettings: React.FC = () => {
                       control={control}
                       name={`paymentMethods.${index}.icon`}
                       render={({ field: iconField }) => (
-                        <FormItem className="w-28 shrink-0">
+                        <FormItem className="w-40 shrink-0">
                           <Select
                             value={iconField.value ?? "card"}
                             onValueChange={iconField.onChange}
@@ -397,6 +404,11 @@ const StoreSettings: React.FC = () => {
                                   <ArrowLeftRight className="w-4 h-4" /> {t("settings.store.icon_transfer")}
                                 </span>
                               </SelectItem>
+                              <SelectItem value="bank_transfer">
+                                <span className="flex items-center gap-2">
+                                  <Landmark className="w-4 h-4" /> {t("settings.store.icon_bank_transfer")}
+                                </span>
+                              </SelectItem>
                             </SelectContent>
                           </Select>
                         </FormItem>
@@ -406,7 +418,7 @@ const StoreSettings: React.FC = () => {
                       control={control}
                       name={`paymentMethods.${index}.type`}
                       render={({ field: typeField }) => (
-                        <FormItem className="w-28 shrink-0">
+                        <FormItem className="w-40 shrink-0">
                           <Select
                             value={typeField.value ?? "card"}
                             onValueChange={typeField.onChange}
@@ -428,6 +440,9 @@ const StoreSettings: React.FC = () => {
                               </SelectItem>
                               <SelectItem value="transfer">
                                 {t("settings.store.type_transfer")}
+                              </SelectItem>
+                              <SelectItem value="bank_transfer">
+                                {t("settings.store.type_bank_transfer")}
                               </SelectItem>
                             </SelectContent>
                           </Select>
@@ -505,6 +520,85 @@ const StoreSettings: React.FC = () => {
                   </FormItem>
                 )}
               />
+            )}
+
+            {hasBankTransferMethod && (
+              <div className="space-y-3">
+                <div className="text-lg font-medium flex items-center gap-2">
+                  {t("settings.store.bank_details_label")}
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <button
+                        type="button"
+                        className="inline-flex items-center justify-center rounded-full p-0.5 hover:bg-surface-subtle"
+                      >
+                        <Info className="w-4 h-4 text-fg-subtle" />
+                      </button>
+                    </TooltipTrigger>
+                    <TooltipContent side="top" sideOffset={4} className="max-w-xs text-left">
+                      {t("settings.store.bank_details_tooltip")}
+                    </TooltipContent>
+                  </Tooltip>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-start">
+                  <FormField
+                    control={control}
+                    name="bankBeneficiary"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-base">{t("settings.store.bank_beneficiary_label")}</FormLabel>
+                        <FormControl>
+                          <Input
+                            placeholder={t("settings.store.bank_beneficiary_placeholder")}
+                            className="h-12 text-lg px-4"
+                            disabled={isLoading}
+                            {...field}
+                          />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={control}
+                    name="bankName"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-base">{t("settings.store.bank_name_label")}</FormLabel>
+                        <FormControl>
+                          <Input
+                            placeholder={t("settings.store.bank_name_placeholder")}
+                            className="h-12 text-lg px-4"
+                            disabled={isLoading}
+                            {...field}
+                          />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={control}
+                    name="bankIban"
+                    rules={{
+                      validate: (value) =>
+                        !value || IBAN_PATTERN.test(normalizeIban(value)) || t("settings.store.bank_iban_invalid"),
+                    }}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-base">{t("settings.store.bank_iban_label")}</FormLabel>
+                        <FormControl>
+                          <Input
+                            placeholder="GE29NB0000000101904917"
+                            className="h-12 text-lg px-4 font-mono uppercase"
+                            disabled={isLoading}
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage className="text-red-500" />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              </div>
             )}
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
