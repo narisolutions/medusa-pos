@@ -104,6 +104,8 @@ interface ReceiptData {
   isUnpaid?: boolean;
   /** Outstanding balance shown on an unpaid receipt instead of Amount Paid/Change. */
   amountDue?: number;
+  /** Where to send the outstanding amount; printed only on an unpaid receipt. */
+  bankDetails?: { beneficiary?: string; bankName?: string; iban: string };
   footer?: string;
 }
 
@@ -143,6 +145,8 @@ interface DraftOrderMetadata extends Record<string, unknown> {
   park_label?: string;
   /** Set when the order is delivered but payment is deferred (capture later). */
   pay_later?: boolean;
+  /** The method chosen for a pay-later order, shown until a payment records the real one. */
+  pay_later_method?: PaymentMethod;
   /** ISO date the goods were actually delivered offline (created_at is not backdatable). */
   delivered_offline_on?: string;
 }

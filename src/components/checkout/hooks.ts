@@ -16,7 +16,7 @@ import { getPaymentMethods } from "@/utils/settings/store/metadata";
 import { usePrinterService } from "@/hooks/printer/usePrinterService";
 import Payments from "@/assets/icons/payments";
 import CardIcon from "@/assets/icons/card";
-import { ArrowLeftRight } from "lucide-react";
+import { ArrowLeftRight, Landmark } from "lucide-react";
 
 import {
   CartItem,
@@ -35,11 +35,12 @@ type PaymentMethodOption = {
   Icon: React.ComponentType<{ className?: string }>;
 };
 
-// No local asset for transfer; lucide covers it and is already a dependency.
+// No local assets for the transfers; lucide covers them and is already a dependency.
 const iconMap = {
   cash: Payments,
   card: CardIcon,
   transfer: ArrowLeftRight,
+  bank_transfer: Landmark,
 } as const;
 
 function toPaymentMethodOptions(

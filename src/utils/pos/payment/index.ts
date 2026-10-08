@@ -35,6 +35,18 @@ export function getOrderPaymentProviderId(
 }
 
 /**
+ * The method the order was rung up with: the provider that paid it, or for an
+ * unpaid pay-later order the one chosen at checkout. For display and defaults
+ * only — behaviour reads real payments, so an unpaid "cash" order never counts as cash.
+ */
+export function getOrderChosenProviderId(order: AdminOrder): string | undefined {
+  const paid = getOrderPaymentProviderId(order);
+  if (paid && paid !== SYSTEM_DEFAULT_PROVIDER) return paid;
+  const chosen = (order.metadata as { pay_later_method?: unknown } | null | undefined)?.pay_later_method;
+  return typeof chosen === "string" && chosen ? chosen : paid;
+}
+
+/**
  * Returns the human-readable payment method label for an order.
  * Falls back to the raw provider_id if no matching configured method is found.
  */
@@ -42,7 +54,7 @@ export function getOrderPaymentMethodLabel(
   order: AdminOrder,
   store: AdminStore | null | undefined
 ): string {
-  return getPaymentMethodLabel(store, getOrderPaymentProviderId(order));
+  return getPaymentMethodLabel(store, getOrderChosenProviderId(order));
 }
 
 /** The configured label for a provider id, e.g. "Cash"; the id itself when unconfigured. */

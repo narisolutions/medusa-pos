@@ -11,7 +11,7 @@ import { usePostSaleCash } from "@/hooks/order/usePostSaleCash";
 import { settleOutstanding } from "@/utils/pos/order-processing";
 import { toNumber } from "@/utils/pos/pricing";
 import { getMethodType, getPaymentMethods } from "@/utils/settings/store/metadata";
-import { getOrderPaymentProviderId } from "@/utils/pos/payment";
+import { getOrderChosenProviderId } from "@/utils/pos/payment";
 import { handleErrorToast, printerIssueStaffHintToast } from "@/utils/helpers";
 import { logger, safeStringify } from "@/utils/logger";
 import { usePrinterService } from "@/hooks/printer/usePrinterService";
@@ -33,7 +33,7 @@ export const useRecordPayment = (order: AdminOrder, onClose?: () => void) => {
 
   // Default to the method the order was rung up with (intended provider), else first enabled.
   const [selectedMethod, setSelectedMethod] = useState<string>(
-    () => getOrderPaymentProviderId(order) ?? methods[0]?.id ?? ""
+    () => getOrderChosenProviderId(order) ?? methods[0]?.id ?? ""
   );
 
   // A top-up after an added item or exchange: the first collection is the paid

@@ -38,6 +38,10 @@ export type ReceiptLabels = {
   change: string;
   amountDue: string;
   unpaid: string;
+  payTo: string;
+  bank: string;
+  iban: string;
+  reference: string;
   thankYou: string;
 };
 
@@ -63,6 +67,10 @@ export const DEFAULT_RECEIPT_LABELS: ReceiptLabels = {
   change: "Change",
   amountDue: "Amount Due",
   unpaid: "** UNPAID — PAYMENT PENDING **",
+  payTo: "Pay to",
+  bank: "Bank",
+  iban: "IBAN",
+  reference: "Reference",
   thankYou: "Thank you for your visit!",
 };
 
@@ -70,6 +78,18 @@ export const DEFAULT_RECEIPT_LABELS: ReceiptLabels = {
 const PAPER_CONFIG: Record<PaperWidth, { maxItemTitleLen: number; pdfPageWidth: number; pdfMargin: number }> = {
   "80mm": { maxItemTitleLen: 30, pdfPageWidth: 80, pdfMargin: 5 },
   "57mm": { maxItemTitleLen: 18, pdfPageWidth: 58, pdfMargin: 3 },
+};
+
+/** Bank-transfer rows for an unpaid receipt; the order number is the payment reference. */
+const bankDetailRows = (data: ReceiptData, labels: ReceiptLabels): { label: string; value: string }[] => {
+  if (!data.isUnpaid || !data.bankDetails) return [];
+  const { beneficiary, bankName, iban } = data.bankDetails;
+  return [
+    ...(beneficiary ? [{ label: labels.payTo, value: beneficiary }] : []),
+    ...(bankName ? [{ label: labels.bank, value: bankName }] : []),
+    { label: labels.iban, value: iban },
+    { label: labels.reference, value: `#${data.orderDisplayId}` },
+  ];
 };
 
 /**
@@ -148,9 +168,10 @@ const buildReceiptDoc = (
     totalRows.push({ label: labels.rounding, amount: data.cashRounding });
   }
 
-  const paymentRows: PaymentRow[] = [
-    { label: labels.paymentMethod, value: data.paymentMethod },
-  ];
+  // An unpaid order from before its method was recorded has none to show.
+  const paymentRows: PaymentRow[] = data.paymentMethod
+    ? [{ label: labels.paymentMethod, value: data.paymentMethod }]
+    : [];
   const messages: string[] = [];
 
   if (data.isUnpaid) {
@@ -158,6 +179,7 @@ const buildReceiptDoc = (
       label: labels.amountDue,
       amount: data.amountDue ?? data.total,
     });
+    paymentRows.push(...bankDetailRows(data, labels));
     messages.push(labels.unpaid);
   } else {
     if (data.amountPaid) {
@@ -370,10 +392,15 @@ const buildReceiptPDF = async (data: ReceiptData, paperWidth: PaperWidth = "80mm
   addSeparator("thin", 2, 4);
 
   // Payment Information
-  addTwoColumn(labels.paymentMethod + ":", data.paymentMethod, false, 5);
+  if (data.paymentMethod) {
+    addTwoColumn(labels.paymentMethod + ":", data.paymentMethod, false, 5);
+  }
 
   if (data.isUnpaid) {
     addTwoColumn(labels.amountDue + ":", formatCurrencyRaw(data.amountDue ?? data.total, data.currency), true, 5);
+    for (const row of bankDetailRows(data, labels)) {
+      addTwoColumn(row.label + ":", row.value, false, 5);
+    }
     addSpacing(2);
     addText(labels.unpaid, "center", 10, true, 5);
   } else {
@@ -399,4 +426,4 @@ const buildReceiptPDF = async (data: ReceiptData, paperWidth: PaperWidth = "80mm
   return new Uint8Array(doc.output("arraybuffer"));
 };
 
-export { buildReceipt, buildReceiptPDF };
+export { buildReceipt, buildReceiptDoc, buildReceiptPDF };

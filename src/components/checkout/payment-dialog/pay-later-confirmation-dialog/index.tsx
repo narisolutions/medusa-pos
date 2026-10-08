@@ -11,6 +11,8 @@ interface PayLaterConfirmationDialogProps {
   onConfirm: () => void;
   isProcessing: boolean;
   total: number;
+  /** Overrides the default explanation, e.g. for a bank transfer. */
+  message?: string;
 }
 
 const PayLaterConfirmationDialog: React.FC<PayLaterConfirmationDialogProps> = ({
@@ -19,6 +21,7 @@ const PayLaterConfirmationDialog: React.FC<PayLaterConfirmationDialogProps> = ({
   onConfirm,
   isProcessing,
   total,
+  message,
 }) => {
   const { currency } = useCheckout();
   const { t } = useTranslation();
@@ -31,7 +34,7 @@ const PayLaterConfirmationDialog: React.FC<PayLaterConfirmationDialogProps> = ({
 
         <div className="space-y-6 py-4">
           <p className="text-lg text-fg-muted text-center">
-            {t("checkout.pay_later_confirm_message")}
+            {message ?? t("checkout.pay_later_confirm_message")}
           </p>
 
           <div className="bg-surface-muted border border-theme-border rounded-lg p-4">
