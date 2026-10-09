@@ -4,6 +4,8 @@ import { cn } from "@/lib/utils"
 
 interface SelectContextValue {
   value: string
+  /** The selected item's own content, so the closed trigger reads like the list. */
+  label: React.ReactNode | undefined
   onValueChange: (value: string) => void
   open: boolean
   setOpen: (open: boolean) => void
@@ -16,6 +18,18 @@ interface SelectProps {
   defaultValue?: string
   onValueChange?: (value: string) => void
   children: React.ReactNode
+}
+
+/** The children of the item holding `value`, searched through the JSX passed to Select. */
+function findItemLabel(node: React.ReactNode, value: string): React.ReactNode | undefined {
+  let found: React.ReactNode | undefined
+  React.Children.forEach(node, (child) => {
+    if (found !== undefined || !React.isValidElement(child)) return
+    const props = child.props as { value?: unknown; children?: React.ReactNode }
+    if (child.type === SelectItem && props.value === value) found = props.children
+    else if (props.children !== undefined) found = findItemLabel(props.children, value)
+  })
+  return found
 }
 
 function Select({ value, defaultValue, onValueChange, children }: SelectProps) {
@@ -48,12 +62,14 @@ function Select({ value, defaultValue, onValueChange, children }: SelectProps) {
     <SelectContext.Provider
       value={{
         value: currentValue,
+        label: currentValue ? findItemLabel(children, currentValue) : undefined,
         onValueChange: handleValueChange,
         open,
         setOpen,
       }}
     >
-      <div ref={rootRef} className="relative">
+      {/* min-w-0: inside a grid or flex cell the trigger keeps to its column, so long values end in "…". */}
+      <div ref={rootRef} className="relative min-w-0">
         {children}
       </div>
     </SelectContext.Provider>
@@ -92,7 +108,7 @@ function SelectValue({ placeholder }: { placeholder?: string }) {
   const context = React.useContext(SelectContext)
   if (!context) throw new Error("SelectValue must be used within Select")
 
-  return <span>{context.value || placeholder}</span>
+  return <span className="min-w-0 flex-1 truncate text-left">{context.label ?? (context.value || placeholder)}</span>
 }
 
 function SelectContent({

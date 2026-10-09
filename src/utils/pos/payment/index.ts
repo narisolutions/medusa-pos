@@ -9,6 +9,15 @@ import { toNumber } from "@/utils/pos/pricing";
 
 const SYSTEM_DEFAULT_PROVIDER = "pp_system_default";
 
+/** Medusa registers a till tender as `pp_<identifier>_pos`; the rest belong to a web shop or a delivery platform. */
+const isTillProvider = (id: string): boolean => id.endsWith("_pos") || id === SYSTEM_DEFAULT_PROVIDER;
+
+/** The backend's payment providers split for the chooser: the till's own first, each group sorted. */
+export function groupProvidersForTill(ids: string[]): { till: string[]; other: string[] } {
+  const sorted = [...new Set(ids)].sort((a, b) => a.localeCompare(b));
+  return { till: sorted.filter(isTillProvider), other: sorted.filter((id) => !isTillProvider(id)) };
+}
+
 /**
  * Returns an order's payment provider_id: payments[0] → payment_sessions[0].
  * The session keeps the real provider chosen at checkout, so it's used when the

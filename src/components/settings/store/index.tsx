@@ -31,6 +31,7 @@ import { DEFAULT_PAYMENT_METHODS, IBAN_PATTERN, normalizeIban } from "@/utils/se
 import { useQueryPaymentProviders } from "@/hooks/queries/useQueryPaymentProviders";
 import { useStoreSettings } from "./hooks";
 import ColorField from "./color-field";
+import ProviderPicker from "./provider-picker";
 import { useTranslation } from "@/i18n";
 
 const StoreSettings: React.FC = () => {
@@ -78,6 +79,10 @@ const StoreSettings: React.FC = () => {
     () => new Set(providersError ? [] : installedProviders?.map((p) => p.id) ?? []),
     [installedProviders, providersError]
   );
+  // Picked from what the backend has loaded; typed only when that list can't be read.
+  const providerChoices = providersError
+    ? []
+    : (installedProviders ?? []).filter((p) => p.is_enabled !== false).map((p) => p.id);
 
   const {
     currentLogoUrl,
@@ -289,8 +294,8 @@ const StoreSettings: React.FC = () => {
               <div className="space-y-3 rounded-lg border border-theme-border p-4 bg-surface-muted">
                 <div className="flex items-end gap-3 px-3 border border-transparent text-base leading-tight font-medium text-fg-muted">
                   <span className="w-4 shrink-0" />
-                  <span className="w-48 shrink-0">{t("settings.store.column_provider_id")}</span>
-                  <span className="flex-1 min-w-0">{t("settings.store.column_display_name")}</span>
+                  <span className="w-44 shrink-0">{t("settings.store.column_provider_id")}</span>
+                  <span className="flex-1 min-w-24">{t("settings.store.column_display_name")}</span>
                   <span className="w-40 shrink-0">{t("settings.store.column_icon")}</span>
                   <span className="w-40 shrink-0">{t("settings.store.column_type")}</span>
                   <span className="size-12 shrink-0" />
@@ -327,29 +332,44 @@ const StoreSettings: React.FC = () => {
                           installedProviderIds.size > 0 &&
                           idValue.length > 0 &&
                           !installedProviderIds.has(idValue);
+                        const usedElsewhere = new Set(
+                          (paymentMethods ?? []).filter((_, i) => i !== index).map((m) => m.id)
+                        );
+                        const warning = isUnknown && (
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <span className="absolute right-2 top-1/2 -translate-y-1/2 text-yellow-500 cursor-help">
+                                <AlertTriangle className="w-4 h-4" />
+                              </span>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              {t("settings.store.provider_id_not_installed")}
+                            </TooltipContent>
+                          </Tooltip>
+                        );
                         return (
-                          <FormItem className="w-48 shrink-0">
-                            <div className="relative">
-                              <FormControl>
-                                <Input
-                                  placeholder={t("settings.store.provider_id_placeholder")}
-                                  className={`h-10 font-mono text-sm${isUnknown ? " pr-8 border-yellow-500" : ""}`}
+                          <FormItem className="w-44 shrink-0">
+                            <div className="relative min-w-0">
+                              {providerChoices.length > 0 ? (
+                                <ProviderPicker
+                                  value={idValue}
+                                  onChange={idField.onChange}
+                                  providerIds={providerChoices}
+                                  usedElsewhere={usedElsewhere}
+                                  notInstalled={isUnknown}
                                   disabled={isLoading}
-                                  {...idField}
                                 />
-                              </FormControl>
-                              {isUnknown && (
-                                <Tooltip>
-                                  <TooltipTrigger asChild>
-                                    <span className="absolute right-2 top-1/2 -translate-y-1/2 text-yellow-500 cursor-help">
-                                      <AlertTriangle className="w-4 h-4" />
-                                    </span>
-                                  </TooltipTrigger>
-                                  <TooltipContent>
-                                    {t("settings.store.provider_id_not_installed")}
-                                  </TooltipContent>
-                                </Tooltip>
+                              ) : (
+                                <FormControl>
+                                  <Input
+                                    placeholder={t("settings.store.provider_id_placeholder")}
+                                    className={`h-10 font-mono text-sm${isUnknown ? " pr-8 border-yellow-500" : ""}`}
+                                    disabled={isLoading}
+                                    {...idField}
+                                  />
+                                </FormControl>
                               )}
+                              {providerChoices.length === 0 && warning}
                             </div>
                           </FormItem>
                         );
@@ -359,7 +379,7 @@ const StoreSettings: React.FC = () => {
                       control={control}
                       name={`paymentMethods.${index}.label`}
                       render={({ field: inputField }) => (
-                        <FormItem className="flex-1 min-w-0">
+                        <FormItem className="flex-1 min-w-24">
                           <FormControl>
                             <Input
                               placeholder={t("settings.store.display_name_placeholder")}
@@ -382,7 +402,7 @@ const StoreSettings: React.FC = () => {
                           >
                             <FormControl>
                               <SelectTrigger
-                                className="h-10"
+                                className="h-10 text-sm"
                                 disabled={isLoading}
                               >
                                 <SelectValue placeholder={t("settings.store.icon_label")} />
@@ -425,7 +445,7 @@ const StoreSettings: React.FC = () => {
                           >
                             <FormControl>
                               <SelectTrigger
-                                className="h-10"
+                                className="h-10 text-sm"
                                 disabled={isLoading}
                               >
                                 <SelectValue placeholder={t("settings.store.type_label")} />
