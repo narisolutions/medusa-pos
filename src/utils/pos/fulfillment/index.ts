@@ -32,15 +32,24 @@ function classifyFulfillment(
 }
 
 /**
- * Classify an order's shipping method from the order-level shipping_methods array.
- * Falls back to checking the method name for "pickup"-like keywords.
+ * The shipping option the order actually left with: its newest fulfillment that
+ * wasn't cancelled. Staff may pick another option when fulfilling than the one
+ * chosen at checkout.
+ */
+function getFulfilledShippingOptionName(order: AdminOrder): string | null {
+  const live = (order.fulfillments ?? []).filter((f) => !f.canceled_at);
+  const newest = live.sort((a, b) => Date.parse(String(b.created_at)) - Date.parse(String(a.created_at)))[0] as
+    | { shipping_option?: { name?: string | null } | null }
+    | undefined;
+  return newest?.shipping_option?.name ?? null;
+}
+
+/**
+ * Classify an order's shipping method by the name of how it left (or, before
+ * fulfilment, how it was ordered), checking for "pickup"-like keywords.
  */
 function classifyOrderShippingMethod(order: AdminOrder): FulfillmentClassification {
-  const method = order.shipping_methods?.[0] as
-    | { name?: string; shipping_option_id?: string }
-    | undefined;
-
-  const name = method?.name?.toLowerCase() ?? "";
+  const name = getShippingMethodLabel(order)?.toLowerCase() ?? "";
 
   const isPickup = name.includes("pickup") || name.includes("in-store") || name.includes("in store");
 
@@ -51,16 +60,13 @@ function classifyOrderShippingMethod(order: AdminOrder): FulfillmentClassificati
   };
 }
 
-/**
- * Get a clean display label for a shipping method.
- * Uses the API-provided name directly, with title-casing as fallback.
- */
+/** The shipping method to show: the fulfilled option when there is one, else the one chosen at checkout. */
 function getShippingMethodLabel(order: AdminOrder): string | null {
   const method = order.shipping_methods?.[0] as
     | { name?: string }
     | undefined;
 
-  return method?.name ?? null;
+  return getFulfilledShippingOptionName(order) ?? method?.name ?? null;
 }
 
 /** The store's pickup option, else the first — an order needs a shipping method even at a counter. */

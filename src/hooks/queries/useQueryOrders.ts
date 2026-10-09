@@ -15,7 +15,7 @@ const fetchOrders = async (
       fields:
         options?.fields ||
         // Table columns only — heavy relations (*items etc.) excluded; detail view fetches its own.
-        "display_id,status,total,created_at,currency_code,customer.email,sales_channel.name,payment_status,fulfillment_status,shipping_methods.name,metadata,payment_collections.payments.provider_id,payment_collections.payment_sessions.provider_id",
+        "display_id,status,total,created_at,currency_code,customer.email,sales_channel.name,payment_status,fulfillment_status,shipping_methods.name,fulfillments.created_at,fulfillments.canceled_at,fulfillments.shipping_option.name,metadata,payment_collections.payments.provider_id,payment_collections.payment_sessions.provider_id",
       limit: options?.limit || 10,
       offset: options?.offset || 0,
       order: "-created_at",
