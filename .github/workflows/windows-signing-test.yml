@@ -1,0 +1,58 @@
+# Proves Windows code signing end to end on a tiny .exe, without a release.
+# A few Windows minutes instead of a full Tauri build: it runs
+# the same prepare.ps1 + sign.ps1 that release.yml's Windows leg runs, so a
+# green run here means the credentials, the account, the profile and the role
+# assignment are right. What it does not prove is the signCommand plumbing
+# inside `tauri build` — the first release does, and sign.ps1 fails that leg
+# rather than let an unsigned file through.
+#
+# Starts on a tag so it can run from any branch (a dispatch needs the file on
+# the default branch first).
+#   git tag winsign-test-1 && git push origin winsign-test-1
+# Delete the tag afterwards: git push origin :winsign-test-1
+
+name: Windows signing test
+
+on:
+  push:
+    tags:
+      - "winsign-test-*"
+
+permissions:
+  contents: read
+
+jobs:
+  sign:
+    runs-on: windows-latest
+    env:
+      AZURE_TENANT_ID: ${{ vars.AZURE_TENANT_ID }}
+      AZURE_CLIENT_ID: ${{ vars.AZURE_CLIENT_ID }}
+      AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
+      AZURE_SIGNING_ENDPOINT: ${{ vars.AZURE_SIGNING_ENDPOINT }}
+      AZURE_SIGNING_ACCOUNT: ${{ vars.AZURE_SIGNING_ACCOUNT }}
+      AZURE_SIGNING_PROFILE: ${{ vars.AZURE_SIGNING_PROFILE }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Prepare Windows code signing
+        shell: pwsh
+        run: ./scripts/windows-signing/prepare.ps1
+
+      - name: Build a throwaway exe
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path signing-test | Out-Null
+          'fn main() { println!("signing test"); }' | Set-Content signing-test/hello.rs
+          rustc -O -o signing-test/signing-test.exe signing-test/hello.rs
+
+      - name: Sign and verify
+        shell: pwsh
+        run: ./scripts/windows-signing/sign.ps1 signing-test/signing-test.exe
+
+      - name: Upload the signed exe
+        uses: actions/upload-artifact@v4
+        with:
+          name: signing-test-exe
+          path: signing-test/signing-test.exe
+          retention-days: 7

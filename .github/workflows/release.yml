@@ -8,6 +8,14 @@
 # Required secrets (repo Settings > Secrets > Actions):
 #   TAURI_SIGNING_PRIVATE_KEY          — private key for signing updater artifacts
 #   TAURI_SIGNING_PRIVATE_KEY_PASSWORD — password for the key (empty string if none)
+#   AZURE_CLIENT_SECRET                — Windows code signing: the client secret of the
+#                                        Entra app that may sign with Pliu AB's profile
+#
+# Required variables (Windows code signing through Azure Artifact Signing, not secret):
+#   AZURE_TENANT_ID, AZURE_CLIENT_ID   — the tenant and that app registration
+#   AZURE_SIGNING_ENDPOINT             — the account's regional endpoint
+#   AZURE_SIGNING_ACCOUNT              — the Artifact Signing account
+#   AZURE_SIGNING_PROFILE              — the Public Trust certificate profile (Pliu AB)
 #
 # Generate the keypair with:
 #   npx @tauri-apps/cli signer generate -w ~/.tauri/medusa-pos.key
@@ -159,6 +167,25 @@ jobs:
             exit 1
           fi
 
+      # Authenticode on the Windows leg: the exe, the WiX DLLs and the MSI are
+      # signed by Pliu AB through Azure Artifact Signing, from INSIDE `tauri
+      # build` (signCommand), so the updater's .sig covers the signed bytes —
+      # signing the MSI afterwards would break every update. Fails the leg when
+      # a secret or variable is missing; sign.ps1 fails it when a file comes out
+      # unsigned, untimestamped or signed by anyone else.
+      - name: Prepare Windows code signing
+        id: winsign
+        if: runner.os == 'Windows'
+        shell: pwsh
+        env:
+          AZURE_TENANT_ID: ${{ vars.AZURE_TENANT_ID }}
+          AZURE_CLIENT_ID: ${{ vars.AZURE_CLIENT_ID }}
+          AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
+          AZURE_SIGNING_ENDPOINT: ${{ vars.AZURE_SIGNING_ENDPOINT }}
+          AZURE_SIGNING_ACCOUNT: ${{ vars.AZURE_SIGNING_ACCOUNT }}
+          AZURE_SIGNING_PROFILE: ${{ vars.AZURE_SIGNING_PROFILE }}
+        run: ./scripts/windows-signing/prepare.ps1
+
       # --------------- Build & Release ---------------
 
       - name: Build Tauri app and publish release
@@ -172,6 +199,11 @@ jobs:
           # Without this, the DMG ships a broken bundle that macOS Gatekeeper rejects.
           # Replace with a real Apple Developer ID identity when available.
           APPLE_SIGNING_IDENTITY: ${{ runner.os == 'macOS' && '-' || '' }}
+          # Read by the signing dlib that sign.ps1 hands to signtool; the
+          # secret reaches the Windows leg only.
+          AZURE_TENANT_ID: ${{ vars.AZURE_TENANT_ID }}
+          AZURE_CLIENT_ID: ${{ vars.AZURE_CLIENT_ID }}
+          AZURE_CLIENT_SECRET: ${{ runner.os == 'Windows' && secrets.AZURE_CLIENT_SECRET || '' }}
         with:
           tagName: v${{ steps.version.outputs.value }}
           releaseName: "v${{ steps.version.outputs.value }}"
@@ -182,5 +214,6 @@ jobs:
           releaseDraft: false
           prerelease: ${{ inputs.prerelease || false }}
           includeUpdaterJson: true
-          args: --target ${{ matrix.target }}
+          # `--config <signing overlay>` on Windows, empty elsewhere.
+          args: --target ${{ matrix.target }} ${{ steps.winsign.outputs.args }}
 
