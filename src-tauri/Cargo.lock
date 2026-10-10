@@ -1010,7 +1010,7 @@ dependencies = [
  "libc",
  "option-ext",
  "redox_users",
- "windows-sys 0.60.2",
+ "windows-sys 0.61.2",
 ]
 
 [[package]]
@@ -2679,7 +2679,7 @@ dependencies = [
  "png 0.18.1",
  "serde",
  "thiserror 2.0.12",
- "windows-sys 0.60.2",
+ "windows-sys 0.61.2",
 ]
 
 [[package]]
@@ -4198,7 +4198,7 @@ dependencies = [
  "security-framework",
  "security-framework-sys",
  "webpki-root-certs",
- "windows-sys 0.60.2",
+ "windows-sys 0.61.2",
 ]
 
 [[package]]
@@ -4653,7 +4653,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "52d1cfed4120b4d927bf7c0f86d2087a4a7d6027c906d9f9d525a80573b9be51"
 dependencies = [
  "libc",
- "windows-sys 0.60.2",
+ "windows-sys 0.61.2",
 ]
 
 [[package]]
@@ -5212,9 +5212,9 @@ dependencies = [
 
 [[package]]
 name = "tauri-plugin-store"
-version = "2.4.4"
+version = "2.4.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6708afbe549f176b712066e71648ba8fafba20789453718260c7ca356733cb0c"
+checksum = "f2c7c771d3ce796b48c6e52b2fac38087d479a3c58e0424d3850cc21db6b4a69"
 dependencies = [
  "dunce",
  "serde",
