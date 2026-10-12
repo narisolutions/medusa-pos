@@ -19,6 +19,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
+import { EmptyState, LoadingState } from "@/components/ui/state-panel";
 import { useParkedSalesColumns, useParkedSalesWithData } from "./hooks";
 import Header from "./table-header";
 import Footer from "@/components/orders/table-footer";
@@ -210,26 +211,19 @@ const ParkedSales: React.FC = () => {
                       className="text-center h-96 align-middle"
                     >
                       {isLoading ? (
-                        <div className="flex items-center justify-center gap-3">
-                          <div className="w-5 h-5 border-2 border-theme-border border-t-theme-border-strong rounded-full animate-spin" />
-                          <span className="text-base text-fg-muted">
-                            {t("parked.loading")}
-                          </span>
-                        </div>
+                        <LoadingState label={t("parked.loading")} />
                       ) : (
                         // Empty is the normal state, so it teaches rather than apologises.
-                        <div className="flex flex-col items-center justify-center gap-3">
-                          <Bookmark className="size-10 text-fg-muted" />
-                          <span className="text-base font-medium text-fg">
-                            {t("parked.empty_title")}
-                          </span>
-                          <span className="text-base text-fg-muted">
-                            {t("parked.empty_description")}
-                          </span>
-                          <Button className="mt-2" onClick={goToCheckout}>
-                            {t("parked.empty_cta")}
-                          </Button>
-                        </div>
+                        <EmptyState
+                          icon={<Bookmark />}
+                          title={t("parked.empty_title")}
+                          hint={t("parked.empty_description")}
+                          action={
+                            <Button size="lg" onClick={goToCheckout}>
+                              {t("parked.empty_cta")}
+                            </Button>
+                          }
+                        />
                       )}
                     </TableCell>
                   </TableRow>

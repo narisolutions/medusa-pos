@@ -42,19 +42,23 @@
     "orders": "შეკვეთები",
     "settings": "პარამეტრები",
     "logout": "გამოსვლა",
-    "parked": "გადადებული"
+    "parked": "გადადებული",
+    "collapse": "მენიუს აკეცვა",
+    "logout_confirm_title": "გამოსვლა?",
+    "logout_confirm_message": "სალაროს გამოსაყენებლად ხელახლა შესვლა დაგჭირდებათ.",
+    "logout_confirm_sale": "მიმდინარე გაყიდვა კალათაში დარჩება და ხელახლა შესვლისას დაგხვდებათ."
   },
   "auth": {
     "sign_in": "შესვლა",
     "email": "ელ.ფოსტა",
     "password": "პაროლი",
     "incorrect_credentials": "არასწორი ელ.ფოსტა ან პაროლი",
-    "backend_unreachable": "REVIEW: Backend unreachable — please check your connection or switch stores.",
+    "backend_unreachable": "სერვერთან კავშირი ვერ დამყარდა — შეამოწმეთ კავშირი ან აირჩიეთ სხვა მაღაზია.",
     "exit_application": "გასვლა",
     "add_store_hint": "გასაგრძელებლად დაამატეთ მაღაზია.",
     "add_store": "ობიექტის დამატება",
     "edit_store": "ობიექტის რედაქტირება",
-    "cannot_reach_backend": "REVIEW: Cannot reach backend: {{error}}",
+    "cannot_reach_backend": "სერვერთან კავშირი ვერ დამყარდა: {{error}}",
     "no_store_selected": "მაღაზია არ არის არჩეული — დასამატებლად გადახედეთ",
     "select_store_title": "ობიექტის არჩევა",
     "add_store_title": "ობიექტის დამატება",
@@ -65,7 +69,9 @@
     "staging": "Staging",
     "production": "Production",
     "fullscreen_hint": "F11 - სრული ეკრანის ჩართვა/გამორთვა",
-    "api_url_host_placeholder": "api.example.com ან localhost:9000"
+    "api_url_host_placeholder": "api.example.com ან localhost:9000",
+    "show_password": "პაროლის ჩვენება",
+    "hide_password": "პაროლის დამალვა"
   },
   "checkout": {
     "add_item": "ნივთის დამატება",
@@ -95,8 +101,8 @@
     "out_of_stock": "გაყიდულია",
     "last_one": "ბოლო ერთეული",
     "only_n_left": "დარჩა მხოლოდ {{count}}",
-    "endpoints_disabled_warning": "REVIEW: Custom POS endpoints aren't available — stock isn't checked automatically and prices are raw (not context-calculated). Install @narisolutions/medusa-plugin-pos on your backend to enable these routes.",
-    "barcode_custom_endpoints_disabled": "REVIEW: Barcode lookup requires the POS plugin. Install @narisolutions/medusa-plugin-pos on your backend to enable these routes.",
+    "endpoints_disabled_warning": "POS-ის საკუთარი მისამართები მიუწვდომელია — მარაგი ავტომატურად არ მოწმდება და ფასები დაუმუშავებელია. ჩართვისთვის სერვერზე დააინსტალირეთ @narisolutions/medusa-plugin-pos.",
+    "barcode_custom_endpoints_disabled": "შტრიხკოდით ძებნას სჭირდება POS პლაგინი. ჩართვისთვის სერვერზე დააინსტალირეთ @narisolutions/medusa-plugin-pos.",
     "payment_method": "გადახდის მეთოდი",
     "amount_paid": "გადახდილი თანხა",
     "change": "ხურდა",
@@ -667,7 +673,7 @@
       "encoding": "სიმბოლოების კოდირება",
       "encoding_ascii": "ASCII (ძირითადი — არა-ASCII სიმბოლოები იჭრება)",
       "encoding_utf8": "UTF-8 (Unicode — ყველა სიმბოლო გადის)",
-      "encoding_cp852": "REVIEW: CP852 (Central European mapping)",
+      "encoding_cp852": "CP852 (ცენტრალურ-ევროპული კოდირება)",
       "encoding_translit": "ლათინურად ტრანსლიტერაცია",
       "loading": "პრინტერები იტვირთება...",
       "testing_print": "ბეჭდვის ტესტი...",
@@ -883,7 +889,7 @@
       "too_short": "{{field}} უნდა შეიცავდეს მინიმუმ {{min}} სიმბოლოს."
     },
     "boot_slow_title": "ჯერ კიდევ იტვირთება…",
-    "boot_slow_message": "REVIEW: This is taking longer than usual. You can keep waiting, or retry / switch store.",
+    "boot_slow_message": "ჩვეულებრივზე მეტხანს გრძელდება. შეგიძლიათ დაელოდოთ, ან სცადოთ ხელახლა / აირჩიოთ სხვა მაღაზია.",
     "sales_channel_required_title": "გაყიდვების არხი საჭიროა",
     "sales_channel_required_message": "კალათაში ნივთების დასამატებლად უნდა იყოს კონფიგურირებული გაყიდვების არხი. გადადით პარამეტრები → API პარამეტრები.",
     "store_setup_title": "ობიექტის ინფორმაციის შევსება",
@@ -919,7 +925,7 @@
     "saved_to_downloads": "შენახულია ჩამოტვირთვების საქაღალდეში",
     "open_folder_button": "საქაღალდის გახსნა",
     "save_pdf_error_title": "ქვითრის PDF ვერ შეინახა",
-    "save_pdf_error_message": "REVIEW: Check that your device has free storage space and that saving to Downloads is allowed. If this keeps happening, contact support.",
+    "save_pdf_error_message": "შეამოწმეთ, რომ მოწყობილობაზე საკმარისი ადგილია და Downloads-ში შენახვა ნებადართულია. თუ პრობლემა განმეორდა, დაუკავშირდით მხარდაჭერას.",
     "hint_check_connected": "დარწმუნდით, რომ \"{{printer}}\" ჩართულია და დაკავშირებულია.",
     "hint_restart": "თუ პრინტერი კვლავ არ პასუხობს, გადატვირთეთ იგი.",
     "hint_verify_connection": "გახსენით ამ პრინტერის რედაქტირება კავშირის ტიპისა და მისამართის შესამოწმებლად. Windows-ზე ხშირად მუშაობს ლოკალური (სისტემური პრინტერი), როცა პირდაპირი USB არა.",
@@ -1003,5 +1009,13 @@
     "clear_input": "გასუფთავება",
     "toggle_keyboard": "ეკრანული კლავიატურის ჩვენება ან დამალვა",
     "search": "ძიება"
+  },
+  "status": {
+    "online": "ონლაინ",
+    "offline": "ოფლაინ",
+    "checking": "მოწმდება…",
+    "recheck": "კავშირის ხელახლა შემოწმება",
+    "register_open": "სალარო ღიაა",
+    "register_closed": "სალარო დახურულია"
   }
 }

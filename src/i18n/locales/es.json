@@ -42,7 +42,11 @@
     "orders": "Pedidos",
     "settings": "Ajustes",
     "logout": "Cerrar sesión",
-    "parked": "En espera"
+    "parked": "En espera",
+    "collapse": "Contraer menú",
+    "logout_confirm_title": "¿Cerrar sesión?",
+    "logout_confirm_message": "Tendrá que iniciar sesión de nuevo para usar la caja.",
+    "logout_confirm_sale": "La venta actual se queda en el carrito y estará ahí cuando vuelva a iniciar sesión."
   },
   "auth": {
     "sign_in": "Iniciar sesión",
@@ -65,7 +69,9 @@
     "staging": "Staging",
     "production": "Producción",
     "fullscreen_hint": "Pulsa F11 para alternar pantalla completa",
-    "api_url_host_placeholder": "api.example.com o localhost:9000"
+    "api_url_host_placeholder": "api.example.com o localhost:9000",
+    "show_password": "Mostrar contraseña",
+    "hide_password": "Ocultar contraseña"
   },
   "checkout": {
     "add_item": "Añadir artículo",
@@ -1003,5 +1009,13 @@
     "clear_input": "Borrar",
     "toggle_keyboard": "Mostrar u ocultar el teclado en pantalla",
     "search": "Buscar"
+  },
+  "status": {
+    "online": "En línea",
+    "offline": "Sin conexión",
+    "checking": "Comprobando…",
+    "recheck": "Volver a comprobar la conexión",
+    "register_open": "Caja abierta",
+    "register_closed": "Caja cerrada"
   }
 }

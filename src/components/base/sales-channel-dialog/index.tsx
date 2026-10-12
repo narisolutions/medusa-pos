@@ -56,7 +56,7 @@ const SalesChannelWarningDialog: React.FC = () => {
             Continue Anyway
           </Button>
           <Button
-            className="bg-primary hover:bg-primary/90 text-white"
+            size="lg"
             onClick={handleGoToSettings}
           >
             Go to Settings

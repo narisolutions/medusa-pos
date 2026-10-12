@@ -1,5 +1,6 @@
 import React from "react";
-import { ChevronLeft, Loader2, Pencil, Plus } from "lucide-react";
+import { Check, ChevronLeft, Pencil, Plus } from "lucide-react";
+import { StatusChip } from "@/components/ui/status-chip";
 
 import {
   Dialog,
@@ -112,10 +113,9 @@ const StoreSwitcherDialog: React.FC<Props> = ({ open, onClose }) => {
                       className={`flex-1 min-w-0 text-lg font-semibold truncate ${isSelected ? "text-primary" : "text-fg"}`}
                     >
                       {store.name}
-                      {isActive ? (
-                        <span className="ml-2 text-sm font-medium text-fg-subtle">({t("auth.active_badge")})</span>
-                      ) : null}
                     </span>
+                    {isActive && <StatusChip intent="neutral" icon={null}>{t("auth.active_badge")}</StatusChip>}
+                    {isSelected && <Check aria-hidden className="size-6 shrink-0 text-primary" />}
                     <Button
                       type="button"
                       variant="ghost"
@@ -155,7 +155,7 @@ const StoreSwitcherDialog: React.FC<Props> = ({ open, onClose }) => {
               </Button>
               <Button
                 type="button"
-                className="min-h-[52px] px-6 text-base rounded-2xl text-white"
+                className="min-h-[52px] px-6 text-base rounded-2xl"
                 disabled={!selectedStoreId}
                 onClick={() => {
                   const selected = stores.find((s) => s.id === selectedStoreId);
@@ -224,10 +224,10 @@ const StoreSwitcherDialog: React.FC<Props> = ({ open, onClose }) => {
                   {view === "edit" && (
                     <Button
                       type="button"
-                      variant="secondary"
+                      variant="destructive"
                       onClick={onDelete}
                       disabled={isSubmitting}
-                      className="min-h-[48px] py-4 px-6 text-base rounded-2xl bg-red-600 text-white hover:bg-red-700"
+                      className="min-h-[48px] py-4 px-6 text-base rounded-2xl"
                     >
                       {t("auth.delete_store_button")}
                     </Button>
@@ -245,10 +245,10 @@ const StoreSwitcherDialog: React.FC<Props> = ({ open, onClose }) => {
                   </Button>
                   <Button
                     type="submit"
-                    disabled={isSubmitting}
-                    className="min-h-[48px] py-4 px-6 text-base rounded-2xl text-white"
+                    loading={isSubmitting}
+                    className="min-h-[48px] py-4 px-6 text-base rounded-2xl"
                   >
-                    {t("common.save")} {isSubmitting ? <Loader2 className="animate-spin size-5" /> : null}
+                    {t("common.save")}
                   </Button>
                 </div>
               </div>

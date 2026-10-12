@@ -53,7 +53,7 @@ const StoreSetupDialog: React.FC = () => {
             Remind me later
           </Button>
           <Button
-            className="bg-primary hover:bg-primary/90 text-white"
+            size="lg"
             onClick={handleGoToSettings}
           >
             Go to Store Settings

@@ -42,7 +42,11 @@
     "orders": "Orders",
     "settings": "Settings",
     "logout": "Log out",
-    "parked": "Parked"
+    "parked": "Parked",
+    "collapse": "Collapse menu",
+    "logout_confirm_title": "Log out?",
+    "logout_confirm_message": "You'll need to sign in again to use the till.",
+    "logout_confirm_sale": "The current sale stays in the cart and will be there when you sign back in."
   },
   "auth": {
     "sign_in": "Sign in",
@@ -65,7 +69,9 @@
     "staging": "Staging",
     "production": "Production",
     "fullscreen_hint": "Press F11 to toggle fullscreen",
-    "api_url_host_placeholder": "api.example.com or localhost:9000"
+    "api_url_host_placeholder": "api.example.com or localhost:9000",
+    "show_password": "Show password",
+    "hide_password": "Hide password"
   },
   "checkout": {
     "add_item": "Add Item",
@@ -1003,5 +1009,13 @@
     "clear_input": "Clear",
     "toggle_keyboard": "Show or hide the on-screen keyboard",
     "search": "Search"
+  },
+  "status": {
+    "online": "Online",
+    "offline": "Offline",
+    "checking": "Checking…",
+    "recheck": "Check the connection again",
+    "register_open": "Register open",
+    "register_closed": "Register closed"
   }
 }

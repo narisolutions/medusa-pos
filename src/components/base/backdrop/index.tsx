@@ -17,7 +17,7 @@ const Backdrop: React.FC<Props> = ({ loading, showLogo, message }) => {
           <img src="/logo.svg" alt="Medusa POS" className="h-28 w-auto object-contain" />
           <LoadingSpinner size={28} />
           {message && (
-            <p className="text-xs text-zinc-500 tracking-wide">{message}</p>
+            <p className="text-base text-fg-muted">{message}</p>
           )}
         </div>
       ) : (

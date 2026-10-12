@@ -42,7 +42,11 @@
     "orders": "Commandes",
     "settings": "Paramètres",
     "logout": "Se déconnecter",
-    "parked": "En attente"
+    "parked": "En attente",
+    "collapse": "Réduire le menu",
+    "logout_confirm_title": "Se déconnecter ?",
+    "logout_confirm_message": "Vous devrez vous reconnecter pour utiliser la caisse.",
+    "logout_confirm_sale": "La vente en cours reste dans le panier et sera là à votre reconnexion."
   },
   "auth": {
     "sign_in": "Se connecter",
@@ -65,7 +69,9 @@
     "staging": "Staging",
     "production": "Production",
     "fullscreen_hint": "Appuyez sur F11 pour basculer en plein écran",
-    "api_url_host_placeholder": "api.example.com ou localhost:9000"
+    "api_url_host_placeholder": "api.example.com ou localhost:9000",
+    "show_password": "Afficher le mot de passe",
+    "hide_password": "Masquer le mot de passe"
   },
   "checkout": {
     "add_item": "Ajouter un article",
@@ -1003,5 +1009,13 @@
     "clear_input": "Effacer",
     "toggle_keyboard": "Afficher ou masquer le clavier à l'écran",
     "search": "Rechercher"
+  },
+  "status": {
+    "online": "En ligne",
+    "offline": "Hors ligne",
+    "checking": "Vérification…",
+    "recheck": "Vérifier à nouveau la connexion",
+    "register_open": "Caisse ouverte",
+    "register_closed": "Caisse fermée"
   }
 }

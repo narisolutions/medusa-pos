@@ -42,7 +42,11 @@
     "orders": "Order",
     "settings": "Inställningar",
     "logout": "Logga ut",
-    "parked": "Parkerade"
+    "parked": "Parkerade",
+    "collapse": "Fäll ihop menyn",
+    "logout_confirm_title": "Logga ut?",
+    "logout_confirm_message": "Du behöver logga in igen för att använda kassan.",
+    "logout_confirm_sale": "Den pågående försäljningen ligger kvar i varukorgen när du loggar in igen."
   },
   "auth": {
     "sign_in": "Logga in",
@@ -65,7 +69,9 @@
     "staging": "Staging",
     "production": "Produktion",
     "fullscreen_hint": "Tryck på F11 för att växla helskärm",
-    "api_url_host_placeholder": "api.example.com eller localhost:9000"
+    "api_url_host_placeholder": "api.example.com eller localhost:9000",
+    "show_password": "Visa lösenord",
+    "hide_password": "Dölj lösenord"
   },
   "checkout": {
     "add_item": "Lägg till artikel",
@@ -1003,5 +1009,13 @@
     "clear_input": "Rensa",
     "toggle_keyboard": "Visa eller dölj skärmtangentbordet",
     "search": "Sök"
+  },
+  "status": {
+    "online": "Online",
+    "offline": "Offline",
+    "checking": "Kontrollerar…",
+    "recheck": "Kontrollera anslutningen igen",
+    "register_open": "Kassan öppen",
+    "register_closed": "Kassan stängd"
   }
 }
