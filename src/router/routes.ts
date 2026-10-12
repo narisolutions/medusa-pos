@@ -5,6 +5,8 @@ const ROUTES = {
   order: (orderId: string) => `/orders/${orderId}`,
   parked: "/parked",
   settings: "/settings",
+  /** Development-only UI catalogue (docs/ui-ux). */
+  devUi: "/dev/ui",
 } as const;
 
 export { ROUTES };

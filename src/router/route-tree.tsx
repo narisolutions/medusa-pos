@@ -1,3 +1,4 @@
+import { lazy, Suspense } from "react";
 import { createRoutesFromElements, Navigate, Route } from "react-router-dom";
 import { Layout } from "@/components/layout";
 import ProtectedRoute from "@/components/router";
@@ -14,6 +15,9 @@ import Order from "@/pages/order";
 import { ROUTES } from "./routes";
 
 // Pages load eagerly: chunks come from local disk in Tauri, so lazy loading only added a spinner per page.
+
+// The UI catalogue exists in dev builds only; production drops this import entirely.
+const DevUi = import.meta.env.DEV ? lazy(() => import("@/pages/dev-ui")) : null;
 
 const corePaths = new Set(
   Object.values(ROUTES)
@@ -48,6 +52,16 @@ const routes = createRoutesFromElements(
           </Route>
           <Route path={ROUTES.parked} element={<Parked />} />
           <Route path={ROUTES.settings} element={<Settings />} />
+          {DevUi && (
+            <Route
+              path={ROUTES.devUi}
+              element={
+                <Suspense fallback={null}>
+                  <DevUi />
+                </Suspense>
+              }
+            />
+          )}
           {pluginRoutes.map(({ id, path, Page }) => (
             <Route key={id} path={path} element={<Page />} />
           ))}
