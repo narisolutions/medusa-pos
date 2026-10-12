@@ -962,5 +962,12 @@
       "description": "Återupptar det aktuella passet så att du kan fortsätta sälja. Växelkassan och kontantrörelserna behålls.",
       "submit": "Öppna kassan igen"
     }
+  },
+  "ui": {
+    "numpad_clear": "Rensa",
+    "numpad_done": "Klar",
+    "numpad_backspace": "Radera sista siffran (håll in för att rensa)",
+    "stepper_decrease": "Minska",
+    "stepper_increase": "Öka"
   }
 }

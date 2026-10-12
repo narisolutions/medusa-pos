@@ -3,6 +3,13 @@ import { Banknote, CreditCard, Landmark, MessageSquare, Percent, Trash2, User } 
 import { Button } from "@/components/ui/button";
 import { StatusChip } from "@/components/ui/status-chip";
 import { Tile } from "@/components/ui/tile";
+import { Numpad } from "@/components/ui/numpad";
+import { Stepper } from "@/components/ui/stepper";
+import { Switch } from "@/components/ui/switch";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { SegmentedControl } from "@/components/ui/segmented-control";
 
 // Development-only catalogue (docs/ui-ux): every primitive in every state, reviewed on the real
 // touchscreen. Not translated and not shipped: the route exists only in dev builds.
@@ -34,6 +41,11 @@ const TAPS = [
 const DevUi: React.FC = () => {
   const [method, setMethod] = useState("cash");
   const [loading, setLoading] = useState(false);
+  const [amount, setAmount] = useState("");
+  const [quantity, setQuantity] = useState(1);
+  const [autoPrint, setAutoPrint] = useState(true);
+  const [drawer, setDrawer] = useState(false);
+  const [theme, setTheme] = useState<"light" | "dark" | "system">("system");
 
   return (
     <div className="mx-auto flex max-w-6xl flex-col gap-6 pb-12">
@@ -133,6 +145,49 @@ const DevUi: React.FC = () => {
           <Tile size="lg" icon={<CreditCard />} label="Exchange" subline="Swap and settle" />
           <Tile size="lg" icon={<Landmark />} label="Add items" subline="To this order" />
         </div>
+      </Section>
+
+      <Section title="Numpad — hold ⌫ to clear; money stops at 2 decimals">
+        <p className="text-total tabular-nums">₾ {amount || "0"}</p>
+        <Numpad value={amount} onChange={setAmount} maxDecimals={2} onEnter={() => setAmount("")} />
+      </Section>
+
+      <Section title="Stepper — hold + or − to repeat; tap the number">
+        <Stepper value={quantity} onChange={setQuantity} min={1} max={99} onValueClick={() => setQuantity(1)} />
+      </Section>
+
+      <Section title="Switch and checkbox — the whole row is the target">
+        <Label className="flex min-h-tap items-center justify-between gap-4 text-base">
+          Print a receipt after each sale
+          <Switch checked={autoPrint} onCheckedChange={setAutoPrint} />
+        </Label>
+        <Label className="flex min-h-tap items-center gap-4 text-base">
+          <Checkbox checked={drawer} onCheckedChange={(v) => setDrawer(v === true)} />
+          Open the cash drawer on card payments
+        </Label>
+      </Section>
+
+      <Section title="Segmented control and tabs">
+        <SegmentedControl
+          label="Theme"
+          value={theme}
+          onChange={setTheme}
+          options={[
+            { value: "light", label: "Light" },
+            { value: "dark", label: "Dark" },
+            { value: "system", label: "System" },
+          ]}
+        />
+        <Tabs defaultValue="printers">
+          <TabsList>
+            <TabsTrigger value="printers">Printers</TabsTrigger>
+            <TabsTrigger value="scanner">Scanner</TabsTrigger>
+            <TabsTrigger value="store">Store</TabsTrigger>
+          </TabsList>
+          <TabsContent value="printers" className="pt-3 text-base">Printers tab</TabsContent>
+          <TabsContent value="scanner" className="pt-3 text-base">Scanner tab</TabsContent>
+          <TabsContent value="store" className="pt-3 text-base">Store tab</TabsContent>
+        </Tabs>
       </Section>
     </div>
   );

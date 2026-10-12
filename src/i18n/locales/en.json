@@ -962,5 +962,12 @@
       "description": "Resume the current shift so you can keep selling. The opening float and cash movements are kept.",
       "submit": "Reopen register"
     }
+  },
+  "ui": {
+    "numpad_clear": "Clear",
+    "numpad_done": "Done",
+    "numpad_backspace": "Delete last digit (hold to clear)",
+    "stepper_decrease": "Decrease",
+    "stepper_increase": "Increase"
   }
 }

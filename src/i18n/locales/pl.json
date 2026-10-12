@@ -962,5 +962,12 @@
       "description": "Wznawia bieżącą zmianę, aby kontynuować sprzedaż. Saldo początkowe i operacje gotówkowe zostają zachowane.",
       "submit": "Otwórz kasę ponownie"
     }
+  },
+  "ui": {
+    "numpad_clear": "Wyczyść",
+    "numpad_done": "Gotowe",
+    "numpad_backspace": "Usuń ostatnią cyfrę (przytrzymaj, aby wyczyścić)",
+    "stepper_decrease": "Zmniejsz",
+    "stepper_increase": "Zwiększ"
   }
 }

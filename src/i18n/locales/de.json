@@ -962,5 +962,12 @@
       "description": "Setzt die aktuelle Schicht fort, damit Sie weiter verkaufen können. Anfangsbestand und Bargeldbewegungen bleiben erhalten.",
       "submit": "Kasse erneut öffnen"
     }
+  },
+  "ui": {
+    "numpad_clear": "Löschen",
+    "numpad_done": "Fertig",
+    "numpad_backspace": "Letzte Ziffer löschen (gedrückt halten zum Leeren)",
+    "stepper_decrease": "Verringern",
+    "stepper_increase": "Erhöhen"
   }
 }

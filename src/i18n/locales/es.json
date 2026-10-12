@@ -962,5 +962,12 @@
       "description": "Reanuda el turno actual para seguir vendiendo. Se conservan el fondo inicial y los movimientos de efectivo.",
       "submit": "Reabrir la caja"
     }
+  },
+  "ui": {
+    "numpad_clear": "Borrar",
+    "numpad_done": "Listo",
+    "numpad_backspace": "Borrar el último dígito (mantén pulsado para vaciar)",
+    "stepper_decrease": "Disminuir",
+    "stepper_increase": "Aumentar"
   }
 }

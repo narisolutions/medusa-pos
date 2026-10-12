@@ -962,5 +962,12 @@
       "description": "Reprend le service en cours pour continuer à vendre. Le fonds de caisse et les mouvements d'espèces sont conservés.",
       "submit": "Rouvrir la caisse"
     }
+  },
+  "ui": {
+    "numpad_clear": "Effacer",
+    "numpad_done": "Terminé",
+    "numpad_backspace": "Effacer le dernier chiffre (maintenir pour tout effacer)",
+    "stepper_decrease": "Diminuer",
+    "stepper_increase": "Augmenter"
   }
 }

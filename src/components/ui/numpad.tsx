@@ -1,97 +1,110 @@
-import React from "react";
+import React, { useRef } from "react";
+import { Delete } from "lucide-react";
+import { useTranslation } from "@/i18n";
+import { cn } from "@/lib/utils";
+import { applyNumpadKey, type NumpadKey } from "@/utils/ui/numpad";
 
 export type NumpadProps = {
   value: string;
   onChange: (val: string) => void;
   onEnter?: () => void;
   allowDecimal?: boolean;
+  /** Digits allowed after the point, e.g. 2 for money. */
+  maxDecimals?: number;
   className?: string;
-  hideActions?: boolean; // Hide Cancel and Done buttons
+  /** Hide Done, for dialogs that confirm with their own button. */
+  hideActions?: boolean;
 };
 
+const HOLD_TO_CLEAR_MS = 600;
 
-// 4x4 grid matching the screenshot
-const NUMPAD_BUTTONS = [
-  ["7", "8", "9", "Del"],
-  ["4", "5", "6", "Clear"],
-  ["1", "2", "3", "Cancel"],
-  ["0", ".", "", "Done"],
-];
+const KEY =
+  "flex h-20 w-full items-center justify-center rounded-lg text-2xl font-medium tabular-nums transition-all duration-100 active:scale-[0.97] disabled:opacity-40 disabled:pointer-events-none cursor-pointer";
+const DIGIT = cn(KEY, "bg-fg text-surface active:bg-fg/80");
+const EDIT = cn(KEY, "bg-surface-subtle text-fg active:bg-theme-border");
 
-
+/** The shared keypad for amounts and quantities: 80px keys, hold backspace to clear. */
 export const Numpad: React.FC<NumpadProps> = ({
   value,
   onChange,
   onEnter,
   allowDecimal = true,
+  maxDecimals,
   className = "",
   hideActions = false,
 }) => {
-  const handleButtonClick = (btn: string) => {
-    if (!btn) return;
-    if (btn === "Del") {
-      onChange(value.slice(0, -1));
-    } else if (btn === "Clear") {
+  const { t } = useTranslation();
+  const holdTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const cleared = useRef(false);
+
+  const press = (key: NumpadKey) => onChange(applyNumpadKey(value, key, { allowDecimal, maxDecimals }));
+
+  const startHold = () => {
+    cleared.current = false;
+    holdTimer.current = setTimeout(() => {
+      cleared.current = true;
       onChange("");
-    } else if (btn === "Cancel") {
-      // Optionally, you can pass a prop for onCancel, for now just clear
-      onChange("");
-    } else if (btn === "Done") {
-      onEnter?.();
-    } else if (btn === ".") {
-      if (allowDecimal && !value.includes(".")) {
-        // If empty or just "0", replace with "0."
-        // Otherwise append "."
-        onChange(value && value !== "0" ? value + "." : "0.");
-      }
-    } else {
-      // Number button clicked
-      onChange(value === "0" ? btn : value + btn);
-    }
+    }, HOLD_TO_CLEAR_MS);
+  };
+  const endHold = () => {
+    if (holdTimer.current) clearTimeout(holdTimer.current);
+    holdTimer.current = null;
   };
 
+  const digit = (key: NumpadKey, extra = "") => (
+    <button type="button" className={cn(DIGIT, extra)} onClick={() => press(key)}>
+      {key}
+    </button>
+  );
+
   return (
-    <div
-      className={`grid grid-cols-4 grid-rows-4 gap-3 w-full max-w-md mx-auto ${className}`}
-      style={{ userSelect: "none" }}
-    >
-      {NUMPAD_BUTTONS.flat().map((btn, idx) => {
-        // Hide Cancel and Done buttons if hideActions is true
-        if (hideActions && (btn === "Cancel" || btn === "Done")) {
-          return (
-            <div key={idx} className="bg-transparent" />
-          );
-        }
-        
-        // Fixed height (not aspect-square): keys stay large for touch without the
-        // numpad growing past the dialog on shorter screens.
-        let btnClass =
-          "h-20 w-full rounded-lg flex items-center justify-center text-2xl transition min-h-[60px] ";
-        if (btn === "Done") {
-          btnClass += "font-bold bg-green-600 text-white hover:bg-green-700 active:bg-green-800";
-        } else if (btn === "Cancel") {
-          btnClass += "font-bold bg-red-500 text-white hover:bg-red-600 active:bg-red-700";
-        } else if (btn === "Del" || btn === "Clear") {
-          btnClass += "font-medium bg-surface-subtle text-fg hover:bg-surface-hover active:bg-theme-border";
-        } else if (btn) {
-          btnClass += "font-medium bg-fg text-surface hover:bg-fg/90 active:bg-fg/80";
-        } else {
-          btnClass += "bg-transparent cursor-default";
-        }
-        const isDot = btn === ".";
-        const isDisabled = (isDot && !allowDecimal) || !btn;
-        return (
-          <button
-            key={idx}
-            className={btnClass}
-            onClick={() => handleButtonClick(btn)}
-            disabled={isDisabled}
-            tabIndex={btn ? 0 : -1}
-          >
-            {btn}
-          </button>
-        );
-      })}
+    <div className={cn("mx-auto grid w-full max-w-md grid-cols-4 gap-3 select-none", className)}>
+      {digit("7")}
+      {digit("8")}
+      {digit("9")}
+      <button
+        type="button"
+        className={EDIT}
+        aria-label={t("ui.numpad_backspace")}
+        onPointerDown={startHold}
+        onPointerUp={endHold}
+        onPointerLeave={endHold}
+        onPointerCancel={endHold}
+        // A hold already cleared the value; the click that follows must not delete again.
+        onClick={() => {
+          if (cleared.current) cleared.current = false;
+          else press("backspace");
+        }}
+      >
+        <Delete className="size-7" />
+      </button>
+
+      {digit("4")}
+      {digit("5")}
+      {digit("6")}
+      <button type="button" className={cn(EDIT, "text-xl")} onClick={() => press("clear")}>
+        {t("ui.numpad_clear")}
+      </button>
+
+      {digit("1")}
+      {digit("2")}
+      {digit("3")}
+      {hideActions ? (
+        <div className="row-span-2" />
+      ) : (
+        <button
+          type="button"
+          className={cn(KEY, "row-span-2 h-auto bg-success text-success-foreground text-xl font-bold active:bg-success/80")}
+          onClick={() => onEnter?.()}
+        >
+          {t("ui.numpad_done")}
+        </button>
+      )}
+
+      {digit("0", "col-span-2")}
+      <button type="button" className={DIGIT} onClick={() => press(".")} disabled={!allowDecimal}>
+        .
+      </button>
     </div>
   );
 };
