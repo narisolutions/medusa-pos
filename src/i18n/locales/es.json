@@ -34,7 +34,8 @@
     "back_to_orders": "Volver a Pedidos",
     "pos": "TPV",
     "processing": "Procesando...",
-    "downloading": "Descargando..."
+    "downloading": "Descargando...",
+    "undo": "Deshacer"
   },
   "nav": {
     "pos": "TPV",
@@ -155,7 +156,6 @@
     "discount_type_label": "Tipo de descuento",
     "discount_amount": "Importe",
     "discount_percentage": "Porcentaje",
-    "discount_value_label": "Valor del descuento ",
     "select_item_for_discount": "Selecciona un artículo para aplicar un descuento.",
     "column_item": "Artículo",
     "column_sku": "SKU",
@@ -193,7 +193,6 @@
     "set_quantity_for_next_item": "Establecer cantidad para el siguiente artículo añadido al carrito",
     "item_added": "{{title}} añadido al carrito",
     "item_removed": "{{title}} eliminado del carrito",
-    "quantity_decreased": "Cantidad de {{title}} reducida",
     "quantity_increased": "Cantidad de {{title}} aumentada",
     "select_payment_method": "Selecciona un método de pago antes de pasar por caja.",
     "region_channel_missing": "Falta información de la región o del canal de venta.",
@@ -202,7 +201,6 @@
     "no_default_printer": "No hay ninguna impresora predeterminada configurada. Añade una en Ajustes → Impresoras.",
     "cannot_add_to_cart": "No se puede añadir el artículo al carrito",
     "no_sales_channel_configured": "No hay canal de venta configurado",
-    "product_not_found": "Producto no encontrado",
     "product_not_for_sale": "{{title}} no está a la venta.",
     "items_not_for_sale_one": "{{names}} ya no está a la venta. Quítalo del carrito para continuar.",
     "items_not_for_sale_other": "{{names}} ya no están a la venta. Quítalos del carrito para continuar.",
@@ -247,7 +245,16 @@
     "park_name_optional": "opcional",
     "products_load_failed": "No se pudieron cargar los productos.",
     "products_load_failed_hint": "Suele ser la conexión. Se cargan de nuevo solos cuando el servidor vuelve a estar disponible.",
-    "fulfillment_failed_order_created": "El pedido se creó, pero los artículos no se pudieron marcar como entregados: {{reason}}"
+    "fulfillment_failed_order_created": "El pedido se creó, pero los artículos no se pudieron marcar como entregados: {{reason}}",
+    "cart_cleared": "Carrito vaciado",
+    "pay_blocked_out_of_stock": "Quita los artículos sin stock para cobrar",
+    "scan_not_found": "Ningún producto con el código {{barcode}}",
+    "catalog_view": "Vista",
+    "discount_remove": "Quitar descuento",
+    "sale_complete": "Venta completada",
+    "sale_outstanding": "Entregado — pago pendiente",
+    "new_sale": "Nueva venta",
+    "new_sale_hint": "Escanear el siguiente artículo también inicia una nueva venta."
   },
   "orders": {
     "search_placeholder": "Buscar pedidos...",

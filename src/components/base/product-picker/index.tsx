@@ -8,7 +8,8 @@ import {
   CommandItem,
   CommandList,
 } from "@/components/ui/command";
-import { X, Loader2 } from "lucide-react";
+import { X, Loader2, TriangleAlert, ScanBarcode } from "lucide-react";
+import { StatusChip } from "@/components/ui/status-chip";
 import { useProductPicker, type ProductPickerResult } from "./hooks";
 import { AdminProduct, AdminProductVariant } from "@medusajs/types";
 import { formatPrice } from "@/utils/helpers";
@@ -44,6 +45,8 @@ const ProductPicker: React.FC<Props> = ({ products, currency, onSelect, extraAct
     handleMouseDown,
     getInputPlaceholder,
     handleSelect,
+    failedBarcode,
+    dismissFailedBarcode,
     filteredVariants,
     showDropdown,
     updateFilterState,
@@ -81,7 +84,8 @@ const ProductPicker: React.FC<Props> = ({ products, currency, onSelect, extraAct
   return (
     <div className="flex flex-col gap-2">
       {pluginInstalled === false && (
-        <div className="rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+        <div role="alert" className="flex items-center gap-3 rounded-lg border border-warning bg-warning-subtle px-4 py-3 text-base text-warning-text">
+          <TriangleAlert className="size-5 shrink-0" aria-hidden />
           {t("checkout.endpoints_disabled_warning")}
         </div>
       )}
@@ -102,12 +106,13 @@ const ProductPicker: React.FC<Props> = ({ products, currency, onSelect, extraAct
             {showClearButton && (
               <Button
                 variant="ghost"
-                size="lg"
-                className="absolute right-2 top-1/2 transform -translate-y-1/2 h-10 w-10 p-0 hover:bg-surface-hover z-10"
+                size="icon"
+                className="absolute right-1 top-1/2 -translate-y-1/2 z-10"
                 onClick={handleClear}
                 onMouseDown={handleMouseDown}
+                aria-label={t("ui.clear_input")}
               >
-                <X className="h-5 w-5" />
+                <X className="size-6" />
               </Button>
             )}
           </div>
@@ -159,19 +164,19 @@ const ProductPicker: React.FC<Props> = ({ products, currency, onSelect, extraAct
                         }
                         handleSelect(variant);
                       }}
-                      className={`flex items-center justify-between p-5  min-h-[80px] border-b border-theme-border last:border-b-0 ${isOutOfStock ? "opacity-50 bg-red-50 dark:bg-red-900/20 border-l-4 border-l-red-500 cursor-not-allowed" : "cursor-pointer hover:bg-(--color-bg-base)"}`}
+                      className={`flex items-center justify-between p-5  min-h-[80px] border-b border-theme-border last:border-b-0 ${isOutOfStock ? "opacity-50 bg-danger-subtle border-l-4 border-l-danger cursor-not-allowed" : "cursor-pointer hover:bg-(--color-bg-base) active:bg-accent"}`}
                     >
                       <div className="flex gap-1 flex-1">
                         <div className="flex-1 pr-4">
                           <div className="font-medium text-base mb-1">
                             {variant.product?.title}
                             {brandTitle && (
-                              <span className="text-sm text-fg-subtle ml-2 font-normal">
+                              <span className="text-base text-fg-subtle ml-2 font-normal">
                                 {t("checkout.by_brand")}{brandTitle}
                               </span>
                             )}
                           </div>
-                          <div className="text-sm text-fg-muted mb-1">
+                          <div className="text-base text-fg-muted mb-1">
                             {variantTitle}
                             {optionsDisplay && (
                               <span className="ml-2">• {optionsDisplay}</span>
@@ -181,21 +186,14 @@ const ProductPicker: React.FC<Props> = ({ products, currency, onSelect, extraAct
                             )}
                           </div>
                           {ean && (
-                            <div className="text-sm text-fg-subtle">
+                            <div className="text-base text-fg-subtle">
                               {t("checkout.barcode_label")}{ean}
                             </div>
                           )}
                         </div>
                         <div className="flex items-center gap-2">
                           {(isOutOfStock || isLastOne || isFewLeft) && (
-                            <span
-                              className={`px-2 py-1 text-xs font-medium rounded-full ${isOutOfStock || isLastOne
-                                  ? "bg-red-100 text-red-800"
-                                  : isFewLeft
-                                    ? "bg-orange-100 text-orange-800"
-                                    : ""
-                                }`}
-                            >
+                            <StatusChip intent={isOutOfStock || isLastOne ? "danger" : "warning"}>
                               {isOutOfStock
                                 ? t("checkout.out_of_stock")
                                 : isLastOne
@@ -203,7 +201,7 @@ const ProductPicker: React.FC<Props> = ({ products, currency, onSelect, extraAct
                                   : isFewLeft
                                     ? t("checkout.only_n_left", { count: availableQuantity })
                                     : null}
-                            </span>
+                            </StatusChip>
                           )}
                         </div>
                       </div>
@@ -231,11 +229,11 @@ const ProductPicker: React.FC<Props> = ({ products, currency, onSelect, extraAct
                             originalPrice !== calculatedPrice ? (
                             <>
                               <div className="flex items-center gap-1">
-                                <span className="text-sm text-fg-subtle line-through">
+                                <span className="text-base text-fg-subtle line-through">
                                   {formatPrice(originalPrice, currency)}
                                 </span>
                               </div>
-                              <span className="font-medium text-base text-red-600">
+                              <span className="font-medium text-base text-danger-text">
                                 {formatPrice(calculatedPrice, currency)}
                               </span>
                             </>
@@ -262,18 +260,42 @@ const ProductPicker: React.FC<Props> = ({ products, currency, onSelect, extraAct
           disabled={!isButtonEnabled || isProcessing}
           size="lg"
           aria-busy={isProcessing}
-          className="relative bg-primary hover:bg-primary/90 text-white h-14 px-8 text-lg font-medium"
+          className="relative px-8 text-lg"
         >
           {/* Fixed width while loading: hidden label keeps its space; spinner wrapped to dodge has-[>svg] padding. */}
           <span className={isProcessing ? "invisible" : undefined}>{t("checkout.add_item")}</span>
           {isProcessing && (
             <span className="absolute inset-0 flex items-center justify-center">
-              <Loader2 className="h-6 w-6 animate-spin" />
+              <Loader2 className="size-6 animate-spin" />
             </span>
           )}
         </Button>
         {extraAction}
       </div>
+      {failedBarcode && (
+        <div role="alert" className="flex items-center gap-3 rounded-lg border border-danger bg-danger-subtle px-4 py-2 text-base text-danger-text">
+          <ScanBarcode className="size-6 shrink-0" aria-hidden />
+          <span className="min-w-0 flex-1 font-medium">
+            {t("checkout.scan_not_found", { barcode: failedBarcode })}
+          </span>
+          <Button
+            variant="outline"
+            onMouseDown={handleMouseDown}
+            onClick={() => void handleBarcodeSubmit(failedBarcode)}
+          >
+            {t("common.retry")}
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            onMouseDown={handleMouseDown}
+            onClick={dismissFailedBarcode}
+            aria-label={t("common.close")}
+          >
+            <X className="size-6" />
+          </Button>
+        </div>
+      )}
     </div>
   );
 };

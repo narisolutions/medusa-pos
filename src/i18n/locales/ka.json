@@ -34,7 +34,8 @@
     "back_to_orders": "შეკვეთებზე დაბრუნება",
     "pos": "POS",
     "processing": "მუშავდება...",
-    "downloading": "იტვირთება..."
+    "downloading": "იტვირთება...",
+    "undo": "გაუქმება"
   },
   "nav": {
     "pos": "POS",
@@ -155,7 +156,6 @@
     "discount_type_label": "ფასდაკლების ტიპი",
     "discount_amount": "თანხა",
     "discount_percentage": "პროცენტი",
-    "discount_value_label": "ფასდაკლების მნიშვნელობა ",
     "select_item_for_discount": "ფასდაკლების გამოსაყენებლად აირჩიეთ ნივთი.",
     "column_item": "ნივთი",
     "column_sku": "SKU",
@@ -193,7 +193,6 @@
     "set_quantity_for_next_item": "კალათაში შემდეგი ნივთისთვის რაოდენობის დაყენება",
     "item_added": "{{title}} დაემატა კალათაში",
     "item_removed": "{{title}} წაიშალა კალათიდან",
-    "quantity_decreased": "{{title}}-ის რაოდენობა შემცირდა",
     "quantity_increased": "{{title}}-ის რაოდენობა გაიზარდა",
     "select_payment_method": "გადახდამდე აირჩიეთ გადახდის მეთოდი.",
     "region_channel_missing": "რეგიონის ან გაყიდვების არხის ინფორმაცია არ არის.",
@@ -202,7 +201,6 @@
     "no_default_printer": "ძირითადი პრინტერი არ არის. დაამატეთ პარამეტრები → პრინტერები.",
     "cannot_add_to_cart": "ნივთი ვერ დაემატა კალათაში",
     "no_sales_channel_configured": "გაყიდვების არხი არ არის კონფიგურირებული",
-    "product_not_found": "პროდუქტი ვერ მოიძებნა",
     "product_not_for_sale": "{{title}} არ იყიდება.",
     "items_not_for_sale_one": "{{names}} აღარ იყიდება. გასაგრძელებლად წაშალეთ კალათიდან.",
     "items_not_for_sale_other": "{{names}} აღარ იყიდება. გასაგრძელებლად წაშალეთ კალათიდან.",
@@ -247,7 +245,16 @@
     "park_name_optional": "არასავალდებულო",
     "products_load_failed": "პროდუქტების ჩატვირთვა ვერ მოხერხდა.",
     "products_load_failed_hint": "ჩვეულებრივ ეს კავშირის პრობლემაა. სერვერის ხელმისაწვდომობისას ისინი თავისით ჩაიტვირთება.",
-    "fulfillment_failed_order_created": "შეკვეთა შეიქმნა, მაგრამ ნივთების გადაცემულად მონიშვნა ვერ მოხერხდა: {{reason}}"
+    "fulfillment_failed_order_created": "შეკვეთა შეიქმნა, მაგრამ ნივთების გადაცემულად მონიშვნა ვერ მოხერხდა: {{reason}}",
+    "cart_cleared": "კალათა გასუფთავდა",
+    "pay_blocked_out_of_stock": "გადახდისთვის ამოიღეთ მარაგში არარსებული ნივთები",
+    "scan_not_found": "შტრიხკოდით {{barcode}} პროდუქტი ვერ მოიძებნა",
+    "catalog_view": "ხედი",
+    "discount_remove": "ფასდაკლების მოხსნა",
+    "sale_complete": "გაყიდვა დასრულდა",
+    "sale_outstanding": "გაცემულია — გადახდა მოსალოდნელია",
+    "new_sale": "ახალი გაყიდვა",
+    "new_sale_hint": "შემდეგი ნივთის დასკანერებაც იწყებს ახალ გაყიდვას."
   },
   "orders": {
     "search_placeholder": "შეკვეთების ძებნა...",

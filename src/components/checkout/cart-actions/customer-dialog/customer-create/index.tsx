@@ -77,7 +77,7 @@ export const CustomerCreateForm: React.FC<CustomerCreateFormProps> = ({
                       {...field}
                     />
                   </FormControl>
-                  <FormMessage className="text-base text-red-600" />
+                  <FormMessage className="text-base" />
                 </FormItem>
               )}
             />
@@ -98,7 +98,7 @@ export const CustomerCreateForm: React.FC<CustomerCreateFormProps> = ({
                       {...field}
                     />
                   </FormControl>
-                  <FormMessage className="text-base text-red-600" />
+                  <FormMessage className="text-base" />
                 </FormItem>
               )}
             />
@@ -121,7 +121,7 @@ export const CustomerCreateForm: React.FC<CustomerCreateFormProps> = ({
                       {...field}
                     />
                   </FormControl>
-                  <FormMessage className="text-base text-red-600" />
+                  <FormMessage className="text-base" />
                 </FormItem>
               )}
             />
@@ -142,7 +142,7 @@ export const CustomerCreateForm: React.FC<CustomerCreateFormProps> = ({
                       {...field}
                     />
                   </FormControl>
-                  <FormMessage className="text-base text-red-600" />
+                  <FormMessage className="text-base" />
                 </FormItem>
               )}
             />
@@ -163,7 +163,7 @@ export const CustomerCreateForm: React.FC<CustomerCreateFormProps> = ({
                       {...field}
                     />
                   </FormControl>
-                  <FormMessage className="text-base text-red-600" />
+                  <FormMessage className="text-base" />
                 </FormItem>
               )}
             />

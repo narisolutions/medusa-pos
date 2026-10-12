@@ -2,7 +2,7 @@ import React, { Fragment, useState } from "react";
 import { useChange } from "@/hooks/utils/useChange";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { SegmentedControl } from "@/components/ui/segmented-control";
 import { useCheckout } from "../../hooks";
 import { useCartStore } from "@/context/cart";
 import { useTranslation } from "@/i18n";
@@ -29,10 +29,6 @@ const CommentModal: React.FC<Props> = ({ open, onClose }) => {
     if (open && !selectedItemId) setPendingCommentInput(pendingItemComment || "");
   });
 
-  const handleScopeChange = (value: string) => {
-    setScope(value === "item" ? "item" : "order");
-  };
-
   const handleDialogOpenChange = (isOpen: boolean) => {
     if (!isOpen) {
       onClose();
@@ -53,22 +49,16 @@ const CommentModal: React.FC<Props> = ({ open, onClose }) => {
       <DialogContent className="max-w-xl p-6 md:p-8">
         <DialogTitle className="text-2xl font-semibold">{t("checkout.comment_dialog_title")}</DialogTitle>
         <div className="space-y-6">
-          <Tabs value={scope} onValueChange={handleScopeChange}>
-            <TabsList className="grid h-auto w-full grid-cols-2 gap-1 rounded-lg p-1">
-              <TabsTrigger
-                value="order"
-                className="h-12 rounded-md text-base data-[state=active]:bg-primary data-[state=active]:text-white"
-              >
-                {t("checkout.comment_scope_order")}
-              </TabsTrigger>
-              <TabsTrigger
-                value="item"
-                className="h-12 rounded-md text-base data-[state=active]:bg-primary data-[state=active]:text-white"
-              >
-                {t("checkout.comment_scope_item")}
-              </TabsTrigger>
-            </TabsList>
-          </Tabs>
+          <SegmentedControl
+            label={t("checkout.comment_dialog_title")}
+            className="w-full"
+            value={scope}
+            onChange={setScope}
+            options={[
+              { value: "order", label: t("checkout.comment_scope_order") },
+              { value: "item", label: t("checkout.comment_scope_item") },
+            ]}
+          />
 
           {scope === "order" ? (
             <div className="space-y-3">
@@ -81,7 +71,7 @@ const CommentModal: React.FC<Props> = ({ open, onClose }) => {
                 onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
                   setOrderComment(e.target.value)
                 }
-                className="w-full rounded-lg border border-theme-border p-4 text-base focus:outline-none focus:ring-2 focus:ring-primary/30"
+                className="w-full rounded-lg border border-theme-border bg-transparent p-4 text-base focus:outline-none focus:ring-2 focus:ring-primary/30"
               />
             </div>
           ) : (
@@ -99,7 +89,7 @@ const CommentModal: React.FC<Props> = ({ open, onClose }) => {
                         comment: e.target.value,
                       })
                     }
-                    className="w-full rounded-lg border border-theme-border p-4 text-base focus:outline-none focus:ring-2 focus:ring-primary/30"
+                    className="w-full rounded-lg border border-theme-border bg-transparent p-4 text-base focus:outline-none focus:ring-2 focus:ring-primary/30"
                   />
                 </Fragment>
               ) : (
@@ -113,7 +103,7 @@ const CommentModal: React.FC<Props> = ({ open, onClose }) => {
                     onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
                       setPendingCommentInput(e.target.value)
                     }
-                    className="w-full rounded-lg border border-theme-border p-4 text-base focus:outline-none focus:ring-2 focus:ring-primary/30"
+                    className="w-full rounded-lg border border-theme-border bg-transparent p-4 text-base focus:outline-none focus:ring-2 focus:ring-primary/30"
                   />
                 </Fragment>
               )}
@@ -121,17 +111,10 @@ const CommentModal: React.FC<Props> = ({ open, onClose }) => {
           )}
 
           <div className="flex justify-end gap-4 pt-4">
-            <Button
-              variant="outline"
-              onClick={onClose}
-              className="h-12 px-5 text-base"
-            >
+            <Button variant="outline" size="lg" onClick={onClose} className="px-6">
               {t("common.cancel")}
             </Button>
-            <Button
-              onClick={onApply}
-              className="h-12 px-6 text-base bg-primary hover:bg-primary/90 text-white"
-            >
+            <Button size="lg" onClick={onApply} className="px-8">
               {t("common.apply")}
             </Button>
           </div>

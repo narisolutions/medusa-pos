@@ -23,6 +23,8 @@ interface FilterState {
   mode: "search" | "barcode";
   showDropdown: boolean;
   isProcessing: boolean;
+  /** The last scanned barcode that matched nothing, shown under the field until the next input. */
+  failedBarcode: string | null;
 }
 
 const handleMouseDown = (e: React.MouseEvent<HTMLButtonElement>) => {
@@ -48,6 +50,7 @@ const useProductPicker = ({ products = [], inputRef, onSelect }: Props) => {
     mode: INITIAL_MODE,
     showDropdown: false,
     isProcessing: false,
+    failedBarcode: null,
   });
 
   // Helper function to update state partially
@@ -56,7 +59,7 @@ const useProductPicker = ({ products = [], inputRef, onSelect }: Props) => {
   }, []);
 
   // Destructure state for easier access
-  const { filterValue, inputValue, mode, showDropdown, isProcessing } =
+  const { filterValue, inputValue, mode, showDropdown, isProcessing, failedBarcode } =
     filterState;
 
   const debouncedInputValue = useDebounce(
@@ -145,7 +148,7 @@ const useProductPicker = ({ products = [], inputRef, onSelect }: Props) => {
       }
 
       try {
-        updateFilterState({ isProcessing: true });
+        updateFilterState({ isProcessing: true, failedBarcode: null });
 
         const productVariant = await queryClient.fetchQuery({
           queryKey: queryKeys.products.byBarcode(salesChannelId, barcode),
@@ -157,8 +160,7 @@ const useProductPicker = ({ products = [], inputRef, onSelect }: Props) => {
 
         if (!productVariant) {
           playErrorSound();
-          handleErrorToast(t("checkout.product_not_found"));
-          setFilterState((prev) => ({ ...prev, inputValue: "" }));
+          setFilterState((prev) => ({ ...prev, inputValue: "", failedBarcode: barcode }));
           return;
         }
 
@@ -211,6 +213,7 @@ const useProductPicker = ({ products = [], inputRef, onSelect }: Props) => {
           mode: "barcode",
           filterValue: "",
           showDropdown: false,
+          failedBarcode: null,
         });
       } else {
         const newFilterValue = value.toLowerCase();
@@ -219,6 +222,7 @@ const useProductPicker = ({ products = [], inputRef, onSelect }: Props) => {
           mode: "search",
           filterValue: newFilterValue,
           showDropdown: value.length > 0,
+          failedBarcode: null,
         });
       }
     },
@@ -244,6 +248,7 @@ const useProductPicker = ({ products = [], inputRef, onSelect }: Props) => {
       filterValue: "",
       mode: INITIAL_MODE,
       showDropdown: false,
+      failedBarcode: null,
     });
   }, [updateFilterState]);
 
@@ -273,6 +278,7 @@ const useProductPicker = ({ products = [], inputRef, onSelect }: Props) => {
 
     // Status flags
     isProcessing,
+    failedBarcode,
     isValidBarcode,
     showClearButton,
     isButtonEnabled,
@@ -284,6 +290,7 @@ const useProductPicker = ({ products = [], inputRef, onSelect }: Props) => {
     handleClear,
     handleBarcodeSubmit,
     handleSelect,
+    dismissFailedBarcode: () => updateFilterState({ failedBarcode: null }),
 
     // Data
     filteredVariants,

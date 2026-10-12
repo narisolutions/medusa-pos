@@ -34,7 +34,8 @@
     "back_to_orders": "Wróć do zamówień",
     "pos": "POS",
     "processing": "Przetwarzanie...",
-    "downloading": "Pobieranie..."
+    "downloading": "Pobieranie...",
+    "undo": "Cofnij"
   },
   "nav": {
     "pos": "POS",
@@ -155,7 +156,6 @@
     "discount_type_label": "Typ rabatu",
     "discount_amount": "Kwota",
     "discount_percentage": "Procent",
-    "discount_value_label": "Wartość rabatu ",
     "select_item_for_discount": "Wybierz pozycję, aby zastosować rabat.",
     "column_item": "Pozycja",
     "column_sku": "SKU",
@@ -193,7 +193,6 @@
     "set_quantity_for_next_item": "Ustaw ilość dla następnej pozycji dodanej do koszyka",
     "item_added": "Dodano {{title}} do koszyka",
     "item_removed": "Usunięto {{title}} z koszyka",
-    "quantity_decreased": "Zmniejszono ilość {{title}}",
     "quantity_increased": "Zwiększono ilość {{title}}",
     "select_payment_method": "Wybierz metodę płatności przed przejściem do kasy.",
     "region_channel_missing": "Brak informacji o regionie lub kanale sprzedaży.",
@@ -202,7 +201,6 @@
     "no_default_printer": "Nie ustawiono domyślnej drukarki. Dodaj ją w Ustawienia → Drukarki.",
     "cannot_add_to_cart": "Nie można dodać produktu do koszyka",
     "no_sales_channel_configured": "Brak skonfigurowanego kanału sprzedaży",
-    "product_not_found": "Nie znaleziono produktu",
     "product_not_for_sale": "{{title}} nie jest w sprzedaży.",
     "items_not_for_sale_one": "{{names}} nie jest już w sprzedaży. Usuń z koszyka, aby kontynuować.",
     "items_not_for_sale_other": "{{names}} nie są już w sprzedaży. Usuń je z koszyka, aby kontynuować.",
@@ -247,7 +245,16 @@
     "park_name_optional": "opcjonalne",
     "products_load_failed": "Nie udało się wczytać produktów.",
     "products_load_failed_hint": "Zwykle to problem z połączeniem. Wczytają się ponownie same, gdy serwer będzie osiągalny.",
-    "fulfillment_failed_order_created": "Zamówienie zostało utworzone, ale nie udało się oznaczyć towarów jako wydanych: {{reason}}"
+    "fulfillment_failed_order_created": "Zamówienie zostało utworzone, ale nie udało się oznaczyć towarów jako wydanych: {{reason}}",
+    "cart_cleared": "Koszyk wyczyszczony",
+    "pay_blocked_out_of_stock": "Usuń produkty niedostępne, aby przyjąć płatność",
+    "scan_not_found": "Brak produktu o kodzie {{barcode}}",
+    "catalog_view": "Widok",
+    "discount_remove": "Usuń rabat",
+    "sale_complete": "Sprzedaż zakończona",
+    "sale_outstanding": "Wydano — płatność oczekuje",
+    "new_sale": "Nowa sprzedaż",
+    "new_sale_hint": "Zeskanowanie kolejnego produktu również rozpoczyna nową sprzedaż."
   },
   "orders": {
     "search_placeholder": "Szukaj zamówień...",

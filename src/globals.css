@@ -80,6 +80,14 @@
   --text-total: 2.5rem;
   --text-total--line-height: 3rem;
   --text-total--font-weight: 700;
+
+  /* The cart line a scan just added or bumped. */
+  --animate-cart-flash: cart-flash 1.2s ease-out;
+  @keyframes cart-flash {
+    from {
+      background-color: color-mix(in oklab, var(--color-primary) 22%, transparent);
+    }
+  }
 }
 
 /* Border tokens: reference :root/.dark so light/dark and runtime overrides work.

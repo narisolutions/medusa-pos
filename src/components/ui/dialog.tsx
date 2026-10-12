@@ -68,7 +68,7 @@ const DialogContent = React.forwardRef<
       {showCloseButton && (
         <DialogPrimitive.Close
           data-slot="dialog-close"
-          className="ring-offset-background focus:ring-ring data-[state=open]:bg-accent data-[state=open]:text-muted-foreground absolute top-4 right-4 rounded-xs opacity-70 transition-opacity hover:opacity-100 focus:outline-hidden disabled:pointer-events-none [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-6 min-h-[44px] min-w-[44px] flex items-center justify-center cursor-pointer"
+          className="absolute top-3 right-3 flex size-12 items-center justify-center rounded-md text-fg-muted transition-colors hover:bg-accent hover:text-fg active:bg-accent focus-visible:ring-[3px] focus-visible:ring-ring/50 focus:outline-hidden disabled:pointer-events-none [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-6 cursor-pointer"
         >
           <XIcon />
           <span className="sr-only">Close</span>
@@ -115,7 +115,7 @@ function DialogTitle({
   return (
     <DialogPrimitive.Title
       data-slot="dialog-title"
-      className={cn("text-lg leading-none font-semibold", className)}
+      className={cn("pr-12 text-lg leading-tight font-semibold", className)}
       {...props}
     />
   );

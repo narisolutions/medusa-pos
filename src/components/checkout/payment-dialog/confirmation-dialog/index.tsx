@@ -39,10 +39,10 @@ const ConfirmationDialog: React.FC<ConfirmationDialogProps> = ({
             {message ?? t("checkout.confirm_payment_message")}
           </p>
 
-          <div className="bg-blue-50 border-2 border-blue-200 rounded-lg p-4">
-            <p className="text-center text-blue-800 font-medium">
+          <div className="bg-surface-muted border border-theme-border rounded-lg p-4">
+            <p className="text-center text-fg-muted font-medium">
               {t("checkout.amount_label")}:{" "}
-              <span className="text-2xl font-bold">
+              <span className="text-amount tabular-nums text-fg">
                 {formatPrice(total, currency)}
               </span>
             </p>
@@ -53,15 +53,18 @@ const ConfirmationDialog: React.FC<ConfirmationDialogProps> = ({
           <Button
             variant="outline"
             onClick={onCancel}
-            className="flex-1 h-14 text-lg font-medium"
+            size="lg"
+            className="flex-1 text-lg"
             disabled={isProcessing}
           >
             {t("common.cancel")}
           </Button>
           <Button
             onClick={onConfirm}
-            disabled={isProcessing}
-            className="flex-1 h-14 text-lg font-medium bg-green-600 hover:bg-green-700 text-white"
+            variant="success"
+            size="lg"
+            loading={isProcessing}
+            className="flex-1 text-lg"
           >
             {isProcessing ? t("common.processing") : confirmLabel ?? t("checkout.payment_successful_button")}
           </Button>

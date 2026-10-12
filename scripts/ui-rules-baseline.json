@@ -22,55 +22,11 @@
     "text-xs": 1,
     "raw-colour": 1
   },
-  "src/components/base/product-picker/index.tsx": {
-    "text-xs": 1,
-    "small-height": 1,
-    "raw-colour": 10
-  },
   "src/components/base/product-picker/variant-dialog/index.tsx": {
-    "raw-colour": 24
+    "raw-colour": 23
   },
   "src/components/base/product-picker/variant-dialog/other-variants/index.tsx": {
     "raw-colour": 3
-  },
-  "src/components/checkout/cart-actions/customer-dialog/customer-create/index.tsx": {
-    "raw-colour": 5
-  },
-  "src/components/checkout/cart-actions/customer-dialog/customer-search/index.tsx": {
-    "text-xs": 2,
-    "small-height": 1,
-    "raw-colour": 13
-  },
-  "src/components/checkout/cart-actions/customer-dialog/index.tsx": {
-    "raw-colour": 4
-  },
-  "src/components/checkout/cart-actions/index.tsx": {
-    "raw-colour": 10
-  },
-  "src/components/checkout/cart-actions/quantity-dialog/index.tsx": {
-    "small-height": 2
-  },
-  "src/components/checkout/cart-items/index.tsx": {
-    "raw-colour": 8
-  },
-  "src/components/checkout/catalog-panel/product-info/index.tsx": {
-    "raw-colour": 1
-  },
-  "src/components/checkout/catalog-panel/product-price/index.tsx": {
-    "raw-colour": 1
-  },
-  "src/components/checkout/catalog-panel/stock-badge/index.tsx": {
-    "raw-colour": 8
-  },
-  "src/components/checkout/catalog-panel/variant-chooser/index.tsx": {
-    "raw-colour": 1
-  },
-  "src/components/checkout/payment-dialog/confirmation-dialog/index.tsx": {
-    "raw-colour": 5
-  },
-  "src/components/checkout/payment-dialog/index.tsx": {
-    "text-xs": 8,
-    "raw-colour": 19
   },
   "src/components/layout/header/index.tsx": {
     "small-height": 1

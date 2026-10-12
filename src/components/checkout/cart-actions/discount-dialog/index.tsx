@@ -1,10 +1,13 @@
-import React, { Fragment, useState } from "react";
+import React, { useState } from "react";
 import { useChange } from "@/hooks/utils/useChange";
-import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 import { Numpad } from "@/components/ui/numpad";
+import { SegmentedControl } from "@/components/ui/segmented-control";
 import { useCheckout } from "../../hooks";
 import { useCartStore } from "@/context/cart";
 import { OrderDiscount } from "@/types/utils";
+import { getCurrencySymbol } from "@/utils/settings/preferences";
 import { useTranslation } from "@/i18n";
 
 type Props = {
@@ -12,12 +15,14 @@ type Props = {
   onClose: () => void;
 };
 
+type DiscountType = "amount" | "percent";
+
 const DiscountModal: React.FC<Props> = ({ open, onClose }) => {
   const selectedItemId = useCartStore((state) => state.selectedItemId);
   const setItemMetadata = useCartStore((state) => state.setItemMetadata);
   const pendingItemDiscount = useCartStore((state) => state.pendingItemDiscount);
   const setPendingItemDiscount = useCartStore((state) => state.setPendingItemDiscount);
-  const { items } = useCheckout();
+  const { items, currency } = useCheckout();
   const { t } = useTranslation();
 
   const currentItem = items.find((i) => i.variant_id === selectedItemId);
@@ -26,114 +31,100 @@ const DiscountModal: React.FC<Props> = ({ open, onClose }) => {
 
   const activeDiscount = selectedItemId ? currentItemDiscount : pendingItemDiscount;
 
-  const [discountType, setDiscountType] = useState<"amount" | "percent">(
+  const [discountType, setDiscountType] = useState<DiscountType>(
     activeDiscount?.type || "amount"
   );
   const [discountValue, setDiscountValue] = useState<string>(
     String(activeDiscount?.value ?? 0)
   );
   const [originalDiscount, setOriginalDiscount] = useState<OrderDiscount | null>(null);
+  // The prefilled value is typed over, not appended to.
+  const [fresh, setFresh] = useState(true);
 
   useChange(`${open}|${selectedItemId ?? ""}`, () => {
     if (!open) return;
-    if (activeDiscount) {
-      setDiscountType(activeDiscount.type || "amount");
-      setDiscountValue(String(activeDiscount.value ?? 0));
-      setOriginalDiscount(activeDiscount);
-    } else {
-      setDiscountType("amount");
-      setDiscountValue("0");
-      setOriginalDiscount(null);
-    }
+    setDiscountType(activeDiscount?.type || "amount");
+    setDiscountValue(String(activeDiscount?.value ?? 0));
+    setOriginalDiscount(activeDiscount);
+    setFresh(true);
   });
 
-  const handleTypeChange = (type: "amount" | "percent") => {
+  const handleTypeChange = (type: DiscountType) => {
     setDiscountType(type);
-    if (originalDiscount && originalDiscount.type === type) {
-      setDiscountValue(String(originalDiscount.value ?? 0));
-    } else {
-      setDiscountValue("0");
-    }
+    setDiscountValue(
+      originalDiscount && originalDiscount.type === type ? String(originalDiscount.value ?? 0) : "0"
+    );
+    setFresh(true);
   };
 
-  const handleDialogOpenChange = (isOpen: boolean) => {
-    if (!isOpen) {
-      onClose();
-      setDiscountValue("0");
-      setDiscountType("amount");
-    }
-  };
+  const value = Number(discountValue) || 0;
+  const isValid = discountType === "percent" ? value <= 100 : true;
+  const unit = discountType === "percent" ? "%" : getCurrencySymbol(currency);
 
-  const onApply = () => {
-    const value = Number(discountValue) || 0;
-
+  const save = (next: number) => {
     if (selectedItemId) {
       setItemMetadata(selectedItemId, {
-        item_discount: { type: discountType, value },
+        item_discount: { type: discountType, value: next },
       });
     } else {
-      setPendingItemDiscount(value > 0 ? { type: discountType, value } : null);
+      setPendingItemDiscount(next > 0 ? { type: discountType, value: next } : null);
     }
-
     onClose();
   };
 
   return (
-    <Dialog open={open} onOpenChange={handleDialogOpenChange}>
-      <DialogContent className="max-w-lg">
-        <DialogTitle className="text-xl font-semibold">{t("checkout.discount_dialog_title")}</DialogTitle>
-        <div className="space-y-4">
-          <Fragment>
-            <label className="text-sm text-fg-muted">
-              {selectedItemId
-                ? <>{t("checkout.apply_discount_label")}<b>{currentItem?.title}</b></>
-                : t("checkout.discount_next_item_label")}
-            </label>
+    <Dialog open={open} onOpenChange={(isOpen) => !isOpen && onClose()}>
+      <DialogContent className="max-w-md">
+        <DialogHeader>
+          <DialogTitle className="text-xl">{t("checkout.discount_dialog_title")}</DialogTitle>
+          <DialogDescription className="text-base">
+            {selectedItemId ? (
+              <>
+                {t("checkout.apply_discount_label")}
+                <b className="text-fg">{currentItem?.title}</b>
+              </>
+            ) : (
+              t("checkout.discount_next_item_label")
+            )}
+          </DialogDescription>
+        </DialogHeader>
 
-            <div className="space-y-2">
-              <label className="text-sm text-fg-muted">{t("checkout.discount_type_label")}</label>
-              <div className="flex gap-4">
-                <label className="flex items-center gap-2 cursor-pointer">
-                  <input
-                    type="radio"
-                    name="item-discount-type"
-                    checked={discountType === "amount"}
-                    onChange={() => handleTypeChange("amount")}
-                    className="w-4 h-4 border-theme-border-strong text-primary focus:ring-primary/30"
-                  />
-                  <span className="text-sm">{t("checkout.discount_amount")}</span>
-                </label>
-                <label className="flex items-center gap-2 cursor-pointer">
-                  <input
-                    type="radio"
-                    name="item-discount-type"
-                    checked={discountType === "percent"}
-                    onChange={() => handleTypeChange("percent")}
-                    className="w-4 h-4 border-theme-border-strong text-primary focus:ring-primary/30"
-                  />
-                  <span className="text-sm">{t("checkout.discount_percentage")}</span>
-                </label>
-              </div>
-            </div>
+        <SegmentedControl
+          label={t("checkout.discount_type_label")}
+          className="w-full"
+          value={discountType}
+          onChange={handleTypeChange}
+          options={[
+            { value: "amount", label: `${t("checkout.discount_amount")} (${getCurrencySymbol(currency)})` },
+            { value: "percent", label: `${t("checkout.discount_percentage")} (%)` },
+          ]}
+        />
 
-            <div className="space-y-2">
-              <label className="text-sm text-fg-muted">
-                {t("checkout.discount_value_label")}{discountType === "percent" && "(%)"}
-                {discountType === "amount" && `(${t("checkout.discount_amount")})`}
-              </label>
-              <div className="text-2xl font-semibold text-center p-3 border border-theme-border-strong rounded-md bg-surface-muted">
-                {discountValue || "0"}
-              </div>
-            </div>
+        <output
+          aria-live="polite"
+          className={`rounded-lg px-4 py-2 text-center text-total tabular-nums ${isValid ? "" : "text-danger-text"} ${fresh ? "bg-primary/10" : "bg-surface-subtle"}`}
+        >
+          {discountValue || "0"} {unit}
+        </output>
 
-            <Numpad
-              value={discountValue}
-              onChange={setDiscountValue}
-              onEnter={onApply}
-              allowDecimal={true}
-            />
-          </Fragment>
-        </div>
+        <Numpad
+          value={discountValue}
+          onChange={(next) => {
+            setDiscountValue(next);
+            setFresh(false);
+          }}
+          onEnter={() => isValid && save(value)}
+          enterDisabled={!isValid}
+          replace={fresh}
+          allowDecimal={true}
+          maxDecimals={2}
+        />
+
+        {activeDiscount && (
+          <Button variant="outline" size="lg" className="w-full text-danger-text" onClick={() => save(0)}>
+            {t("checkout.discount_remove")}
+          </Button>
+        )}
       </DialogContent>
     </Dialog>
   );

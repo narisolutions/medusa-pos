@@ -7,8 +7,11 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { Minus, Plus, ShoppingCart, Trash2, TriangleAlert } from "lucide-react";
-import React from "react";
+import { ShoppingCart, Trash2 } from "lucide-react";
+import { Stepper } from "@/components/ui/stepper";
+import { StatusChip } from "@/components/ui/status-chip";
+import { EmptyState } from "@/components/ui/state-panel";
+import React, { useEffect, useRef } from "react";
 import Backdrop from "@/components/base/backdrop";
 import { formatPrice } from "@/utils/helpers";
 import ItemDialog from "@/components/base/product-picker/variant-dialog";
@@ -17,7 +20,12 @@ import { useCheckout } from "../hooks";
 import { useCartStore } from "@/context/cart";
 import { useTranslation } from "@/i18n";
 
-const CartItems: React.FC = () => {
+interface Props {
+  /** The line a scan or catalog tap just added or bumped; `seq` replays the flash for a repeat. */
+  lastAdded: { id: string; seq: number } | null;
+}
+
+const CartItems: React.FC<Props> = ({ lastAdded }) => {
   const {
     items,
     loading,
@@ -38,6 +46,15 @@ const CartItems: React.FC = () => {
     state.getTotalAfterDiscount()
   );
 
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!lastAdded) return;
+    scrollRef.current
+      ?.querySelector(`[data-variant-id="${CSS.escape(lastAdded.id)}"]`)
+      ?.scrollIntoView({ block: "nearest" });
+  }, [lastAdded]);
+
   const handleContainerClick = (e: React.MouseEvent<HTMLDivElement>) => {
     if (e.target === e.currentTarget) {
       setSelectedItemId(undefined);
@@ -47,33 +64,32 @@ const CartItems: React.FC = () => {
   return (
     <div className="flex flex-col flex-1 border border-theme-border bg-surface rounded-lg overflow-hidden h-full">
       <div className="flex flex-col flex-1 min-h-0 overflow-hidden">
-        <div className="flex-1 overflow-auto" onClick={handleContainerClick}>
+        <div ref={scrollRef} className="flex-1 overflow-auto" onClick={handleContainerClick}>
           <Table className="table-fixed w-full">
             <TableHeader className="sticky top-0 bg-primary text-white [&_th]:px-7 z-10">
               <TableRow className="h-13">
-                <TableHead className="text-white w-[30%]">{t("checkout.column_item")}</TableHead>
+                <TableHead className="text-white w-[28%]">{t("checkout.column_item")}</TableHead>
                 <TableHead className="text-white w-[10%]">{t("checkout.column_sku")}</TableHead>
-                <TableHead className="text-white w-[15%]">{t("checkout.column_options")}</TableHead>
-                <TableHead className="text-white text-center w-[15%]">
+                <TableHead className="text-white w-[12%]">{t("checkout.column_options")}</TableHead>
+                <TableHead className="text-white text-center w-[22%]">
                   {t("checkout.column_quantity")}
                 </TableHead>
-                <TableHead className="text-white text-right w-[15%]">
+                <TableHead className="text-white text-right w-[16%]">
                   {t("checkout.column_price")}
                 </TableHead>
-                <TableHead className="text-white w-[10%]"></TableHead>
+                <TableHead className="text-white w-[12%]"></TableHead>
               </TableRow>
             </TableHeader>
             <TableBody className="[&_td]:px-7 [&_td]:py-6">
               {items.length === 0 ? (
-                <TableRow>
+                <TableRow className="border-0 hover:bg-transparent">
                   <TableCell colSpan={6} className="w-full">
-                    <div className="flex flex-col items-center gap-2 pt-65 justify-center w-full">
-                      <ShoppingCart className="text-fg-subtle" />
-                      <h3 className="text-lg font-medium text-fg">{t("checkout.no_items_title")}</h3>
-                      <p className="text-sm text-fg-muted">
-                        {t("checkout.no_items_description")}
-                      </p>
-                    </div>
+                    <EmptyState
+                      className="pt-65"
+                      icon={<ShoppingCart />}
+                      title={t("checkout.no_items_title")}
+                      hint={t("checkout.no_items_description")}
+                    />
                   </TableCell>
                 </TableRow>
               ) : (
@@ -87,6 +103,7 @@ const CartItems: React.FC = () => {
                   const isOutOfStock = metadata?.available_quantity === 0;
                   const isLastOne = metadata?.available_quantity === 1;
                   const isSelected = selectedItemId === variant_id;
+                  const flashSeq = lastAdded && lastAdded.id === variant_id ? lastAdded.seq : null;
 
                   const originalUnitPrice = metadata?.original_unit_price as
                     | number
@@ -99,10 +116,12 @@ const CartItems: React.FC = () => {
 
                   return (
                     <TableRow
-                      key={item.variant_id}
+                      // A new key remounts the row, restarting the flash on a repeat scan.
+                      key={flashSeq === null ? variant_id : `${variant_id}-${flashSeq}`}
+                      data-variant-id={variant_id}
                       aria-selected={isSelected}
-                      className={`h-13 cursor-pointer transition-colors
-                        ${isOutOfStock ? "bg-red-500/10 border-l-4 border-l-red-500" : ""}
+                      className={`h-13 cursor-pointer transition-colors ${flashSeq === null ? "" : "animate-cart-flash"}
+                        ${isOutOfStock ? "bg-danger-subtle border-l-4 border-l-danger" : ""}
                         ${!isOutOfStock && isSelected ? "bg-primary/5 border-l-4 border-l-primary" : ""}
                         ${isSelected ? "ring-1 ring-primary/40" : ""}
                       `}
@@ -119,10 +138,9 @@ const CartItems: React.FC = () => {
                               {title || "-"}
                             </div>
                             {isOutOfStock && (
-                              <span className="mt-1 inline-flex items-center gap-1.5 rounded-full bg-red-500/15 px-2.5 py-0.5 text-sm font-medium text-red-700 dark:text-red-300">
-                                <TriangleAlert className="size-4" />
+                              <StatusChip intent="danger" className="mt-1">
                                 {t("checkout.out_of_stock")}
-                              </span>
+                              </StatusChip>
                             )}
                           </div>
                         </div>
@@ -137,54 +155,31 @@ const CartItems: React.FC = () => {
                             : "-"}
                         </div>
                       </TableCell>
-                      <TableCell>
-                        <div className="flex items-center justify-center gap-2">
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            className="w-12 h-12 p-0"
-                            onClick={() =>
-                              handleQuantityChange(variant_id!, -1)
+                      <TableCell className="px-2!">
+                        {/* Keeps focus in the scan field while the operator steps the quantity. */}
+                        <div
+                          className="flex justify-center"
+                          title={isLastOne ? t("checkout.last_one") : undefined}
+                          onMouseDown={(e) => e.preventDefault()}
+                        >
+                          <Stepper
+                            value={quantity}
+                            min={1}
+                            onChange={(next) =>
+                              handleQuantityChange(variant_id!, next - quantity)
                             }
-                            onMouseDown={handleMouseDown}
-                            disabled={
-                              item.quantity <= 1 || loading || isOutOfStock
-                            }
-                          >
-                            <Minus />
-                          </Button>
-                          <span
-                            className={`w-8 text-base text-center ${isOutOfStock ? "text-fg-muted" : ""}`}
-                          >
-                            {item.quantity}
-                          </span>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            className="w-12 h-12 p-0"
-                            title={
-                              isOutOfStock
-                                ? t("checkout.out_of_stock")
-                                : isLastOne
-                                  ? t("checkout.last_one")
-                                  : ""
-                            }
-                            onClick={() => handleQuantityChange(variant_id!, 1)}
-                            onMouseDown={handleMouseDown}
                             disabled={loading || isOutOfStock}
-                          >
-                            <Plus />
-                          </Button>
+                          />
                         </div>
                       </TableCell>
                       <TableCell className="text-right font-medium text-base">
                         <div className="flex flex-col items-end gap-1">
                           {hasManualDiscount ? (
                             <>
-                              <span className="text-sm text-fg-muted line-through">
+                              <span className="text-base text-fg-muted line-through">
                                 {formatPrice(originalTotal, currency)}
                               </span>
-                              <div className="text-orange-600 font-semibold">
+                              <div className="text-warning-text font-semibold">
                                 {formatPrice(itemTotal, currency)}
                               </div>
                             </>
@@ -193,11 +188,10 @@ const CartItems: React.FC = () => {
                           )}
                         </div>
                       </TableCell>
-                      <TableCell>
+                      <TableCell className="px-2! text-center">
                         <Button
                           variant="ghost"
-                          size="sm"
-                          className="size-12 p-0"
+                          size="icon-lg"
                           onClick={(e) =>
                             handleButtonClick(e, () =>
                               handleRemoveItem(variant_id!)
@@ -208,7 +202,7 @@ const CartItems: React.FC = () => {
                           title={t("common.remove")}
                           aria-label={t("common.remove")}
                         >
-                          <Trash2 className="size-5 text-red-600 dark:text-red-400" />
+                          <Trash2 className="size-6 text-danger-text" />
                         </Button>
                       </TableCell>
                     </TableRow>
@@ -224,17 +218,17 @@ const CartItems: React.FC = () => {
         <div className="p-4 border-t border-theme-border space-y-2">
           <div className="flex justify-between text-base text-fg-muted">
             <span>{t("checkout.subtotal_label")}</span>
-            <span>{formatPrice(subtotal, currency)}</span>
+            <span className="tabular-nums">{formatPrice(subtotal, currency)}</span>
           </div>
           {discountAmount > 0 && (
-            <div className="flex justify-between text-base text-green-600">
+            <div className="flex justify-between text-base text-success-text">
               <span>{t("checkout.discount_label")}</span>
-              <span>-{formatPrice(discountAmount, currency)}</span>
+              <span className="tabular-nums">-{formatPrice(discountAmount, currency)}</span>
             </div>
           )}
           <div className="flex justify-between items-center pt-2 border-t">
             <span className="text-xl font-medium">{t("checkout.total_label")}</span>
-            <span className="text-2xl font-bold text-primary">
+            <span className="text-total font-bold tabular-nums text-primary">
               {formatPrice(totalAfterDiscount, currency)}
             </span>
           </div>

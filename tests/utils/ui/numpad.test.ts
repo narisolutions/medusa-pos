@@ -19,6 +19,12 @@ describe("applyNumpadKey", () => {
     expect(applyNumpadKey("4.5", "1", { maxDecimals: 2 })).toBe("4.51");
   });
 
+  it("types over a prefilled value when asked", () => {
+    expect(applyNumpadKey("3", "5", { replace: true })).toBe("5");
+    expect(applyNumpadKey("3", ".", { replace: true })).toBe("0.");
+    expect(applyNumpadKey("3", "backspace", { replace: true })).toBe("");
+  });
+
   it("deletes one character, or everything", () => {
     expect(applyNumpadKey("4.5", "backspace")).toBe("4.");
     expect(applyNumpadKey("4.5", "clear")).toBe("");

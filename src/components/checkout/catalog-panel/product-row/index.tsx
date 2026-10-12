@@ -29,7 +29,7 @@ const ProductRow: React.FC<Props> = ({ product, currency, onPick }) => {
         type="button"
         disabled={stock === "out"}
         onClick={() => onPick(product)}
-        className="flex min-h-14 flex-1 items-center gap-4 rounded-lg border border-theme-border bg-surface px-4 py-2 text-left transition-colors hover:bg-surface-hover disabled:cursor-not-allowed disabled:opacity-60"
+        className="flex min-h-14 flex-1 items-center gap-4 rounded-lg border border-theme-border bg-surface px-4 py-2 text-left transition-colors hover:bg-surface-hover active:bg-accent disabled:cursor-not-allowed disabled:opacity-60"
       >
         <span className="flex min-w-0 flex-1 flex-col">
           <span className="truncate text-base font-medium text-fg">{product.title}</span>

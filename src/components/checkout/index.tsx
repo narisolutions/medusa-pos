@@ -22,10 +22,12 @@ const CheckoutContent: React.FC<Props> = ({ products }) => {
   const addItem = useCartStore((state) => state.addItem);
   const { t } = useTranslation();
   const [isCatalogOpen, setIsCatalogOpen] = useState(false);
+  const [lastAdded, setLastAdded] = useState<{ id: string; seq: number } | null>(null);
 
   const handleSelect = (variant: AdminProductVariant): ProductPickerResult => {
     const result = addItem(variant);
     if (!result.success) return { success: false, message: result.message };
+    setLastAdded((prev) => ({ id: variant.id, seq: (prev?.seq ?? 0) + 1 }));
     const title = variant.product?.title || variant.title;
     return {
       success: true,
@@ -67,7 +69,7 @@ const CheckoutContent: React.FC<Props> = ({ products }) => {
       />
       <div className="grid grid-cols-3 gap-4 flex-1 min-h-0">
         <div className="relative col-span-2 min-h-0">
-          <CartItems />
+          <CartItems lastAdded={lastAdded} />
           <CatalogPanel
             open={isCatalogOpen}
             onClose={() => setIsCatalogOpen(false)}

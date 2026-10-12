@@ -1,5 +1,6 @@
 import React from "react";
 import { Ban, TriangleAlert } from "lucide-react";
+import { StatusChip } from "@/components/ui/status-chip";
 import { useTranslation } from "@/i18n";
 
 interface Props {
@@ -23,16 +24,13 @@ const StockBadge: React.FC<Props> = ({ state, count }) => {
   const Icon = state === "out" ? Ban : TriangleAlert;
 
   return (
-    <span
-      className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-base font-medium shadow-sm ${
-        state === "out" || count === 1
-          ? "bg-red-100 text-red-800 dark:bg-red-950 dark:text-red-200"
-          : "bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-200"
-      }`}
+    <StatusChip
+      intent={state === "out" || count === 1 ? "danger" : "warning"}
+      icon={<Icon className="size-4" />}
+      className="shadow-sm"
     >
-      <Icon className="size-4 shrink-0" aria-hidden />
       {label}
-    </span>
+    </StatusChip>
   );
 };
 

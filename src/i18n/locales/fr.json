@@ -34,7 +34,8 @@
     "back_to_orders": "Retour aux commandes",
     "pos": "Caisse",
     "processing": "Traitement...",
-    "downloading": "Téléchargement..."
+    "downloading": "Téléchargement...",
+    "undo": "Annuler"
   },
   "nav": {
     "pos": "Caisse",
@@ -155,7 +156,6 @@
     "discount_type_label": "Type de remise",
     "discount_amount": "Montant",
     "discount_percentage": "Pourcentage",
-    "discount_value_label": "Valeur de la remise ",
     "select_item_for_discount": "Veuillez sélectionner un article pour appliquer une remise.",
     "column_item": "Article",
     "column_sku": "SKU",
@@ -193,7 +193,6 @@
     "set_quantity_for_next_item": "Définir la quantité du prochain article ajouté au panier",
     "item_added": "{{title}} ajouté au panier",
     "item_removed": "{{title}} retiré du panier",
-    "quantity_decreased": "Quantité de {{title}} diminuée",
     "quantity_increased": "Quantité de {{title}} augmentée",
     "select_payment_method": "Veuillez sélectionner un mode de paiement avant de passer en caisse.",
     "region_channel_missing": "Les informations de région ou de canal de vente sont manquantes.",
@@ -202,7 +201,6 @@
     "no_default_printer": "Aucune imprimante par défaut n’est configurée. Ajoutez-en une dans Paramètres → Imprimantes.",
     "cannot_add_to_cart": "Impossible d’ajouter l’article au panier",
     "no_sales_channel_configured": "Aucun canal de vente configuré",
-    "product_not_found": "Produit introuvable",
     "product_not_for_sale": "{{title}} n'est pas en vente.",
     "items_not_for_sale_one": "{{names}} n'est plus en vente. Retirez-le du panier pour continuer.",
     "items_not_for_sale_other": "{{names}} ne sont plus en vente. Retirez-les du panier pour continuer.",
@@ -247,7 +245,16 @@
     "park_name_optional": "facultatif",
     "products_load_failed": "Impossible de charger les produits.",
     "products_load_failed_hint": "C'est généralement la connexion. Ils se rechargent seuls dès que le serveur est joignable.",
-    "fulfillment_failed_order_created": "La commande a été créée, mais les articles n'ont pas pu être marqués comme remis : {{reason}}"
+    "fulfillment_failed_order_created": "La commande a été créée, mais les articles n'ont pas pu être marqués comme remis : {{reason}}",
+    "cart_cleared": "Panier vidé",
+    "pay_blocked_out_of_stock": "Retirez les articles en rupture pour encaisser",
+    "scan_not_found": "Aucun produit avec le code-barres {{barcode}}",
+    "catalog_view": "Affichage",
+    "discount_remove": "Retirer la remise",
+    "sale_complete": "Vente terminée",
+    "sale_outstanding": "Remis — paiement en attente",
+    "new_sale": "Nouvelle vente",
+    "new_sale_hint": "Scanner l'article suivant lance aussi une nouvelle vente."
   },
   "orders": {
     "search_placeholder": "Rechercher des commandes...",

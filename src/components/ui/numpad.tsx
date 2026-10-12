@@ -14,6 +14,10 @@ export type NumpadProps = {
   className?: string;
   /** Hide Done, for dialogs that confirm with their own button. */
   hideActions?: boolean;
+  /** The next key types over the value instead of appending, e.g. a prefilled quantity. */
+  replace?: boolean;
+  /** Done is greyed out, e.g. while the value is invalid. */
+  enterDisabled?: boolean;
 };
 
 const HOLD_TO_CLEAR_MS = 600;
@@ -32,12 +36,14 @@ export const Numpad: React.FC<NumpadProps> = ({
   maxDecimals,
   className = "",
   hideActions = false,
+  replace = false,
+  enterDisabled = false,
 }) => {
   const { t } = useTranslation();
   const holdTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const cleared = useRef(false);
 
-  const press = (key: NumpadKey) => onChange(applyNumpadKey(value, key, { allowDecimal, maxDecimals }));
+  const press = (key: NumpadKey) => onChange(applyNumpadKey(value, key, { allowDecimal, maxDecimals, replace }));
 
   const startHold = () => {
     cleared.current = false;
@@ -95,6 +101,7 @@ export const Numpad: React.FC<NumpadProps> = ({
         <button
           type="button"
           className={cn(KEY, "row-span-2 h-auto bg-success text-success-foreground text-xl font-bold active:bg-success/80")}
+          disabled={enterDisabled}
           onClick={() => onEnter?.()}
         >
           {t("ui.numpad_done")}

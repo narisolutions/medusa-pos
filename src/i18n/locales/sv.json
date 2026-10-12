@@ -34,7 +34,8 @@
     "back_to_orders": "Tillbaka till order",
     "pos": "Kassa",
     "processing": "Bearbetar...",
-    "downloading": "Laddar ner..."
+    "downloading": "Laddar ner...",
+    "undo": "Ångra"
   },
   "nav": {
     "pos": "Kassa",
@@ -155,7 +156,6 @@
     "discount_type_label": "Rabattyp",
     "discount_amount": "Belopp",
     "discount_percentage": "Procent",
-    "discount_value_label": "Rabattvärde ",
     "select_item_for_discount": "Välj en artikel för att tillämpa en rabatt.",
     "column_item": "Artikel",
     "column_sku": "SKU",
@@ -193,7 +193,6 @@
     "set_quantity_for_next_item": "Ange antal för nästa artikel som läggs i kundvagnen",
     "item_added": "{{title}} tillagd i kundvagnen",
     "item_removed": "{{title}} borttagen från kundvagnen",
-    "quantity_decreased": "Antalet av {{title}} minskat",
     "quantity_increased": "Antalet av {{title}} ökat",
     "select_payment_method": "Välj en betalningsmetod innan du går vidare till kassan.",
     "region_channel_missing": "Information om region eller försäljningskanal saknas.",
@@ -202,7 +201,6 @@
     "no_default_printer": "Ingen standardskrivare är inställd. Lägg till en under Inställningar → Skrivare.",
     "cannot_add_to_cart": "Det gick inte att lägga artikeln i kundvagnen",
     "no_sales_channel_configured": "Ingen försäljningskanal konfigurerad",
-    "product_not_found": "Produkten hittades inte",
     "product_not_for_sale": "{{title}} säljs inte.",
     "items_not_for_sale_one": "{{names}} säljs inte längre. Ta bort den från varukorgen för att fortsätta.",
     "items_not_for_sale_other": "{{names}} säljs inte längre. Ta bort dem från varukorgen för att fortsätta.",
@@ -247,7 +245,16 @@
     "park_name_optional": "valfritt",
     "products_load_failed": "Det gick inte att läsa in produkterna.",
     "products_load_failed_hint": "Oftast beror det på anslutningen. De läses in igen av sig själva när servern nås.",
-    "fulfillment_failed_order_created": "Ordern skapades, men varorna kunde inte markeras som överlämnade: {{reason}}"
+    "fulfillment_failed_order_created": "Ordern skapades, men varorna kunde inte markeras som överlämnade: {{reason}}",
+    "cart_cleared": "Varukorgen tömd",
+    "pay_blocked_out_of_stock": "Ta bort slutsålda varor för att ta betalt",
+    "scan_not_found": "Ingen vara med streckkod {{barcode}}",
+    "catalog_view": "Vy",
+    "discount_remove": "Ta bort rabatt",
+    "sale_complete": "Försäljning klar",
+    "sale_outstanding": "Utlämnad — betalning utestående",
+    "new_sale": "Ny försäljning",
+    "new_sale_hint": "Att skanna nästa vara startar också en ny försäljning."
   },
   "orders": {
     "search_placeholder": "Sök order...",
