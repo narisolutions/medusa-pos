@@ -19,6 +19,7 @@
     "dev:production": "vite --mode production",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
+    "check:ui": "node scripts/check-ui-rules.mjs",
     "build": "tsc && vite build",
     "build:staging": "tsc && vite build --mode staging",
     "build:production": "tsc && vite build --mode production",

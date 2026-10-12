@@ -24,7 +24,8 @@ function AppContent() {
   return (
     <>
       <RouterProvider router={router} />
-      <Toaster richColors position="top-right" />
+      {/* Near the hands and the till's work, readable at arm's length (docs/ui-ux). */}
+      <Toaster richColors position="bottom-center" visibleToasts={3} toastOptions={{ className: "text-base" }} />
     </>
   );
 }

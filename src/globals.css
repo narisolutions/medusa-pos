@@ -45,6 +45,40 @@
   /* Borders */
   --color-border: #e2e8f0;        /* Default border — slate-200 */
   --color-border-strong: #cbd5e1; /* Stronger border — slate-300 */
+
+  /* Intent: solid (fills), -foreground (text on solid), -subtle (tinted fills), -text (text on surfaces).
+     Every pair meets WCAG AA in both themes; state is never shown by colour alone (docs/ui-ux). */
+  --color-success: #15803d;
+  --color-success-foreground: #ffffff;
+  --color-success-subtle: #dcfce7;
+  --color-success-text: #166534;
+  --color-warning: #b45309;
+  --color-warning-foreground: #ffffff;
+  --color-warning-subtle: #fef3c7;
+  --color-warning-text: #92400e;
+  --color-danger: #dc2626;
+  --color-danger-foreground: #ffffff;
+  --color-danger-subtle: #fee2e2;
+  --color-danger-text: #b91c1c;
+  --color-info: #1d4ed8;
+  --color-info-foreground: #ffffff;
+  --color-info-subtle: #dbeafe;
+  --color-info-text: #1e40af;
+
+  /* Touch scale in rem, so the till's font scale grows targets with text. 44px floor, 48 default. */
+  --spacing-tap-min: 2.75rem; /* 44px */
+  --spacing-tap: 3rem;        /* 48px — controls */
+  --spacing-tap-lg: 3.5rem;   /* 56px — everyday sale actions, rows */
+  --spacing-tap-xl: 4rem;     /* 64px — the decisive action of a flow */
+  --spacing-tap-key: 4.5rem;  /* 72px — keypad keys */
+
+  /* Money: tabular figures read in columns and at arm's length. */
+  --text-amount: 1.5rem;
+  --text-amount--line-height: 2rem;
+  --text-amount--font-weight: 700;
+  --text-total: 2.5rem;
+  --text-total--line-height: 3rem;
+  --text-total--font-weight: 700;
 }
 
 /* Border tokens: reference :root/.dark so light/dark and runtime overrides work.
@@ -52,6 +86,15 @@
 @theme inline {
   --color-theme-border: var(--color-border);
   --color-theme-border-strong: var(--color-border-strong);
+
+  /* shadcn names the primitives use; until now undefined, so errors rendered grey and popovers had no fill. */
+  --color-destructive: var(--color-danger);
+  --color-destructive-foreground: var(--color-danger-foreground);
+  --color-popover: var(--color-surface-elevated);
+  --color-popover-foreground: var(--color-fg);
+  --color-accent: var(--color-surface-hover);
+  --color-accent-foreground: var(--color-fg);
+  --color-ring: var(--color-primary);
 }
 
 /* === Fonts === */
@@ -177,10 +220,56 @@
   /* --- Borders --- */
   --color-border: hsl(224 14% 22%);       /* Subtle divider */
   --color-border-strong: hsl(224 12% 30%); /* Visible border */
+
+  /* --- Intent --- */
+  --color-success: #15803d;
+  --color-success-subtle: hsl(142 45% 14%);
+  --color-success-text: #4ade80;
+  --color-warning: #b45309;
+  --color-warning-subtle: hsl(38 60% 14%);
+  --color-warning-text: #fbbf24;
+  --color-danger: #dc2626;
+  --color-danger-subtle: hsl(0 50% 16%);
+  --color-danger-text: #f87171;
+  --color-info: #2563eb;
+  --color-info-subtle: hsl(221 50% 18%);
+  --color-info-text: #60a5fa;
 }
 
 /* === Base Styles === */
 @layer base {
+  /* Touch hygiene: no double-tap zoom delay, no grey tap flash (controls draw their own pressed state),
+     no text selection or rubber-band scrolling on chrome. Inputs, text areas and .select-text stay selectable. */
+  html {
+    -webkit-tap-highlight-color: transparent;
+    overscroll-behavior: none;
+  }
+  button,
+  a,
+  label,
+  summary,
+  [role="button"],
+  [role="tab"],
+  [role="menuitem"],
+  [role="option"],
+  [role="switch"],
+  [role="checkbox"] {
+    touch-action: manipulation;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+
   html {
     font-size: calc(var(--font-scale, 16) * 1px);
     scroll-behavior: smooth;

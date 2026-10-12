@@ -1,0 +1,193 @@
+{
+  "src/components/auth/index.tsx": {
+    "text-xs": 1,
+    "raw-colour": 4
+  },
+  "src/components/auth/login/index.tsx": {
+    "text-xs": 1,
+    "small-height": 1,
+    "raw-colour": 11
+  },
+  "src/components/auth/store-selector/index.tsx": {
+    "small-height": 1
+  },
+  "src/components/auth/store-selector/store-switcher-dialog/index.tsx": {
+    "raw-colour": 2
+  },
+  "src/components/base/backdrop/index.tsx": {
+    "text-xs": 1,
+    "raw-colour": 1
+  },
+  "src/components/base/boot-escape-overlay/index.tsx": {
+    "text-xs": 1,
+    "raw-colour": 1
+  },
+  "src/components/base/product-picker/index.tsx": {
+    "text-xs": 1,
+    "small-height": 1,
+    "raw-colour": 10
+  },
+  "src/components/base/product-picker/variant-dialog/index.tsx": {
+    "raw-colour": 24
+  },
+  "src/components/base/product-picker/variant-dialog/other-variants/index.tsx": {
+    "raw-colour": 3
+  },
+  "src/components/checkout/cart-actions/customer-dialog/customer-create/index.tsx": {
+    "raw-colour": 5
+  },
+  "src/components/checkout/cart-actions/customer-dialog/customer-search/index.tsx": {
+    "text-xs": 2,
+    "small-height": 1,
+    "raw-colour": 13
+  },
+  "src/components/checkout/cart-actions/customer-dialog/index.tsx": {
+    "raw-colour": 4
+  },
+  "src/components/checkout/cart-actions/index.tsx": {
+    "raw-colour": 10
+  },
+  "src/components/checkout/cart-actions/quantity-dialog/index.tsx": {
+    "small-height": 2
+  },
+  "src/components/checkout/cart-items/index.tsx": {
+    "raw-colour": 8
+  },
+  "src/components/checkout/catalog-panel/product-info/index.tsx": {
+    "raw-colour": 1
+  },
+  "src/components/checkout/catalog-panel/product-price/index.tsx": {
+    "raw-colour": 1
+  },
+  "src/components/checkout/catalog-panel/stock-badge/index.tsx": {
+    "raw-colour": 8
+  },
+  "src/components/checkout/catalog-panel/variant-chooser/index.tsx": {
+    "raw-colour": 1
+  },
+  "src/components/checkout/payment-dialog/confirmation-dialog/index.tsx": {
+    "raw-colour": 5
+  },
+  "src/components/checkout/payment-dialog/index.tsx": {
+    "text-xs": 8,
+    "raw-colour": 19
+  },
+  "src/components/layout/header/index.tsx": {
+    "small-height": 1
+  },
+  "src/components/layout/sidebar/index.tsx": {
+    "text-xs": 2
+  },
+  "src/components/order/add-items-dialog/index.tsx": {
+    "raw-colour": 5
+  },
+  "src/components/order/confirmation-dialog/index.tsx": {
+    "small-height": 1,
+    "raw-colour": 4
+  },
+  "src/components/order/details/index.tsx": {
+    "raw-colour": 1
+  },
+  "src/components/order/fulfillment-dialog/index.tsx": {
+    "text-xs": 2,
+    "small-height": 2,
+    "raw-colour": 2
+  },
+  "src/components/order/index.tsx": {
+    "raw-colour": 8
+  },
+  "src/components/order/items/index.tsx": {
+    "text-xs": 4,
+    "raw-colour": 1
+  },
+  "src/components/order/record-payment-dialog/index.tsx": {
+    "text-xs": 2,
+    "raw-colour": 2
+  },
+  "src/components/order/refund-dialog/index.tsx": {
+    "text-xs": 2,
+    "raw-colour": 10
+  },
+  "src/components/order/return-lines/index.tsx": {
+    "raw-colour": 2
+  },
+  "src/components/order/summary/index.tsx": {
+    "raw-colour": 1
+  },
+  "src/components/orders/hooks.tsx": {
+    "text-xs": 2,
+    "raw-colour": 6
+  },
+  "src/components/orders/table-header/index.tsx": {
+    "small-height": 2,
+    "raw-colour": 5
+  },
+  "src/components/parked-sales/discard-dialog/index.tsx": {
+    "raw-colour": 6
+  },
+  "src/components/parked-sales/hooks.tsx": {
+    "text-xs": 2,
+    "raw-colour": 4
+  },
+  "src/components/parked-sales/resume-dialog/index.tsx": {
+    "raw-colour": 8
+  },
+  "src/components/register/cash-movement-dialog/index.tsx": {
+    "raw-colour": 1
+  },
+  "src/components/register/close-register-dialog/index.tsx": {
+    "raw-colour": 4
+  },
+  "src/components/register/register-menu-item/index.tsx": {
+    "raw-colour": 2
+  },
+  "src/components/router/route-error/index.tsx": {
+    "small-height": 1,
+    "raw-colour": 1
+  },
+  "src/components/settings/connection/index.tsx": {
+    "raw-colour": 3
+  },
+  "src/components/settings/printer/dialog/index.tsx": {
+    "small-height": 2
+  },
+  "src/components/settings/printer/index.tsx": {
+    "small-height": 1,
+    "raw-colour": 12
+  },
+  "src/components/settings/scanner/index.tsx": {
+    "raw-colour": 1
+  },
+  "src/components/settings/store/index.tsx": {
+    "small-height": 5,
+    "raw-colour": 7
+  },
+  "src/components/settings/store/provider-picker/index.tsx": {
+    "small-height": 1,
+    "raw-colour": 5
+  },
+  "src/components/ui/command.tsx": {
+    "text-xs": 2,
+    "raw-colour": 1
+  },
+  "src/components/ui/numpad.tsx": {
+    "raw-colour": 6
+  },
+  "src/components/ui/sidebar.tsx": {
+    "text-xs": 4,
+    "small-height": 4
+  },
+  "src/components/ui/switch.tsx": {
+    "raw-colour": 1
+  },
+  "src/components/ui/table.tsx": {
+    "small-height": 1
+  },
+  "src/components/ui/tabs.tsx": {
+    "small-height": 1
+  },
+  "src/components/ui/tooltip.tsx": {
+    "text-xs": 1,
+    "raw-colour": 4
+  }
+}
