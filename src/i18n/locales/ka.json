@@ -789,8 +789,6 @@
       "provider_picker_description": "Medusa-ს ბექენდში არსებული გადახდის პროვაიდერები. სალაროსი მთავრდება _pos-ით.",
       "provider_group_till": "სალაროს გადახდის მეთოდები",
       "provider_group_other": "სხვა პროვაიდერები (ვებ-მაღაზია, მიწოდება)",
-      "provider_show_other": "სხვა პროვაიდერების ჩვენება ({{count}})",
-      "provider_hide_other": "სხვა პროვაიდერების დამალვა",
       "provider_in_use": "გამოყენებულია",
       "provider_current": "მიმდინარე",
       "add_payment_method_button": "გადახდის მეთოდის დამატება",
@@ -968,6 +966,9 @@
     "numpad_done": "მზადაა",
     "numpad_backspace": "ბოლო ციფრის წაშლა (დააჭირეთ და დააყოვნეთ სრულად გასასუფთავებლად)",
     "stepper_decrease": "შემცირება",
-    "stepper_increase": "გაზრდა"
+    "stepper_increase": "გაზრდა",
+    "clear_input": "გასუფთავება",
+    "toggle_keyboard": "ეკრანული კლავიატურის ჩვენება ან დამალვა",
+    "search": "ძიება"
   }
 }

@@ -789,8 +789,6 @@
       "provider_picker_description": "The payment providers your Medusa backend has. The till's own end in _pos.",
       "provider_group_till": "Till payment methods",
       "provider_group_other": "Other providers (web shop, delivery)",
-      "provider_show_other": "Show other providers ({{count}})",
-      "provider_hide_other": "Hide other providers",
       "provider_in_use": "in use",
       "provider_current": "current",
       "add_payment_method_button": "Add payment method",
@@ -968,6 +966,9 @@
     "numpad_done": "Done",
     "numpad_backspace": "Delete last digit (hold to clear)",
     "stepper_decrease": "Decrease",
-    "stepper_increase": "Increase"
+    "stepper_increase": "Increase",
+    "clear_input": "Clear",
+    "toggle_keyboard": "Show or hide the on-screen keyboard",
+    "search": "Search"
   }
 }

@@ -789,8 +789,6 @@
       "provider_picker_description": "Die Zahlungsanbieter Ihres Medusa-Backends. Die der Kasse enden auf _pos.",
       "provider_group_till": "Zahlungsmethoden der Kasse",
       "provider_group_other": "Andere Anbieter (Webshop, Lieferung)",
-      "provider_show_other": "Andere Anbieter anzeigen ({{count}})",
-      "provider_hide_other": "Andere Anbieter ausblenden",
       "provider_in_use": "in Verwendung",
       "provider_current": "aktuell",
       "add_payment_method_button": "Zahlungsmethode hinzufügen",
@@ -968,6 +966,9 @@
     "numpad_done": "Fertig",
     "numpad_backspace": "Letzte Ziffer löschen (gedrückt halten zum Leeren)",
     "stepper_decrease": "Verringern",
-    "stepper_increase": "Erhöhen"
+    "stepper_increase": "Erhöhen",
+    "clear_input": "Leeren",
+    "toggle_keyboard": "Bildschirmtastatur ein- oder ausblenden",
+    "search": "Suchen"
   }
 }

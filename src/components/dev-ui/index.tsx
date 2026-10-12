@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Banknote, CreditCard, Landmark, MessageSquare, Percent, Trash2, User } from "lucide-react";
+import { Banknote, Bookmark, CreditCard, Landmark, MessageSquare, Percent, Printer, Trash2, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { StatusChip } from "@/components/ui/status-chip";
 import { Tile } from "@/components/ui/tile";
@@ -10,6 +10,11 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { SegmentedControl } from "@/components/ui/segmented-control";
+import { Input } from "@/components/ui/input";
+import { ChooserDialog, ChooserTrigger } from "@/components/ui/chooser-dialog";
+import { ListRow } from "@/components/ui/list-row";
+import { EmptyState, ErrorState, LoadingState } from "@/components/ui/state-panel";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 // Development-only catalogue (docs/ui-ux): every primitive in every state, reviewed on the real
 // touchscreen. Not translated and not shipped: the route exists only in dev builds.
@@ -46,6 +51,10 @@ const DevUi: React.FC = () => {
   const [autoPrint, setAutoPrint] = useState(true);
   const [drawer, setDrawer] = useState(false);
   const [theme, setTheme] = useState<"light" | "dark" | "system">("system");
+  const [search, setSearch] = useState("Saperavi");
+  const [chooserOpen, setChooserOpen] = useState(false);
+  const [store, setStore] = useState("store-03");
+  const [longDialog, setLongDialog] = useState(false);
 
   return (
     <div className="mx-auto flex max-w-6xl flex-col gap-6 pb-12">
@@ -188,6 +197,96 @@ const DevUi: React.FC = () => {
           <TabsContent value="scanner" className="pt-3 text-base">Scanner tab</TabsContent>
           <TabsContent value="store" className="pt-3 text-base">Store tab</TabsContent>
         </Tabs>
+      </Section>
+
+      <Section title="Input — 16px everywhere; clearable shows a 48px ×">
+        <Input clearable value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search products" />
+      </Section>
+
+      <Section title="Chooser — large rows, search above 12 options, a folded group">
+        <div className="max-w-sm">
+          <ChooserTrigger value={store} placeholder="Choose a store" onClick={() => setChooserOpen(true)} />
+        </div>
+        <ChooserDialog
+          open={chooserOpen}
+          onOpenChange={setChooserOpen}
+          title="Choose a store"
+          value={store}
+          onSelect={setStore}
+          currentLabel="current"
+          groups={[
+            {
+              id: "mine",
+              title: "Your stores",
+              options: Array.from({ length: 12 }, (_, i) => {
+                const id = `store-${String(i + 1).padStart(2, "0")}`;
+                return { value: id, label: `Store ${i + 1}`, hint: "Tbilisi", disabled: i === 4, disabledReason: "closed" };
+              }),
+            },
+            {
+              id: "other",
+              title: "Other stores",
+              collapsed: true,
+              options: ["Batumi", "Kutaisi", "Rustavi"].map((city) => ({ value: city, label: city })),
+            },
+          ]}
+        />
+        <Button variant="outline" className="w-fit" onClick={() => setLongDialog(true)}>
+          Open a long dialog (sticky footer)
+        </Button>
+        <Dialog open={longDialog} onOpenChange={setLongDialog}>
+          <DialogContent className="max-w-lg max-h-[70vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>Return items</DialogTitle>
+              <DialogDescription>Scroll: the actions stay at the bottom.</DialogDescription>
+            </DialogHeader>
+            {Array.from({ length: 12 }, (_, i) => (
+              <ListRow key={i} title={`Item ${i + 1}`} subtitle="1 × ₾5.00" />
+            ))}
+            <DialogFooter sticky>
+              <Button variant="outline" onClick={() => setLongDialog(false)}>
+                Cancel
+              </Button>
+              <Button size="lg" onClick={() => setLongDialog(false)}>
+                Refund ₾12.00
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      </Section>
+
+      <Section title="List rows — the whole row is the target">
+        <div className="flex flex-col divide-y divide-theme-border rounded-md border border-theme-border">
+          <ListRow
+            navigates
+            leading={<Bookmark />}
+            title="Table 4"
+            subtitle="3 items · 12 min ago"
+            trailing={<span className="text-amount tabular-nums">₾24.50</span>}
+          />
+          <ListRow
+            navigates
+            leading={<Printer />}
+            title="Front counter printer"
+            subtitle="USB · 80 mm"
+            trailing={<StatusChip intent="success">Connected</StatusChip>}
+          />
+          <ListRow navigates title="#562 · Giorgi B." trailing={<StatusChip intent="warning">Unpaid</StatusChip>} />
+        </div>
+      </Section>
+
+      <Section title="States — one next step each">
+        <div className="grid gap-4 md:grid-cols-3">
+          <div className="rounded-md border border-theme-border">
+            <LoadingState label="Loading orders…" />
+          </div>
+          <div className="rounded-md border border-theme-border">
+            <EmptyState icon={<Bookmark />} title="No parked sales" hint="Park a sale from the cart to finish it later." />
+          </div>
+          <div className="rounded-md border border-theme-border">
+            <ErrorState title="Couldn't load the orders." hint="This is usually the connection." onRetry={() => undefined} />
+          </div>
+        </div>
       </Section>
     </div>
   );

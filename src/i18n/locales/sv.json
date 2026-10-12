@@ -789,8 +789,6 @@
       "provider_picker_description": "Betalningsleverantörerna i din Medusa-backend. Terminalens egna slutar på _pos.",
       "provider_group_till": "Terminalens betalningsmetoder",
       "provider_group_other": "Andra leverantörer (webbutik, leverans)",
-      "provider_show_other": "Visa andra leverantörer ({{count}})",
-      "provider_hide_other": "Dölj andra leverantörer",
       "provider_in_use": "används",
       "provider_current": "aktuell",
       "add_payment_method_button": "Lägg till betalningsmetod",
@@ -968,6 +966,9 @@
     "numpad_done": "Klar",
     "numpad_backspace": "Radera sista siffran (håll in för att rensa)",
     "stepper_decrease": "Minska",
-    "stepper_increase": "Öka"
+    "stepper_increase": "Öka",
+    "clear_input": "Rensa",
+    "toggle_keyboard": "Visa eller dölj skärmtangentbordet",
+    "search": "Sök"
   }
 }

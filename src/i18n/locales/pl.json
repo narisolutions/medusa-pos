@@ -789,8 +789,6 @@
       "provider_picker_description": "Dostawcy płatności w Twoim backendzie Medusa. Te dla terminala kończą się na _pos.",
       "provider_group_till": "Metody płatności terminala",
       "provider_group_other": "Inni dostawcy (sklep internetowy, dostawa)",
-      "provider_show_other": "Pokaż innych dostawców ({{count}})",
-      "provider_hide_other": "Ukryj innych dostawców",
       "provider_in_use": "w użyciu",
       "provider_current": "bieżący",
       "add_payment_method_button": "Dodaj metodę płatności",
@@ -968,6 +966,9 @@
     "numpad_done": "Gotowe",
     "numpad_backspace": "Usuń ostatnią cyfrę (przytrzymaj, aby wyczyścić)",
     "stepper_decrease": "Zmniejsz",
-    "stepper_increase": "Zwiększ"
+    "stepper_increase": "Zwiększ",
+    "clear_input": "Wyczyść",
+    "toggle_keyboard": "Pokaż lub ukryj klawiaturę ekranową",
+    "search": "Szukaj"
   }
 }

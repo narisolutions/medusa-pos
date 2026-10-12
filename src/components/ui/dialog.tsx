@@ -57,7 +57,7 @@ const DialogContent = React.forwardRef<
       ref={ref}
       data-slot="dialog-content"
       className={cn(
-        "bg-surface text-fg data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 fixed top-[50%] left-[50%] z-50 grid w-full translate-x-[-50%] translate-y-[-50%] gap-4 rounded-lg border border-theme-border p-6 shadow-lg duration-200",
+        "bg-surface text-fg data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 fixed top-[50%] left-[50%] z-50 grid w-full translate-x-[-50%] translate-y-[-50%] gap-4 rounded-lg border border-theme-border p-6 shadow-lg duration-200",
         className
       )}
       onPointerDownOutside={preventOutsideClose ? (e) => e.preventDefault() : undefined}
@@ -89,12 +89,18 @@ function DialogHeader({ className, ...props }: React.ComponentProps<"div">) {
   );
 }
 
-function DialogFooter({ className, ...props }: React.ComponentProps<"div">) {
+/**
+ * Actions: Cancel first, the decisive action last (bottom-right). `sticky` pins them to the
+ * bottom of a scrolling dialog (the dialog's p-6 padding is assumed), so they never scroll away.
+ */
+function DialogFooter({ className, sticky, ...props }: React.ComponentProps<"div"> & { sticky?: boolean }) {
   return (
     <div
       data-slot="dialog-footer"
       className={cn(
-        "flex flex-col-reverse gap-2 sm:flex-row sm:justify-end",
+        "flex flex-col-reverse gap-3 sm:flex-row sm:justify-end",
+        // -bottom-6 pins it to the dialog's edge, not inside its padding, so nothing scrolls past below it.
+        sticky && "sticky -bottom-6 z-10 -mx-6 -mb-6 border-t border-theme-border bg-inherit px-6 py-4",
         className
       )}
       {...props}

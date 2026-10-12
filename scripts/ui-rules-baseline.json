@@ -162,10 +162,6 @@
     "small-height": 5,
     "raw-colour": 7
   },
-  "src/components/settings/store/provider-picker/index.tsx": {
-    "small-height": 1,
-    "raw-colour": 5
-  },
   "src/components/ui/command.tsx": {
     "text-xs": 2,
     "raw-colour": 1
