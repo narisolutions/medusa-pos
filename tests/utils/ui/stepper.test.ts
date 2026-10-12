@@ -12,4 +12,9 @@ describe("stepValue", () => {
     expect(stepValue(9, 1, { max: 10, step: 5 })).toBe(10);
     expect(stepValue(10, 1, { max: 10 })).toBeNull();
   });
+  it("never moves an over-limit value the wrong way", () => {
+    expect(stepValue(5, 1, { max: 3 })).toBeNull();
+    expect(stepValue(5, -1, { max: 3 })).toBe(3);
+    expect(stepValue(-2, -1, { min: 0 })).toBeNull();
+  });
 });

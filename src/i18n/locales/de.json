@@ -457,8 +457,6 @@
       "warn_fulfil_failed": "Die Artikel wurden hinzugefügt, aber nicht als ausgegeben markiert. Erfüllen Sie sie auf der Bestellseite.",
       "warn_settle_failed": "Die Artikel wurden hinzugefügt, aber die Zahlung wurde nicht erfasst. Verwenden Sie „Zahlung erfassen“.",
       "add_success": "Artikel hinzugefügt, {{amount}} kassiert",
-      "decrease": "Menge verringern",
-      "increase": "Menge erhöhen",
       "return_title": "Artikel zurückgeben",
       "return_description": "Wählen Sie, was zurückkommt und ob jeder Artikel wieder verkauft werden kann.",
       "return_restock": "Zurück ins Lager",

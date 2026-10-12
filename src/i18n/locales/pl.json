@@ -457,8 +457,6 @@
       "warn_fulfil_failed": "Artykuły dodano, ale nie oznaczono jako wydane. Zrealizuj je na stronie zamówienia.",
       "warn_settle_failed": "Artykuły dodano, ale płatność nie została zarejestrowana. Użyj Zarejestruj płatność.",
       "add_success": "Dodano artykuły, pobrano {{amount}}",
-      "decrease": "Zmniejsz ilość",
-      "increase": "Zwiększ ilość",
       "return_title": "Zwróć artykuły",
       "return_description": "Wybierz, co wraca i czy każdy artykuł można ponownie sprzedać.",
       "return_restock": "Z powrotem na stan",

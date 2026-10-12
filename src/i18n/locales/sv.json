@@ -457,8 +457,6 @@
       "warn_fulfil_failed": "Varorna lades till men markerades inte som utlämnade. Hantera dem från ordersidan.",
       "warn_settle_failed": "Varorna lades till men betalningen registrerades inte. Använd Registrera betalning.",
       "add_success": "Varor tillagda, {{amount}} mottaget",
-      "decrease": "Minska antal",
-      "increase": "Öka antal",
       "return_title": "Returnera varor",
       "return_description": "Välj vad som kommer tillbaka och om varje vara kan säljas igen.",
       "return_restock": "Tillbaka i lager",

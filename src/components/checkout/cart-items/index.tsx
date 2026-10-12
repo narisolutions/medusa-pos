@@ -165,6 +165,7 @@ const CartItems: React.FC<Props> = ({ lastAdded }) => {
                           <Stepper
                             value={quantity}
                             min={1}
+                            max={typeof metadata?.available_quantity === "number" ? metadata.available_quantity : undefined}
                             onChange={(next) =>
                               handleQuantityChange(variant_id!, next - quantity)
                             }

@@ -26,16 +26,20 @@ const SIDE =
 /** − value + with 56px buttons; holding a button repeats the step. */
 function Stepper({ value, onChange, min = 0, max, step = 1, onValueClick, disabled, className }: StepperProps) {
   const { t } = useTranslation()
-  // The value a held button steps from: props lag behind while the repeat runs.
+  // A held button's timer outlives renders: it steps from the latest value and calls the
+  // latest onChange, or a caller computing a delta from its own props would count twice.
   const latest = React.useRef(value)
+  const latestProps = React.useRef({ onChange, min, max, step })
   React.useEffect(() => {
     latest.current = value
-  }, [value])
+    latestProps.current = { onChange, min, max, step }
+  })
   const timers = React.useRef<{ delay?: ReturnType<typeof setTimeout>; repeat?: ReturnType<typeof setInterval> }>({})
   const repeated = React.useRef(false)
 
   const move = (direction: 1 | -1) => {
-    const next = stepValue(latest.current, direction, { min, max, step })
+    const { onChange, ...limits } = latestProps.current
+    const next = stepValue(latest.current, direction, limits)
     if (next === null) return false
     latest.current = next
     onChange(next)

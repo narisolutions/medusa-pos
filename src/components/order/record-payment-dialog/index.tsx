@@ -6,6 +6,7 @@ import { formatPrice } from "@/utils/helpers";
 import constants from "@/utils/constants";
 import { useTranslation } from "@/i18n";
 import { useRecordPayment } from "./hooks";
+import PaymentMethodPicker from "../payment-method-picker";
 
 interface Props {
   isOpen: boolean;
@@ -40,35 +41,20 @@ const RecordPaymentDialog: React.FC<Props> = ({ isOpen, onClose, order }) => {
 
         <div className="space-y-6 py-4">
           <div className="bg-surface-muted border border-theme-border rounded-lg p-4 text-center">
-            <div className="text-xs font-semibold text-fg-subtle uppercase tracking-wider mb-1">
+            <div className="text-base font-semibold text-fg-muted mb-1">
               {t("checkout.amount_due_label")}
             </div>
-            <div className="text-3xl font-bold text-fg">
+            <div className="text-total tabular-nums text-fg">
               {formatPrice(total, displayCurrency)}
             </div>
           </div>
 
-          <div>
-            <div className="text-xs font-semibold text-fg-subtle uppercase tracking-wider mb-2">
-              {t("orders.payment_method_label")}
-            </div>
-            <div className="grid grid-cols-2 gap-3">
-              {methods.map((method) => (
-                <Button
-                  key={method.id}
-                  onClick={() => setSelectedMethod(method.id)}
-                  disabled={isProcessing}
-                  className={`h-16 text-base font-semibold ${
-                    selectedMethod === method.id
-                      ? "bg-primary text-white shadow"
-                      : "bg-surface border border-theme-border hover:bg-surface-hover text-fg"
-                  }`}
-                >
-                  {method.label}
-                </Button>
-              ))}
-            </div>
-          </div>
+          <PaymentMethodPicker
+            methods={methods}
+            selected={selectedMethod ?? ""}
+            onSelect={setSelectedMethod}
+            disabled={isProcessing}
+          />
         </div>
 
         <div className="flex gap-3 pt-2">
@@ -76,18 +62,21 @@ const RecordPaymentDialog: React.FC<Props> = ({ isOpen, onClose, order }) => {
             variant="outline"
             onClick={onClose}
             disabled={isProcessing}
-            className="flex-1 h-14 text-lg font-medium"
+            size="lg"
+            className="flex-1 text-lg"
           >
             {t("common.cancel")}
           </Button>
           <Button
             onClick={handleConfirm}
-            disabled={isProcessing || !selectedMethod}
-            className="flex-1 h-14 text-lg font-medium bg-green-600 hover:bg-green-700 text-white"
+            disabled={!selectedMethod}
+            loading={isProcessing}
+            variant="success"
+            size="lg"
+            className="flex-2 text-lg"
           >
-            {isProcessing
-              ? t("common.processing")
-              : t("orders.record_payment")}
+            {isProcessing ? t("common.processing") : t("orders.record_payment")}
+            {!isProcessing && <span className="tabular-nums">· {formatPrice(total, displayCurrency)}</span>}
           </Button>
         </div>
       </DialogContent>

@@ -457,8 +457,6 @@
       "warn_fulfil_failed": "The items were added but not marked as handed over. Fulfil them from the order page.",
       "warn_settle_failed": "The items were added but the payment was not recorded. Use Record payment.",
       "add_success": "Items added, {{amount}} taken",
-      "decrease": "Decrease quantity",
-      "increase": "Increase quantity",
       "return_title": "Return items",
       "return_description": "Choose what comes back, and whether each item can be sold again.",
       "return_restock": "Back to stock",

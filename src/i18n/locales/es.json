@@ -457,8 +457,6 @@
       "warn_fulfil_failed": "Los artículos se añadieron pero no se marcaron como entregados. Complételos desde la página del pedido.",
       "warn_settle_failed": "Los artículos se añadieron pero no se registró el pago. Use Registrar pago.",
       "add_success": "Artículos añadidos, {{amount}} cobrado",
-      "decrease": "Reducir cantidad",
-      "increase": "Aumentar cantidad",
       "return_title": "Devolver artículos",
       "return_description": "Elija qué vuelve y si cada artículo puede venderse de nuevo.",
       "return_restock": "De vuelta al stock",

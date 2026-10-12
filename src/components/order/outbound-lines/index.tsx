@@ -1,9 +1,8 @@
 import React from "react";
 import { AdminProductVariant } from "@medusajs/types";
-import { Minus, Plus } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Stepper } from "@/components/ui/stepper";
 import { formatPrice } from "@/utils/helpers";
-import { getVariantUnitPrice } from "@/utils/pos/cart";
+import { getVariantAvailableQuantity, getVariantUnitPrice } from "@/utils/pos/cart";
 import { useTranslation } from "@/i18n";
 import { lineTitle } from "./hooks";
 
@@ -24,36 +23,22 @@ const OutboundLines: React.FC<Props> = ({ lines, currency, changeQuantity, disab
       ) : (
         lines.map(({ variant, quantity }) => {
           const unit = getVariantUnitPrice(variant);
+          const available = getVariantAvailableQuantity(variant);
           return (
             <div key={variant.id} className="flex items-center gap-4 p-3">
               <div className="flex-1 min-w-0">
                 <div className="text-base font-medium text-fg truncate">{lineTitle(variant)}</div>
                 <div className="text-base text-fg-muted">{formatPrice(unit, currency)}</div>
               </div>
-              <div className="flex items-center gap-2">
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="icon"
-                  disabled={disabled}
-                  onClick={() => changeQuantity(variant.id, -1)}
-                  aria-label={t("orders.post_sale.decrease")}
-                >
-                  <Minus className="size-5" />
-                </Button>
-                <span className="w-10 text-center text-lg font-semibold">{quantity}</span>
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="icon"
-                  disabled={disabled}
-                  onClick={() => changeQuantity(variant.id, 1)}
-                  aria-label={t("orders.post_sale.increase")}
-                >
-                  <Plus className="size-5" />
-                </Button>
-              </div>
-              <div className="w-28 text-right text-base font-semibold text-fg">
+              {/* Down to 0 takes the line off, as the − did before. */}
+              <Stepper
+                value={quantity}
+                min={0}
+                max={typeof available === "number" ? available : undefined}
+                disabled={disabled}
+                onChange={(next) => changeQuantity(variant.id, next - quantity)}
+              />
+              <div className="w-28 text-right text-base font-semibold tabular-nums text-fg">
                 {formatPrice(unit * quantity, currency)}
               </div>
             </div>

@@ -6,10 +6,6 @@ import { AdminOrder } from "@medusajs/types";
 import { toast } from "sonner";
 import {
   handleErrorToast,
-  formatOrderStatusText,
-  getOrderStatusColor,
-  getOrderFulfillmentStatusColor,
-  getOrderPaymentStatusColor,
   printerIssueStaffHintToast,
 } from "@/utils/helpers";
 import { triggerFileDownload, openDownloadsFolder } from "@/utils/downloads";
@@ -88,11 +84,6 @@ export const useOrder = (order: AdminOrder) => {
   const fulfillment = order.fulfillments?.[0] as unknown as
     | ExtendedFulfillment
     | undefined;
-
-  // Status color getters (using helpers from utils)
-  const getStatusColor = getOrderStatusColor;
-  const getFulfillmentStatusColor = getOrderFulfillmentStatusColor;
-  const getPaymentStatusColor = getOrderPaymentStatusColor;
 
   // Helper to invalidate order queries
   const invalidateOrderQueries = () => {
@@ -360,10 +351,6 @@ export const useOrder = (order: AdminOrder) => {
   };
 
   return {
-    getStatusColor,
-    getFulfillmentStatusColor,
-    getPaymentStatusColor,
-    formatStatusText: formatOrderStatusText,
     handleBackToOrders,
     handleReprintReceipt,
     handlePrintHandoffTicket,

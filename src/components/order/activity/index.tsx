@@ -31,8 +31,8 @@ const Activity: React.FC<Props> = ({ order }) => {
                 <p className="text-base text-fg-muted">{event.detail}</p>
               )}
             </div>
-            <div className="flex items-center gap-2 text-sm text-fg-subtle">
-              <Clock className="w-4 h-4" />
+            <div className="flex items-center gap-2 text-base text-fg-muted">
+              <Clock className="size-4" />
               <span>{formatTimeAgo(event.timestamp)}</span>
               <span className="text-fg-subtle">•</span>
               <span>{formatDate(event.timestamp)}</span>

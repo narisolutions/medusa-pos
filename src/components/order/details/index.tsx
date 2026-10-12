@@ -3,6 +3,7 @@ import { AdminOrder } from "@medusajs/types";
 import { Calendar } from "lucide-react";
 import { formatPrice, formatDate, getOrderCurrency } from "@/utils/helpers";
 import { useTranslation } from "@/i18n";
+import OrderStatusChip from "@/components/base/order-status-chip";
 import { useQueryStore } from "@/hooks/queries/useQueryStore";
 import {
   getOrderPaymentMethodLabel,
@@ -12,15 +13,9 @@ import {
 
 interface DetailsProps {
   order: AdminOrder;
-  getPaymentStatusColor: (status: string) => string;
-  formatStatusText: (status: string) => string;
 }
 
-const Details: React.FC<DetailsProps> = ({
-  order,
-  getPaymentStatusColor,
-  formatStatusText,
-}) => {
+const Details: React.FC<DetailsProps> = ({ order }) => {
   const { t } = useTranslation();
   const { data: store } = useQueryStore();
   const {
@@ -63,14 +58,7 @@ const Details: React.FC<DetailsProps> = ({
           </div>
           <div className="flex justify-between text-base">
             <span className="text-fg-muted">{t("orders.payment_status_label")}</span>
-            <div className="flex items-center gap-2">
-              <span
-                className={`${getPaymentStatusColor(payment_status)} w-2.5 h-2.5 rounded-full shrink-0`}
-              />
-              <span className="font-medium text-fg">
-                {formatStatusText(payment_status)}
-              </span>
-            </div>
+            <OrderStatusChip kind="payment" status={payment_status} />
           </div>
           {paymentMethodLabel && (
             <div className="flex justify-between text-base">
@@ -87,7 +75,7 @@ const Details: React.FC<DetailsProps> = ({
           {refundedTotal > 0 && (
             <div className="flex justify-between text-base">
               <span className="text-fg-muted">{t("orders.refunded_label")}</span>
-              <span className="font-medium text-red-600">
+              <span className="font-medium text-danger-text tabular-nums">
                 -{formatPrice(refundedTotal, currency)}
               </span>
             </div>

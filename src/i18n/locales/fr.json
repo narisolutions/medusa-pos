@@ -457,8 +457,6 @@
       "warn_fulfil_failed": "Les articles ont été ajoutés mais pas marqués comme remis. Traitez-les depuis la page de la commande.",
       "warn_settle_failed": "Les articles ont été ajoutés mais le paiement n'a pas été enregistré. Utilisez Enregistrer le paiement.",
       "add_success": "Articles ajoutés, {{amount}} encaissé",
-      "decrease": "Diminuer la quantité",
-      "increase": "Augmenter la quantité",
       "return_title": "Retourner des articles",
       "return_description": "Choisissez ce qui revient, et si chaque article peut être revendu.",
       "return_restock": "Remis en stock",
