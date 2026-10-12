@@ -260,7 +260,8 @@
     "sale_complete": "Verkauf abgeschlossen",
     "sale_outstanding": "Übergeben — Zahlung offen",
     "new_sale": "Neuer Verkauf",
-    "new_sale_hint": "Das Scannen des nächsten Artikels startet ebenfalls einen neuen Verkauf."
+    "new_sale_hint": "Das Scannen des nächsten Artikels startet ebenfalls einen neuen Verkauf.",
+    "quick_keys_label": "Schnelltasten"
   },
   "orders": {
     "search_placeholder": "Bestellungen suchen...",
@@ -879,7 +880,21 @@
       "empty": "Keine Plugins installiert."
     },
     "unsaved_changes": "Ungespeicherte Änderungen",
-    "discard_changes": "Verwerfen"
+    "discard_changes": "Verwerfen",
+    "quick_keys": {
+      "title": "Schnelltasten",
+      "description": "Bis zu {{count}} Artikel als große Tasten über dem Warenkorb, für Artikel ohne Barcode oder Dauerbrenner. Für alle Kassen dieses Shops gleich.",
+      "empty": "Noch keine Schnelltasten",
+      "add_hint": "Oben einen Artikel suchen oder scannen, um ihn hinzuzufügen.",
+      "already_added": "Dieser Artikel ist bereits eine Schnelltaste.",
+      "max_reached": "Höchstens {{count}} Schnelltasten. Entfernen Sie eine, um eine neue hinzuzufügen.",
+      "unavailable": "An dieser Kasse nicht verfügbar (unveröffentlicht oder anderer Vertriebskanal).",
+      "name_label": "Tastenname",
+      "name_placeholder": "Tastenname (optional, kurz)",
+      "move_up": "Nach oben",
+      "move_down": "Nach unten",
+      "saved": "Schnelltasten gespeichert"
+    }
   },
   "errors": {
     "network": "Netzwerkfehler. Bitte erneut versuchen.",

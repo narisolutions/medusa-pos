@@ -260,7 +260,8 @@
     "sale_complete": "Vente terminée",
     "sale_outstanding": "Remis — paiement en attente",
     "new_sale": "Nouvelle vente",
-    "new_sale_hint": "Scanner l'article suivant lance aussi une nouvelle vente."
+    "new_sale_hint": "Scanner l'article suivant lance aussi une nouvelle vente.",
+    "quick_keys_label": "Touches rapides"
   },
   "orders": {
     "search_placeholder": "Rechercher des commandes...",
@@ -879,7 +880,21 @@
       "empty": "Aucun plugin installé."
     },
     "unsaved_changes": "Modifications non enregistrées",
-    "discard_changes": "Annuler les modifications"
+    "discard_changes": "Annuler les modifications",
+    "quick_keys": {
+      "title": "Touches rapides",
+      "description": "Jusqu'à {{count}} produits en grands boutons au-dessus du panier, pour les articles sans code-barres ou très vendus. Identiques sur toutes les caisses de la boutique.",
+      "empty": "Aucune touche rapide",
+      "add_hint": "Recherchez ou scannez un produit ci-dessus pour l'ajouter.",
+      "already_added": "Ce produit est déjà une touche rapide.",
+      "max_reached": "{{count}} touches rapides au maximum. Retirez-en une pour en ajouter une autre.",
+      "unavailable": "Indisponible sur cette caisse (non publié ou autre canal de vente).",
+      "name_label": "Nom du bouton",
+      "name_placeholder": "Nom du bouton (facultatif, court)",
+      "move_up": "Monter",
+      "move_down": "Descendre",
+      "saved": "Touches rapides enregistrées"
+    }
   },
   "errors": {
     "network": "Erreur réseau. Veuillez réessayer.",

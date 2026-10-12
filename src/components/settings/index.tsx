@@ -1,23 +1,28 @@
 import React from "react";
 import { Navigate, NavLink, useParams } from "react-router-dom";
-import { Plug, Printer, Puzzle, ScanBarcode, SlidersHorizontal, Store } from "lucide-react";
+import { Plug, Printer, Puzzle, ScanBarcode, SlidersHorizontal, Store, Zap } from "lucide-react";
 import PrinterSettings from "./printer";
 import ConnectionSettings from "./connection";
 import StoreSettings from "./store";
 import PreferencesSettings from "./preferences";
 import PluginsSettings from "./plugins";
 import ScannerSettings from "./scanner";
+import QuickKeysSettings from "./quick-keys";
 import { useTranslation } from "@/i18n";
 import { cn } from "@/lib/utils";
 import { ROUTES, SETTINGS_SECTIONS, type SettingsSection } from "@/router/routes";
 
-const SECTIONS: Record<SettingsSection, { icon: React.ComponentType<{ className?: string }>; Page: React.ComponentType }> = {
-  printer: { icon: Printer, Page: PrinterSettings },
-  scanner: { icon: ScanBarcode, Page: ScannerSettings },
-  connection: { icon: Plug, Page: ConnectionSettings },
-  store: { icon: Store, Page: StoreSettings },
-  preferences: { icon: SlidersHorizontal, Page: PreferencesSettings },
-  plugins: { icon: Puzzle, Page: PluginsSettings },
+const SECTIONS: Record<
+  SettingsSection,
+  { title: string; icon: React.ComponentType<{ className?: string }>; Page: React.ComponentType }
+> = {
+  printer: { title: "settings.printer.title", icon: Printer, Page: PrinterSettings },
+  scanner: { title: "settings.scanner.title", icon: ScanBarcode, Page: ScannerSettings },
+  connection: { title: "settings.connection.title", icon: Plug, Page: ConnectionSettings },
+  store: { title: "settings.store.title", icon: Store, Page: StoreSettings },
+  "quick-keys": { title: "settings.quick_keys.title", icon: Zap, Page: QuickKeysSettings },
+  preferences: { title: "settings.preferences.title", icon: SlidersHorizontal, Page: PreferencesSettings },
+  plugins: { title: "settings.plugins.title", icon: Puzzle, Page: PluginsSettings },
 };
 
 const isSection = (value: string | undefined): value is SettingsSection =>
@@ -52,7 +57,7 @@ const Settings: React.FC = () => {
               }
             >
               <Icon className="size-6 shrink-0" />
-              {t(`settings.${id}.title`)}
+              {t(SECTIONS[id].title)}
             </NavLink>
           );
         })}

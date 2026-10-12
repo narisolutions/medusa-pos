@@ -260,7 +260,8 @@
     "sale_complete": "Sale complete",
     "sale_outstanding": "Delivered — payment outstanding",
     "new_sale": "New sale",
-    "new_sale_hint": "Scanning the next item also starts a new sale."
+    "new_sale_hint": "Scanning the next item also starts a new sale.",
+    "quick_keys_label": "Quick keys"
   },
   "orders": {
     "search_placeholder": "Search orders...",
@@ -879,7 +880,21 @@
       "empty": "No plugins installed."
     },
     "unsaved_changes": "Unsaved changes",
-    "discard_changes": "Discard"
+    "discard_changes": "Discard",
+    "quick_keys": {
+      "title": "Quick keys",
+      "description": "Up to {{count}} products shown as large buttons above the cart at Checkout, for items without a barcode or sold all the time. Shared by every till in this store.",
+      "empty": "No quick keys yet",
+      "add_hint": "Search or scan a product above to add it.",
+      "already_added": "This product is already a quick key.",
+      "max_reached": "Up to {{count}} quick keys. Remove one to add another.",
+      "unavailable": "Not available on this till (unpublished or another sales channel).",
+      "name_label": "Button name",
+      "name_placeholder": "Button name (optional, short)",
+      "move_up": "Move up",
+      "move_down": "Move down",
+      "saved": "Quick keys saved"
+    }
   },
   "errors": {
     "network": "Network error. Try again.",

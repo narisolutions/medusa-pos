@@ -260,7 +260,8 @@
     "sale_complete": "Venta completada",
     "sale_outstanding": "Entregado — pago pendiente",
     "new_sale": "Nueva venta",
-    "new_sale_hint": "Escanear el siguiente artículo también inicia una nueva venta."
+    "new_sale_hint": "Escanear el siguiente artículo también inicia una nueva venta.",
+    "quick_keys_label": "Teclas rápidas"
   },
   "orders": {
     "search_placeholder": "Buscar pedidos...",
@@ -879,7 +880,21 @@
       "empty": "No hay plugins instalados."
     },
     "unsaved_changes": "Cambios sin guardar",
-    "discard_changes": "Descartar"
+    "discard_changes": "Descartar",
+    "quick_keys": {
+      "title": "Teclas rápidas",
+      "description": "Hasta {{count}} productos como botones grandes sobre el carrito, para artículos sin código de barras o muy vendidos. Iguales en todas las cajas de esta tienda.",
+      "empty": "Aún no hay teclas rápidas",
+      "add_hint": "Busque o escanee un producto arriba para añadirlo.",
+      "already_added": "Este producto ya es una tecla rápida.",
+      "max_reached": "Máximo {{count}} teclas rápidas. Quite una para añadir otra.",
+      "unavailable": "No disponible en esta caja (sin publicar u otro canal de venta).",
+      "name_label": "Nombre del botón",
+      "name_placeholder": "Nombre del botón (opcional, corto)",
+      "move_up": "Subir",
+      "move_down": "Bajar",
+      "saved": "Teclas rápidas guardadas"
+    }
   },
   "errors": {
     "network": "Error de red. Inténtalo de nuevo.",

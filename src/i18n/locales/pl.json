@@ -260,7 +260,8 @@
     "sale_complete": "Sprzedaż zakończona",
     "sale_outstanding": "Wydano — płatność oczekuje",
     "new_sale": "Nowa sprzedaż",
-    "new_sale_hint": "Zeskanowanie kolejnego produktu również rozpoczyna nową sprzedaż."
+    "new_sale_hint": "Zeskanowanie kolejnego produktu również rozpoczyna nową sprzedaż.",
+    "quick_keys_label": "Szybkie przyciski"
   },
   "orders": {
     "search_placeholder": "Szukaj zamówień...",
@@ -879,7 +880,21 @@
       "empty": "Brak zainstalowanych wtyczek."
     },
     "unsaved_changes": "Niezapisane zmiany",
-    "discard_changes": "Odrzuć"
+    "discard_changes": "Odrzuć",
+    "quick_keys": {
+      "title": "Szybkie przyciski",
+      "description": "Do {{count}} produktów jako duże przyciski nad koszykiem — dla towarów bez kodu lub często sprzedawanych. Wspólne dla wszystkich kas w tym sklepie.",
+      "empty": "Brak szybkich przycisków",
+      "add_hint": "Wyszukaj lub zeskanuj produkt powyżej, aby go dodać.",
+      "already_added": "Ten produkt jest już szybkim przyciskiem.",
+      "max_reached": "Maksymalnie {{count}} szybkich przycisków. Usuń jeden, aby dodać inny.",
+      "unavailable": "Niedostępny na tej kasie (nieopublikowany lub inny kanał sprzedaży).",
+      "name_label": "Nazwa przycisku",
+      "name_placeholder": "Nazwa przycisku (opcjonalna, krótka)",
+      "move_up": "W górę",
+      "move_down": "W dół",
+      "saved": "Szybkie przyciski zapisane"
+    }
   },
   "errors": {
     "network": "Błąd sieci. Spróbuj ponownie.",

@@ -260,7 +260,8 @@
     "sale_complete": "Försäljning klar",
     "sale_outstanding": "Utlämnad — betalning utestående",
     "new_sale": "Ny försäljning",
-    "new_sale_hint": "Att skanna nästa vara startar också en ny försäljning."
+    "new_sale_hint": "Att skanna nästa vara startar också en ny försäljning.",
+    "quick_keys_label": "Snabbknappar"
   },
   "orders": {
     "search_placeholder": "Sök order...",
@@ -879,7 +880,21 @@
       "empty": "Inga plugin installerade."
     },
     "unsaved_changes": "Osparade ändringar",
-    "discard_changes": "Ignorera"
+    "discard_changes": "Ignorera",
+    "quick_keys": {
+      "title": "Snabbknappar",
+      "description": "Upp till {{count}} produkter som stora knappar ovanför varukorgen, för varor utan streckkod eller storsäljare. Samma på alla kassor i butiken.",
+      "empty": "Inga snabbknappar ännu",
+      "add_hint": "Sök eller skanna en produkt ovan för att lägga till den.",
+      "already_added": "Produkten är redan en snabbknapp.",
+      "max_reached": "Högst {{count}} snabbknappar. Ta bort en för att lägga till en ny.",
+      "unavailable": "Inte tillgänglig i den här kassan (opublicerad eller annan försäljningskanal).",
+      "name_label": "Knappnamn",
+      "name_placeholder": "Knappnamn (valfritt, kort)",
+      "move_up": "Flytta upp",
+      "move_down": "Flytta ned",
+      "saved": "Snabbknappar sparade"
+    }
   },
   "errors": {
     "network": "Nätverksfel. Försök igen.",

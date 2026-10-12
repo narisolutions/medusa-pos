@@ -11,6 +11,7 @@ import PaymentDialog from "./payment-dialog";
 import CartItems from "./cart-items";
 import CartActions from "./cart-actions";
 import CatalogPanel from "./catalog-panel";
+import QuickKeys from "./quick-keys";
 
 interface Props {
   products: AdminProduct[];
@@ -67,6 +68,7 @@ const CheckoutContent: React.FC<Props> = ({ products }) => {
           </Button>
         }
       />
+      <QuickKeys products={products} currency={currency} onSelect={handleSelect} />
       <div className="grid grid-cols-3 gap-4 flex-1 min-h-0">
         <div className="relative col-span-2 min-h-0">
           <CartItems lastAdded={lastAdded} />
