@@ -642,7 +642,22 @@
       },
       "cash_rounding": "Zaokrąglanie gotówki",
       "cash_rounding_description": "Zaokrągla płatności gotówkowe do najbliższego progu. Płatności kartą i inne pozostają dokładne.",
-      "cash_rounding_increment": "Próg zaokrąglenia"
+      "cash_rounding_increment": "Próg zaokrąglenia",
+      "display_size": "Rozmiar wyświetlania",
+      "display_size_compact": "Kompaktowy",
+      "display_size_standard": "Standardowy",
+      "display_size_large": "Duży",
+      "display_size_hint": "Skaluje tekst i przyciski tylko na tej kasie. Duży łatwiej czytać i dotykać; kompaktowy mieści więcej na małym ekranie.",
+      "sounds": "Dźwięki",
+      "sound_preview": "Odtwórz ten dźwięk",
+      "sound_scan": "Zeskanowano produkt",
+      "sound_scan_hint": "Krótki sygnał po dodaniu produktu.",
+      "sound_scanError": "Skanowanie nieudane",
+      "sound_scanError_hint": "Dwa niskie brzęczenia, gdy kodu nie znaleziono lub nie można go dodać.",
+      "sound_sale": "Sprzedaż zakończona",
+      "sound_sale_hint": "Dwa rosnące sygnały po udanej płatności.",
+      "sound_error": "Błąd",
+      "sound_error_hint": "Niskie brzęczenie przy innym błędzie, np. nieudanej płatności."
     },
     "printer": {
       "title": "Drukarki",
@@ -785,12 +800,10 @@
       "provider_id_placeholder": "ID dostawcy",
       "provider_choose": "Wybierz dostawcę",
       "display_name_placeholder": "Nazwa wyświetlana",
-      "icon_label": "Ikona",
       "icon_cash": "Gotówka",
       "icon_card": "Karta",
       "icon_transfer": "Przekazanie wewnętrzne",
       "icon_bank_transfer": "Przelew bankowy",
-      "type_label": "Typ",
       "type_cash": "Gotówka",
       "type_card": "Karta",
       "type_transfer": "Przekazanie wewnętrzne",
@@ -818,10 +831,10 @@
       "saved": "Ustawienia sklepu zapisane",
       "logo_load_error": "Nie udało się załadować obrazu logo",
       "logo_preview_alt": "Podgląd logo",
-      "remove_payment_method_aria": "Usuń metodę płatności",
       "pick_logo_dialog_title": "Wybierz logo sklepu",
       "pick_logo_filter_name": "Obraz",
-      "logo_too_large": "Obraz logo musi być mniejszy niż 256 KB"
+      "logo_too_large": "Obraz logo musi być mniejszy niż 256 KB",
+      "payment_method_enabled": "Widoczna przy kasie"
     },
     "scanner": {
       "title": "Skaner",
@@ -850,13 +863,17 @@
       "test_terminator": "zakończone",
       "open_failed": "Nie można otworzyć portu skanera",
       "reader_stopped": "Skaner odłączony",
-      "save_failed": "Nie udało się zapisać ustawień skanera"
+      "save_failed": "Nie udało się zapisać ustawień skanera",
+      "wedge_test_hint": "Zeskanuj dowolny kod, gdy ta strona jest otwarta. Jeśli kod pojawi się tutaj, skaner działa.",
+      "wedge_test_read": "Skan {{count}} · {{time}}"
     },
     "plugins": {
       "title": "Wtyczki",
       "description": "Podłączone wtyczki POS. Każda wtyczka zarządza tutaj własnym połączeniem i preferencjami.",
       "empty": "Brak zainstalowanych wtyczek."
-    }
+    },
+    "unsaved_changes": "Niezapisane zmiany",
+    "discard_changes": "Odrzuć"
   },
   "errors": {
     "network": "Błąd sieci. Spróbuj ponownie.",

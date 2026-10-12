@@ -642,7 +642,22 @@
       },
       "cash_rounding": "Redondeo de efectivo",
       "cash_rounding_description": "Redondea los pagos en efectivo al incremento más cercano. Los pagos con tarjeta y otros se mantienen exactos.",
-      "cash_rounding_increment": "Incremento de redondeo"
+      "cash_rounding_increment": "Incremento de redondeo",
+      "display_size": "Tamaño de pantalla",
+      "display_size_compact": "Compacto",
+      "display_size_standard": "Estándar",
+      "display_size_large": "Grande",
+      "display_size_hint": "Ajusta el texto y los botones solo en esta caja. Grande se lee y toca mejor; compacto cabe más en una pantalla pequeña.",
+      "sounds": "Sonidos",
+      "sound_preview": "Reproducir este sonido",
+      "sound_scan": "Artículo escaneado",
+      "sound_scan_hint": "Un pitido corto al añadir un artículo.",
+      "sound_scanError": "Escaneo fallido",
+      "sound_scanError_hint": "Dos zumbidos graves cuando un código no se encuentra o no se puede añadir.",
+      "sound_sale": "Venta completada",
+      "sound_sale_hint": "Dos pitidos ascendentes cuando se completa un pago.",
+      "sound_error": "Error",
+      "sound_error_hint": "Un zumbido grave cuando algo más falla, p. ej. un pago."
     },
     "printer": {
       "title": "Impresoras",
@@ -785,12 +800,10 @@
       "provider_id_placeholder": "ID del proveedor",
       "provider_choose": "Elige un proveedor",
       "display_name_placeholder": "Nombre visible",
-      "icon_label": "Icono",
       "icon_cash": "Efectivo",
       "icon_card": "Tarjeta",
       "icon_transfer": "Transferencia interna",
       "icon_bank_transfer": "Transferencia bancaria",
-      "type_label": "Tipo",
       "type_cash": "Efectivo",
       "type_card": "Tarjeta",
       "type_transfer": "Transferencia interna",
@@ -818,10 +831,10 @@
       "saved": "Ajustes de la tienda guardados",
       "logo_load_error": "Error al cargar la imagen del logotipo",
       "logo_preview_alt": "Vista previa del logotipo",
-      "remove_payment_method_aria": "Quitar método de pago",
       "pick_logo_dialog_title": "Seleccionar logotipo de la tienda",
       "pick_logo_filter_name": "Imagen",
-      "logo_too_large": "La imagen del logotipo debe ser menor de 256 KB"
+      "logo_too_large": "La imagen del logotipo debe ser menor de 256 KB",
+      "payment_method_enabled": "Visible en el cobro"
     },
     "scanner": {
       "title": "Escáner",
@@ -850,13 +863,17 @@
       "test_terminator": "terminado por",
       "open_failed": "No se pudo abrir el puerto del escáner",
       "reader_stopped": "Escáner desconectado",
-      "save_failed": "No se han podido guardar los ajustes del escáner"
+      "save_failed": "No se han podido guardar los ajustes del escáner",
+      "wedge_test_hint": "Escanee cualquier código mientras esta página esté abierta. Si el código aparece aquí, el escáner funciona.",
+      "wedge_test_read": "Escaneo {{count}} · {{time}}"
     },
     "plugins": {
       "title": "Plugins",
       "description": "Plugins de POS conectados. Cada plugin gestiona aquí su conexión y preferencias.",
       "empty": "No hay plugins instalados."
-    }
+    },
+    "unsaved_changes": "Cambios sin guardar",
+    "discard_changes": "Descartar"
   },
   "errors": {
     "network": "Error de red. Inténtalo de nuevo.",

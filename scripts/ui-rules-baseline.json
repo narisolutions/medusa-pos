@@ -57,23 +57,6 @@
     "small-height": 1,
     "raw-colour": 1
   },
-  "src/components/settings/connection/index.tsx": {
-    "raw-colour": 3
-  },
-  "src/components/settings/printer/dialog/index.tsx": {
-    "small-height": 2
-  },
-  "src/components/settings/printer/index.tsx": {
-    "small-height": 1,
-    "raw-colour": 12
-  },
-  "src/components/settings/scanner/index.tsx": {
-    "raw-colour": 1
-  },
-  "src/components/settings/store/index.tsx": {
-    "small-height": 5,
-    "raw-colour": 7
-  },
   "src/components/ui/command.tsx": {
     "text-xs": 2,
     "raw-colour": 1

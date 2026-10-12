@@ -642,7 +642,22 @@
       },
       "cash_rounding": "Arrondi des espèces",
       "cash_rounding_description": "Arrondit les paiements en espèces au pas le plus proche. Les paiements par carte et autres restent exacts.",
-      "cash_rounding_increment": "Pas d'arrondi"
+      "cash_rounding_increment": "Pas d'arrondi",
+      "display_size": "Taille d'affichage",
+      "display_size_compact": "Compacte",
+      "display_size_standard": "Standard",
+      "display_size_large": "Grande",
+      "display_size_hint": "Ajuste le texte et les boutons sur cette caisse uniquement. Grand se lit et se touche plus facilement ; compact en affiche plus sur un petit écran.",
+      "sounds": "Sons",
+      "sound_preview": "Écouter ce son",
+      "sound_scan": "Article scanné",
+      "sound_scan_hint": "Un bip court quand un article est ajouté.",
+      "sound_scanError": "Échec du scan",
+      "sound_scanError_hint": "Deux bourdonnements graves quand un code-barres est introuvable ou ne peut pas être ajouté.",
+      "sound_sale": "Vente terminée",
+      "sound_sale_hint": "Deux bips montants quand un paiement aboutit.",
+      "sound_error": "Erreur",
+      "sound_error_hint": "Un bourdonnement grave quand autre chose échoue, par ex. un paiement."
     },
     "printer": {
       "title": "Imprimantes",
@@ -785,12 +800,10 @@
       "provider_id_placeholder": "ID du fournisseur",
       "provider_choose": "Choisir un fournisseur",
       "display_name_placeholder": "Nom affiché",
-      "icon_label": "Icône",
       "icon_cash": "Espèces",
       "icon_card": "Carte",
       "icon_transfer": "Transfert interne",
       "icon_bank_transfer": "Virement bancaire",
-      "type_label": "Type",
       "type_cash": "Espèces",
       "type_card": "Carte",
       "type_transfer": "Transfert interne",
@@ -818,10 +831,10 @@
       "saved": "Paramètres du magasin enregistrés",
       "logo_load_error": "Échec du chargement de l’image du logo",
       "logo_preview_alt": "Aperçu du logo",
-      "remove_payment_method_aria": "Supprimer le mode de paiement",
       "pick_logo_dialog_title": "Sélectionner le logo du magasin",
       "pick_logo_filter_name": "Image",
-      "logo_too_large": "L’image du logo doit faire moins de 256 Ko"
+      "logo_too_large": "L’image du logo doit faire moins de 256 Ko",
+      "payment_method_enabled": "Affiché à l'encaissement"
     },
     "scanner": {
       "title": "Scanner",
@@ -850,13 +863,17 @@
       "test_terminator": "terminé par",
       "open_failed": "Impossible d'ouvrir le port du lecteur",
       "reader_stopped": "Lecteur déconnecté",
-      "save_failed": "Échec de l'enregistrement des réglages du lecteur"
+      "save_failed": "Échec de l'enregistrement des réglages du lecteur",
+      "wedge_test_hint": "Scannez un code-barres pendant que cette page est ouverte. Si le code s'affiche ici, le scanner fonctionne.",
+      "wedge_test_read": "Scan {{count}} · {{time}}"
     },
     "plugins": {
       "title": "Plugins",
       "description": "Plugins POS connectés. Chaque plugin gère ici sa connexion et ses préférences.",
       "empty": "Aucun plugin installé."
-    }
+    },
+    "unsaved_changes": "Modifications non enregistrées",
+    "discard_changes": "Annuler les modifications"
   },
   "errors": {
     "network": "Erreur réseau. Veuillez réessayer.",

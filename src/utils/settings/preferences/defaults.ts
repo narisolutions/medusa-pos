@@ -7,6 +7,7 @@ export const DEFAULT_PREFERENCES: UserPreferences = {
   },
   display: {
     startFullscreen: true,
+    size: "standard",
     catalogView: "cards",
   },
   currency: {
@@ -30,5 +31,11 @@ export const DEFAULT_PREFERENCES: UserPreferences = {
     transport: "wedge",
     baud: 9600,
     idleMs: 0,
+  },
+  sounds: {
+    scan: true,
+    scanError: true,
+    sale: true,
+    error: true,
   },
 };

@@ -7,7 +7,7 @@ import { useChange } from "@/hooks/utils/useChange";
 import { toast } from "sonner";
 import { queryClient, queryKeys } from "@/config/query";
 import { getSdk } from "@/config/medusa";
-import { playErrorSound, playSuccessSound } from "@/utils/sounds";
+import { playSound } from "@/utils/sounds";
 import { usePrinterService } from "@/hooks/printer/usePrinterService";
 import { AdminOrder, AdminDraftOrder } from "@medusajs/types";
 import { useCartStore } from "@/context/cart";
@@ -367,7 +367,7 @@ const usePaymentModal = (
 
       // The dialog's success screen says it; pay-later also says whether it was delivered.
       if (options?.successMessage) toast.success(options.successMessage);
-      playSuccessSound();
+      playSound("sale");
 
       runPostOrderHardware(order, paymentMethod);
     },
@@ -388,16 +388,16 @@ const usePaymentModal = (
       }
       if (!draftOrderId) {
         handleErrorToast("No order prepared. Please create order first.");
-        playErrorSound();
+        playSound("error");
         return null;
       }
       if (!selectedPaymentMethod) {
         handleErrorToast("No payment method selected.");
-        playErrorSound();
+        playSound("error");
         return null;
       }
       if (!canProcessPayment) {
-        playErrorSound();
+        playSound("error");
         handleErrorToast("Insufficient payment amount");
         return null;
       }
@@ -496,7 +496,7 @@ const usePaymentModal = (
             setPaymentMethod(undefined);
             void queryClient.invalidateQueries({ queryKey: queryKeys.orders.all });
             void queryClient.invalidateQueries({ queryKey: queryKeys.draftOrders.all });
-            playErrorSound();
+            playSound("error");
             toast.warning(
               t("checkout.order_saved_unpaid", { displayId: order.display_id })
             );
@@ -530,7 +530,7 @@ const usePaymentModal = (
         return finalOrder;
 
       } catch (error) {
-        playErrorSound();
+        playSound("error");
         setFrozenDraft(null);
         handleErrorToast(
           error instanceof Error ? error.message : "Failed to create order. Please try again."
@@ -576,7 +576,7 @@ const usePaymentModal = (
       }
       if (!draftOrderId) {
         handleErrorToast("No order prepared. Please create order first.");
-        playErrorSound();
+        playSound("error");
         return null;
       }
 
@@ -631,7 +631,7 @@ const usePaymentModal = (
         });
         return order;
       } catch (error) {
-        playErrorSound();
+        playSound("error");
         setFrozenDraft(null);
         handleErrorToast(
           error instanceof Error

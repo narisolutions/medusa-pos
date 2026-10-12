@@ -33,8 +33,7 @@ const StoreSetupDialog: React.FC = () => {
   const handleGoToSettings = () => {
     setNeedsSetup(false);
     void storage.setItem("store_setup_dismissed", true);
-    void storage.setItem("settings_tab", "store");
-    navigate(ROUTES.settings);
+    navigate(ROUTES.settingsSection("store"));
   };
 
   return (

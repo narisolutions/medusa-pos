@@ -642,7 +642,22 @@
       },
       "cash_rounding": "Kontantavrundning",
       "cash_rounding_description": "Avrundar kontantbetalningar till närmaste steg. Kort- och andra betalningar förblir exakta.",
-      "cash_rounding_increment": "Avrundningssteg"
+      "cash_rounding_increment": "Avrundningssteg",
+      "display_size": "Visningsstorlek",
+      "display_size_compact": "Kompakt",
+      "display_size_standard": "Standard",
+      "display_size_large": "Stor",
+      "display_size_hint": "Skalar text och knappar bara på den här kassan. Stor är lättare att läsa och trycka på; kompakt får plats med mer på en liten skärm.",
+      "sounds": "Ljud",
+      "sound_preview": "Spela upp ljudet",
+      "sound_scan": "Vara skannad",
+      "sound_scan_hint": "Ett kort pip när en vara läggs till.",
+      "sound_scanError": "Skanning misslyckades",
+      "sound_scanError_hint": "Två låga surr när en streckkod inte hittas eller inte kan läggas till.",
+      "sound_sale": "Försäljning klar",
+      "sound_sale_hint": "Två stigande pip när en betalning går igenom.",
+      "sound_error": "Fel",
+      "sound_error_hint": "Ett lågt surr när något annat går fel, t.ex. en betalning."
     },
     "printer": {
       "title": "Skrivare",
@@ -785,12 +800,10 @@
       "provider_id_placeholder": "Leverantörs-ID",
       "provider_choose": "Välj en leverantör",
       "display_name_placeholder": "Visningsnamn",
-      "icon_label": "Ikon",
       "icon_cash": "Kontant",
       "icon_card": "Kort",
       "icon_transfer": "Intern överföring",
       "icon_bank_transfer": "Banköverföring",
-      "type_label": "Typ",
       "type_cash": "Kontant",
       "type_card": "Kort",
       "type_transfer": "Intern överföring",
@@ -818,10 +831,10 @@
       "saved": "Butiksinställningar sparade",
       "logo_load_error": "Det gick inte att läsa in logotypbilden",
       "logo_preview_alt": "Förhandsgranskning av logotyp",
-      "remove_payment_method_aria": "Ta bort betalningsmetod",
       "pick_logo_dialog_title": "Välj butikslogotyp",
       "pick_logo_filter_name": "Bild",
-      "logo_too_large": "Logotypbilden måste vara mindre än 256 KB"
+      "logo_too_large": "Logotypbilden måste vara mindre än 256 KB",
+      "payment_method_enabled": "Visas i kassan"
     },
     "scanner": {
       "title": "Skanner",
@@ -850,13 +863,17 @@
       "test_terminator": "avslutad av",
       "open_failed": "Kunde inte öppna läsarens port",
       "reader_stopped": "Läsaren frånkopplad",
-      "save_failed": "Kunde inte spara skannerinställningarna"
+      "save_failed": "Kunde inte spara skannerinställningarna",
+      "wedge_test_hint": "Skanna valfri streckkod medan sidan är öppen. Visas koden här fungerar skannern.",
+      "wedge_test_read": "Skanning {{count}} · {{time}}"
     },
     "plugins": {
       "title": "Plugin",
       "description": "Anslutna POS-plugin. Varje plugin hanterar sin egen anslutning och sina inställningar här.",
       "empty": "Inga plugin installerade."
-    }
+    },
+    "unsaved_changes": "Osparade ändringar",
+    "discard_changes": "Ignorera"
   },
   "errors": {
     "network": "Nätverksfel. Försök igen.",

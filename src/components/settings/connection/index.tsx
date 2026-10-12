@@ -1,5 +1,4 @@
 import React from "react";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
   Form,
@@ -21,6 +20,8 @@ import { Forms } from "@/types/form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import schemas from "@/utils/schemas";
 import { useTranslation } from "@/i18n";
+import SaveBar from "../save-bar";
+import { useUnsavedChanges } from "@/hooks/utils/useUnsavedChanges";
 
 const ConnectionSettings: React.FC = () => {
   const { t } = useTranslation();
@@ -36,8 +37,8 @@ const ConnectionSettings: React.FC = () => {
   const {
     handleSubmit,
     control,
-    formState: { isDirty },
   } = form;
+  const isDirty = useUnsavedChanges(form);
 
   const {
     isLoading,
@@ -57,12 +58,12 @@ const ConnectionSettings: React.FC = () => {
         <p className="text-lg leading-relaxed text-fg-muted font-medium">
           {t("settings.connection.description")}
         </p>
-        <p className="text-sm text-fg-subtle leading-relaxed">
+        <p className="text-base text-fg-subtle leading-relaxed">
           {t("settings.connection.long_description")}
         </p>
       </div>
 
-      <p className="text-sm text-fg-muted">
+      <p className="text-base text-fg-muted">
         {t("settings.connection.logged_in_label")}
         <span className="font-medium">
           {(admin as unknown as { user: { email: string } })?.user?.email}
@@ -86,7 +87,7 @@ const ConnectionSettings: React.FC = () => {
                     {...field}
                   />
                 </FormControl>
-                <FormMessage className="text-base text-red-600" />
+                <FormMessage className="text-base" />
               </FormItem>
             )}
           />
@@ -134,7 +135,7 @@ const ConnectionSettings: React.FC = () => {
                     )}
                   </SelectContent>
                 </Select>
-                <FormMessage className="text-base text-red-600" />
+                <FormMessage className="text-base" />
               </FormItem>
             )}
           />
@@ -181,19 +182,19 @@ const ConnectionSettings: React.FC = () => {
                     )}
                   </SelectContent>
                 </Select>
-                <FormMessage className="text-base text-red-600" />
+                <FormMessage className="text-base" />
               </FormItem>
             )}
           />
           
 
-          <Button
-            type="submit"
-            disabled={isLoading || !isDirty}
-            className="h-12 px-6 text-white text-lg min-w-[48px] bg-primary hover:bg-primary/90"
-          >
-            {isLoading ? t("settings.connection.saving") : t("settings.connection.save_button")}
-          </Button>
+          <SaveBar
+            dirty={isDirty}
+            saving={isLoading}
+            onDiscard={() => form.reset()}
+            saveLabel={t("settings.connection.save_button")}
+            savingLabel={t("settings.connection.saving")}
+          />
         </form>
       </Form>
     </div>

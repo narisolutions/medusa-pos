@@ -51,7 +51,7 @@ const routes = createRoutesFromElements(
             <Route path=":orderId" element={<Order />} />
           </Route>
           <Route path={ROUTES.parked} element={<Parked />} />
-          <Route path={ROUTES.settings} element={<Settings />} />
+          <Route path={`${ROUTES.settings}/:section?`} element={<Settings />} />
           {DevUi && (
             <Route
               path={ROUTES.devUi}

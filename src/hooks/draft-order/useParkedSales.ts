@@ -21,7 +21,6 @@ import {
 } from "@/utils/pos/draft-order";
 import { handleErrorToast } from "@/utils/helpers";
 import { useTranslation } from "@/i18n";
-import storage from "@/utils/storage";
 import { logger, safeStringify } from "@/utils/logger";
 import { ROUTES } from "@/router/routes";
 
@@ -72,8 +71,7 @@ const useParkedSales = () => {
 
   /** Navigates to the store setting that unblocks draft creation. */
   const goToGuestEmailSetting = useCallback(() => {
-    void storage.setItem("settings_tab", "store");
-    navigate(ROUTES.settings);
+    navigate(ROUTES.settingsSection("store"));
     setTimeout(() => {
       const el = document.getElementById("guest-customer-email");
       if (!el) return;

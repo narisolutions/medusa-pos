@@ -642,7 +642,22 @@
       },
       "cash_rounding": "ნაღდი ფულის დამრგვალება",
       "cash_rounding_description": "ნაღდი ფულის გადახდები მრგვალდება უახლოეს საფეხურამდე. ბარათით და სხვა გადახდები რჩება ზუსტი.",
-      "cash_rounding_increment": "დამრგვალების საფეხური"
+      "cash_rounding_increment": "დამრგვალების საფეხური",
+      "display_size": "ეკრანის ზომა",
+      "display_size_compact": "კომპაქტური",
+      "display_size_standard": "სტანდარტული",
+      "display_size_large": "დიდი",
+      "display_size_hint": "ცვლის ტექსტისა და ღილაკების ზომას მხოლოდ ამ სალაროზე. დიდი უფრო ადვილად იკითხება და ეჭირება; კომპაქტური მეტს ატევს პატარა ეკრანზე.",
+      "sounds": "ხმები",
+      "sound_preview": "ხმის მოსმენა",
+      "sound_scan": "ნივთი დასკანერდა",
+      "sound_scan_hint": "მოკლე სიგნალი ნივთის დამატებისას.",
+      "sound_scanError": "სკანირება ვერ მოხერხდა",
+      "sound_scanError_hint": "ორი დაბალი სიგნალი, როცა შტრიხკოდი ვერ მოიძებნა ან ვერ დაემატა.",
+      "sound_sale": "გაყიდვა დასრულდა",
+      "sound_sale_hint": "ორი მზარდი სიგნალი გადახდის დასრულებისას.",
+      "sound_error": "შეცდომა",
+      "sound_error_hint": "დაბალი სიგნალი სხვა შეცდომისას, მაგ. გადახდა ვერ შესრულდა."
     },
     "printer": {
       "title": "პრინტერები",
@@ -785,12 +800,10 @@
       "provider_id_placeholder": "Provider ID",
       "provider_choose": "აირჩიეთ პროვაიდერი",
       "display_name_placeholder": "სახელი",
-      "icon_label": "ხატულა",
       "icon_cash": "ნაღდი",
       "icon_card": "ბარათი",
       "icon_transfer": "შიდა გადაცემა",
       "icon_bank_transfer": "საბანკო გადარიცხვა",
-      "type_label": "ტიპი",
       "type_cash": "ნაღდი",
       "type_card": "ბარათი",
       "type_transfer": "შიდა გადაცემა",
@@ -818,10 +831,10 @@
       "saved": "პარამეტრები შენახულია",
       "logo_load_error": "ლოგოს ჩატვირთვა ვერ მოხდა",
       "logo_preview_alt": "ლოგოს გადახედვა",
-      "remove_payment_method_aria": "გადახდის მეთოდის წაშლა",
       "pick_logo_dialog_title": "ლოგოს არჩევა",
       "pick_logo_filter_name": "სურათი",
-      "logo_too_large": "ლოგოს ზომა უნდა იყოს 256 KB-ზე ნაკლები"
+      "logo_too_large": "ლოგოს ზომა უნდა იყოს 256 KB-ზე ნაკლები",
+      "payment_method_enabled": "ჩანს გადახდისას"
     },
     "scanner": {
       "title": "სკანერი",
@@ -850,13 +863,17 @@
       "test_terminator": "დასრულდა",
       "open_failed": "სკანერის პორტის გახსნა ვერ მოხერხდა",
       "reader_stopped": "სკანერი გაითიშა",
-      "save_failed": "სკანერის პარამეტრების შენახვა ვერ მოხერხდა"
+      "save_failed": "სკანერის პარამეტრების შენახვა ვერ მოხერხდა",
+      "wedge_test_hint": "დაასკანერეთ ნებისმიერი შტრიხკოდი, სანამ ეს გვერდი ღიაა. თუ კოდი აქ გამოჩნდა, სკანერი მუშაობს.",
+      "wedge_test_read": "სკანირება {{count}} · {{time}}"
     },
     "plugins": {
       "title": "პლაგინები",
       "description": "დაკავშირებული POS პლაგინები. თითოეული პლაგინი აქ მართავს საკუთარ კავშირსა და პარამეტრებს.",
       "empty": "პლაგინები დაყენებული არ არის."
-    }
+    },
+    "unsaved_changes": "შეუნახავი ცვლილებები",
+    "discard_changes": "გაუქმება"
   },
   "errors": {
     "network": "ქსელის შეცდომა. სცადეთ თავიდან.",

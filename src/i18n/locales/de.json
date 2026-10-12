@@ -642,7 +642,22 @@
       },
       "cash_rounding": "Bargeld-Rundung",
       "cash_rounding_description": "Bargeldzahlungen auf den nächsten Schritt runden. Karten- und andere Zahlungen bleiben exakt.",
-      "cash_rounding_increment": "Rundungsschritt"
+      "cash_rounding_increment": "Rundungsschritt",
+      "display_size": "Anzeigegröße",
+      "display_size_compact": "Kompakt",
+      "display_size_standard": "Standard",
+      "display_size_large": "Groß",
+      "display_size_hint": "Skaliert Text und Schaltflächen nur an dieser Kasse. Größer ist leichter zu lesen und zu tippen; kompakt passt mehr auf einen kleinen Bildschirm.",
+      "sounds": "Töne",
+      "sound_preview": "Ton abspielen",
+      "sound_scan": "Artikel gescannt",
+      "sound_scan_hint": "Ein kurzer Piepton, wenn ein Artikel hinzugefügt wird.",
+      "sound_scanError": "Scan fehlgeschlagen",
+      "sound_scanError_hint": "Zwei tiefe Summtöne, wenn ein Barcode nicht gefunden oder nicht hinzugefügt werden kann.",
+      "sound_sale": "Verkauf abgeschlossen",
+      "sound_sale_hint": "Zwei steigende Pieptöne, wenn eine Zahlung durchgeht.",
+      "sound_error": "Fehler",
+      "sound_error_hint": "Ein tiefer Summton bei anderen Fehlern, z. B. einer fehlgeschlagenen Zahlung."
     },
     "printer": {
       "title": "Drucker",
@@ -785,12 +800,10 @@
       "provider_id_placeholder": "Provider-ID",
       "provider_choose": "Anbieter wählen",
       "display_name_placeholder": "Anzeigename",
-      "icon_label": "Symbol",
       "icon_cash": "Bar",
       "icon_card": "Karte",
       "icon_transfer": "Interner Transfer",
       "icon_bank_transfer": "Banküberweisung",
-      "type_label": "Typ",
       "type_cash": "Bar",
       "type_card": "Karte",
       "type_transfer": "Interner Transfer",
@@ -818,10 +831,10 @@
       "saved": "Filialeinstellungen gespeichert",
       "logo_load_error": "Logo-Bild konnte nicht geladen werden",
       "logo_preview_alt": "Logo-Vorschau",
-      "remove_payment_method_aria": "Zahlungsmethode entfernen",
       "pick_logo_dialog_title": "Filiallogo auswählen",
       "pick_logo_filter_name": "Bild",
-      "logo_too_large": "Das Logo-Bild muss kleiner als 256 KB sein"
+      "logo_too_large": "Das Logo-Bild muss kleiner als 256 KB sein",
+      "payment_method_enabled": "An der Kasse angezeigt"
     },
     "scanner": {
       "title": "Scanner",
@@ -850,13 +863,17 @@
       "test_terminator": "beendet durch",
       "open_failed": "Scanner-Port konnte nicht geöffnet werden",
       "reader_stopped": "Scanner getrennt",
-      "save_failed": "Scanner-Einstellungen konnten nicht gespeichert werden"
+      "save_failed": "Scanner-Einstellungen konnten nicht gespeichert werden",
+      "wedge_test_hint": "Scannen Sie einen beliebigen Barcode, solange diese Seite offen ist. Erscheint der Code hier, funktioniert der Scanner.",
+      "wedge_test_read": "Scan {{count}} · {{time}}"
     },
     "plugins": {
       "title": "Plugins",
       "description": "Verbundene POS-Plugins. Jedes Plugin verwaltet hier seine eigene Verbindung und Einstellungen.",
       "empty": "Keine Plugins installiert."
-    }
+    },
+    "unsaved_changes": "Ungespeicherte Änderungen",
+    "discard_changes": "Verwerfen"
   },
   "errors": {
     "network": "Netzwerkfehler. Bitte erneut versuchen.",

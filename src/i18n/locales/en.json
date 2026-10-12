@@ -642,7 +642,22 @@
       },
       "cash_rounding": "Cash rounding",
       "cash_rounding_description": "Round cash payments to the nearest increment. Card and other payments stay exact.",
-      "cash_rounding_increment": "Rounding increment"
+      "cash_rounding_increment": "Rounding increment",
+      "display_size": "Display size",
+      "display_size_compact": "Compact",
+      "display_size_standard": "Standard",
+      "display_size_large": "Large",
+      "display_size_hint": "Scales text and buttons on this till only. Larger is easier to read and tap; compact fits more on a small screen.",
+      "sounds": "Sounds",
+      "sound_preview": "Play this sound",
+      "sound_scan": "Item scanned",
+      "sound_scan_hint": "A short beep when an item is added.",
+      "sound_scanError": "Scan failed",
+      "sound_scanError_hint": "Two low buzzes when a barcode isn't found or can't be added.",
+      "sound_sale": "Sale completed",
+      "sound_sale_hint": "Two rising beeps when a payment goes through.",
+      "sound_error": "Error",
+      "sound_error_hint": "A low buzz when something else goes wrong, e.g. a payment fails."
     },
     "printer": {
       "title": "Printers",
@@ -785,12 +800,10 @@
       "provider_id_placeholder": "Provider ID",
       "provider_choose": "Choose a provider",
       "display_name_placeholder": "Display name",
-      "icon_label": "Icon",
       "icon_cash": "Cash",
       "icon_card": "Card",
       "icon_transfer": "Internal transfer",
       "icon_bank_transfer": "Bank transfer",
-      "type_label": "Type",
       "type_cash": "Cash",
       "type_card": "Card",
       "type_transfer": "Internal transfer",
@@ -818,10 +831,10 @@
       "saved": "Store settings saved",
       "logo_load_error": "Failed to load logo image",
       "logo_preview_alt": "Logo preview",
-      "remove_payment_method_aria": "Remove payment method",
       "pick_logo_dialog_title": "Select Store Logo",
       "pick_logo_filter_name": "Image",
-      "logo_too_large": "Logo image must be smaller than 256 KB"
+      "logo_too_large": "Logo image must be smaller than 256 KB",
+      "payment_method_enabled": "Shown at checkout"
     },
     "scanner": {
       "title": "Scanner",
@@ -850,13 +863,17 @@
       "test_terminator": "ended by",
       "open_failed": "Could not open the scanner port",
       "reader_stopped": "Scanner disconnected",
-      "save_failed": "Failed to save scanner settings"
+      "save_failed": "Failed to save scanner settings",
+      "wedge_test_hint": "Scan any barcode while this page is open. If the code shows here, the scanner works.",
+      "wedge_test_read": "Scan {{count}} · {{time}}"
     },
     "plugins": {
       "title": "Plugins",
       "description": "Connected POS plugins. Each plugin manages its own connection and preferences here.",
       "empty": "No plugins installed."
-    }
+    },
+    "unsaved_changes": "Unsaved changes",
+    "discard_changes": "Discard"
   },
   "errors": {
     "network": "Network error. Try again.",

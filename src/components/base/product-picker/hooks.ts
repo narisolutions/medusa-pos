@@ -6,7 +6,7 @@ import { useScannerPreferences } from "@/hooks/barcode/useScannerPreferences";
 import { useDebounce } from "@/hooks/ui/useDebounce";
 import { toast } from "sonner";
 import { handleErrorToast } from "@/utils/helpers";
-import { playErrorSound, playSuccessSound } from "@/utils/sounds";
+import { playSound } from "@/utils/sounds";
 import { queryClient, queryKeys } from "@/config/query";
 import { AdminProduct, AdminProductVariant } from "@medusajs/types";
 import constants from "@/utils/constants";
@@ -101,11 +101,11 @@ const useProductPicker = ({ products = [], inputRef, onSelect }: Props) => {
       const result = onSelect(variant);
       if (!result.success) {
         handleErrorToast(result.message || t("checkout.cannot_add_to_cart"));
-        playErrorSound();
+        playSound("scanError");
         return false;
       }
       if (result.message) toast.success(result.message);
-      playSuccessSound();
+      playSound("scan");
       return true;
     },
     [onSelect, t]
@@ -128,7 +128,7 @@ const useProductPicker = ({ products = [], inputRef, onSelect }: Props) => {
         });
       } catch (error) {
         handleErrorToast(error);
-        playErrorSound();
+        playSound("scanError");
       } finally {
         updateFilterState({ isProcessing: false });
       }
@@ -143,7 +143,7 @@ const useProductPicker = ({ products = [], inputRef, onSelect }: Props) => {
       if (!salesChannelId) {
         setNeedsWarning(true);
         toast.error(t("checkout.no_sales_channel_configured"));
-        playErrorSound();
+        playSound("error");
         return;
       }
 
@@ -159,7 +159,7 @@ const useProductPicker = ({ products = [], inputRef, onSelect }: Props) => {
         });
 
         if (!productVariant) {
-          playErrorSound();
+          playSound("scanError");
           setFilterState((prev) => ({ ...prev, inputValue: "", failedBarcode: barcode }));
           return;
         }
@@ -173,7 +173,7 @@ const useProductPicker = ({ products = [], inputRef, onSelect }: Props) => {
         });
       } catch (error) {
         handleErrorToast(error, { posEndpointError: true });
-        playErrorSound();
+        playSound("scanError");
       } finally {
         updateFilterState({ isProcessing: false });
       }
