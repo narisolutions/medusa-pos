@@ -492,7 +492,18 @@
       "add_success_unpaid": "ნივთები დაემატა მომხმარებლის დავალიანებას",
       "add_authorized_warning": "მომხმარებლის წინა გადახდის ავტორიზაცია გაუქმდება. მთელი თანხა თავიდან უნდა გადაიხადოს."
     },
-    "item_returned": "დაბრუნდა"
+    "item_returned": "დაბრუნდა",
+    "status_pending": "მოლოდინში",
+    "status_completed": "დასრულებული",
+    "status_draft": "მონახაზი",
+    "status_archived": "დაარქივებული",
+    "status_requires_action": "საჭიროებს მოქმედებას",
+    "status_not_paid": "გადაუხდელი",
+    "status_authorized": "ავტორიზებული",
+    "status_partially_authorized": "ნაწილობრივ ავტორიზებული",
+    "status_partially_refunded": "ნაწილობრივ დაბრუნებული",
+    "filter_to_fulfil": "გასაცემი",
+    "quick_filter_label": "ჩვენება"
   },
   "parked": {
     "title": "გადადებული გაყიდვები",
@@ -880,12 +891,12 @@
     "restored_offline": "სერვერთან დაკავშირება ვერ ხერხდება — გამოიყენება შენახული სესია."
   },
   "pagination": {
-    "first_page": "პირველი",
-    "previous_page": "წინა",
+    "first_page": "პირველი გვერდი",
+    "previous_page": "წინა გვერდი",
     "page_label": "გვერდი",
     "of": "სულ",
-    "next_page": "შემდეგი",
-    "last_page": "ბოლო",
+    "next_page": "შემდეგი გვერდი",
+    "last_page": "ბოლო გვერდი",
     "rows_per_page": "სტრიქონი გვერდზე:"
   },
   "printer_service": {

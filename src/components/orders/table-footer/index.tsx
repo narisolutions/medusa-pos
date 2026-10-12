@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from "lucide-react";
 import React from "react";
 import { FooterProps } from "./hooks";
 import { useTranslation } from "@/i18n";
@@ -31,22 +32,20 @@ const Footer: React.FC<FooterProps> = ({
           size="lg"
           onClick={() => handlePageChange(0)}
           disabled={pageIndex === 0 || isLoading || totalPages === 0}
-          aria-label="First page"
-          className="h-12 px-4 text-base"
+          aria-label={t("pagination.first_page")}
+          className="size-tap-lg p-0"
         >
-          <span className="sr-only">First</span>
-          {"<<"}
+          <ChevronsLeft className="size-6" />
         </Button>
         <Button
           variant="outline"
           size="lg"
           onClick={() => handlePageChange(Math.max(0, pageIndex - 1))}
           disabled={pageIndex === 0 || isLoading || totalPages === 0}
-          aria-label="Previous page"
-          className="h-12 px-4 text-base"
+          aria-label={t("pagination.previous_page")}
+          className="size-tap-lg p-0"
         >
-          <span className="sr-only">Previous</span>
-          {"<"}
+          <ChevronLeft className="size-6" />
         </Button>
         <span className="flex items-center text-base font-medium text-fg px-4">
           {t("pagination.page_label")}{" "}
@@ -67,11 +66,10 @@ const Footer: React.FC<FooterProps> = ({
           disabled={
             pageIndex >= totalPages - 1 || isLoading || totalPages === 0
           }
-          aria-label="Next page"
-          className="h-12 px-4 text-base"
+          aria-label={t("pagination.next_page")}
+          className="size-tap-lg p-0"
         >
-          <span className="sr-only">Next</span>
-          {">"}
+          <ChevronRight className="size-6" />
         </Button>
         <Button
           variant="outline"
@@ -80,11 +78,10 @@ const Footer: React.FC<FooterProps> = ({
           disabled={
             pageIndex >= totalPages - 1 || isLoading || totalPages === 0
           }
-          aria-label="Last page"
-          className="h-12 px-4 text-base"
+          aria-label={t("pagination.last_page")}
+          className="size-tap-lg p-0"
         >
-          <span className="sr-only">Last</span>
-          {">>"}
+          <ChevronsRight className="size-6" />
         </Button>
       </div>
       <div className="flex items-center gap-4">
@@ -97,7 +94,7 @@ const Footer: React.FC<FooterProps> = ({
         >
           <SelectTrigger
             id="page-size"
-            className="h-12 min-w-[80px] text-base"
+            className="min-w-20 text-base"
             disabled={isLoading}
           >
             <SelectValue />
@@ -111,7 +108,7 @@ const Footer: React.FC<FooterProps> = ({
             ))}
           </SelectContent>
         </Select>
-        <span className="text-sm text-fg-muted ml-2 min-w-20 flex items-center justify-center">
+        <span className="text-base text-fg-muted ml-2 min-w-20 flex items-center justify-center tabular-nums">
           {count === 0 ? (
             <LoadingSpinner />
           ) : (

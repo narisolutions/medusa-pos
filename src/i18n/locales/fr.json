@@ -492,7 +492,18 @@
       "add_success_unpaid": "Articles ajoutés au montant dû par le client",
       "add_authorized_warning": "L'autorisation de paiement précédente du client sera annulée. Le montant total devra être réglé à nouveau."
     },
-    "item_returned": "Retourné"
+    "item_returned": "Retourné",
+    "status_pending": "En attente",
+    "status_completed": "Terminée",
+    "status_draft": "Brouillon",
+    "status_archived": "Archivée",
+    "status_requires_action": "Action requise",
+    "status_not_paid": "Non payée",
+    "status_authorized": "Autorisée",
+    "status_partially_authorized": "Partiellement autorisée",
+    "status_partially_refunded": "Partiellement remboursée",
+    "filter_to_fulfil": "À traiter",
+    "quick_filter_label": "Afficher"
   },
   "parked": {
     "title": "Ventes en attente",
@@ -880,12 +891,12 @@
     "restored_offline": "Serveur injoignable — la session enregistrée est utilisée."
   },
   "pagination": {
-    "first_page": "Première",
-    "previous_page": "Précédente",
+    "first_page": "Première page",
+    "previous_page": "Page précédente",
     "page_label": "Page",
     "of": "sur",
-    "next_page": "Suivante",
-    "last_page": "Dernière",
+    "next_page": "Page suivante",
+    "last_page": "Dernière page",
     "rows_per_page": "Lignes par page :"
   },
   "printer_service": {

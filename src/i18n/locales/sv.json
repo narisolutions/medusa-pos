@@ -492,7 +492,18 @@
       "add_success_unpaid": "Varor tillagda till det kunden är skyldig",
       "add_authorized_warning": "Kundens tidigare betalningsauktorisation kommer att avbrytas. Hela beloppet måste betalas igen."
     },
-    "item_returned": "Returnerad"
+    "item_returned": "Returnerad",
+    "status_pending": "Väntande",
+    "status_completed": "Slutförd",
+    "status_draft": "Utkast",
+    "status_archived": "Arkiverad",
+    "status_requires_action": "Kräver åtgärd",
+    "status_not_paid": "Ej betald",
+    "status_authorized": "Auktoriserad",
+    "status_partially_authorized": "Delvis auktoriserad",
+    "status_partially_refunded": "Delvis återbetald",
+    "filter_to_fulfil": "Att leverera",
+    "quick_filter_label": "Visa"
   },
   "parked": {
     "title": "Parkerade köp",
@@ -880,12 +891,12 @@
     "restored_offline": "Kan inte nå servern — den sparade sessionen används."
   },
   "pagination": {
-    "first_page": "Första",
-    "previous_page": "Föregående",
+    "first_page": "Första sidan",
+    "previous_page": "Föregående sida",
     "page_label": "Sida",
     "of": "av",
-    "next_page": "Nästa",
-    "last_page": "Sista",
+    "next_page": "Nästa sida",
+    "last_page": "Sista sidan",
     "rows_per_page": "Rader per sida:"
   },
   "printer_service": {

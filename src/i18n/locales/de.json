@@ -492,7 +492,18 @@
       "add_success_unpaid": "Artikel zum offenen Betrag des Kunden hinzugefügt",
       "add_authorized_warning": "Die frühere Zahlungsautorisierung des Kunden wird storniert. Der gesamte Betrag muss erneut bezahlt werden."
     },
-    "item_returned": "Zurückgegeben"
+    "item_returned": "Zurückgegeben",
+    "status_pending": "Ausstehend",
+    "status_completed": "Abgeschlossen",
+    "status_draft": "Entwurf",
+    "status_archived": "Archiviert",
+    "status_requires_action": "Aktion nötig",
+    "status_not_paid": "Nicht bezahlt",
+    "status_authorized": "Autorisiert",
+    "status_partially_authorized": "Teilweise autorisiert",
+    "status_partially_refunded": "Teilweise erstattet",
+    "filter_to_fulfil": "Zu erfüllen",
+    "quick_filter_label": "Anzeigen"
   },
   "parked": {
     "title": "Geparkte Verkäufe",
@@ -880,12 +891,12 @@
     "restored_offline": "Server nicht erreichbar – die gespeicherte Sitzung wird verwendet."
   },
   "pagination": {
-    "first_page": "Erste",
-    "previous_page": "Zurück",
+    "first_page": "Erste Seite",
+    "previous_page": "Vorherige Seite",
     "page_label": "Seite",
     "of": "von",
-    "next_page": "Weiter",
-    "last_page": "Letzte",
+    "next_page": "Nächste Seite",
+    "last_page": "Letzte Seite",
     "rows_per_page": "Zeilen pro Seite:"
   },
   "printer_service": {

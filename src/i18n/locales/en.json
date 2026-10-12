@@ -492,7 +492,18 @@
       "add_success_unpaid": "Items added to what the customer owes",
       "add_authorized_warning": "The customer's earlier payment authorization will be cancelled. The whole amount must be paid again."
     },
-    "item_returned": "Returned"
+    "item_returned": "Returned",
+    "status_pending": "Pending",
+    "status_completed": "Completed",
+    "status_draft": "Draft",
+    "status_archived": "Archived",
+    "status_requires_action": "Needs action",
+    "status_not_paid": "Not paid",
+    "status_authorized": "Authorized",
+    "status_partially_authorized": "Partially authorized",
+    "status_partially_refunded": "Partially refunded",
+    "filter_to_fulfil": "To fulfil",
+    "quick_filter_label": "Show"
   },
   "parked": {
     "title": "Parked sales",
@@ -880,12 +891,12 @@
     "restored_offline": "Can't reach the server — using your saved session."
   },
   "pagination": {
-    "first_page": "First",
-    "previous_page": "Previous",
+    "first_page": "First page",
+    "previous_page": "Previous page",
     "page_label": "Page",
     "of": "of",
-    "next_page": "Next",
-    "last_page": "Last",
+    "next_page": "Next page",
+    "last_page": "Last page",
     "rows_per_page": "Rows per page:"
   },
   "printer_service": {

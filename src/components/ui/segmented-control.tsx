@@ -38,7 +38,7 @@ function SegmentedControl<T extends string>({ options, value, onChange, label, s
             disabled={option.disabled}
             onClick={() => onChange(option.value)}
             className={cn(
-              "inline-flex flex-1 items-center justify-center gap-2 rounded-md px-4 text-base transition-all duration-100 active:scale-[0.98] cursor-pointer",
+              "inline-flex flex-1 items-center justify-center gap-2 whitespace-nowrap rounded-md px-4 text-base transition-all duration-100 active:scale-[0.98] cursor-pointer",
               "disabled:pointer-events-none disabled:opacity-50 [&_svg:not([class*='size-'])]:size-5",
               size === "lg" ? "min-h-tap-lg" : "min-h-tap",
               selected

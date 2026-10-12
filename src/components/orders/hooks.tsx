@@ -4,9 +4,6 @@ import { useTranslation } from "@/i18n";
 import {
   formatDate,
   formatPrice,
-  getOrderStatusColor,
-  getOrderPaymentStatusColor,
-  getOrderFulfillmentStatusColor,
   getOrderCurrency,
   getOrderCustomerLabel,
 } from "@/utils/helpers";
@@ -18,6 +15,9 @@ import { classifyOrderShippingMethod, getShippingMethodLabel } from "@/utils/pos
 import { useQueryStore } from "@/hooks/queries/useQueryStore";
 import { getOrderPaymentMethodLabel } from "@/utils/pos/payment";
 import { plugins } from "@/plugins";
+import { Store, Truck } from "lucide-react";
+import { StatusChip } from "@/components/ui/status-chip";
+import OrderStatusChip from "@/components/base/order-status-chip";
 
 const columnHelper = createColumnHelper<AdminOrder>();
 
@@ -56,18 +56,10 @@ const useOrders = () => {
 
           const { isPickup } = classifyOrderShippingMethod(order);
 
-          if (isPickup) {
-            return (
-              <span className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium border bg-purple-100 text-purple-700 border-purple-200">
-                {label}
-              </span>
-            );
-          }
-
           return (
-            <span className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium border bg-blue-100 text-blue-700 border-blue-200">
+            <StatusChip intent={isPickup ? "neutral" : "info"} icon={isPickup ? <Store className="size-4" /> : <Truck className="size-4" />}>
               {label}
-            </span>
+            </StatusChip>
           );
         },
       }),
@@ -106,39 +98,13 @@ const useOrders = () => {
       columnHelper.accessor("status", {
         id: "status",
         header: t("orders.column_status"),
-        cell: (info) => {
-          const value = info.getValue();
-          const display =
-            value.charAt(0).toUpperCase() + value.slice(1).replace(/_/g, " ");
-          const colorClass = getOrderStatusColor(value);
-          return (
-            <div className="flex items-center gap-2">
-              <span
-                className={`${colorClass} w-3 h-3 rounded-full shrink-0`}
-              />
-              <span className="text-base">{display}</span>
-            </div>
-          );
-        },
+        cell: (info) => <OrderStatusChip kind="order" status={info.getValue()} />,
         filterFn: "includesString",
       }),
       columnHelper.accessor("payment_status", {
         id: "payment_status",
         header: t("orders.column_payment"),
-        cell: (info) => {
-          const value = info.getValue();
-          const display =
-            value.charAt(0).toUpperCase() + value.slice(1).replace(/_/g, " ");
-          const colorClass = getOrderPaymentStatusColor(value);
-          return (
-            <div className="flex items-center gap-2">
-              <span
-                className={`${colorClass} w-3 h-3 rounded-full shrink-0`}
-              />
-              <span className="text-base">{display}</span>
-            </div>
-          );
-        },
+        cell: (info) => <OrderStatusChip kind="payment" status={info.getValue()} />,
         filterFn: (row, id, value) => {
           const rowValue = row.getValue(id) as string;
           if (!value) return true; // Show all if no filter
@@ -159,20 +125,7 @@ const useOrders = () => {
       columnHelper.accessor("fulfillment_status", {
         id: "fulfillment_status",
         header: t("orders.column_fulfillment"),
-        cell: (info) => {
-          const value = info.getValue();
-          const display =
-            value.charAt(0).toUpperCase() + value.slice(1).replace(/_/g, " ");
-          const colorClass = getOrderFulfillmentStatusColor(value);
-          return (
-            <div className="flex items-center gap-2">
-              <span
-                className={`${colorClass} w-3 h-3 rounded-full shrink-0`}
-              />
-              <span className="text-base">{display}</span>
-            </div>
-          );
-        },
+        cell: (info) => <OrderStatusChip kind="fulfillment" status={info.getValue()} />,
         filterFn: (row, id, value) => {
           const rowValue = row.getValue(id) as string;
           if (!value) return true; // Show all if no filter
@@ -188,7 +141,7 @@ const useOrders = () => {
           const currency = getOrderCurrency(order);
 
           return (
-            <span className="font-semibold text-fg text-base">
+            <span className="font-semibold text-fg text-base tabular-nums">
               {formatPrice(value, currency)}
             </span>
           );
