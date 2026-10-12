@@ -14,7 +14,9 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
+import { Numpad } from "@/components/ui/numpad";
+import { formatPrice } from "@/utils/helpers";
+import { useQueryRegion } from "@/hooks/queries/useQueryRegion";
 import { Button } from "@/components/ui/button";
 import { useOpenRegister } from "./hooks";
 import { useTranslation } from "@/i18n";
@@ -26,6 +28,8 @@ import { useTranslation } from "@/i18n";
 const OpenRegisterDialog: React.FC = () => {
   const { form, isSubmitting, onSubmit } = useOpenRegister();
   const { t } = useTranslation();
+  const { data: regionData } = useQueryRegion();
+  const currency = regionData?.defaultRegion?.currency_code?.toUpperCase() ?? "USD";
 
   return (
     <Dialog open>
@@ -52,27 +56,23 @@ const OpenRegisterDialog: React.FC = () => {
                     {t("register.open.opening_float")}
                   </FormLabel>
                   <FormControl>
-                    <Input
-                      type="number"
-                      min={0}
-                      step="0.01"
-                      autoFocus
-                      placeholder="0.00"
-                      value={field.value === 0 ? "" : field.value}
-                      onChange={(e) => field.onChange(e.target.value)}
-                      className="h-12 text-lg"
-                    />
+                    <output aria-live="polite" className="block rounded-lg border border-theme-border bg-surface-muted px-4 py-3 text-right text-amount tabular-nums text-fg">
+                      {formatPrice(Number(field.value) || 0, currency)}
+                    </output>
                   </FormControl>
+                  <Numpad
+                    value={field.value ? String(field.value) : ""}
+                    onChange={field.onChange}
+                    hideActions
+                    maxDecimals={2}
+                    className="pt-2"
+                  />
                   <FormMessage />
                 </FormItem>
               )}
             />
 
-            <Button
-              type="submit"
-              disabled={isSubmitting}
-              className="w-full h-12 text-base text-white bg-primary hover:bg-primary/90"
-            >
+            <Button type="submit" size="xl" loading={isSubmitting} className="w-full">
               {isSubmitting
                 ? t("register.open.opening")
                 : t("register.open.submit")}

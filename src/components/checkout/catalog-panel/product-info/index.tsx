@@ -37,7 +37,7 @@ const ProductInfo: React.FC<Props> = ({ product, currency, onOpenVariants }) => 
       aria-label={t("checkout.catalog_choose_variant")}
       onClick={() => onOpenVariants(product)}
     >
-      <Info size={20} className="text-blue-600" />
+      <Info className="size-6 text-info-text" />
     </Button>
   );
 };

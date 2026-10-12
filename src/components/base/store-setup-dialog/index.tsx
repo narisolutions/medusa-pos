@@ -33,8 +33,7 @@ const StoreSetupDialog: React.FC = () => {
   const handleGoToSettings = () => {
     setNeedsSetup(false);
     void storage.setItem("store_setup_dismissed", true);
-    void storage.setItem("settings_tab", "store");
-    navigate(ROUTES.settings);
+    navigate(ROUTES.settingsSection("store"));
   };
 
   return (
@@ -54,7 +53,7 @@ const StoreSetupDialog: React.FC = () => {
             Remind me later
           </Button>
           <Button
-            className="bg-primary hover:bg-primary/90 text-white"
+            size="lg"
             onClick={handleGoToSettings}
           >
             Go to Store Settings

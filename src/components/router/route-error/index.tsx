@@ -25,15 +25,15 @@ const RouteError = ({ fullScreen = false }: RouteErrorProps) => {
       className={`flex w-full items-center justify-center p-6 ${fullScreen ? "min-h-screen bg-surface" : "h-full"}`}
     >
       <div className="w-full max-w-md text-center p-8 bg-surface border border-theme-border rounded-xl shadow-md">
-        <div className="flex items-center justify-center gap-3 text-orange-500 mb-3">
-          <Frown className="w-8 h-8" />
-          <p className="text-xl font-medium">{t("errors.something_went_wrong_title")}</p>
+        <div className="flex flex-col items-center justify-center gap-3 text-warning-text mb-3">
+          <Frown className="size-10" aria-hidden />
+          <p className="text-xl font-semibold text-fg">{t("errors.something_went_wrong_title")}</p>
         </div>
         <p className="text-base text-fg-muted mb-6">
           {t("errors.something_went_wrong_description")}
         </p>
-        <Button className="h-14 w-full text-lg" onClick={reloadApp}>
-          <RefreshCcw className="w-5 h-5 mr-2" />
+        <Button size="xl" className="w-full" onClick={reloadApp}>
+          <RefreshCcw className="size-5" />
           {t("errors.refresh_page_button")}
         </Button>
       </div>

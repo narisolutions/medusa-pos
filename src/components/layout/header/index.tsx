@@ -5,6 +5,7 @@ import { useHeader } from "./hooks";
 import { useQueryStore } from "@/hooks/queries/useQueryStore";
 import { getBrandName, getLogoUrl } from "@/utils/settings/store/metadata";
 import { useTranslation } from "@/i18n";
+import StatusIndicators from "./status-indicators";
 
 const Header: React.FC = () => {
   const [now, setNow] = useState(new Date());
@@ -45,9 +46,12 @@ const Header: React.FC = () => {
           </span>
         )}
       </div>
-      <div className="flex gap-1.5 items-center text-fg-muted">
-        <span>{formatDate(now)}</span>
-        <Calendar />
+      <div className="flex items-center gap-4">
+        <StatusIndicators />
+        <div className="flex gap-1.5 items-center text-base text-fg-muted">
+          <span>{formatDate(now)}</span>
+          <Calendar />
+        </div>
       </div>
     </header>
   );

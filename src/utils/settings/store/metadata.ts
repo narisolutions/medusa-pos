@@ -23,6 +23,15 @@ export type BankDetails = {
   iban?: string;
 };
 
+/** A product pinned to Checkout: one tap adds it. `label` shortens a long product name. */
+export type QuickKey = {
+  variant_id: string;
+  label?: string;
+};
+
+/** One row of large buttons above the cart; more would wrap or scroll. */
+export const MAX_QUICK_KEYS = 8;
+
 /** POS-specific store settings, nested under metadata.pos */
 export type PosMetadata = {
   brand_name?: string;
@@ -38,6 +47,7 @@ export type PosMetadata = {
   /** Who a transfer settlement is owed to; printed on the hand-off ticket. */
   transfer_counterparty?: string;
   bank_details?: BankDetails;
+  quick_keys?: QuickKey[];
 };
 
 /** Raw store metadata shape (may have pos object and/or legacy flat keys) */
@@ -92,7 +102,17 @@ export function getStoreMetadata(
     guest_customer_email: pos.guest_customer_email ?? raw.guest_customer_email,
     transfer_counterparty: pos.transfer_counterparty ?? raw.transfer_counterparty,
     bank_details: pos.bank_details,
+    quick_keys: pos.quick_keys,
   };
+}
+
+/** The store's quick keys, in order: well-formed ones only, at most MAX_QUICK_KEYS. */
+export function getQuickKeys(store: AdminStore | null | undefined): QuickKey[] {
+  const keys = getStoreMetadata(store).quick_keys;
+  if (!Array.isArray(keys)) return [];
+  return keys
+    .filter((key): key is QuickKey => typeof key?.variant_id === "string" && key.variant_id.length > 0)
+    .slice(0, MAX_QUICK_KEYS);
 }
 
 export function getBrandName(
@@ -204,7 +224,11 @@ const POS_METADATA_KEYS = new Set([
   "pos",
 ]);
 
-/** Build metadata payload with pos object, stripping legacy flat keys from top level */
+/**
+ * Build metadata payload with pos object, stripping legacy flat keys from top level.
+ * `pos` is merged over the saved one, so a screen that saves some settings (quick keys)
+ * never wipes the ones another screen owns; a key set to `undefined` is still removed.
+ */
 export function buildStoreMetadataPayload(
   existingMetadata: Record<string, unknown> | undefined,
   pos: PosMetadata
@@ -213,7 +237,8 @@ export function buildStoreMetadataPayload(
   const rest = Object.fromEntries(
     Object.entries(existing).filter(([key]) => !POS_METADATA_KEYS.has(key))
   );
-  return { ...rest, pos };
+  const savedPos = (existing.pos ?? {}) as PosMetadata;
+  return { ...rest, pos: { ...savedPos, ...pos } };
 }
 
 /**

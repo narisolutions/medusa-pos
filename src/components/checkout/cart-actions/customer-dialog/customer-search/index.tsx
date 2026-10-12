@@ -2,7 +2,7 @@
 import React, { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Loader2, User, X } from "lucide-react";
+import { Check, User, UserPlus, X } from "lucide-react";
 import { toast } from "sonner";
 import { useTranslation } from "@/i18n";
 import { AdminCustomer } from "@medusajs/types";
@@ -120,21 +120,19 @@ export const CustomerSearch: React.FC<CustomerSearchProps> = ({
           />
           <Button
             onClick={handleSearch}
-            disabled={isSearching || !searchTerm.trim()}
-            className="h-12 px-5 text-base text-white"
+            disabled={!searchTerm.trim()}
+            loading={isSearching}
+            className="px-5"
           >
-            {isSearching ? (
-              <Loader2 className="w-5 h-5 animate-spin" />
-            ) : (
-              t("checkout.customer_search_button")
-            )}
+            {t("checkout.customer_search_button")}
           </Button>
           <Button
             variant="outline"
             onClick={onStartCreate}
             disabled={isSearching}
-            className="h-12 px-5 text-base"
+            className="px-5"
           >
+            <UserPlus className="size-5" />
             {t("checkout.customer_create_button")}
           </Button>
         </div>
@@ -143,10 +141,10 @@ export const CustomerSearch: React.FC<CustomerSearchProps> = ({
       {/* Search Results */}
       {customers.length > 0 && (
         <div className="space-y-3">
-          <div className="text-sm font-semibold text-fg">
+          <div className="text-base font-semibold text-fg">
             {t("checkout.customer_results_title")}
           </div>
-          <div className="max-h-56 overflow-auto rounded-xl border border-theme-border bg-surface">
+          <div className="max-h-72 overflow-auto rounded-xl border border-theme-border bg-surface">
             {customers.map((c) => {
               const isSelected = selectedCustomer?.id === c.id;
               const name = [c.first_name, c.last_name]
@@ -159,29 +157,28 @@ export const CustomerSearch: React.FC<CustomerSearchProps> = ({
                   type="button"
                   onClick={() => handleSelectCustomer(c)}
                   disabled={isSearching}
-                  className={`w-full text-left px-4 py-3 border-b border-theme-border last:border-b-0 transition-colors ${
+                  aria-pressed={isSelected}
+                  className={`w-full min-h-tap-lg text-left px-4 py-3 border-b border-theme-border last:border-b-0 transition-colors cursor-pointer ${
                     isSelected
-                      ? "bg-blue-50 dark:bg-blue-900/30"
-                      : "bg-surface hover:bg-surface-hover"
+                      ? "bg-primary text-primary-foreground"
+                      : "bg-surface hover:bg-surface-hover active:bg-accent"
                   }`}
                 >
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="min-w-0">
-                      <div className="font-semibold text-fg truncate">
+                  <div className="flex items-center justify-between gap-3">
+                    <div className={`min-w-0 text-base ${isSelected ? "" : "text-fg-muted"}`}>
+                      <div className={`font-semibold truncate ${isSelected ? "" : "text-fg"}`}>
                         {name || c.email || c.id}
                       </div>
-                      <div className="text-sm text-muted-foreground truncate">
+                      <div className="truncate">
                         {c.email || "—"}
-                      </div>
-                      <div className="text-xs text-muted-foreground mt-1">
-                        {t("checkout.customer_phone_label")}
-                        {c.phone || "—"}
+                        {c.phone && ` • ${c.phone}`}
                       </div>
                     </div>
                     {isSelected ? (
-                      <div className="text-xs font-semibold text-blue-700 dark:text-blue-300 shrink-0">
+                      <span className="flex shrink-0 items-center gap-1 text-base font-semibold">
+                        <Check className="size-5" aria-hidden />
                         {t("checkout.customer_selected_badge")}
-                      </div>
+                      </span>
                     ) : null}
                   </div>
                 </button>
@@ -193,15 +190,15 @@ export const CustomerSearch: React.FC<CustomerSearchProps> = ({
 
       {/* Selected Customer Display */}
       {selectedCustomer && (
-        <div className="p-5 bg-green-50 border border-green-200 rounded-xl">
+        <div className="p-5 bg-success-subtle border border-success rounded-xl">
           <div className="flex items-start justify-between gap-4">
             <div className="flex items-start gap-4 min-w-0">
-              <User className="w-6 h-6 text-green-600 mt-0.5" />
+              <User className="size-6 text-success-text mt-0.5" />
               <div className="flex-1 min-w-0">
-                <div className="font-semibold text-green-900">
+                <div className="font-semibold text-success-text">
                   {t("checkout.customer_selected_title")}
                 </div>
-                <div className="text-base text-green-700 mt-1 space-y-1">
+                <div className="text-base text-fg mt-1 space-y-1">
                   <div>
                     {t("checkout.customer_email_label")}
                     {selectedCustomer.email || "—"}
@@ -213,7 +210,7 @@ export const CustomerSearch: React.FC<CustomerSearchProps> = ({
                       {selectedCustomer.last_name || ""}
                     </div>
                   ) : null}
-                  <div className="text-sm text-green-600 mt-1">
+                  <div>
                     {t("checkout.customer_phone_label")}
                     {selectedCustomer.phone || "-"}
                   </div>
@@ -229,10 +226,12 @@ export const CustomerSearch: React.FC<CustomerSearchProps> = ({
                 setHasSearched(false);
                 onCustomerClear?.();
               }}
-              className="h-9 px-3 shrink-0"
-              aria-label={t("common.delete")}
+              variant="ghost"
+              size="icon"
+              className="shrink-0"
+              aria-label={t("common.remove")}
             >
-              <X className="w-4 h-4" />
+              <X className="size-6" />
             </Button>
           </div>
         </div>
@@ -240,8 +239,8 @@ export const CustomerSearch: React.FC<CustomerSearchProps> = ({
 
       {/* No Results Found */}
       {hasSearched && !isSearching && searchTerm && customers.length === 0 && (
-        <div className="p-5 bg-yellow-50 border border-yellow-200 rounded-xl">
-          <div className="text-base text-yellow-800">
+        <div className="p-5 bg-warning-subtle border border-warning rounded-xl">
+          <div className="text-base text-warning-text">
             {t("checkout.customer_not_found_message")}
           </div>
         </div>

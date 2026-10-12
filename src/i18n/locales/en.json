@@ -34,14 +34,19 @@
     "back_to_orders": "Back to Orders",
     "pos": "POS",
     "processing": "Processing...",
-    "downloading": "Downloading..."
+    "downloading": "Downloading...",
+    "undo": "Undo"
   },
   "nav": {
     "pos": "POS",
     "orders": "Orders",
     "settings": "Settings",
     "logout": "Log out",
-    "parked": "Parked"
+    "parked": "Parked",
+    "collapse": "Collapse menu",
+    "logout_confirm_title": "Log out?",
+    "logout_confirm_message": "You'll need to sign in again to use the till.",
+    "logout_confirm_sale": "The current sale stays in the cart and will be there when you sign back in."
   },
   "auth": {
     "sign_in": "Sign in",
@@ -64,7 +69,9 @@
     "staging": "Staging",
     "production": "Production",
     "fullscreen_hint": "Press F11 to toggle fullscreen",
-    "api_url_host_placeholder": "api.example.com or localhost:9000"
+    "api_url_host_placeholder": "api.example.com or localhost:9000",
+    "show_password": "Show password",
+    "hide_password": "Hide password"
   },
   "checkout": {
     "add_item": "Add Item",
@@ -155,7 +162,6 @@
     "discount_type_label": "Discount Type",
     "discount_amount": "Amount",
     "discount_percentage": "Percentage",
-    "discount_value_label": "Discount Value ",
     "select_item_for_discount": "Please select an item to apply a discount.",
     "column_item": "Item",
     "column_sku": "SKU",
@@ -193,7 +199,6 @@
     "set_quantity_for_next_item": "Set quantity for next item added in cart",
     "item_added": "Added {{title}} to cart",
     "item_removed": "Removed {{title}} from cart",
-    "quantity_decreased": "Decreased quantity of {{title}}",
     "quantity_increased": "Increased quantity of {{title}}",
     "select_payment_method": "Please select a payment method before proceeding to checkout.",
     "region_channel_missing": "Region or sales channel information is missing.",
@@ -202,7 +207,6 @@
     "no_default_printer": "No default printer is set. Add one under Settings → Printers.",
     "cannot_add_to_cart": "Cannot add item to cart",
     "no_sales_channel_configured": "No sales channel configured",
-    "product_not_found": "Product not found",
     "product_not_for_sale": "{{title}} is not for sale.",
     "items_not_for_sale_one": "{{names}} is no longer for sale. Remove it from the cart to continue.",
     "items_not_for_sale_other": "{{names}} are no longer for sale. Remove them from the cart to continue.",
@@ -247,7 +251,17 @@
     "park_name_optional": "optional",
     "products_load_failed": "Couldn't load the products.",
     "products_load_failed_hint": "This is usually the connection. It loads again by itself when the server is reachable.",
-    "fulfillment_failed_order_created": "The order was created, but the items could not be marked as handed over: {{reason}}"
+    "fulfillment_failed_order_created": "The order was created, but the items could not be marked as handed over: {{reason}}",
+    "cart_cleared": "Cart cleared",
+    "pay_blocked_out_of_stock": "Remove out-of-stock items to take payment",
+    "scan_not_found": "No product with barcode {{barcode}}",
+    "catalog_view": "View",
+    "discount_remove": "Remove discount",
+    "sale_complete": "Sale complete",
+    "sale_outstanding": "Delivered — payment outstanding",
+    "new_sale": "New sale",
+    "new_sale_hint": "Scanning the next item also starts a new sale.",
+    "quick_keys_label": "Quick keys"
   },
   "orders": {
     "search_placeholder": "Search orders...",
@@ -450,8 +464,6 @@
       "warn_fulfil_failed": "The items were added but not marked as handed over. Fulfil them from the order page.",
       "warn_settle_failed": "The items were added but the payment was not recorded. Use Record payment.",
       "add_success": "Items added, {{amount}} taken",
-      "decrease": "Decrease quantity",
-      "increase": "Increase quantity",
       "return_title": "Return items",
       "return_description": "Choose what comes back, and whether each item can be sold again.",
       "return_restock": "Back to stock",
@@ -485,7 +497,18 @@
       "add_success_unpaid": "Items added to what the customer owes",
       "add_authorized_warning": "The customer's earlier payment authorization will be cancelled. The whole amount must be paid again."
     },
-    "item_returned": "Returned"
+    "item_returned": "Returned",
+    "status_pending": "Pending",
+    "status_completed": "Completed",
+    "status_draft": "Draft",
+    "status_archived": "Archived",
+    "status_requires_action": "Needs action",
+    "status_not_paid": "Not paid",
+    "status_authorized": "Authorized",
+    "status_partially_authorized": "Partially authorized",
+    "status_partially_refunded": "Partially refunded",
+    "filter_to_fulfil": "To fulfil",
+    "quick_filter_label": "Show"
   },
   "parked": {
     "title": "Parked sales",
@@ -626,7 +649,22 @@
       },
       "cash_rounding": "Cash rounding",
       "cash_rounding_description": "Round cash payments to the nearest increment. Card and other payments stay exact.",
-      "cash_rounding_increment": "Rounding increment"
+      "cash_rounding_increment": "Rounding increment",
+      "display_size": "Display size",
+      "display_size_compact": "Compact",
+      "display_size_standard": "Standard",
+      "display_size_large": "Large",
+      "display_size_hint": "Scales text and buttons on this till only. Larger is easier to read and tap; compact fits more on a small screen.",
+      "sounds": "Sounds",
+      "sound_preview": "Play this sound",
+      "sound_scan": "Item scanned",
+      "sound_scan_hint": "A short beep when an item is added.",
+      "sound_scanError": "Scan failed",
+      "sound_scanError_hint": "Two low buzzes when a barcode isn't found or can't be added.",
+      "sound_sale": "Sale completed",
+      "sound_sale_hint": "Two rising beeps when a payment goes through.",
+      "sound_error": "Error",
+      "sound_error_hint": "A low buzz when something else goes wrong, e.g. a payment fails."
     },
     "printer": {
       "title": "Printers",
@@ -769,12 +807,10 @@
       "provider_id_placeholder": "Provider ID",
       "provider_choose": "Choose a provider",
       "display_name_placeholder": "Display name",
-      "icon_label": "Icon",
       "icon_cash": "Cash",
       "icon_card": "Card",
       "icon_transfer": "Internal transfer",
       "icon_bank_transfer": "Bank transfer",
-      "type_label": "Type",
       "type_cash": "Cash",
       "type_card": "Card",
       "type_transfer": "Internal transfer",
@@ -789,8 +825,6 @@
       "provider_picker_description": "The payment providers your Medusa backend has. The till's own end in _pos.",
       "provider_group_till": "Till payment methods",
       "provider_group_other": "Other providers (web shop, delivery)",
-      "provider_show_other": "Show other providers ({{count}})",
-      "provider_hide_other": "Hide other providers",
       "provider_in_use": "in use",
       "provider_current": "current",
       "add_payment_method_button": "Add payment method",
@@ -804,10 +838,10 @@
       "saved": "Store settings saved",
       "logo_load_error": "Failed to load logo image",
       "logo_preview_alt": "Logo preview",
-      "remove_payment_method_aria": "Remove payment method",
       "pick_logo_dialog_title": "Select Store Logo",
       "pick_logo_filter_name": "Image",
-      "logo_too_large": "Logo image must be smaller than 256 KB"
+      "logo_too_large": "Logo image must be smaller than 256 KB",
+      "payment_method_enabled": "Shown at checkout"
     },
     "scanner": {
       "title": "Scanner",
@@ -836,12 +870,30 @@
       "test_terminator": "ended by",
       "open_failed": "Could not open the scanner port",
       "reader_stopped": "Scanner disconnected",
-      "save_failed": "Failed to save scanner settings"
+      "save_failed": "Failed to save scanner settings",
+      "wedge_test_hint": "Scan any barcode while this page is open. If the code shows here, the scanner works.",
+      "wedge_test_read": "Scan {{count}} · {{time}}"
     },
     "plugins": {
       "title": "Plugins",
       "description": "Connected POS plugins. Each plugin manages its own connection and preferences here.",
       "empty": "No plugins installed."
+    },
+    "unsaved_changes": "Unsaved changes",
+    "discard_changes": "Discard",
+    "quick_keys": {
+      "title": "Quick keys",
+      "description": "Up to {{count}} products shown as large buttons above the cart at Checkout, for items without a barcode or sold all the time. Shared by every till in this store.",
+      "empty": "No quick keys yet",
+      "add_hint": "Search or scan a product above to add it.",
+      "already_added": "This product is already a quick key.",
+      "max_reached": "Up to {{count}} quick keys. Remove one to add another.",
+      "unavailable": "Not available on this till (unpublished or another sales channel).",
+      "name_label": "Button name",
+      "name_placeholder": "Button name (optional, short)",
+      "move_up": "Move up",
+      "move_down": "Move down",
+      "saved": "Quick keys saved"
     }
   },
   "errors": {
@@ -875,12 +927,12 @@
     "restored_offline": "Can't reach the server — using your saved session."
   },
   "pagination": {
-    "first_page": "First",
-    "previous_page": "Previous",
+    "first_page": "First page",
+    "previous_page": "Previous page",
     "page_label": "Page",
     "of": "of",
-    "next_page": "Next",
-    "last_page": "Last",
+    "next_page": "Next page",
+    "last_page": "Last page",
     "rows_per_page": "Rows per page:"
   },
   "printer_service": {
@@ -962,5 +1014,23 @@
       "description": "Resume the current shift so you can keep selling. The opening float and cash movements are kept.",
       "submit": "Reopen register"
     }
+  },
+  "ui": {
+    "numpad_clear": "Clear",
+    "numpad_done": "Done",
+    "numpad_backspace": "Delete last digit (hold to clear)",
+    "stepper_decrease": "Decrease",
+    "stepper_increase": "Increase",
+    "clear_input": "Clear",
+    "toggle_keyboard": "Show or hide the on-screen keyboard",
+    "search": "Search"
+  },
+  "status": {
+    "online": "Online",
+    "offline": "Offline",
+    "checking": "Checking…",
+    "recheck": "Check the connection again",
+    "register_open": "Register open",
+    "register_closed": "Register closed"
   }
 }

@@ -56,7 +56,7 @@ const Summary: React.FC<SummaryProps> = ({ order }) => {
             <p className="text-base text-fg-muted">{t("orders.discount_label")}</p>
           <div
             className={`text-lg font-semibold ${
-              displayed_discount > 0 ? "text-red-600" : "text-fg"
+              displayed_discount > 0 ? "text-success-text" : "text-fg"
             }`}
           >
             {displayed_discount > 0 ? "-" : ""}

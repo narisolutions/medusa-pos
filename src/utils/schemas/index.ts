@@ -78,6 +78,7 @@ export default {
     symbolPosition: z.enum(["before", "after"]),
     decimalSeparator: z.enum(["dot", "comma"]),
     startFullscreen: z.boolean(),
+    displaySize: z.enum(["compact", "standard", "large"]),
     themeMode: z.enum(["light", "dark", "system"]),
     language: z.enum(["en", "ka", "pl", "es", "fr", "de", "sv", "system"]),
     registerEnabled: z.boolean(),
@@ -85,6 +86,10 @@ export default {
     registerDiscrepancyThreshold: z.coerce.number().min(0),
     cashRoundingEnabled: z.boolean(),
     cashRoundingIncrement: z.coerce.number().positive(),
+    soundScan: z.boolean(),
+    soundScanError: z.boolean(),
+    soundSale: z.boolean(),
+    soundError: z.boolean(),
   }),
 
   // Register (cash reconciliation) dialogs. Amounts arrive from numeric inputs as

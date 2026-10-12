@@ -20,7 +20,8 @@ import {
 import { useOrdersWithData } from "./hooks";
 import Header from "./table-header";
 import Footer from "./table-footer";
-import { Button } from "@/components/ui/button";
+import { EmptyState, ErrorState, LoadingState } from "@/components/ui/state-panel";
+import { ChevronRight, ReceiptText } from "lucide-react";
 import { useTranslation } from "@/i18n";
 import { ROUTES } from "@/router/routes";
 
@@ -53,6 +54,8 @@ const Orders: React.FC = () => {
     getFilteredRowModel: getFilteredRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     state: {
+      // Filtered on, not shown: the order page has them, the counter needs the rest.
+      columnVisibility: { status: false, sales_channel: false },
       globalFilter,
       columnFilters,
       pagination: {
@@ -153,6 +156,7 @@ const Orders: React.FC = () => {
                           )}
                     </TableHead>
                   ))}
+                  <TableHead className="w-10" />
                 </TableRow>
               ))}
             </TableHeader>
@@ -161,7 +165,7 @@ const Orders: React.FC = () => {
                 table.getRowModel().rows.map((row) => (
                   <Fragment key={row.id}>
                     <TableRow
-                      className="border-b border-theme-border hover:bg-surface-hover cursor-pointer"
+                      className="border-b border-theme-border hover:bg-surface-hover active:bg-accent cursor-pointer"
                       onClick={() => handleRowClick(row.original.id)}
                     >
                       {row.getVisibleCells().map((cell) => (
@@ -178,30 +182,28 @@ const Orders: React.FC = () => {
                           )}
                         </TableCell>
                       ))}
+                      <TableCell className="w-10 pr-6">
+                        <ChevronRight aria-hidden className="size-5 text-fg-subtle" />
+                      </TableCell>
                     </TableRow>
                   </Fragment>
                 ))
               ) : (
                 <TableRow className="border-0 hover:bg-transparent">
                   <TableCell
-                    colSpan={columns.length}
+                    colSpan={columns.length + 1}
                     className="text-center text-base text-fg-muted h-96 align-middle"
                   >
                     {isLoading ? (
-                      <div className="flex items-center justify-center gap-3">
-                        <div className="w-5 h-5 border-2 border-theme-border border-t-theme-border-strong rounded-full animate-spin"></div>
-                        <span className="text-base">{t("orders.loading")}</span>
-                      </div>
+                      <LoadingState label={t("orders.loading")} />
                     ) : loadFailed ? (
-                      <div className="flex flex-col items-center justify-center gap-4">
-                        <p className="text-lg font-medium text-fg">{t("orders.load_failed")}</p>
-                        <p className="text-base text-fg-muted">{t("orders.load_failed_hint")}</p>
-                        <Button onClick={() => void refetch()} className="h-12 px-8">
-                          {t("common.retry")}
-                        </Button>
-                      </div>
+                      <ErrorState
+                        title={t("orders.load_failed")}
+                        hint={t("orders.load_failed_hint")}
+                        onRetry={() => void refetch()}
+                      />
                     ) : (
-                      <span className="text-base">{t("orders.empty_state")}</span>
+                      <EmptyState icon={<ReceiptText />} title={t("orders.empty_state")} />
                     )}
                   </TableCell>
                 </TableRow>

@@ -3,7 +3,6 @@ import { useChange } from "@/hooks/utils/useChange";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useSalesChannel } from "@/context/sales-channel";
 import { useUser } from "@/context/user";
-import storage from "@/utils/storage";
 import {
   Dialog,
   DialogContent,
@@ -31,10 +30,9 @@ const SalesChannelWarningDialog: React.FC = () => {
   const isCheckoutPage = pathname.startsWith(ROUTES.checkout);
   const open = isAuthenticated && !dismissed && (needsWarning || (!salesChannelId && isCheckoutPage));
 
-  const handleGoToSettings = async () => {
+  const handleGoToSettings = () => {
     setNeedsWarning(false);
-    await storage.setItem("settings_tab", "connection");
-    navigate(ROUTES.settings);
+    navigate(ROUTES.settingsSection("connection"));
   };
 
   const handleContinueAnyway = () => {
@@ -58,7 +56,7 @@ const SalesChannelWarningDialog: React.FC = () => {
             Continue Anyway
           </Button>
           <Button
-            className="bg-primary hover:bg-primary/90 text-white"
+            size="lg"
             onClick={handleGoToSettings}
           >
             Go to Settings

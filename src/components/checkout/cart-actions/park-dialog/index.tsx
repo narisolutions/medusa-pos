@@ -1,5 +1,4 @@
 import React, { useRef, useState } from "react";
-import { Loader2 } from "lucide-react";
 import { useChange } from "@/hooks/utils/useChange";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -53,7 +52,7 @@ const ParkModal: React.FC<Props> = ({ open, onClose }) => {
           {t("checkout.park_dialog_title")}
         </DialogTitle>
         <div className="space-y-6">
-          <p className="text-base text-muted-foreground">
+          <p className="text-base text-fg-muted">
             {t("checkout.park_dialog_description")}
           </p>
 
@@ -65,7 +64,7 @@ const ParkModal: React.FC<Props> = ({ open, onClose }) => {
               className="flex items-baseline gap-2 text-base font-medium text-fg"
             >
               {t("checkout.park_name_label")}
-              <span className="text-sm font-normal text-muted-foreground">
+              <span className="text-base font-normal text-fg-muted">
                 {t("checkout.park_name_optional")}
               </span>
             </label>
@@ -79,25 +78,13 @@ const ParkModal: React.FC<Props> = ({ open, onClose }) => {
                 if (e.key === "Enter") void park(label);
               }}
               placeholder={t("checkout.park_label_placeholder")}
-              className="text-base"
+              clearable
             />
           </div>
 
           <div className="flex flex-col gap-3 pt-2">
-            <Button
-              size="lg"
-              disabled={isParking}
-              onClick={() => void park(label)}
-              className="bg-primary hover:bg-primary/90 text-white"
-            >
-              {isParking ? (
-                <span className="flex items-center justify-center gap-2">
-                  <Loader2 className="size-5 animate-spin" />
-                  {t("checkout.parking")}
-                </span>
-              ) : (
-                t("checkout.park_confirm_button")
-              )}
+            <Button size="lg" loading={isParking} onClick={() => void park(label)}>
+              {isParking ? t("checkout.parking") : t("checkout.park_confirm_button")}
             </Button>
             <Button
               size="lg"

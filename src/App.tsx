@@ -24,7 +24,11 @@ function AppContent() {
   return (
     <>
       <RouterProvider router={router} />
-      <Toaster richColors position="top-right" />
+      {/* Near the hands and the till's work, readable at arm's length (docs/ui-ux). */}
+      <Toaster richColors position="bottom-center" visibleToasts={3} toastOptions={{
+          // Sonner's 24px action button is too small to tap; Undo must be easy to hit.
+          classNames: { toast: "text-base!", title: "text-base!", actionButton: "h-11! px-4! text-base! rounded-md!" },
+        }} />
     </>
   );
 }

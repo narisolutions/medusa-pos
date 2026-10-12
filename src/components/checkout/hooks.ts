@@ -113,6 +113,8 @@ const useProvideCheckout = (): CheckoutContextValue => {
   const setItemMetadata = useCartStore((state) => state.setItemMetadata);
   const metadata = useCartStore((state) => state.metadata);
   const updateMetadata = useCartStore((state) => state.updateMetadata);
+  const setItems = useCartStore((state) => state.setItems);
+  const setCartMetadata = useCartStore((state) => state.setCartMetadata);
 
   const {
     isLoading,
@@ -131,15 +133,26 @@ const useProvideCheckout = (): CheckoutContextValue => {
 
   const handleRemoveItem = useCallback(
     (itemId: string) => {
-      const currentItem = items.find(
+      const index = items.findIndex(
         (item: CartItem) => item.variant_id === itemId
       );
+      const currentItem = items[index];
 
       removeItem(itemId);
 
-      toast.success(t("checkout.item_removed", { title: currentItem?.title || "item" }));
+      toast.success(t("checkout.item_removed", { title: currentItem?.title || "item" }), {
+        action: currentItem && {
+          label: t("common.undo"),
+          onClick: () => {
+            // Put the line back where it was, keeping anything scanned since.
+            const now = useCartStore.getState().items;
+            if (now.some((item) => item.variant_id === itemId)) return;
+            setItems([...now.slice(0, index), currentItem, ...now.slice(index)]);
+          },
+        },
+      });
     },
-    [items, removeItem, t]
+    [items, removeItem, setItems, t]
   );
 
   const handleQuantityChange = useCallback(
@@ -159,18 +172,11 @@ const useProvideCheckout = (): CheckoutContextValue => {
 
       try {
         updateItemQuantity(itemId, newQuantity);
-        
-        const message =
-          delta < 0
-            ? t("checkout.quantity_decreased", { title: currentItem.title })
-            : t("checkout.quantity_increased", { title: currentItem.title });
-
-        toast.success(message);
       } catch (error) {
         handleErrorToast((error as Error).message);
       }
     },
-    [handleRemoveItem, items, updateItemQuantity, t]
+    [handleRemoveItem, items, updateItemQuantity]
   );
 
   const handleOpenModal = useCallback(async () => {
@@ -214,12 +220,26 @@ const useProvideCheckout = (): CheckoutContextValue => {
   );
 
   const handleClearItems = useCallback(async () => {
+    const snapshotItems = items;
+    const snapshotMetadata = metadata;
     clearItems();
+
+    toast.success(t("checkout.cart_cleared"), {
+      action: {
+        label: t("common.undo"),
+        onClick: () => {
+          // The draft is already deleted, so Undo restores a fresh sale; only into an empty cart.
+          if (useCartStore.getState().items.length > 0) return;
+          setItems(snapshotItems);
+          setCartMetadata(snapshotMetadata);
+        },
+      },
+    });
 
     if (draftOrderId) {
       await deleteDraftOrder();
     }
-  }, [clearItems, deleteDraftOrder, draftOrderId]);
+  }, [clearItems, deleteDraftOrder, draftOrderId, items, metadata, setItems, setCartMetadata, t]);
 
   const getTotal = useCallback(() => getTotalPrice(), [getTotalPrice]);
 

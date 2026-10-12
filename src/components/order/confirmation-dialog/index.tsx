@@ -24,8 +24,8 @@ const PickupConfirmationDialog: React.FC<PickupConfirmationDialogProps> = ({
     <Dialog open={isOpen} onOpenChange={(open) => !open && !isProcessing && onClose()}>
       <DialogContent className="max-w-md" preventOutsideClose={isProcessing}>
         <div className="flex flex-col items-center text-center space-y-4">
-          <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center">
-            <Package className="w-8 h-8 text-green-600" />
+          <div className="size-16 bg-success-subtle rounded-full flex items-center justify-center">
+            <Package className="size-8 text-success-text" />
           </div>
           
           <DialogTitle className="text-2xl font-bold text-fg">
@@ -36,7 +36,7 @@ const PickupConfirmationDialog: React.FC<PickupConfirmationDialogProps> = ({
             <p className="text-base text-fg-muted">
               {t("orders.confirm_pickup_message", { orderId: orderDisplayId })}
             </p>
-            <p className="text-sm text-fg-muted">
+            <p className="text-base text-fg-muted">
               {t("orders.confirm_pickup_irreversible")}
             </p>
           </div>
@@ -47,16 +47,13 @@ const PickupConfirmationDialog: React.FC<PickupConfirmationDialogProps> = ({
             variant="outline"
             onClick={onClose}
             disabled={isProcessing}
-            className="flex-1 h-16 text-lg font-semibold touch-manipulation"
+            size="xl"
+            className="flex-1"
           >
             {t("common.cancel")}
           </Button>
-          <Button
-            onClick={onConfirm}
-            disabled={isProcessing}
-            className="flex-1 h-16 text-lg font-semibold bg-green-600 hover:bg-green-700 text-white touch-manipulation"
-          >
-            <CheckCircle className="w-6 h-6 mr-2" />
+          <Button variant="success" size="xl" onClick={onConfirm} loading={isProcessing} className="flex-1">
+            {!isProcessing && <CheckCircle className="size-6" />}
             {isProcessing ? t("orders.marking") : t("orders.confirm_pickup_button")}
           </Button>
         </DialogFooter>

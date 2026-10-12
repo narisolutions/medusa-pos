@@ -1,5 +1,5 @@
 import React from "react";
-import { Search, X, RefreshCw } from "lucide-react";
+import { Search, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useTranslation } from "@/i18n";
@@ -26,25 +26,17 @@ const Header: React.FC<Props> = ({
 
       <div className="flex items-center gap-3">
         <div className="relative flex-1 md:w-96">
-          <Search className="absolute left-3 top-1/2 size-5 -translate-y-1/2 text-fg-muted" />
+          <Search className="pointer-events-none absolute left-3 top-1/2 size-5 -translate-y-1/2 text-fg-muted" />
           <Input
             value={filters.search}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
               onFiltersChange({ ...filters, search: e.target.value })
             }
             placeholder={t("parked.search_placeholder")}
-            className="pl-10 pr-10 text-base"
+            aria-label={t("parked.search_placeholder")}
+            clearable
+            className="pl-10 text-base"
           />
-          {filters.search && (
-            <button
-              type="button"
-              aria-label={t("common.remove")}
-              onClick={() => onFiltersChange({ ...filters, search: "" })}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-fg-muted hover:text-fg"
-            >
-              <X className="size-5" />
-            </button>
-          )}
         </div>
 
         {onRefresh && (

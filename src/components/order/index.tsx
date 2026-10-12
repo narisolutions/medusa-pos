@@ -14,7 +14,7 @@ import {
   ArrowLeftRight,
 } from "lucide-react";
 import { formatDate } from "@/utils/helpers";
-import constants from "@/utils/constants";
+import OrderStatusChip from "@/components/base/order-status-chip";
 import { useOrder } from "./hooks";
 import { useTranslation } from "@/i18n";
 import FulfillmentDialog from "./fulfillment-dialog";
@@ -38,10 +38,6 @@ interface Props {
 const Order: React.FC<Props> = ({ order }) => {
   const { t } = useTranslation();
   const {
-    getStatusColor,
-    getFulfillmentStatusColor,
-    getPaymentStatusColor,
-    formatStatusText,
     handleBackToOrders,
     handleReprintReceipt,
     handlePrintHandoffTicket,
@@ -87,84 +83,81 @@ const Order: React.FC<Props> = ({ order }) => {
   const { display_id, created_at, status, payment_status, fulfillment_status } =
     order;
 
-    return (
+  return (
     <div className="bg-surface p-10 rounded-lg space-y-6 h-full flex flex-col">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <Button
-            variant="outline"
-            size="lg"
-            onClick={handleBackToOrders}
-            className={`text-fg-muted hover:text-fg hover:bg-surface-hover border-theme-border ${constants.ORDER_BUTTON_LG_CLASSES}`}
-          >
-            <ArrowLeft className="w-5 h-5 mr-3" />
-            {t("common.back_to_orders")}
-          </Button>
-          <div>
-            <h1 className="text-2xl font-bold text-fg">
-              {t("orders.order_title", { id: display_id })}
-            </h1>
-            <p className="text-fg-muted text-sm">
-              {t("orders.created_label")} {formatDate(created_at)}
-            </p>
-          </div>
+      <div className="flex flex-wrap items-center gap-4">
+        <Button variant="outline" size="lg" onClick={handleBackToOrders} className="px-5">
+          <ArrowLeft className="size-5" />
+          {t("common.back_to_orders")}
+        </Button>
+        <div className="min-w-0">
+          <h1 className="text-2xl font-bold text-fg">
+            {t("orders.order_title", { id: display_id })}
+          </h1>
+          <p className="text-base text-fg-muted">
+            {t("orders.created_label")} {formatDate(created_at)}
+          </p>
         </div>
-        <div className="flex items-center gap-3">
-          {canRecordPayment && (
+        <div className="flex flex-wrap items-center gap-2">
+          <OrderStatusChip kind="order" status={status} />
+          <OrderStatusChip kind="payment" status={payment_status} />
+          <OrderStatusChip kind="fulfillment" status={fulfillment_status} />
+        </div>
+      </div>
+
+      {/* Grouped by what they act on: money, goods, paper. */}
+      <div className="flex flex-wrap items-center gap-3">
+        {canRecordPayment && (
+          <Button size="lg" onClick={() => setIsRecordPaymentOpen(true)} className="px-6">
+            <Banknote className="size-5" />
+            {t("orders.record_payment")}
+          </Button>
+        )}
+        {canMarkAsPickedUp && (
+          <Button variant="success" size="lg" onClick={handleOpenPickupConfirmation} loading={isMarkingAsPickedUp} className="px-6">
+            {!isMarkingAsPickedUp && <CheckCircle className="size-5" />}
+            {t("orders.mark_picked_up_button")}
+          </Button>
+        )}
+        {canCreateShipment && (
+          <Button size="lg" onClick={handleCreateShipment} loading={isCreatingShipment} className="px-6">
+            {!isCreatingShipment && <Truck className="size-5" />}
+            {isCreatingShipment ? t("orders.creating_shipment") : t("orders.create_shipment_button")}
+          </Button>
+        )}
+        {canPostSale && (
+          <Button variant="outline" size="lg" onClick={() => setIsPostSaleChooserOpen(true)} className="px-6">
+            <ArrowLeftRight className="size-5" />
+            {t("orders.post_sale.button")}
+          </Button>
+        )}
+        {canRefund && (
+          <Button variant="outline" size="lg" onClick={() => setIsRefundOpen(true)} className="px-6 border-danger text-danger-text">
+            <RotateCcw className="size-5" />
+            {t("orders.refund")}
+          </Button>
+        )}
+
+        <div className="ml-auto flex flex-wrap items-center gap-3">
+          <Button variant="outline" size="lg" onClick={handleReprintReceipt} disabled={isDownloadingPDF} loading={isPrinting} className="px-5">
+            {!isPrinting && <Printer className="size-5" />}
+            {isPrinting ? t("orders.printing") : t("orders.print_receipt_button")}
+          </Button>
+          <Button variant="outline" size="lg" onClick={handleDownloadReceiptPDF} disabled={isPrinting} loading={isDownloadingPDF} className="px-5">
+            {!isDownloadingPDF && <FileDown className="size-5" />}
+            {isDownloadingPDF ? t("common.downloading") : t("orders.download_pdf_button")}
+          </Button>
+          {isTransferOrder && (
             <Button
-              variant="default"
+              variant="outline"
               size="lg"
-              onClick={() => setIsRecordPaymentOpen(true)}
-              className={`bg-amber-600 hover:bg-amber-700 text-white ${constants.ORDER_BUTTON_BASE_CLASSES} min-w-[180px]`}
+              onClick={handlePrintHandoffTicket}
+              disabled={isPrinting || isDownloadingPDF}
+              loading={isPrintingTicket}
+              className="px-5"
             >
-              <Banknote className="w-5 h-5 mr-3" />
-              {t("orders.record_payment")}
-            </Button>
-          )}
-          {canPostSale && (
-            <Button
-              variant="default"
-              size="lg"
-              onClick={() => setIsPostSaleChooserOpen(true)}
-              className={`bg-primary hover:bg-primary/90 text-white ${constants.ORDER_BUTTON_BASE_CLASSES} min-w-[180px]`}
-            >
-              <ArrowLeftRight className="w-5 h-5 mr-3" />
-              {t("orders.post_sale.button")}
-            </Button>
-          )}
-          {canRefund && (
-            <Button
-              variant="default"
-              size="lg"
-              onClick={() => setIsRefundOpen(true)}
-              className={`bg-red-600 hover:bg-red-700 text-white ${constants.ORDER_BUTTON_BASE_CLASSES} min-w-[180px]`}
-            >
-              <RotateCcw className="w-5 h-5 mr-3" />
-              {t("orders.refund")}
-            </Button>
-          )}
-          {canCreateShipment && (
-            <Button
-              variant="default"
-              size="lg"
-              onClick={handleCreateShipment}
-              disabled={isCreatingShipment}
-              className={`bg-blue-600 hover:bg-blue-700 text-white ${constants.ORDER_BUTTON_BASE_CLASSES} min-w-[180px]`}
-            >
-              <Truck className="w-5 h-5 mr-3" />
-              {isCreatingShipment ? t("orders.creating_shipment") : t("orders.create_shipment_button")}
-            </Button>
-          )}
-          {canMarkAsPickedUp && (
-            <Button
-              variant="default"
-              size="lg"
-              onClick={handleOpenPickupConfirmation}
-              disabled={isMarkingAsPickedUp}
-              className={`bg-green-600 hover:bg-green-700 text-white ${constants.ORDER_BUTTON_BASE_CLASSES} min-w-[180px]`}
-            >
-              <CheckCircle className="w-5 h-5 mr-3" />
-              {t("orders.mark_picked_up_button")}
+              {!isPrintingTicket && <QrCode className="size-5" />}
+              {isPrintingTicket ? t("orders.printing") : t("handoff.print_action")}
             </Button>
           )}
           {canDownloadShippingLabel && (
@@ -172,82 +165,21 @@ const Order: React.FC<Props> = ({ order }) => {
               variant="outline"
               size="lg"
               onClick={handleDownloadShippingLabel}
-              disabled={isDownloading || isNegativeFulfillmentStatus}
-              className={`border-theme-border text-fg-muted hover:text-fg hover:bg-surface-hover ${constants.ORDER_BUTTON_BASE_CLASSES} min-w-[200px]`}
+              disabled={isNegativeFulfillmentStatus}
+              loading={isDownloading}
+              className="px-5"
             >
-              <Download className="w-5 h-5 mr-3" />
+              {!isDownloading && <Download className="size-5" />}
               {isDownloading ? t("common.downloading") : t("orders.download_shipping_label_button")}
             </Button>
           )}
-          <div className="flex items-center gap-2">
-            <Button
-              variant="outline"
-              size="lg"
-              onClick={handleReprintReceipt}
-              disabled={isPrinting || isDownloadingPDF}
-              className={`border-theme-border text-fg-muted hover:text-fg hover:bg-surface-hover ${constants.ORDER_BUTTON_BASE_CLASSES} min-w-[200px]`}
-            >
-              <Printer className="w-5 h-5 mr-3" />
-              {isPrinting ? t("orders.printing") : t("orders.print_receipt_button")}
-            </Button>
-            <Button
-              variant="outline"
-              size="lg"
-              onClick={handleDownloadReceiptPDF}
-              disabled={isDownloadingPDF || isPrinting}
-              className={`border-theme-border text-fg-muted hover:text-fg hover:bg-surface-hover ${constants.ORDER_BUTTON_BASE_CLASSES} min-w-[200px]`}
-            >
-              <FileDown className="w-5 h-5 mr-3" />
-              {isDownloadingPDF ? t("common.downloading") : t("orders.download_pdf_button")}
-            </Button>
-            {isTransferOrder && (
-              <Button
-                variant="outline"
-                size="lg"
-                onClick={handlePrintHandoffTicket}
-                disabled={isPrintingTicket || isPrinting || isDownloadingPDF}
-                className={`border-theme-border text-fg-muted hover:text-fg hover:bg-surface-hover ${constants.ORDER_BUTTON_BASE_CLASSES} min-w-[200px]`}
-              >
-                <QrCode className="w-5 h-5 mr-3" />
-                {isPrintingTicket ? t("orders.printing") : t("handoff.print_action")}
-              </Button>
-            )}
-          </div>
-          <div className="flex items-center gap-2">
-            <span
-              className={`${getStatusColor(status)} w-3 h-3 rounded-full shrink-0`}
-            />
-            <span className="text-sm font-medium text-fg-muted">
-              {formatStatusText(status)}
-            </span>
-          </div>
-          <div className="flex items-center gap-2">
-            <span
-              className={`${getFulfillmentStatusColor(fulfillment_status)} w-3 h-3 rounded-full shrink-0`}
-            />
-            <span className="text-sm font-medium text-fg-muted">
-              {formatStatusText(fulfillment_status)}
-            </span>
-          </div>
-          <div className="flex items-center gap-2">
-            <span
-              className={`${getPaymentStatusColor(payment_status)} w-3 h-3 rounded-full shrink-0`}
-            />
-            <span className="text-sm font-medium text-fg-muted">
-              {formatStatusText(payment_status)}
-            </span>
-          </div>
         </div>
       </div>
 
       <div className="flex-1 flex flex-col gap-6 overflow-hidden">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 shrink-0">
           <Summary order={order} />
-          <Details
-            order={order}
-            getPaymentStatusColor={getPaymentStatusColor}
-            formatStatusText={formatStatusText}
-          />
+          <Details order={order} />
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 flex-1 min-h-0 overflow-hidden">

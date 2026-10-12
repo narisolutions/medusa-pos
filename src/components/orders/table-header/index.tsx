@@ -1,5 +1,6 @@
 import React from "react";
-import { Search, X, RefreshCw } from "lucide-react";
+import { Search, RefreshCw } from "lucide-react";
+import { SegmentedControl } from "@/components/ui/segmented-control";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -65,6 +66,25 @@ const Header: React.FC<Props> = ({
     });
   };
 
+  // One-tap views over the same filters; anything else set by hand selects none of them.
+  type QuickView = "all" | "unpaid" | "to_fulfil" | "custom";
+  const quickView: QuickView =
+    !filters.payment_status && !filters.fulfillment_status
+      ? "all"
+      : filters.payment_status === "not_paid" && !filters.fulfillment_status
+        ? "unpaid"
+        : filters.fulfillment_status === "not_fulfilled" && !filters.payment_status
+          ? "to_fulfil"
+          : "custom";
+
+  const onQuickViewChange = (view: QuickView) => {
+    onFiltersChange({
+      ...filters,
+      payment_status: view === "unpaid" ? "not_paid" : "",
+      fulfillment_status: view === "to_fulfil" ? "not_fulfilled" : "",
+    });
+  };
+
   const clearAllFilters = () => {
     onFiltersChange({
       search: "",
@@ -75,54 +95,50 @@ const Header: React.FC<Props> = ({
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row gap-6 items-start sm:items-center justify-between">
-        <div className="flex items-center gap-4 flex-1">
-          <div className="relative flex-1 max-w-md">
-            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-fg-subtle h-5 w-5" />
-            <Input
-              placeholder={t("orders.search_placeholder")}
-              value={filters.search}
-              onChange={(e) => onGlobalFilterChange(e.target.value)}
-              className="pl-12 h-12 text-base w-full"
-            />
-            {filters.search && (
-              <Button
-                variant="ghost"
-                size="sm"
-                className="absolute right-2 top-1/2 transform -translate-y-1/2 h-8 w-8 p-0"
-                onClick={() => onGlobalFilterChange("")}
-              >
-                <X className="h-4 w-4" />
-              </Button>
-            )}
-          </div>
-          {filters.search && (
-            <>
-              <div className="h-8 w-px bg-theme-border-strong"></div>
-              <div className="flex items-center gap-2">
-                <span className="text-sm text-fg-muted">{t("orders.active_filter")}</span>
-                <span className="inline-flex items-center gap-2 bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 text-sm px-3 py-1.5 rounded-md">
-                  {t("orders.filter_search_prefix")}"{filters.search}"
-                  <X
-                    className="h-3 w-3 cursor-pointer hover:bg-blue-200 rounded"
-                    onClick={() => onGlobalFilterChange("")}
-                  />
-                </span>
-              </div>
-            </>
-          )}
+    <div className="space-y-4">
+      <div className="flex items-center gap-3">
+        <div className="relative flex-1">
+          <Search className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-fg-subtle size-5" />
+          <Input
+            placeholder={t("orders.search_placeholder")}
+            aria-label={t("orders.search_placeholder")}
+            value={filters.search}
+            onChange={(e) => onGlobalFilterChange(e.target.value)}
+            clearable
+            className="pl-12 w-full"
+          />
         </div>
+        {onRefresh && (
+          <Button variant="outline" size="lg" onClick={onRefresh} disabled={isRefreshing} className="px-6">
+            <RefreshCw className={`size-5 ${isRefreshing ? "animate-spin" : ""}`} />
+            {isRefreshing ? t("common.refreshing") : t("common.refresh")}
+          </Button>
+        )}
+        <Button variant="outline" size="lg" onClick={clearAllFilters} className="px-6">
+          {t("orders.clear_filters_button")}
+        </Button>
+      </div>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <SegmentedControl
+          label={t("orders.quick_filter_label")}
+          value={quickView}
+          onChange={onQuickViewChange}
+          options={[
+            { value: "all", label: t("orders.all") },
+            { value: "unpaid", label: t("orders.filter_unpaid") },
+            { value: "to_fulfil", label: t("orders.filter_to_fulfil") },
+          ]}
+        />
         <div className="flex flex-wrap gap-3 items-center justify-end">
           <div className="flex flex-wrap gap-3">
             <div className="flex items-center gap-2">
-              <span className="text-sm text-fg-muted">{t("orders.fulfillment_label")}</span>
+              <span className="text-base text-fg-muted">{t("orders.fulfillment_label")}</span>
               <div className="w-52">
                 <Select
                   value={filters.fulfillment_status || ""}
                   onValueChange={onFulfillmentStatusChange}
                 >
-                  <SelectTrigger className="h-11 text-sm">
+                  <SelectTrigger className="text-base">
                     <SelectValue placeholder={t("orders.all")} />
                   </SelectTrigger>
                   <SelectContent>
@@ -141,13 +157,13 @@ const Header: React.FC<Props> = ({
             </div>
 
             <div className="flex items-center gap-2">
-              <span className="text-sm text-fg-muted">{t("orders.payment_label")}</span>
+              <span className="text-base text-fg-muted">{t("orders.payment_label")}</span>
               <div className="w-44">
                 <Select
                   value={filters.payment_status || ""}
                   onValueChange={onPaymentStatusChange}
                 >
-                  <SelectTrigger className="h-11 text-sm">
+                  <SelectTrigger className="text-base">
                     <SelectValue placeholder={t("orders.all")} />
                   </SelectTrigger>
                   <SelectContent>
@@ -163,13 +179,13 @@ const Header: React.FC<Props> = ({
             </div>
 
             <div className="flex items-center gap-2">
-              <span className="text-sm text-fg-muted">{t("orders.channel_label")}</span>
+              <span className="text-base text-fg-muted">{t("orders.channel_label")}</span>
               <div className="w-44">
                 <Select
                   value={filters.sales_channel || ""}
                   onValueChange={onSalesChannelChange}
                 >
-                  <SelectTrigger className="h-11 text-sm">
+                  <SelectTrigger className="text-base">
                     <SelectValue placeholder={t("orders.all")} />
                   </SelectTrigger>
                   <SelectContent>
@@ -185,32 +201,6 @@ const Header: React.FC<Props> = ({
             </div>
           </div>
 
-          <div className="flex gap-3">
-            {onRefresh && (
-              <Button
-                variant="outline"
-                size="lg"
-                onClick={onRefresh}
-                disabled={isRefreshing}
-                className="text-base h-12 px-6"
-              >
-                <RefreshCw
-                  className={`h-5 w-5 mr-2 ${
-                    isRefreshing ? "animate-spin" : ""
-                  }`}
-                />
-                {isRefreshing ? t("common.refreshing") : t("common.refresh")}
-              </Button>
-            )}
-            <Button
-              variant="outline"
-              size="lg"
-              onClick={clearAllFilters}
-              className="text-base h-12 px-6"
-            >
-              {t("orders.clear_filters_button")}
-            </Button>
-          </div>
         </div>
       </div>
     </div>

@@ -74,7 +74,7 @@ const ItemDialog: React.FC<Props> = ({
       <Button
         variant="ghost"
         size="sm"
-        className={cn("p-1 h-auto", triggerClassName)}
+        className={cn("size-12 rounded-full p-0", triggerClassName)}
         data-dialog-trigger="true"
         onClick={(e) => {
           e.stopPropagation();
@@ -83,7 +83,7 @@ const ItemDialog: React.FC<Props> = ({
           setOpen(true);
         }}
       >
-        <Info size={20} className="cursor-pointer text-blue-600" />
+        <Info className="size-6 text-info-text" />
       </Button>
       <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
         <div className="space-y-4">

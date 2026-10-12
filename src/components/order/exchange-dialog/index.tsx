@@ -1,10 +1,10 @@
 import React from "react";
 import { AdminOrder } from "@medusajs/types";
-import { Loader2 } from "lucide-react";
 import {
   Dialog,
   DialogContent,
   DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
@@ -86,12 +86,6 @@ const ExchangeDialog: React.FC<Props> = ({ isOpen, onClose, order, onExchanged }
             />
           </section>
 
-          <PostSaleDifference
-            currency={currency}
-            goingOut={out.goingOut}
-            comingBack={back.comingBack}
-          />
-
           {out.goingOut > back.comingBack && (
             <PaymentMethodPicker
               methods={methods}
@@ -100,28 +94,31 @@ const ExchangeDialog: React.FC<Props> = ({ isOpen, onClose, order, onExchanged }
               disabled={isBusy}
             />
           )}
+        </div>
 
-          <div className="flex gap-3 pt-2">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={onClose}
-              disabled={isBusy}
-              className="flex-1 h-14 text-lg font-medium"
-            >
+        {/* The difference and the decision stay in view while long line lists scroll. */}
+        <DialogFooter sticky className="block space-y-3">
+          <PostSaleDifference
+            currency={currency}
+            goingOut={out.goingOut}
+            comingBack={back.comingBack}
+          />
+          <div className="flex gap-3">
+            <Button type="button" variant="outline" size="lg" onClick={onClose} disabled={isBusy} className="flex-1 text-lg">
               {t("common.cancel")}
             </Button>
             <Button
               type="button"
+              size="lg"
               onClick={() => void handleConfirm()}
-              disabled={isBusy || !canConfirm}
-              className="flex-1 h-14 text-lg font-semibold bg-primary hover:bg-primary/90 text-white"
+              disabled={!canConfirm}
+              loading={isBusy}
+              className="flex-2 text-lg font-semibold"
             >
-              {isBusy && <Loader2 className="size-5 mr-2 animate-spin" />}
               {progressLabel ?? t("orders.post_sale.exchange_confirm")}
             </Button>
           </div>
-        </div>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );

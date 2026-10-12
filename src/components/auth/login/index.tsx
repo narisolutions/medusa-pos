@@ -1,7 +1,8 @@
-import React, { Fragment } from "react";
+import React, { Fragment, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { TriangleAlert } from "lucide-react";
+import { Eye, EyeOff, TriangleAlert } from "lucide-react";
+import { StatusChip } from "@/components/ui/status-chip";
 import { getCurrentWindow } from "@tauri-apps/api/window";
 
 import { Input } from "@/components/ui/input";
@@ -33,7 +34,8 @@ const Login: React.FC = () => {
   const isConfigured = Boolean(activeStore);
   const isBackendStaging = activeStore?.backendUrl?.includes("staging");
 
-  const { onLogin } = useLogin(isConfigured);
+  const { onLogin, error, clearError } = useLogin(isConfigured);
+  const [showPassword, setShowPassword] = useState(false);
 
   return (
     <Fragment>
@@ -44,17 +46,15 @@ const Login: React.FC = () => {
             {t("auth.sign_in")}
           </h2>
           {isConfigured && (
-            <span className="inline-flex items-center justify-center self-center rounded-full bg-surface-subtle px-3 text-xs font-medium text-fg-muted">
+            <StatusChip intent={isBackendStaging ? "warning" : "neutral"} icon={null} className="self-center">
               {isBackendStaging ? t("auth.staging") : t("auth.production")}
-            </span>
+            </StatusChip>
           )}
           <StoreSelectorBox />
           {!isConfigured && (
-            <div className="mx-auto w-full max-w-md flex items-center gap-4 px-4 py-3 rounded-lg border border-red-100 bg-red-50 shadow-sm">
-              <div className="shrink-0 flex items-center justify-center h-10 w-10 rounded-full bg-red-100 text-yellow-600 text-lg">
-                <TriangleAlert />
-              </div>
-              <p className="text-red-800 font-semibold leading-5">
+            <div role="alert" className="mx-auto w-full max-w-md flex items-center gap-4 px-4 py-3 rounded-lg border border-warning bg-warning-subtle">
+              <TriangleAlert className="size-6 shrink-0 text-warning-text" />
+              <p className="text-left text-base font-semibold text-warning-text">
                 {t("auth.add_store_hint")}
               </p>
             </div>
@@ -65,6 +65,7 @@ const Login: React.FC = () => {
           <form
             id="login-form"
             onSubmit={handleSubmit(onLogin)}
+            onChangeCapture={clearError}
             className="flex flex-col gap-4"
           >
             <FormField
@@ -76,11 +77,13 @@ const Login: React.FC = () => {
                     <Input
                       {...field}
                       type="email"
+                      autoComplete="username"
                       placeholder={t("auth.email")}
-                      className="w-full px-3 py-7 border rounded md:text-xl"
+                      aria-label={t("auth.email")}
+                      className="h-tap-lg px-4 text-lg"
                     />
                   </FormControl>
-                  <FormMessage className="text-red-500" />
+                  <FormMessage className="text-base" />
                 </FormItem>
               )}
             />
@@ -90,24 +93,46 @@ const Login: React.FC = () => {
               render={({ field }) => (
                 <FormItem>
                   <FormControl>
-                    <Input
-                      {...field}
-                      type="password"
-                      placeholder={t("auth.password")}
-                      className="w-full px-3 py-7 border rounded md:text-xl"
-                    />
+                    <div className="relative">
+                      <Input
+                        {...field}
+                        type={showPassword ? "text" : "password"}
+                        autoComplete="current-password"
+                        placeholder={t("auth.password")}
+                        aria-label={t("auth.password")}
+                        className="h-tap-lg px-4 pr-14 text-lg"
+                      />
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        className="absolute right-1 top-1/2 -translate-y-1/2"
+                        aria-pressed={showPassword}
+                        aria-label={showPassword ? t("auth.hide_password") : t("auth.show_password")}
+                        onClick={() => setShowPassword((v) => !v)}
+                      >
+                        {showPassword ? <EyeOff className="size-5" /> : <Eye className="size-5" />}
+                      </Button>
+                    </div>
                   </FormControl>
-                  <FormMessage className="text-red-500" />
+                  <FormMessage className="text-base" />
                 </FormItem>
               )}
             />
 
+            {error && (
+              <p role="alert" className="flex items-center gap-2 rounded-lg border border-danger bg-danger-subtle px-4 py-3 text-base font-medium text-danger-text">
+                <TriangleAlert className="size-5 shrink-0" />
+                {error}
+              </p>
+            )}
+
             <Button
               type="submit"
-              variant="default"
-              size="lg"
-              className="bg-gray-800 hover:bg-gray-900 dark:bg-gray-700 dark:hover:bg-gray-600 transition-colors shadow text-white mt-4 py-8 text-xl"
+              size="xl"
+              className="mt-2 w-full text-xl"
               disabled={!isConfigured}
+              loading={form.formState.isSubmitting}
             >
               {t("auth.sign_in")}
             </Button>

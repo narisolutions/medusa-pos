@@ -25,7 +25,7 @@ const ProductTile: React.FC<Props> = ({ product, currency, onPick }) => {
         type="button"
         disabled={stock === "out"}
         onClick={() => onPick(product)}
-        className="flex w-full flex-col overflow-hidden rounded-lg border border-theme-border bg-surface text-left transition-colors hover:bg-surface-hover disabled:cursor-not-allowed disabled:opacity-60"
+        className="flex w-full flex-col overflow-hidden rounded-lg border border-theme-border bg-surface text-left transition-all duration-100 hover:bg-surface-hover active:scale-[0.98] active:bg-accent disabled:cursor-not-allowed disabled:opacity-60"
       >
         <div className="relative flex aspect-[4/3] w-full items-center justify-center bg-surface-muted">
           {image ? (

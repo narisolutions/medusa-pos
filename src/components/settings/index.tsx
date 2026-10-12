@@ -1,115 +1,70 @@
-import { useEffect, useState } from "react";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
+import React from "react";
+import { Navigate, NavLink, useParams } from "react-router-dom";
+import { Plug, Printer, Puzzle, ScanBarcode, SlidersHorizontal, Store, Zap } from "lucide-react";
 import PrinterSettings from "./printer";
 import ConnectionSettings from "./connection";
 import StoreSettings from "./store";
 import PreferencesSettings from "./preferences";
 import PluginsSettings from "./plugins";
 import ScannerSettings from "./scanner";
-import storage from "@/utils/storage";
+import QuickKeysSettings from "./quick-keys";
 import { useTranslation } from "@/i18n";
+import { cn } from "@/lib/utils";
+import { ROUTES, SETTINGS_SECTIONS, type SettingsSection } from "@/router/routes";
 
-type SettingsTabs =
-  | "printer"
-  | "scanner"
-  | "connection"
-  | "store"
-  | "preferences"
-  | "plugins";
+const SECTIONS: Record<
+  SettingsSection,
+  { title: string; icon: React.ComponentType<{ className?: string }>; Page: React.ComponentType }
+> = {
+  printer: { title: "settings.printer.title", icon: Printer, Page: PrinterSettings },
+  scanner: { title: "settings.scanner.title", icon: ScanBarcode, Page: ScannerSettings },
+  connection: { title: "settings.connection.title", icon: Plug, Page: ConnectionSettings },
+  store: { title: "settings.store.title", icon: Store, Page: StoreSettings },
+  "quick-keys": { title: "settings.quick_keys.title", icon: Zap, Page: QuickKeysSettings },
+  preferences: { title: "settings.preferences.title", icon: SlidersHorizontal, Page: PreferencesSettings },
+  plugins: { title: "settings.plugins.title", icon: Puzzle, Page: PluginsSettings },
+};
 
+const isSection = (value: string | undefined): value is SettingsSection =>
+  !!value && (SETTINGS_SECTIONS as readonly string[]).includes(value);
+
+/** Settings as a list of sections, each its own route: survives a reload, works with Back. */
 const Settings: React.FC = () => {
   const { t } = useTranslation();
-  const [settingsTab, setSettingsTab] = useState<SettingsTabs>("printer");
+  const { section } = useParams();
 
-  useEffect(() => {
-    const loadStoredTab = async () => {
-      const storedTab = await storage.getItem("settings_tab");
-      if (storedTab) {
-        setSettingsTab(storedTab as SettingsTabs);
-      }
-    };
+  if (!isSection(section)) return <Navigate to={ROUTES.settingsSection("printer")} replace />;
 
-    loadStoredTab();
-  }, []);
+  const { Page } = SECTIONS[section];
 
   return (
-    <div className="bg-surface p-12 rounded-lg flex flex-col space-y-8">
-      <Tabs
-        value={settingsTab}
-        className="flex flex-col space-y-8"
-        onValueChange={async (val) => {
-          if (val === "printer") {
-            setSettingsTab(val as SettingsTabs);
-            await storage.removeItem("settings_tab");
-          } else {
-            setSettingsTab(val as SettingsTabs);
-            await storage.setItem("settings_tab", val);
-          }
-        }}
-      >
-        <TabsList className="flex justify-start w-full border-b border-theme-border bg-transparent p-0 h-auto">
-          <TabsTrigger
-            value="printer"
-            className="text-lg px-6 py-4 border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:text-primary text-fg-muted bg-transparent rounded-none min-h-[48px]"
-          >
-            {t("settings.printer.title")}
-          </TabsTrigger>
-          <TabsTrigger
-            value="scanner"
-            className="text-lg px-6 py-4 border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:text-primary text-fg-muted bg-transparent rounded-none min-h-[48px]"
-          >
-            {t("settings.scanner.title")}
-          </TabsTrigger>
-          <TabsTrigger
-            value="connection"
-            className="text-lg px-6 py-4 border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:text-primary text-fg-muted bg-transparent rounded-none min-h-[48px]"
-          >
-            {t("settings.connection.title")}
-          </TabsTrigger>
-          <TabsTrigger
-            value="store"
-            className="text-lg px-6 py-4 border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:text-primary text-fg-muted bg-transparent rounded-none min-h-[48px]"
-          >
-            {t("settings.store.title")}
-          </TabsTrigger>
-          <TabsTrigger
-            value="preferences"
-            className="text-lg px-6 py-4 border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:text-primary text-fg-muted bg-transparent rounded-none min-h-[48px]"
-          >
-            {t("settings.preferences.title")}
-          </TabsTrigger>
-          <TabsTrigger
-            value="plugins"
-            className="text-lg px-6 py-4 border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:text-primary text-fg-muted bg-transparent rounded-none min-h-[48px]"
-          >
-            {t("settings.plugins.title")}
-          </TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="printer" className="flex flex-col">
-          <PrinterSettings />
-        </TabsContent>
-
-        <TabsContent value="scanner" className="flex flex-col">
-          <ScannerSettings />
-        </TabsContent>
-
-        <TabsContent value="connection" className="flex flex-col">
-          <ConnectionSettings />
-        </TabsContent>
-
-        <TabsContent value="store" className="flex flex-col">
-          <StoreSettings />
-        </TabsContent>
-
-        <TabsContent value="preferences" className="flex flex-col">
-          <PreferencesSettings />
-        </TabsContent>
-
-        <TabsContent value="plugins" className="flex flex-col">
-          <PluginsSettings />
-        </TabsContent>
-      </Tabs>
+    <div className="flex items-start gap-8 bg-surface p-8 rounded-lg min-h-full">
+      <nav aria-label={t("nav.settings")} className="sticky top-0 flex w-60 shrink-0 flex-col gap-1">
+        {SETTINGS_SECTIONS.map((id) => {
+          const Icon = SECTIONS[id].icon;
+          return (
+            <NavLink
+              key={id}
+              to={ROUTES.settingsSection(id)}
+              replace
+              className={({ isActive }) =>
+                cn(
+                  "flex min-h-tap-xl items-center gap-3 rounded-lg px-4 text-lg transition-colors duration-100",
+                  isActive
+                    ? "bg-primary font-semibold text-primary-foreground"
+                    : "text-fg-muted hover:bg-accent hover:text-fg active:bg-accent"
+                )
+              }
+            >
+              <Icon className="size-6 shrink-0" />
+              {t(SECTIONS[id].title)}
+            </NavLink>
+          );
+        })}
+      </nav>
+      <section className="flex min-w-0 flex-1 flex-col">
+        <Page />
+      </section>
     </div>
   );
 };

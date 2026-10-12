@@ -34,14 +34,19 @@
     "back_to_orders": "Wróć do zamówień",
     "pos": "POS",
     "processing": "Przetwarzanie...",
-    "downloading": "Pobieranie..."
+    "downloading": "Pobieranie...",
+    "undo": "Cofnij"
   },
   "nav": {
     "pos": "POS",
     "orders": "Zamówienia",
     "settings": "Ustawienia",
     "logout": "Wyloguj",
-    "parked": "Odłożone"
+    "parked": "Odłożone",
+    "collapse": "Zwiń menu",
+    "logout_confirm_title": "Wylogować?",
+    "logout_confirm_message": "Aby korzystać z kasy, trzeba będzie zalogować się ponownie.",
+    "logout_confirm_sale": "Bieżąca sprzedaż zostanie w koszyku i będzie tam po ponownym zalogowaniu."
   },
   "auth": {
     "sign_in": "Zaloguj się",
@@ -64,7 +69,9 @@
     "staging": "Staging",
     "production": "Produkcja",
     "fullscreen_hint": "Naciśnij F11, aby przełączyć pełny ekran",
-    "api_url_host_placeholder": "api.example.com lub localhost:9000"
+    "api_url_host_placeholder": "api.example.com lub localhost:9000",
+    "show_password": "Pokaż hasło",
+    "hide_password": "Ukryj hasło"
   },
   "checkout": {
     "add_item": "Dodaj pozycję",
@@ -155,7 +162,6 @@
     "discount_type_label": "Typ rabatu",
     "discount_amount": "Kwota",
     "discount_percentage": "Procent",
-    "discount_value_label": "Wartość rabatu ",
     "select_item_for_discount": "Wybierz pozycję, aby zastosować rabat.",
     "column_item": "Pozycja",
     "column_sku": "SKU",
@@ -193,7 +199,6 @@
     "set_quantity_for_next_item": "Ustaw ilość dla następnej pozycji dodanej do koszyka",
     "item_added": "Dodano {{title}} do koszyka",
     "item_removed": "Usunięto {{title}} z koszyka",
-    "quantity_decreased": "Zmniejszono ilość {{title}}",
     "quantity_increased": "Zwiększono ilość {{title}}",
     "select_payment_method": "Wybierz metodę płatności przed przejściem do kasy.",
     "region_channel_missing": "Brak informacji o regionie lub kanale sprzedaży.",
@@ -202,7 +207,6 @@
     "no_default_printer": "Nie ustawiono domyślnej drukarki. Dodaj ją w Ustawienia → Drukarki.",
     "cannot_add_to_cart": "Nie można dodać produktu do koszyka",
     "no_sales_channel_configured": "Brak skonfigurowanego kanału sprzedaży",
-    "product_not_found": "Nie znaleziono produktu",
     "product_not_for_sale": "{{title}} nie jest w sprzedaży.",
     "items_not_for_sale_one": "{{names}} nie jest już w sprzedaży. Usuń z koszyka, aby kontynuować.",
     "items_not_for_sale_other": "{{names}} nie są już w sprzedaży. Usuń je z koszyka, aby kontynuować.",
@@ -247,7 +251,17 @@
     "park_name_optional": "opcjonalne",
     "products_load_failed": "Nie udało się wczytać produktów.",
     "products_load_failed_hint": "Zwykle to problem z połączeniem. Wczytają się ponownie same, gdy serwer będzie osiągalny.",
-    "fulfillment_failed_order_created": "Zamówienie zostało utworzone, ale nie udało się oznaczyć towarów jako wydanych: {{reason}}"
+    "fulfillment_failed_order_created": "Zamówienie zostało utworzone, ale nie udało się oznaczyć towarów jako wydanych: {{reason}}",
+    "cart_cleared": "Koszyk wyczyszczony",
+    "pay_blocked_out_of_stock": "Usuń produkty niedostępne, aby przyjąć płatność",
+    "scan_not_found": "Brak produktu o kodzie {{barcode}}",
+    "catalog_view": "Widok",
+    "discount_remove": "Usuń rabat",
+    "sale_complete": "Sprzedaż zakończona",
+    "sale_outstanding": "Wydano — płatność oczekuje",
+    "new_sale": "Nowa sprzedaż",
+    "new_sale_hint": "Zeskanowanie kolejnego produktu również rozpoczyna nową sprzedaż.",
+    "quick_keys_label": "Szybkie przyciski"
   },
   "orders": {
     "search_placeholder": "Szukaj zamówień...",
@@ -450,8 +464,6 @@
       "warn_fulfil_failed": "Artykuły dodano, ale nie oznaczono jako wydane. Zrealizuj je na stronie zamówienia.",
       "warn_settle_failed": "Artykuły dodano, ale płatność nie została zarejestrowana. Użyj Zarejestruj płatność.",
       "add_success": "Dodano artykuły, pobrano {{amount}}",
-      "decrease": "Zmniejsz ilość",
-      "increase": "Zwiększ ilość",
       "return_title": "Zwróć artykuły",
       "return_description": "Wybierz, co wraca i czy każdy artykuł można ponownie sprzedać.",
       "return_restock": "Z powrotem na stan",
@@ -485,7 +497,18 @@
       "add_success_unpaid": "Dodano artykuły do kwoty należnej od klienta",
       "add_authorized_warning": "Wcześniejsza autoryzacja płatności klienta zostanie anulowana. Całą kwotę trzeba będzie zapłacić ponownie."
     },
-    "item_returned": "Zwrócono"
+    "item_returned": "Zwrócono",
+    "status_pending": "Oczekujące",
+    "status_completed": "Zakończone",
+    "status_draft": "Szkic",
+    "status_archived": "Zarchiwizowane",
+    "status_requires_action": "Wymaga działania",
+    "status_not_paid": "Nieopłacone",
+    "status_authorized": "Autoryzowane",
+    "status_partially_authorized": "Częściowo autoryzowane",
+    "status_partially_refunded": "Częściowo zwrócone",
+    "filter_to_fulfil": "Do realizacji",
+    "quick_filter_label": "Pokaż"
   },
   "parked": {
     "title": "Odłożone sprzedaże",
@@ -626,7 +649,22 @@
       },
       "cash_rounding": "Zaokrąglanie gotówki",
       "cash_rounding_description": "Zaokrągla płatności gotówkowe do najbliższego progu. Płatności kartą i inne pozostają dokładne.",
-      "cash_rounding_increment": "Próg zaokrąglenia"
+      "cash_rounding_increment": "Próg zaokrąglenia",
+      "display_size": "Rozmiar wyświetlania",
+      "display_size_compact": "Kompaktowy",
+      "display_size_standard": "Standardowy",
+      "display_size_large": "Duży",
+      "display_size_hint": "Skaluje tekst i przyciski tylko na tej kasie. Duży łatwiej czytać i dotykać; kompaktowy mieści więcej na małym ekranie.",
+      "sounds": "Dźwięki",
+      "sound_preview": "Odtwórz ten dźwięk",
+      "sound_scan": "Zeskanowano produkt",
+      "sound_scan_hint": "Krótki sygnał po dodaniu produktu.",
+      "sound_scanError": "Skanowanie nieudane",
+      "sound_scanError_hint": "Dwa niskie brzęczenia, gdy kodu nie znaleziono lub nie można go dodać.",
+      "sound_sale": "Sprzedaż zakończona",
+      "sound_sale_hint": "Dwa rosnące sygnały po udanej płatności.",
+      "sound_error": "Błąd",
+      "sound_error_hint": "Niskie brzęczenie przy innym błędzie, np. nieudanej płatności."
     },
     "printer": {
       "title": "Drukarki",
@@ -769,12 +807,10 @@
       "provider_id_placeholder": "ID dostawcy",
       "provider_choose": "Wybierz dostawcę",
       "display_name_placeholder": "Nazwa wyświetlana",
-      "icon_label": "Ikona",
       "icon_cash": "Gotówka",
       "icon_card": "Karta",
       "icon_transfer": "Przekazanie wewnętrzne",
       "icon_bank_transfer": "Przelew bankowy",
-      "type_label": "Typ",
       "type_cash": "Gotówka",
       "type_card": "Karta",
       "type_transfer": "Przekazanie wewnętrzne",
@@ -789,8 +825,6 @@
       "provider_picker_description": "Dostawcy płatności w Twoim backendzie Medusa. Te dla terminala kończą się na _pos.",
       "provider_group_till": "Metody płatności terminala",
       "provider_group_other": "Inni dostawcy (sklep internetowy, dostawa)",
-      "provider_show_other": "Pokaż innych dostawców ({{count}})",
-      "provider_hide_other": "Ukryj innych dostawców",
       "provider_in_use": "w użyciu",
       "provider_current": "bieżący",
       "add_payment_method_button": "Dodaj metodę płatności",
@@ -804,10 +838,10 @@
       "saved": "Ustawienia sklepu zapisane",
       "logo_load_error": "Nie udało się załadować obrazu logo",
       "logo_preview_alt": "Podgląd logo",
-      "remove_payment_method_aria": "Usuń metodę płatności",
       "pick_logo_dialog_title": "Wybierz logo sklepu",
       "pick_logo_filter_name": "Obraz",
-      "logo_too_large": "Obraz logo musi być mniejszy niż 256 KB"
+      "logo_too_large": "Obraz logo musi być mniejszy niż 256 KB",
+      "payment_method_enabled": "Widoczna przy kasie"
     },
     "scanner": {
       "title": "Skaner",
@@ -836,12 +870,30 @@
       "test_terminator": "zakończone",
       "open_failed": "Nie można otworzyć portu skanera",
       "reader_stopped": "Skaner odłączony",
-      "save_failed": "Nie udało się zapisać ustawień skanera"
+      "save_failed": "Nie udało się zapisać ustawień skanera",
+      "wedge_test_hint": "Zeskanuj dowolny kod, gdy ta strona jest otwarta. Jeśli kod pojawi się tutaj, skaner działa.",
+      "wedge_test_read": "Skan {{count}} · {{time}}"
     },
     "plugins": {
       "title": "Wtyczki",
       "description": "Podłączone wtyczki POS. Każda wtyczka zarządza tutaj własnym połączeniem i preferencjami.",
       "empty": "Brak zainstalowanych wtyczek."
+    },
+    "unsaved_changes": "Niezapisane zmiany",
+    "discard_changes": "Odrzuć",
+    "quick_keys": {
+      "title": "Szybkie przyciski",
+      "description": "Do {{count}} produktów jako duże przyciski nad koszykiem — dla towarów bez kodu lub często sprzedawanych. Wspólne dla wszystkich kas w tym sklepie.",
+      "empty": "Brak szybkich przycisków",
+      "add_hint": "Wyszukaj lub zeskanuj produkt powyżej, aby go dodać.",
+      "already_added": "Ten produkt jest już szybkim przyciskiem.",
+      "max_reached": "Maksymalnie {{count}} szybkich przycisków. Usuń jeden, aby dodać inny.",
+      "unavailable": "Niedostępny na tej kasie (nieopublikowany lub inny kanał sprzedaży).",
+      "name_label": "Nazwa przycisku",
+      "name_placeholder": "Nazwa przycisku (opcjonalna, krótka)",
+      "move_up": "W górę",
+      "move_down": "W dół",
+      "saved": "Szybkie przyciski zapisane"
     }
   },
   "errors": {
@@ -875,12 +927,12 @@
     "restored_offline": "Brak połączenia z serwerem — używana jest zapisana sesja."
   },
   "pagination": {
-    "first_page": "Pierwsza",
-    "previous_page": "Poprzednia",
+    "first_page": "Pierwsza strona",
+    "previous_page": "Poprzednia strona",
     "page_label": "Strona",
     "of": "z",
-    "next_page": "Następna",
-    "last_page": "Ostatnia",
+    "next_page": "Następna strona",
+    "last_page": "Ostatnia strona",
     "rows_per_page": "Wierszy na stronę:"
   },
   "printer_service": {
@@ -962,5 +1014,23 @@
       "description": "Wznawia bieżącą zmianę, aby kontynuować sprzedaż. Saldo początkowe i operacje gotówkowe zostają zachowane.",
       "submit": "Otwórz kasę ponownie"
     }
+  },
+  "ui": {
+    "numpad_clear": "Wyczyść",
+    "numpad_done": "Gotowe",
+    "numpad_backspace": "Usuń ostatnią cyfrę (przytrzymaj, aby wyczyścić)",
+    "stepper_decrease": "Zmniejsz",
+    "stepper_increase": "Zwiększ",
+    "clear_input": "Wyczyść",
+    "toggle_keyboard": "Pokaż lub ukryj klawiaturę ekranową",
+    "search": "Szukaj"
+  },
+  "status": {
+    "online": "Online",
+    "offline": "Offline",
+    "checking": "Sprawdzanie…",
+    "recheck": "Sprawdź połączenie ponownie",
+    "register_open": "Kasa otwarta",
+    "register_closed": "Kasa zamknięta"
   }
 }

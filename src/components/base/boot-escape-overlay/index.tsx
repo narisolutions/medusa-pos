@@ -30,10 +30,10 @@ const BootEscapeOverlay = ({ message, onRetry }: Props) => {
       <div className="flex flex-col items-center gap-4 max-w-sm text-center">
         <img src="/logo.svg" alt="Medusa POS" className="h-28 w-auto object-contain" />
         <LoadingSpinner size={28} />
-        {message && <p className="text-xs text-zinc-500 tracking-wide">{message}</p>}
+        {message && <p className="text-base text-fg-muted">{message}</p>}
         <div className="space-y-1 pt-4">
           <p className="text-base font-medium">{t("errors.boot_slow_title")}</p>
-          <p className="text-base text-muted-foreground">{t("errors.boot_slow_message")}</p>
+          <p className="text-base text-fg-muted">{t("errors.boot_slow_message")}</p>
         </div>
         <div className="flex w-full flex-col gap-3 pt-2">
           <Button size="lg" variant="outline" onClick={onRetry}>

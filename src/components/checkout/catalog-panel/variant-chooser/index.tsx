@@ -22,7 +22,7 @@ const VariantChooser: React.FC<Props> = ({ product, currency, onClose, onPick })
   return (
     <Dialog open={!!product} onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="max-h-[85vh] max-w-xl overflow-y-auto">
-        <DialogTitle className="pr-12 text-xl font-semibold">{product?.title}</DialogTitle>
+        <DialogTitle className="text-xl font-semibold">{product?.title}</DialogTitle>
         <DialogDescription className="text-base text-fg-muted">
           {t("checkout.catalog_choose_variant")}
         </DialogDescription>
@@ -41,7 +41,7 @@ const VariantChooser: React.FC<Props> = ({ product, currency, onClose, onPick })
                   onClick={() => {
                     if (onPick(variant, product)) onClose();
                   }}
-                  className="flex min-h-14 flex-1 items-center gap-4 rounded-lg border border-theme-border bg-surface px-4 py-2 text-left transition-colors hover:bg-surface-hover disabled:cursor-not-allowed disabled:opacity-60"
+                  className="flex min-h-14 flex-1 items-center gap-4 rounded-lg border border-theme-border bg-surface px-4 py-2 text-left transition-colors hover:bg-surface-hover active:bg-accent disabled:cursor-not-allowed disabled:opacity-60"
                 >
                   <span className="flex flex-1 flex-col">
                     <span className="text-base font-medium text-fg">
@@ -64,7 +64,7 @@ const VariantChooser: React.FC<Props> = ({ product, currency, onClose, onPick })
                       </span>
                     )}
                     <span
-                      className={`text-lg font-semibold ${original !== null ? "text-red-600" : "text-fg"}`}
+                      className={`text-lg font-semibold ${original !== null ? "text-danger-text" : "text-fg"}`}
                     >
                       {formatPrice(amount, currency)}
                     </span>

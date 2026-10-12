@@ -1,7 +1,10 @@
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Bookmark, Loader2, MessageSquare, User } from "lucide-react";
+import { Tile } from "@/components/ui/tile";
+import { Banknote, Bookmark, Hash, MessageSquare, Percent, Trash2, User } from "lucide-react";
 import { useTranslation } from "@/i18n";
+import { useCartStore } from "@/context/cart";
+import { formatPrice } from "@/utils/helpers";
 import DiscountModal from "./discount-dialog";
 import CommentModal from "./comment-dialog";
 import QuantityModal from "./quantity-dialog";
@@ -20,11 +23,16 @@ const CartActions: React.FC = () => {
     paymentMethods,
     setPaymentMethod,
     selectedPaymentMethod,
+    customerEmail,
+    orderComment,
+    currency,
   } = useCheckout();
 
-  const { customerEmail } = useCheckout();
+  const discountAmount = useCartStore((state) => state.getDiscountAmount());
+  const total = useCartStore((state) => state.getTotalAfterDiscount());
   // Same test as the line's "Out of stock" badge, so a marked line is what blocks payment.
   const hasOutOfStockItem = items.some((item) => item.metadata?.available_quantity === 0);
+  const isEmpty = items.length === 0;
   const { t } = useTranslation();
   const [isDiscountOpen, setDiscountOpen] = useState(false);
   const [isCommentOpen, setCommentOpen] = useState(false);
@@ -34,114 +42,79 @@ const CartActions: React.FC = () => {
 
   return (
     <div className="flex flex-col h-full border border-theme-border bg-surface rounded-lg overflow-hidden">
-      {/* payment methods */}
       <div className="p-4 border-b border-theme-border bg-surface-muted flex-1 overflow-auto">
         <div className="grid grid-cols-3 gap-3">
           {paymentMethods.map(({ key, label, Icon }) => (
-            <Button
+            <Tile
               key={key}
+              size="lg"
+              selected={selectedPaymentMethod === key}
               onClick={() => setPaymentMethod(key)}
-              className={`w-full min-w-0 h-24 rounded-lg text-lg font-semibold transition-all ${selectedPaymentMethod === key
-                  ? "bg-primary text-white shadow"
-                  : "bg-surface border border-theme-border hover:bg-surface-hover text-fg"
-                }`}
-            >
-              <span className="flex flex-col items-center justify-center gap-1 w-full min-w-0 px-1">
-                <Icon className="size-8 shrink-0" />
-                <span className="w-full leading-tight text-center whitespace-normal wrap-break-word">{label}</span>
-              </span>
-            </Button>
+              icon={<Icon className="size-8" />}
+              label={<span className="wrap-break-word">{label}</span>}
+            />
           ))}
         </div>
       </div>
 
-      {/* Bottom: button grid */}
-      <div className="p-4 border-t border-theme-border bg-surface">
+      <div className="p-4 border-t border-theme-border bg-surface flex flex-col gap-3">
         <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-          <Button
-            onClick={() => setQtyOpen(true)}
-            className="w-full min-w-0 h-20 text-base font-semibold bg-surface border-2 border-theme-border hover:bg-surface-hover text-fg"
-          >
-            <span className="block w-full min-w-0 px-1 leading-tight text-center whitespace-normal wrap-break-word">
-              {t("checkout.quantity_button")}
-            </span>
-          </Button>
-          <Button
+          <Tile icon={<Hash />} label={t("checkout.quantity_button")} onClick={() => setQtyOpen(true)} />
+          <Tile
+            icon={<Percent />}
+            label={t("checkout.discount_button")}
+            subline={discountAmount > 0 ? `-${formatPrice(discountAmount, currency)}` : undefined}
             onClick={() => setDiscountOpen(true)}
-            className="w-full min-w-0 h-20 text-base font-semibold bg-surface border-2 border-theme-border hover:bg-surface-hover text-fg"
-          >
-            <span className="block w-full min-w-0 px-1 leading-tight text-center whitespace-normal wrap-break-word">
-              {t("checkout.discount_button")}
-            </span>
-          </Button>
-          <Button
+          />
+          <Tile
+            icon={<MessageSquare />}
+            label={t("checkout.comment_button")}
+            subline={orderComment ? <span className="line-clamp-1 break-all">{orderComment}</span> : undefined}
             onClick={() => setCommentOpen(true)}
-            className="w-full min-w-0 h-20 text-base font-semibold bg-surface border-2 border-theme-border hover:bg-surface-hover text-fg"
-          >
-            <span className="flex flex-col items-center justify-center gap-1 w-full min-w-0 px-1">
-              <MessageSquare className="size-5 shrink-0" />
-              <span className="w-full leading-tight text-center whitespace-normal wrap-break-word">
-                {t("checkout.comment_button")}
-              </span>
-            </span>
-          </Button>
-          <Button
+          />
+          <Tile
+            icon={<User />}
+            label={t("checkout.customer_button")}
+            subline={customerEmail ? <span className="line-clamp-1 break-all">{customerEmail}</span> : undefined}
+            className={customerEmail ? "border-info bg-info-subtle" : undefined}
             onClick={() => setCustomerOpen(true)}
-            className={`w-full min-w-0 h-20 text-base font-semibold border-2 ${customerEmail
-                ? "bg-blue-50 dark:bg-blue-900/30 border-blue-300 dark:border-blue-700 hover:bg-blue-100 dark:hover:bg-blue-900/50 text-blue-700 dark:text-blue-300"
-                : "bg-surface border-theme-border hover:bg-surface-hover text-fg"
-              }`}
-          >
-            <span className="flex flex-col items-center justify-center gap-1 w-full min-w-0 px-1">
-              <User className="size-5 shrink-0" />
-              <span className="w-full leading-tight text-center whitespace-normal wrap-break-word">
-                {t("checkout.customer_button")}
-              </span>
-            </span>
-          </Button>
-          <Button
-            onClick={() => void handleOpenDrawer()}
-            disabled={true}
-            className="w-full min-w-0 h-20 text-base font-semibold bg-surface border-2 border-theme-border hover:bg-surface-hover text-fg"
-          >
-            <span className="block w-full min-w-0 px-1 leading-tight text-center whitespace-normal wrap-break-word">
-              {t("checkout.cash_drawer_button")}
-            </span>
-          </Button>
-          <Button
-            variant="outline"
-            onClick={() => void handleClearItems()}
-            disabled={loading || items.length === 0}
-            className="w-full min-w-0 h-20 text-base font-semibold"
-          >
-            <span className="block w-full min-w-0 px-1 leading-tight text-center whitespace-normal wrap-break-word">
-              {t("checkout.clear_cart_button")}
-            </span>
-          </Button>
-          <Button
+          />
+          <Tile
+            icon={<Bookmark />}
+            label={t("checkout.park_button")}
+            disabled={loading || isEmpty}
             onClick={() => setParkOpen(true)}
-            disabled={loading || items.length === 0}
-            className="w-full min-w-0 h-20 text-base font-semibold bg-surface border-2 border-theme-border hover:bg-surface-hover text-fg"
-          >
-            <span className="flex flex-col items-center justify-center gap-1 w-full min-w-0 px-1">
-              <Bookmark className="size-5 shrink-0" />
-              <span className="w-full leading-tight text-center whitespace-normal wrap-break-word">
-                {t("checkout.park_button")}
-              </span>
-            </span>
-          </Button>
-          <Button
-            onClick={() => void handleOpenModal()}
-            disabled={loading || isPreparingPayment || items.length === 0 || hasOutOfStockItem}
-            aria-busy={isPreparingPayment}
-            className="w-full min-w-0 h-20 text-base font-semibold bg-green-600 hover:bg-green-700 text-white"
-          >
-            <span className="flex items-center justify-center gap-2 w-full min-w-0 px-1 leading-tight text-center whitespace-normal wrap-break-word">
-              {isPreparingPayment && <Loader2 className="size-5 shrink-0 animate-spin" />}
-              {t("checkout.payment_button")}
-            </span>
-          </Button>
+          />
+          <Tile
+            icon={<Trash2 className="text-danger-text" />}
+            label={t("checkout.clear_cart_button")}
+            disabled={loading || isEmpty}
+            onClick={() => void handleClearItems()}
+          />
+          <Tile
+            icon={<Banknote />}
+            label={t("checkout.cash_drawer_button")}
+            disabled
+            onClick={() => void handleOpenDrawer()}
+          />
         </div>
+
+        <Button
+          size="xl"
+          variant="success"
+          className="w-full"
+          loading={isPreparingPayment}
+          disabled={loading || isEmpty || hasOutOfStockItem}
+          onClick={() => void handleOpenModal()}
+        >
+          {t("checkout.payment_button")}
+          {!isEmpty && <span className="tabular-nums">· {formatPrice(total, currency)}</span>}
+        </Button>
+        {hasOutOfStockItem && (
+          <p role="status" className="text-center text-base text-danger-text">
+            {t("checkout.pay_blocked_out_of_stock")}
+          </p>
+        )}
       </div>
 
       {/* Modals */}

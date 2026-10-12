@@ -1,5 +1,6 @@
 import React, { useCallback, useState } from "react";
-import { Loader2 } from "lucide-react";
+import { AlertTriangle, CheckCircle2, XCircle } from "lucide-react";
+import { Numpad } from "@/components/ui/numpad";
 import {
   Dialog,
   DialogContent,
@@ -67,6 +68,8 @@ const CloseRegisterDialog: React.FC<Props> = ({
     commitClose,
   } = useCloseRegister(forced ? noop : handleClose);
 
+  const countedText = form.watch("countedCash");
+
   const [pending, setPending] = useState<
     Parameters<typeof commitClose>[0] | null
   >(null);
@@ -87,12 +90,15 @@ const CloseRegisterDialog: React.FC<Props> = ({
       : difference > 0
         ? t("register.close.over")
         : t("register.close.short");
-  const diffClass =
-    difference === 0
-      ? "text-fg"
-      : difference > 0
-        ? "text-green-600"
-        : "text-red-600";
+  // Balanced reads as good, over as "check it", short as a problem; always with the word.
+  const diffIntent = difference === 0 ? "success" : difference > 0 ? "warning" : "danger";
+  const diffClass = { success: "text-success-text", warning: "text-warning-text", danger: "text-danger-text" }[diffIntent];
+  const diffPanel = {
+    success: "border-success bg-success-subtle",
+    warning: "border-warning bg-warning-subtle",
+    danger: "border-danger bg-danger-subtle",
+  }[diffIntent];
+  const DiffIcon = { success: CheckCircle2, warning: AlertTriangle, danger: XCircle }[diffIntent];
 
   return (
     <Dialog
@@ -102,7 +108,7 @@ const CloseRegisterDialog: React.FC<Props> = ({
       <DialogContent
         showCloseButton={!forced}
         preventOutsideClose={forced}
-        className="max-w-md"
+        className={`${step === "confirm" ? "max-w-md" : "max-w-4xl"} max-h-[94vh] overflow-y-auto`}
       >
         <DialogHeader>
           <DialogTitle>
@@ -144,17 +150,19 @@ const CloseRegisterDialog: React.FC<Props> = ({
                 <span className="text-base text-fg-muted">
                   {t("register.close.difference")}
                 </span>
-                <span className={`text-base font-semibold ${diffClass}`}>
+                <span className={`text-base font-semibold tabular-nums ${diffClass}`}>
                   {difference > 0 ? "+" : ""}
                   {formatPrice(difference, currency)} ({diffLabel})
                 </span>
               </div>
             </div>
 
-            <div className="flex justify-end gap-2 pt-2">
+            <div className="flex gap-3 pt-2">
               <Button
                 type="button"
                 variant="outline"
+                size="lg"
+                className="flex-1"
                 disabled={isSubmitting}
                 onClick={() => setStep("form")}
               >
@@ -162,11 +170,11 @@ const CloseRegisterDialog: React.FC<Props> = ({
               </Button>
               <Button
                 type="button"
-                disabled={isSubmitting}
-                className="text-white bg-primary hover:bg-primary/90"
+                size="lg"
+                className="flex-2"
+                loading={isSubmitting}
                 onClick={() => pending && commitClose(pending)}
               >
-                {isSubmitting && <Loader2 className="size-4 animate-spin" />}
                 {isSubmitting
                   ? t("register.close.closing")
                   : t("register.close.confirm_submit")}
@@ -174,128 +182,119 @@ const CloseRegisterDialog: React.FC<Props> = ({
             </div>
           </div>
         ) : (
-          <>
-        <div className="flex items-center justify-between rounded-md bg-(--color-bg-base) px-4 py-3">
-          <span className="text-base text-fg-muted">
-            {t("register.close.expected")}
-          </span>
-          {isLoading ? (
-            <Skeleton className="h-6 w-24" />
-          ) : (
-            <span className="text-lg font-semibold text-fg">
-              {formatPrice(expectedCash, currency)}
-            </span>
-          )}
-        </div>
-
-        <Form {...form}>
-          <form onSubmit={handleValidSubmit} className="space-y-4">
-            <FormField
-              control={form.control}
-              name="countedCash"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-base font-medium">
-                    {t("register.close.counted")}
-                  </FormLabel>
-                  <FormControl>
-                    <Input
-                      type="number"
-                      min={0}
-                      step="0.01"
-                      autoFocus
-                      placeholder="0.00"
-                      value={field.value === 0 ? "" : field.value}
-                      onChange={(e) => field.onChange(e.target.value)}
-                      className="h-12 text-lg"
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <div className="flex items-center justify-between">
-              <span className="text-base text-fg-muted">
-                {t("register.close.difference")}
-              </span>
-              {isLoading ? (
-                <Skeleton className="h-6 w-32" />
-              ) : hasCounted ? (
-                <span className={`text-lg font-semibold ${diffClass}`}>
-                  {difference > 0 ? "+" : ""}
-                  {formatPrice(difference, currency)} ({diffLabel})
-                </span>
-              ) : (
-                <span className="text-lg font-semibold text-fg-subtle">—</span>
-              )}
-            </div>
-
-            <FormField
-              control={form.control}
-              name="note"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-base font-medium">
-                    {t("register.close.reason")}
-                    {hasCounted && overThreshold && (
-                      <span className="text-red-600"> *</span>
+          <Form {...form}>
+            {/* Two columns so a close-out fits one screen: summary left, keypad right. */}
+            <form onSubmit={handleValidSubmit} className="grid grid-cols-2 gap-6">
+              <div className="space-y-4">
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="rounded-lg border border-theme-border bg-surface-muted px-4 py-3">
+                    <div className="text-base text-fg-muted">{t("register.close.expected")}</div>
+                    {isLoading ? (
+                      <Skeleton className="mt-1 h-[2rem] w-24" />
+                    ) : (
+                      <div className="text-amount tabular-nums text-fg">{formatPrice(expectedCash, currency)}</div>
                     )}
-                  </FormLabel>
-                  <FormControl>
-                    <Input
-                      type="text"
-                      value={field.value ?? ""}
-                      onChange={field.onChange}
-                      placeholder={
-                        hasCounted && overThreshold
-                          ? t("register.close.reason_required")
-                          : t("register.close.reason_optional")
-                      }
-                      className="h-11 text-base"
-                    />
-                  </FormControl>
-                  <FormMessage className="text-red-500" />
-                </FormItem>
-              )}
-            />
+                  </div>
+                  <FormField
+                    control={form.control}
+                    name="countedCash"
+                    render={({ field }) => (
+                      <FormItem className="rounded-lg border-2 border-primary bg-surface px-4 py-3">
+                        <FormLabel className="text-base font-normal text-fg-muted">
+                          {t("register.close.counted")}
+                        </FormLabel>
+                        <FormControl>
+                          <output aria-live="polite" className="block text-amount tabular-nums text-fg">
+                            {formatPrice(Number(field.value) || 0, currency)}
+                          </output>
+                        </FormControl>
+                        <FormMessage className="text-base" />
+                      </FormItem>
+                    )}
+                  />
+                </div>
 
-            <div className="flex items-center justify-between">
-              <span className="text-base text-fg-muted">
-                {t("register.close.print_summary")}
-              </span>
-              <Switch
-                checked={printSummary}
-                onCheckedChange={setPrintSummary}
-              />
-            </div>
-
-            <div className="flex justify-end gap-2 pt-2">
-              {!forced && (
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={handleClose}
-                >
-                  {t("common.cancel")}
-                </Button>
-              )}
-              <Button
-                type="submit"
-                disabled={isSubmitting || isLoading}
-                className="text-white bg-primary hover:bg-primary/90"
-              >
-                {isSubmitting && (
-                  <Loader2 className="size-4 animate-spin" />
+                {isLoading ? (
+                  <Skeleton className="h-16 w-full" />
+                ) : hasCounted ? (
+                  <div role="status" className={`flex items-center justify-between gap-3 rounded-lg border-2 px-4 py-3 ${diffPanel}`}>
+                    <span className={`flex items-center gap-2 text-lg font-semibold ${diffClass}`}>
+                      <DiffIcon className="size-6" aria-hidden />
+                      {diffLabel}
+                    </span>
+                    <span className="text-amount tabular-nums text-fg">
+                      {difference > 0 ? "+" : ""}
+                      {formatPrice(difference, currency)}
+                    </span>
+                  </div>
+                ) : (
+                  <div className="rounded-lg border-2 border-dashed border-theme-border px-4 py-3 text-base text-fg-muted">
+                    {t("register.close.difference")}: —
+                  </div>
                 )}
-                {isSubmitting
-                  ? t("register.close.closing")
-                  : t("register.close.submit")}
-              </Button>
-            </div>
-          </form>
-        </Form>
-          </>
+
+                <FormField
+                  control={form.control}
+                  name="note"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-base font-medium">
+                        {t("register.close.reason")}
+                        {hasCounted && overThreshold && (
+                          <span className="text-danger-text"> *</span>
+                        )}
+                      </FormLabel>
+                      <FormControl>
+                        <Input
+                          type="text"
+                          value={field.value ?? ""}
+                          onChange={field.onChange}
+                          placeholder={
+                            hasCounted && overThreshold
+                              ? t("register.close.reason_required")
+                              : t("register.close.reason_optional")
+                          }
+                        />
+                      </FormControl>
+                      <FormMessage className="text-base" />
+                    </FormItem>
+                  )}
+                />
+
+                <div className="flex min-h-tap items-center justify-between">
+                  <span className="text-base text-fg">
+                    {t("register.close.print_summary")}
+                  </span>
+                  <Switch
+                    checked={printSummary}
+                    onCheckedChange={setPrintSummary}
+                  />
+                </div>
+              </div>
+
+              <Numpad
+                value={countedText ? String(countedText) : ""}
+                // Typed text, coerced to a number by the schema on submit, as the old input's was.
+                onChange={(value) => form.setValue("countedCash", value as unknown as number)}
+                hideActions
+                maxDecimals={2}
+                className="self-center"
+              />
+
+              <div className="col-span-2 flex gap-3 pt-2">
+                {!forced && (
+                  <Button type="button" variant="outline" size="lg" className="flex-1" onClick={handleClose}>
+                    {t("common.cancel")}
+                  </Button>
+                )}
+                <Button type="submit" size="lg" className="flex-2" disabled={isLoading} loading={isSubmitting}>
+                  {isSubmitting
+                    ? t("register.close.closing")
+                    : t("register.close.submit")}
+                </Button>
+              </div>
+            </form>
+          </Form>
         )}
       </DialogContent>
     </Dialog>

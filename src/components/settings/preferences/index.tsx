@@ -1,5 +1,4 @@
 import React from "react";
-import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
@@ -18,6 +17,11 @@ import { Input } from "@/components/ui/input";
 import { usePreferencesSettings } from "./hooks";
 import type { ThemeMode, LanguageMode } from "@/types/preferences";
 import { useTranslation } from "@/i18n";
+import SaveBar from "../save-bar";
+import { SegmentedControl } from "@/components/ui/segmented-control";
+import { Monitor, Moon, Play, Sun } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { previewSound } from "@/utils/sounds";
 
 const LANGUAGE_OPTIONS: { value: LanguageMode; label: string }[] = [
   { value: "system", label: "system" },
@@ -30,6 +34,13 @@ const LANGUAGE_OPTIONS: { value: LanguageMode; label: string }[] = [
   { value: "sv", label: "Svenska" },
 ];
 
+const SOUND_ROWS = [
+  { name: "soundScan", event: "scan" },
+  { name: "soundScanError", event: "scanError" },
+  { name: "soundSale", event: "sale" },
+  { name: "soundError", event: "error" },
+] as const;
+
 const PreferencesSettings: React.FC = () => {
   const {
     form,
@@ -39,6 +50,7 @@ const PreferencesSettings: React.FC = () => {
     onSubmit,
     isTauri,
     handleThemeModeChange,
+    handleDisplaySizeChange,
     handleLanguageChange,
   } = usePreferencesSettings();
   const { t } = useTranslation();
@@ -56,7 +68,7 @@ const PreferencesSettings: React.FC = () => {
 
   return (
     <div className="flex flex-col h-full min-h-0">
-      <p className="text-fg-muted text-sm mb-4">
+      <p className="text-fg-muted text-base mb-4">
         {t("settings.preferences.description")}
       </p>
 
@@ -111,27 +123,40 @@ const PreferencesSettings: React.FC = () => {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className="text-base font-medium">{t("settings.preferences.theme")}</FormLabel>
-                  <FormControl>
-                    <div className="flex gap-2">
-                      {THEME_OPTIONS.map(({ value, label }) => (
-                        <button
-                          key={value}
-                          type="button"
-                          onClick={() => {
-                            field.onChange(value);
-                            handleThemeModeChange(value);
-                          }}
-                          className={`h-11 px-5 text-base font-medium rounded-md border transition-colors ${
-                            currentTheme === value
-                              ? "bg-primary text-white border-primary"
-                              : "bg-surface border-theme-border text-fg-muted hover:bg-surface-hover"
-                          }`}
-                        >
-                          {label}
-                        </button>
-                      ))}
-                    </div>
-                  </FormControl>
+                  <SegmentedControl
+                    label={t("settings.preferences.theme")}
+                    value={currentTheme}
+                    onChange={(value) => {
+                      field.onChange(value);
+                      handleThemeModeChange(value);
+                    }}
+                    options={THEME_OPTIONS.map(({ value, label }) => ({
+                      value,
+                      label,
+                      icon: value === "light" ? <Sun /> : value === "dark" ? <Moon /> : <Monitor />,
+                    }))}
+                  />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={control}
+              name="displaySize"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-base font-medium">{t("settings.preferences.display_size")}</FormLabel>
+                  <SegmentedControl
+                    label={t("settings.preferences.display_size")}
+                    value={field.value}
+                    onChange={handleDisplaySizeChange}
+                    options={[
+                      { value: "compact", label: t("settings.preferences.display_size_compact") },
+                      { value: "standard", label: t("settings.preferences.display_size_standard") },
+                      { value: "large", label: t("settings.preferences.display_size_large") },
+                    ]}
+                  />
+                  <p className="text-base text-fg-muted">{t("settings.preferences.display_size_hint")}</p>
                 </FormItem>
               )}
             />
@@ -147,7 +172,7 @@ const PreferencesSettings: React.FC = () => {
                         <FormLabel className="text-base font-medium">
                           {t("settings.preferences.fullscreen")}
                         </FormLabel>
-                        <p className="text-sm text-fg-muted">
+                        <p className="text-base text-fg-muted">
                           {t("settings.preferences.fullscreen_description")}
                         </p>
                       </div>
@@ -327,7 +352,7 @@ const PreferencesSettings: React.FC = () => {
                       <FormLabel className="text-base font-medium">
                         {t("settings.preferences.cash_rounding")}
                       </FormLabel>
-                      <p className="text-sm text-fg-muted">
+                      <p className="text-base text-fg-muted">
                         {t("settings.preferences.cash_rounding_description")}
                       </p>
                     </div>
@@ -391,7 +416,7 @@ const PreferencesSettings: React.FC = () => {
                       <FormLabel className="text-base font-medium">
                         {t("settings.preferences.register.enable")}
                       </FormLabel>
-                      <p className="text-sm text-fg-muted">
+                      <p className="text-base text-fg-muted">
                         {t("settings.preferences.register.enable_description")}
                       </p>
                     </div>
@@ -416,7 +441,7 @@ const PreferencesSettings: React.FC = () => {
                       <FormLabel className="text-base font-medium">
                         {t("settings.preferences.register.cutoff_hour")}
                       </FormLabel>
-                      <p className="text-sm text-fg-muted">
+                      <p className="text-base text-fg-muted">
                         {t("settings.preferences.register.cutoff_hour_description")}
                       </p>
                       <FormControl>
@@ -442,7 +467,7 @@ const PreferencesSettings: React.FC = () => {
                       <FormLabel className="text-base font-medium">
                         {t("settings.preferences.register.discrepancy_threshold")}
                       </FormLabel>
-                      <p className="text-sm text-fg-muted">
+                      <p className="text-base text-fg-muted">
                         {t("settings.preferences.register.discrepancy_threshold_description")}
                       </p>
                       <FormControl>
@@ -463,15 +488,47 @@ const PreferencesSettings: React.FC = () => {
             )}
           </section>
 
-          <div className="border-t border-theme-border pt-4 shrink-0">
-            <Button
-              type="submit"
-              disabled={isSubmitting || !isDirty}
-              className="h-11 px-8 text-base text-white bg-primary hover:bg-primary/90"
-            >
-              {isSubmitting ? t("settings.preferences.saving") : t("settings.preferences.save")}
-            </Button>
-          </div>
+          <div className="border-t border-theme-border" />
+
+          <section className="space-y-4">
+            <h3 className="text-lg font-semibold text-fg">{t("settings.preferences.sounds")}</h3>
+            {SOUND_ROWS.map(({ name, event }) => (
+              <FormField
+                key={name}
+                control={control}
+                name={name}
+                render={({ field }) => (
+                  <FormItem>
+                    <div className="flex items-center gap-4">
+                      <div className="flex-1 space-y-0.5">
+                        <FormLabel className="text-base font-medium">{t(`settings.preferences.sound_${event}`)}</FormLabel>
+                        <p className="text-base text-fg-muted">{t(`settings.preferences.sound_${event}_hint`)}</p>
+                      </div>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="icon"
+                        onClick={() => void previewSound(event)}
+                        aria-label={t("settings.preferences.sound_preview")}
+                      >
+                        <Play className="size-5" />
+                      </Button>
+                      <FormControl>
+                        <Switch checked={field.value} onCheckedChange={field.onChange} />
+                      </FormControl>
+                    </div>
+                  </FormItem>
+                )}
+              />
+            ))}
+          </section>
+
+          <SaveBar
+            dirty={isDirty}
+            saving={isSubmitting}
+            saveLabel={t("settings.preferences.save")}
+            savingLabel={t("settings.preferences.saving")}
+          />
         </form>
       </Form>
     </div>

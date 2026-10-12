@@ -3,7 +3,7 @@ import { toast } from "sonner";
 import { AdminProduct, AdminProductVariant } from "@medusajs/types";
 import { useTranslation } from "@/i18n";
 import { handleErrorToast } from "@/utils/helpers";
-import { playErrorSound, playSuccessSound } from "@/utils/sounds";
+import { playSound } from "@/utils/sounds";
 import { catalogCategories, filterCatalog } from "@/utils/pos/catalog";
 import { loadPreferences, updatePreferences } from "@/utils/settings/preferences";
 import { DEFAULT_PREFERENCES } from "@/utils/settings/preferences/defaults";
@@ -63,11 +63,11 @@ const useCatalogPanel = ({ products, onSelect }: Props) => {
       const result = onSelect({ ...variant, product });
       if (!result.success) {
         handleErrorToast(result.message || t("checkout.cannot_add_to_cart"));
-        playErrorSound();
+        playSound("scanError");
         return false;
       }
       if (result.message) toast.success(result.message);
-      playSuccessSound();
+      playSound("scan");
       return true;
     },
     [onSelect, t]

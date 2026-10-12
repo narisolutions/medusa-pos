@@ -1,10 +1,11 @@
 import React from "react";
 import { Dialog, DialogContent, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { Stepper } from "@/components/ui/stepper";
+import { StatusChip } from "@/components/ui/status-chip";
 import { AdminOrder } from "@medusajs/types";
 import { useFulfillmentDialog } from "./hooks";
-import { Package, Plus, Minus, MapPin, Truck } from "lucide-react";
+import { Package, MapPin, Truck } from "lucide-react";
 import { formatPrice, getOrderCurrency } from "@/utils/helpers";
 import { useTranslation } from "@/i18n";
 
@@ -49,7 +50,7 @@ const FulfillmentDialog: React.FC<FulfillmentDialogProps> = ({
               <DialogTitle className="text-xl font-bold text-fg">
                 {t("orders.pack_order_items_title")}
               </DialogTitle>
-              <p className="text-sm text-fg-muted mt-1">
+              <p className="text-base text-fg-muted mt-1">
                 {t("orders.pack_order_items_description")}
               </p>
             </div>
@@ -65,17 +66,17 @@ const FulfillmentDialog: React.FC<FulfillmentDialogProps> = ({
                     <MapPin className="w-5 h-5 text-fg-muted" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-xs font-semibold text-fg-subtle uppercase tracking-wide mb-1">
+                    <p className="text-base font-semibold text-fg-muted mb-1">
                       {t("orders.stock_location_label")}
                     </p>
                     {stockLocationsQuery.isLoading ? (
-                      <p className="text-sm text-fg-muted">{t("common.loading")}</p>
+                      <p className="text-base text-fg-muted">{t("common.loading")}</p>
                     ) : preferredLocationName ? (
-                      <p className="text-sm font-medium text-fg">
+                      <p className="text-base font-medium text-fg">
                         {preferredLocationName}
                       </p>
                     ) : (
-                      <p className="text-sm text-primary font-medium">
+                      <p className="text-base text-warning-text font-medium">
                         {t("orders.stock_location_not_configured")}
                       </p>
                     )}
@@ -88,10 +89,10 @@ const FulfillmentDialog: React.FC<FulfillmentDialogProps> = ({
                     <Truck className="w-5 h-5 text-fg-muted" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-xs font-semibold text-fg-subtle uppercase tracking-wide mb-1">
+                    <p className="text-base font-semibold text-fg-muted mb-1">
                       {t("orders.shipping_option_label")}
                     </p>
-                    <p className="text-sm font-medium text-fg">
+                    <p className="text-base font-medium text-fg">
                       {order.shipping_methods?.[0]?.name || t("orders.shipping_option_not_specified")}
                     </p>
                   </div>
@@ -99,12 +100,12 @@ const FulfillmentDialog: React.FC<FulfillmentDialogProps> = ({
               </div>
             </div>
 
-            <div className="text-sm font-semibold text-fg-muted mb-4">                                                                                                                                                  
+            <div className="text-base font-semibold text-fg-muted mb-4">
               {t("orders.items_to_fulfill", { count: totalItemsToFulfill })}
             </div>
 
             {order.items?.map((orderItem) => {
-              const fulfillmentItem = selectedItems.find(                                                                               
+              const fulfillmentItem = selectedItems.find(
                 (item) => item.id === orderItem.id
               );
 
@@ -148,13 +149,13 @@ const FulfillmentDialog: React.FC<FulfillmentDialogProps> = ({
                         {orderItem.title || orderItem.variant_title}
                       </h3>
                       {subtitle && (
-                        <p className="text-sm text-fg-muted mb-1">{subtitle}</p>
+                        <p className="text-base text-fg-muted mb-1">{subtitle}</p>
                       )}
                       {productTitle && productTitle !== orderItem.title && productTitle !== orderItem.variant_title && (
-                        <p className="text-sm text-fg-muted mb-2">{productTitle}</p>
+                        <p className="text-base text-fg-muted mb-2">{productTitle}</p>
                       )}
                       
-                      <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-sm">
+                      <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-base">
                         {sku && (
                           <div>
                             <span className="text-fg-muted">{t("orders.sku_label")}:</span>{" "}
@@ -188,7 +189,7 @@ const FulfillmentDialog: React.FC<FulfillmentDialogProps> = ({
                       </div>
                       <div className="mt-2">
                         <span className="text-fg-muted">{t("orders.required_label")}:</span>{" "}
-                        <span className="font-medium text-blue-600">
+                        <span className="font-medium text-info-text">
                           {fulfillmentItem.maxQuantity} qty.
                         </span>
                       </div>
@@ -196,63 +197,23 @@ const FulfillmentDialog: React.FC<FulfillmentDialogProps> = ({
                   </div>
 
                   <div className="flex items-center gap-3 pt-3 border-t border-theme-border">
-                    <span className="text-sm font-semibold text-fg-muted min-w-[100px]">
+                    <span className="text-base font-semibold text-fg-muted min-w-[100px]">
                       {t("orders.packed_quantity_label")}:
                     </span>
-                    <div className="flex items-center gap-2">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() =>
-                          updateItemQuantity(
-                            orderItem.id,
-                            fulfillmentItem.quantity - 1
-                          )
-                        }
-                        disabled={
-                          fulfillmentItem.quantity <= 0 || isProcessing
-                        }
-                        className="h-9 w-9 p-0 border-2"
-                      >
-                        <Minus className="w-4 h-4" />
-                      </Button>
-                      <Input
-                        type="number"
-                        value={fulfillmentItem.quantity}
-                        onChange={(e) => {
-                          const value = parseInt(e.target.value) || 0;
-                          updateItemQuantity(orderItem.id, value);
-                        }}
-                        min={0}
-                        max={fulfillmentItem.maxQuantity}
-                        disabled={isProcessing}
-                        className="w-24 text-center text-base font-semibold border-2"
-                      />
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() =>
-                          updateItemQuantity(
-                            orderItem.id,
-                            fulfillmentItem.quantity + 1
-                          )
-                        }
-                        disabled={
-                          fulfillmentItem.quantity >=
-                            fulfillmentItem.maxQuantity || isProcessing
-                        }
-                        className="h-9 w-9 p-0 border-2"
-                      >
-                        <Plus className="w-4 h-4" />
-                      </Button>
-                    </div>
+                    <Stepper
+                      value={fulfillmentItem.quantity}
+                      min={0}
+                      max={fulfillmentItem.maxQuantity}
+                      disabled={isProcessing}
+                      onChange={(next) => updateItemQuantity(orderItem.id, next)}
+                    />
                     <div className="ml-auto flex items-center gap-2">
                       {fulfillmentItem.quantity === fulfillmentItem.maxQuantity ? (
-                        <span className="text-sm font-medium text-green-600">
+                        <StatusChip intent="success" icon={null}>
                           {t("orders.complete_badge")}
-                        </span>
+                        </StatusChip>
                       ) : (
-                        <span className="text-sm text-fg-muted">
+                        <span className="text-base text-fg-muted">
                           {t("orders.remaining_count", { count: fulfillmentItem.maxQuantity - fulfillmentItem.quantity })}
                         </span>
                       )}
@@ -266,18 +227,15 @@ const FulfillmentDialog: React.FC<FulfillmentDialogProps> = ({
 
         <DialogFooter className="px-6 py-4 border-t border-theme-border bg-surface-muted shrink-0">
           <div className="flex items-center justify-between w-full">
-            <Button
-              variant="outline"
-              onClick={handleClose}
-              disabled={isProcessing}
-              className="px-6"
-            >
+            <Button variant="outline" size="lg" onClick={handleClose} disabled={isProcessing} className="px-8">
               {t("common.cancel")}
             </Button>
             <Button
+              size="lg"
               onClick={handleCreateFulfillment}
-              disabled={!hasSelectedItems || isProcessing}
-              className="bg-primary hover:bg-primary/90 text-white px-6"
+              disabled={!hasSelectedItems}
+              loading={isProcessing}
+              className="px-8"
             >
               {isProcessing ? t("orders.creating_fulfillment") : t("orders.create_fulfillment_button")}
             </Button>
