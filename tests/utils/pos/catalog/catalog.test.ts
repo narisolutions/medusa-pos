@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { AdminProduct, AdminProductVariant } from "@medusajs/types";
 import {
+  optionValuesText,
   catalogCategories,
   cheapestVariant,
   filterCatalog,
@@ -250,5 +251,16 @@ describe("otherVariants", () => {
   it("is empty for a single-variant product or an unknown variant", () => {
     expect(otherVariants(catalog, "var_Chacha_0")).toEqual([]);
     expect(otherVariants(catalog, "var_missing")).toEqual([]);
+  });
+});
+
+describe("optionValuesText", () => {
+  it("joins real option values", () => {
+    expect(optionValuesText([{ value: "750" }, { value: "2020" }])).toBe("750/2020");
+  });
+
+  it("drops Medusa's placeholder for a product made without options", () => {
+    expect(optionValuesText([{ value: "Default option value", option: { title: "Default option" } }])).toBe("");
+    expect(optionValuesText(undefined)).toBe("");
   });
 });

@@ -1,3 +1,4 @@
+import { realOptions } from "@/utils/pos/catalog";
 import { CartItem } from "@/types/utils";
 import { AdminProductVariant, AdminProduct } from "@medusajs/types";
 import { useQueryInventoryKitItems } from "@/hooks/queries/useQueryInventoryKitItems";
@@ -101,8 +102,9 @@ const useItemDialog = (
     ? (options as Array<{ value: string; option: { title: string } }> | undefined)
     : (item as AdminProductVariant).options;
   
-  const optionsDisplay = optionsArray && optionsArray.length > 0
-    ? optionsArray.map((opt) => `${opt.option?.title || "Option"}: ${opt.value}`).join(", ")
+  const shownOptions = realOptions(optionsArray as Array<{ value: string; option?: { title?: string } }> | undefined);
+  const optionsDisplay = shownOptions.length > 0
+    ? shownOptions.map((opt) => `${opt.option?.title || "Option"}: ${opt.value}`).join(", ")
     : null;
 
   // Calculate discount information

@@ -57,7 +57,9 @@ const Items: React.FC<ItemsProps> = ({
           // product/variant pair renders blank.
           const primaryTitle = item.product_title || item.title;
           const secondaryTitle =
-            item.variant_title && item.variant_title !== primaryTitle ? item.variant_title : null;
+            item.variant_title && item.variant_title !== primaryTitle && item.variant_title !== "Default variant"
+              ? item.variant_title
+              : null;
           const restocked = toNumber(item.detail?.return_received_quantity);
           const damaged = toNumber(item.detail?.return_dismissed_quantity);
           // The backend values a returned bottle at 0; say why instead of showing a bare 0.00.

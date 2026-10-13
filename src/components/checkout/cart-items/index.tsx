@@ -18,6 +18,7 @@ import ItemDialog from "@/components/base/product-picker/variant-dialog";
 import { useCartItems } from "./hooks";
 import { useCheckout } from "../hooks";
 import { useCartStore } from "@/context/cart";
+import { optionValuesText } from "@/utils/pos/catalog";
 import { useTranslation } from "@/i18n";
 
 interface Props {
@@ -152,9 +153,7 @@ const CartItems: React.FC<Props> = ({ lastAdded }) => {
                       </TableCell>
                       <TableCell className="hidden @4xl:table-cell">
                         <div className="text-base text-fg">
-                          {options && options.length > 0
-                            ? options.map((opt) => opt.value).join("/")
-                            : "-"}
+                          {optionValuesText(options) || "—"}
                         </div>
                       </TableCell>
                       <TableCell className="px-2!">
