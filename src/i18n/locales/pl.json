@@ -592,7 +592,11 @@
       "even": "RÓWNO - NIE MA CZEGO ROZLICZAĆ",
       "footer": "Zachowaj ten dowód wraz z paragonem",
       "owed": "Dodano do kwoty należnej"
-    }
+    },
+    "preview_button": "Podgląd paragonu",
+    "preview_title": "Podgląd paragonu",
+    "preview_description": "Co drukarka domyślna wydrukuje dla tego zamówienia — w jej szerokości papieru i z logo sklepu.",
+    "preview_sale_note": "Co wydrukuje ta sprzedaż po opłaceniu. Numer zamówienia zostanie nadany po zakończeniu płatności."
   },
   "handoff": {
     "title": "KWIT PRZEKAZANIA",

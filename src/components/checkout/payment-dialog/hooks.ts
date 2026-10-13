@@ -85,7 +85,8 @@ const useDraftOrderState = (draftOrderId?: string | null, isOpen?: boolean) => {
         draftOrderId,
         {
           fields:
-            "*items,*summary,*region,*sales_channel,subtotal,discount_total,tax_total,total",
+            // currency, customer and metadata: the receipt preview prints them.
+            "*items,*summary,*region,*sales_channel,*customer,subtotal,discount_total,tax_total,total,currency_code,email,metadata",
         }
       );
 

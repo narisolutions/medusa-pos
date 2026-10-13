@@ -592,7 +592,11 @@
       "even": "À ÉGALITÉ - RIEN À RÉGLER",
       "footer": "Conservez ce bon avec votre ticket",
       "owed": "Ajouté au montant dû"
-    }
+    },
+    "preview_button": "Aperçu du ticket",
+    "preview_title": "Aperçu du ticket",
+    "preview_description": "Ce que l'imprimante par défaut imprime pour cette commande, à sa largeur de papier et avec le logo de la boutique.",
+    "preview_sale_note": "Ce que cette vente imprimera une fois payée. Le numéro de commande est attribué à la fin du paiement."
   },
   "handoff": {
     "title": "TICKET DE TRANSFERT",

@@ -592,7 +592,11 @@
       "even": "IGUALADO - NADA QUE LIQUIDAR",
       "footer": "Guarde este comprobante con su recibo",
       "owed": "Añadido al importe pendiente"
-    }
+    },
+    "preview_button": "Ver recibo",
+    "preview_title": "Vista previa del recibo",
+    "preview_description": "Lo que imprime la impresora predeterminada para este pedido, a su ancho de papel y con el logo de la tienda.",
+    "preview_sale_note": "Lo que imprimirá esta venta una vez pagada. El número de pedido se asigna al completar el pago."
   },
   "handoff": {
     "title": "TICKET DE TRANSFERENCIA",

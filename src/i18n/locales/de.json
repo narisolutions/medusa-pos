@@ -592,7 +592,11 @@
       "even": "AUSGEGLICHEN - NICHTS ZU BEGLEICHEN",
       "footer": "Bewahren Sie diesen Beleg mit Ihrer Quittung auf",
       "owed": "Zum offenen Betrag hinzugefügt"
-    }
+    },
+    "preview_button": "Beleg ansehen",
+    "preview_title": "Belegvorschau",
+    "preview_description": "Was der Standarddrucker für diese Bestellung druckt, in seiner Papierbreite und mit dem Shop-Logo.",
+    "preview_sale_note": "Was dieser Verkauf nach der Zahlung druckt. Die Bestellnummer wird bei Zahlungsabschluss vergeben."
   },
   "handoff": {
     "title": "TRANSFERBELEG",

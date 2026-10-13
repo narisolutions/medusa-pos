@@ -592,7 +592,11 @@
       "even": "JÄMNT - INGET ATT REGLERA",
       "footer": "Spara denna kvittens med ditt kvitto",
       "owed": "Lagt till skyldigt belopp"
-    }
+    },
+    "preview_button": "Visa kvitto",
+    "preview_title": "Kvittoförhandsvisning",
+    "preview_description": "Det standardskrivaren skriver ut för ordern, i dess pappersbredd och med butikens logotyp.",
+    "preview_sale_note": "Det den här försäljningen skriver ut när den är betald. Ordernumret tilldelas när betalningen är klar."
   },
   "handoff": {
     "title": "ÖVERFÖRINGSKVITTO",

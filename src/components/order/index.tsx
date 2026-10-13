@@ -1,4 +1,5 @@
-import React from "react";
+import React, { useState } from "react";
+import ReceiptPreviewDialog, { type ReceiptPreviewData } from "@/components/base/receipt-preview-dialog";
 import { AdminOrder } from "@medusajs/types";
 import { Button } from "@/components/ui/button";
 import {
@@ -12,6 +13,7 @@ import {
   RotateCcw,
   QrCode,
   ArrowLeftRight,
+  Eye,
 } from "lucide-react";
 import { formatDate } from "@/utils/helpers";
 import OrderStatusChip from "@/components/base/order-status-chip";
@@ -78,7 +80,9 @@ const Order: React.FC<Props> = ({ order }) => {
     handleRefunded,
     handleCloseRefund,
     handleDownloadReceiptPDF,
+    getReceiptPreview,
   } = useOrder(order);
+  const [receiptPreview, setReceiptPreview] = useState<ReceiptPreviewData | null>(null);
 
   const { display_id, created_at, status, payment_status, fulfillment_status } =
     order;
@@ -139,6 +143,10 @@ const Order: React.FC<Props> = ({ order }) => {
         )}
 
         <div className="ml-auto flex flex-wrap items-center gap-3">
+          <Button variant="outline" size="lg" onClick={() => setReceiptPreview(getReceiptPreview())} className="px-5">
+            <Eye className="size-5" />
+            {t("receipt.preview_button")}
+          </Button>
           <Button variant="outline" size="lg" onClick={handleReprintReceipt} disabled={isDownloadingPDF} loading={isPrinting} className="px-5">
             {!isPrinting && <Printer className="size-5" />}
             {isPrinting ? t("orders.printing") : t("orders.print_receipt_button")}
@@ -200,6 +208,24 @@ const Order: React.FC<Props> = ({ order }) => {
           </div>
         </div>
       </div>
+
+      <ReceiptPreviewDialog
+        open={!!receiptPreview}
+        onOpenChange={(open) => !open && setReceiptPreview(null)}
+        preview={receiptPreview}
+        actions={
+          <>
+            <Button variant="outline" size="lg" onClick={handleDownloadReceiptPDF} disabled={isPrinting} loading={isDownloadingPDF} className="px-6">
+              {!isDownloadingPDF && <FileDown className="size-5" />}
+              {t("orders.download_pdf_button")}
+            </Button>
+            <Button size="lg" onClick={handleReprintReceipt} disabled={isDownloadingPDF} loading={isPrinting} className="px-8">
+              {!isPrinting && <Printer className="size-5" />}
+              {t("orders.print_receipt_button")}
+            </Button>
+          </>
+        }
+      />
 
       <FulfillmentDialog
         isOpen={isFulfillmentDialogOpen}

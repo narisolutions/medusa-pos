@@ -11,9 +11,12 @@ import { useCheckout } from "../hooks";
 import { usePaymentModal } from "./hooks";
 import ConfirmationDialog from "./confirmation-dialog";
 import PayLaterConfirmationDialog from "./pay-later-confirmation-dialog";
-import { AlertTriangle, CheckCircle2, Clock, CreditCard, Landmark, Printer } from "lucide-react";
+import { AlertTriangle, CheckCircle2, Clock, CreditCard, Eye, Landmark, Printer } from "lucide-react";
 import { toast } from "sonner";
 import { usePrinterService } from "@/hooks/printer/usePrinterService";
+import ReceiptPreviewDialog, { type ReceiptPreviewData } from "@/components/base/receipt-preview-dialog";
+import { receiptAsPaid } from "@/utils/pos/receipt/sale-preview";
+import type { AdminOrder } from "@medusajs/types";
 import { useTranslation } from "@/i18n";
 
 interface PaymentModalProps {
@@ -63,7 +66,21 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
   const { t } = useTranslation();
 
   const isLoading = !draftOrder;
-  const { printOrderReceipt } = usePrinterService();
+  const { printOrderReceipt, buildReceiptDataFromOrder, buildReceiptPreview } = usePrinterService();
+  const [receiptPreview, setReceiptPreview] = useState<ReceiptPreviewData | null>(null);
+
+  // The receipt this sale will print: the draft's lines and totals, paid as the screen says.
+  const openReceiptPreview = () => {
+    if (!draftOrder) return;
+    const data = receiptAsPaid(buildReceiptDataFromOrder(draftOrder as unknown as AdminOrder), {
+      paymentMethod: paymentMethodInfo.label,
+      isCash: isCashPayment,
+      cashPaid: parseFloat(customerPaid) || 0,
+      cashDue,
+      orderNumber: "—",
+    });
+    setReceiptPreview(buildReceiptPreview(data));
+  };
   const [isReprinting, setIsReprinting] = useState(false);
 
   // Scanning the next customer's first item starts the new sale.
@@ -112,6 +129,12 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
               </span>
             </div>
           </div>
+          {!completed && (
+            <Button variant="outline" size="lg" className="mr-12 px-5" disabled={isLoading || isProcessing} onClick={openReceiptPreview}>
+              <Eye className="size-5" />
+              {t("receipt.preview_button")}
+            </Button>
+          )}
         </div>
 
         {completed ? (
@@ -445,6 +468,13 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
         </div>
         )}
       </DialogContent>
+
+      <ReceiptPreviewDialog
+        open={!!receiptPreview}
+        onOpenChange={(open) => !open && setReceiptPreview(null)}
+        preview={receiptPreview}
+        note={t("receipt.preview_sale_note")}
+      />
 
       {/* Confirmation Dialog */}
       <ConfirmationDialog

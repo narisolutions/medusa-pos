@@ -592,7 +592,11 @@
       "even": "EVEN - NOTHING TO SETTLE",
       "footer": "Keep this slip with your receipt",
       "owed": "Added to amount owed"
-    }
+    },
+    "preview_button": "Preview receipt",
+    "preview_title": "Receipt preview",
+    "preview_description": "What the default printer prints for this order, at its paper width and with the store logo.",
+    "preview_sale_note": "What this sale will print once paid. The order number is assigned when payment completes."
   },
   "handoff": {
     "title": "TRANSFER TICKET",
