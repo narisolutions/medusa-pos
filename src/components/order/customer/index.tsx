@@ -19,7 +19,7 @@ const Customer: React.FC<Props> = ({ order }) => {
   const hasDeliveryCustomer = !!(delivery?.name || delivery?.phone || delivery?.note);
 
   return (
-    <div className="bg-surface rounded-lg border border-theme-border overflow-hidden shadow-sm flex flex-col h-full">
+    <div className="bg-surface rounded-lg border border-theme-border overflow-hidden shadow-sm">
       <div className="px-6 py-4 border-b border-theme-border bg-surface-muted shrink-0">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
@@ -30,7 +30,7 @@ const Customer: React.FC<Props> = ({ order }) => {
           </div>
         </div>
       </div>
-      <div className="p-6 space-y-4 overflow-y-auto flex-1 min-h-0">
+      <div className="p-6 space-y-4">
         {hasDeliveryCustomer && (
           <div>
             <h3 className="text-base font-medium text-fg mb-2">
