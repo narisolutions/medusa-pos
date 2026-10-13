@@ -2,7 +2,8 @@
 set -e
 
 echo "==> Running database migrations..."
-npx medusa db:migrate
+# Non-interactive: a container can't answer the link-sync prompt an upgrade raises.
+npx medusa db:migrate --execute-all-links
 
 echo "==> Creating admin user..."
 npx medusa user --email "$MEDUSA_ADMIN_EMAIL" --password "$MEDUSA_ADMIN_PASSWORD" || echo "Admin user may already exist, continuing..."

@@ -21,4 +21,18 @@ module.exports = defineConfig({
   plugins: [
     PosPlugin({ defaultCurrencyCode: "usd" }),
   ],
+  modules: [
+    {
+      // The till's own tenders, as on a real backend: pp_cash_pos, pp_card_pos,
+      // pp_banktransfer_pos. Each records a payment taken at the counter as settled.
+      resolve: "@medusajs/medusa/payment",
+      options: {
+        providers: ["cash", "card", "banktransfer"].map((tender) => ({
+          resolve: `./src/modules/payment/pos/${tender}`,
+          id: "pos",
+          options: {},
+        })),
+      },
+    },
+  ],
 })
