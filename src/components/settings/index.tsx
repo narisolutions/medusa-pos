@@ -1,6 +1,6 @@
 import React from "react";
 import { Navigate, NavLink, useParams } from "react-router-dom";
-import { Plug, Printer, Puzzle, ScanBarcode, SlidersHorizontal, Store, Zap } from "lucide-react";
+import { Palette, Plug, Printer, Puzzle, ScanBarcode, SlidersHorizontal, Store, Zap } from "lucide-react";
 import PrinterSettings from "./printer";
 import ConnectionSettings from "./connection";
 import StoreSettings from "./store";
@@ -61,6 +61,18 @@ const Settings: React.FC = () => {
             </NavLink>
           );
         })}
+        {/* Dev builds only: the component catalogue, a tool rather than a setting. */}
+        {import.meta.env.DEV && (
+          <div className="mt-4 border-t border-theme-border pt-4">
+            <NavLink
+              to={ROUTES.devUi}
+              className="flex min-h-tap items-center gap-3 rounded-lg px-4 text-base text-fg-muted hover:bg-accent hover:text-fg active:bg-accent"
+            >
+              <Palette className="size-5 shrink-0" />
+              UI kit
+            </NavLink>
+          </div>
+        )}
       </nav>
       <section className="flex min-w-0 flex-1 flex-col">
         <Page />

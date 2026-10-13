@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/sidebar";
 import { useUser } from "@/context/user";
 import { NavLink, useNavigate } from "react-router-dom";
-import { Bookmark, ChevronLeft, LogOut, Settings, Loader2, Palette } from "lucide-react";
+import { Bookmark, ChevronLeft, LogOut, Settings, Loader2 } from "lucide-react";
 import Payments from "@/assets/icons/payments";
 import Checkout from "@/assets/icons/checkout";
 import { useUnfulfilledOrdersCount } from "@/hooks/queries/useUnfulfilledOrdersCount";
@@ -53,8 +53,6 @@ const AppSidebar = () => {
   ];
 
   const bottomMenuItems = [
-    // Dev builds only: the UI catalogue, for reviewing components on the touchscreen.
-    ...(import.meta.env.DEV ? [{ id: "dev-ui", label: "UI kit", to: ROUTES.devUi, icon: Palette }] : []),
     { id: "settings", label: t("nav.settings"), to: "/settings", icon: Settings },
     { id: "logout", label: t("nav.logout"), to: "/sign-in", icon: LogOut },
   ];

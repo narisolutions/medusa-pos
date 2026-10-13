@@ -1,5 +1,7 @@
 import React, { useState } from "react";
-import { Banknote, Bookmark, CreditCard, Landmark, MessageSquare, Percent, Printer, Trash2, User } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { ROUTES } from "@/router/routes";
+import { ArrowLeft, Banknote, Bookmark, CreditCard, Landmark, MessageSquare, Percent, Printer, Trash2, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { StatusChip } from "@/components/ui/status-chip";
 import { Tile } from "@/components/ui/tile";
@@ -44,6 +46,7 @@ const TAPS = [
 ] as const;
 
 const DevUi: React.FC = () => {
+  const navigate = useNavigate();
   const [method, setMethod] = useState("cash");
   const [loading, setLoading] = useState(false);
   const [amount, setAmount] = useState("");
@@ -59,7 +62,18 @@ const DevUi: React.FC = () => {
   return (
     <div className="mx-auto flex max-w-6xl flex-col gap-6 pb-12">
       <div className="flex flex-wrap items-center justify-between gap-4">
-        <h1 className="text-3xl font-bold">UI kit</h1>
+        <div className="flex items-center gap-4">
+          {/* Back to the Settings section it was opened from; to Settings when opened by its address. */}
+          <Button
+            variant="outline"
+            size="lg"
+            onClick={() => ((window.history.state?.idx ?? 0) > 0 ? navigate(-1) : navigate(ROUTES.settings))}
+          >
+            <ArrowLeft className="size-5" />
+            Settings
+          </Button>
+          <h1 className="text-3xl font-bold">UI kit</h1>
+        </div>
         <Button variant="outline" onClick={() => document.documentElement.classList.toggle("dark")}>
           Toggle light / dark
         </Button>
