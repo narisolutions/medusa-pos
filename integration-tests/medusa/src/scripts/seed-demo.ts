@@ -14,6 +14,7 @@ const BASE_URL = "http://localhost:9000"
 const DEMO_MARK = "demo_seeded_at"
 
 // The response shapes this script reads; everything else is passed through untouched.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 type Json = Record<string, any>
 
 const PRODUCTS = [

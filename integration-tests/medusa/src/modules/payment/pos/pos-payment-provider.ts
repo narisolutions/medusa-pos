@@ -4,24 +4,14 @@ import {
   PaymentSessionStatus,
 } from "@medusajs/framework/utils"
 import type {
-  AuthorizePaymentInput,
   AuthorizePaymentOutput,
-  CancelPaymentInput,
   CancelPaymentOutput,
-  CapturePaymentInput,
   CapturePaymentOutput,
-  DeletePaymentInput,
   DeletePaymentOutput,
-  GetPaymentStatusInput,
   GetPaymentStatusOutput,
-  InitiatePaymentInput,
   InitiatePaymentOutput,
-  ProviderWebhookPayload,
-  RefundPaymentInput,
   RefundPaymentOutput,
-  RetrievePaymentInput,
   RetrievePaymentOutput,
-  UpdatePaymentInput,
   UpdatePaymentOutput,
   WebhookActionResult,
 } from "@medusajs/framework/types"
@@ -39,45 +29,43 @@ abstract class AbstractPOSPaymentProvider extends AbstractPaymentProvider {
     super(cradle, config)
   }
 
-  async initiatePayment(input: InitiatePaymentInput): Promise<InitiatePaymentOutput> {
+  async initiatePayment(): Promise<InitiatePaymentOutput> {
     return { id: `${this.getIdentifier()}_pos_${crypto.randomUUID()}`, data: {} }
   }
 
-  async authorizePayment(input: AuthorizePaymentInput): Promise<AuthorizePaymentOutput> {
+  async authorizePayment(): Promise<AuthorizePaymentOutput> {
     return { data: {}, status: PaymentSessionStatus.AUTHORIZED }
   }
 
-  async capturePayment(input: CapturePaymentInput): Promise<CapturePaymentOutput> {
+  async capturePayment(): Promise<CapturePaymentOutput> {
     return { data: {} }
   }
 
-  async getPaymentStatus(input: GetPaymentStatusInput): Promise<GetPaymentStatusOutput> {
+  async getPaymentStatus(): Promise<GetPaymentStatusOutput> {
     return { status: PaymentSessionStatus.AUTHORIZED, data: {} }
   }
 
-  async retrievePayment(input: RetrievePaymentInput): Promise<RetrievePaymentOutput> {
+  async retrievePayment(): Promise<RetrievePaymentOutput> {
     return { data: {} }
   }
 
-  async updatePayment(input: UpdatePaymentInput): Promise<UpdatePaymentOutput> {
+  async updatePayment(): Promise<UpdatePaymentOutput> {
     return { data: {} }
   }
 
-  async refundPayment(input: RefundPaymentInput): Promise<RefundPaymentOutput> {
+  async refundPayment(): Promise<RefundPaymentOutput> {
     return { data: {} }
   }
 
-  async cancelPayment(input: CancelPaymentInput): Promise<CancelPaymentOutput> {
+  async cancelPayment(): Promise<CancelPaymentOutput> {
     return { data: {} }
   }
 
-  async deletePayment(input: DeletePaymentInput): Promise<DeletePaymentOutput> {
+  async deletePayment(): Promise<DeletePaymentOutput> {
     return { data: {} }
   }
 
-  async getWebhookActionAndData(
-    payload: ProviderWebhookPayload["payload"],
-  ): Promise<WebhookActionResult> {
+  async getWebhookActionAndData(): Promise<WebhookActionResult> {
     return { action: PaymentActions.NOT_SUPPORTED }
   }
 }
