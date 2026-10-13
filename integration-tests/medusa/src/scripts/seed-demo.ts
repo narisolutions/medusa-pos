@@ -90,22 +90,22 @@ const ORDERS: DemoOrder[] = [
 ]
 
 // A plain wordmark: the header and the receipt preview show it in place of a real logo.
-const LOGO_SVG = `<svg xmlns="http://www.w3.org/2000/svg" width="360" height="64" viewBox="0 0 360 64"><path d="M30 6 12 36h14l-4 22 20-32H28z" fill="#2563eb"/><text x="54" y="42" font-family="Arial, Helvetica, sans-serif" font-size="30" font-weight="700" fill="#0f172a">Northside</text><text x="204" y="42" font-family="Arial, Helvetica, sans-serif" font-size="30" fill="#2563eb">Electronics</text></svg>`
+const LOGO_SVG = `<svg xmlns="http://www.w3.org/2000/svg" width="230" height="64" viewBox="0 0 230 64"><path d="M30 6 12 36h14l-4 22 20-32H28z" fill="#2563eb"/><text x="54" y="42" font-family="Arial, Helvetica, sans-serif" font-size="30" font-weight="700" fill="#0f172a">Demo</text><text x="136" y="42" font-family="Arial, Helvetica, sans-serif" font-size="30" fill="#2563eb">Store</text></svg>`
 
 const STORE_METADATA = {
-  brand_name: "Northside Electronics",
+  brand_name: "Demo Store",
   logo_url: `data:image/svg+xml;base64,${Buffer.from(LOGO_SVG).toString("base64")}`,
   primary_color: "#2563eb",
-  store_address: "48 Market Street",
-  store_address_2: "Portland, OR 97201",
-  store_phone: "+1 503 555 0148",
+  store_address: "123 Main Street",
+  store_address_2: "Springfield",
+  store_phone: "+1 555 0100",
   guest_customer_email: "walkin@example.com",
   payment_methods: [
     { id: "pp_cash_pos", label: "Cash", enabled: true, icon: "cash", type: "cash" },
     { id: "pp_card_pos", label: "Card", enabled: true, icon: "card", type: "card" },
     { id: "pp_banktransfer_pos", label: "Bank transfer", enabled: true, icon: "bank_transfer", type: "bank_transfer" },
   ],
-  bank_details: { beneficiary: "Northside Electronics LLC", bank_name: "Pacific Coast Bank", iban: "GB33BUKB20201555555555" },
+  bank_details: { beneficiary: "Demo Store", bank_name: "Demo Bank", iban: "GB33BUKB20201555555555" },
 }
 
 const QUICK_KEY_SKUS: [sku: string, label?: string][] = [
@@ -193,7 +193,7 @@ export default async function seedDemo({ container }: ExecArgs) {
   // ── Store: branding, payment methods, quick keys ───────────────────
   const variantIdBySku = await variantIds(api)
   await api("POST", `/admin/stores/${store.id}`, {
-    name: "Northside Electronics",
+    name: "Demo Store",
     metadata: {
       ...store.metadata,
       pos: {
@@ -236,7 +236,7 @@ export default async function seedDemo({ container }: ExecArgs) {
   await api("POST", `/admin/stores/${store.id}`, {
     metadata: { ...(await api("GET", `/admin/stores/${store.id}`)).store.metadata, [DEMO_MARK]: new Date().toISOString() },
   })
-  logger.info("Demo shop ready: Northside Electronics")
+  logger.info("Demo shop ready: Demo Store")
 }
 
 type Api = (method: string, path: string, body?: unknown) => Promise<Json>

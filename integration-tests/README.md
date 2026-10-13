@@ -68,7 +68,7 @@ All variants have SKUs, barcodes, and 100 units of inventory at the Main Store l
 
 ## Demo Shop (for screenshots)
 
-`yarn test:env:demo` turns the running test store into **Northside Electronics**, a demo shop for screenshots
+`yarn test:env:demo` turns the running test store into **Demo Store**, a made-up shop for screenshots
 and demos. Run it once, after `yarn test:env:up`:
 
 ```bash
