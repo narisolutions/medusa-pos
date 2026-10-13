@@ -36,6 +36,7 @@
     "test:env:down": "docker compose -f integration-tests/docker-compose.yml down",
     "test:env:reset": "docker compose -f integration-tests/docker-compose.yml down -v",
     "test:env:logs": "docker compose -f integration-tests/docker-compose.yml logs -f medusa",
+    "test:env:demo": "docker compose -f integration-tests/docker-compose.yml --env-file integration-tests/.env exec medusa npx medusa exec src/scripts/seed-demo.ts",
     "test": "vitest run",
     "test:watch": "vitest"
   },
