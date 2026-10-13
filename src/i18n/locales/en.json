@@ -903,7 +903,7 @@
     "boot_slow_title": "Still loading…",
     "boot_slow_message": "This is taking longer than usual. You can keep waiting, or retry / switch store.",
     "sales_channel_required_title": "Sales Channel Required",
-    "sales_channel_required_message": "A sales channel must be configured before you can add products to cart. Please go to Settings → API Settings to configure your sales channel.",
+    "sales_channel_required_message": "A sales channel must be set before products can be added to the cart. Go to Settings → Connection to choose one.",
     "store_setup_title": "Set up store info",
     "store_setup_message": "Add your store name, branding, and store contact details so they appear correctly on receipts and throughout the app.",
     "something_went_wrong_title": "Hmm... something went wrong.",

@@ -12,9 +12,11 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { ROUTES } from "@/router/routes";
+import { useTranslation } from "@/i18n";
 
 const StoreSetupDialog: React.FC = () => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const needsSetup = useStore((s) => s.needsSetup);
   const setNeedsSetup = useStore((s) => s.setNeedsSetup);
   const isAuthenticated = useUser((s) => s.isAuthenticated);
@@ -42,21 +44,17 @@ const StoreSetupDialog: React.FC = () => {
         className="sm:max-w-md"
       >
         <DialogHeader>
-          <DialogTitle className="text-xl">Set up store info</DialogTitle>
+          <DialogTitle className="text-xl">{t("errors.store_setup_title")}</DialogTitle>
           <DialogDescription className="text-base mt-1">
-            Add your store name, branding, and store contact details so they
-            appear correctly on receipts and throughout the app.
+            {t("errors.store_setup_message")}
           </DialogDescription>
         </DialogHeader>
-        <DialogFooter className="flex-col sm:flex-row gap-2 mt-4">
-          <Button variant="outline" onClick={handleRemindLater}>
-            Remind me later
+        <DialogFooter className="flex-col sm:flex-row gap-3 mt-4">
+          <Button variant="outline" size="lg" className="flex-1" onClick={handleRemindLater}>
+            {t("common.remind_later")}
           </Button>
-          <Button
-            size="lg"
-            onClick={handleGoToSettings}
-          >
-            Go to Store Settings
+          <Button size="lg" className="flex-1" onClick={handleGoToSettings}>
+            {t("common.go_to_store_settings")}
           </Button>
         </DialogFooter>
       </DialogContent>
