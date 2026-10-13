@@ -25,10 +25,17 @@ function AppContent() {
     <>
       <RouterProvider router={router} />
       {/* Near the hands and the till's work, readable at arm's length (docs/ui-ux). */}
-      <Toaster richColors position="bottom-center" visibleToasts={3} toastOptions={{
+      <Toaster
+        richColors
+        position="bottom-center"
+        visibleToasts={3}
+        // Wide enough that a file name or an error reason reads on one or two lines, not six.
+        style={{ "--width": "min(520px, calc(100vw - 2rem))" } as React.CSSProperties}
+        toastOptions={{
           // Sonner's 24px action button is too small to tap; Undo must be easy to hit.
           classNames: { toast: "text-base!", title: "text-base!", actionButton: "h-11! px-4! text-base! rounded-md!" },
-        }} />
+        }}
+      />
     </>
   );
 }
