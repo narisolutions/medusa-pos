@@ -1,5 +1,7 @@
 import React from "react";
-import { Loader2, Wallet, Wifi, WifiOff } from "lucide-react";
+import { FlaskConical, Loader2, Wallet, Wifi, WifiOff } from "lucide-react";
+import { useStoreManager } from "@/context/store-manager";
+import { isStagingBackend } from "@/utils/auth/environment";
 import { StatusChip } from "@/components/ui/status-chip";
 import { useQueryBackendHealth } from "@/hooks/queries/useQueryBackendHealth";
 import { useRegister } from "@/context/register";
@@ -15,11 +17,18 @@ const StatusIndicators: React.FC = () => {
   const health = useQueryBackendHealth();
   const { enabled: registerEnabled, isOpen: registerOpen } = useRegister();
 
+  const isStaging = isStagingBackend(useStoreManager((s) => s.activeStore?.backendUrl));
   const online = health.data;
   const checking = health.isFetching && online === undefined;
 
   return (
     <div className="flex items-center gap-2">
+      {/* So test sales on staging are never mistaken for real ones. */}
+      {isStaging && (
+        <StatusChip intent="warning" icon={<FlaskConical className="size-4" />} className="font-bold uppercase tracking-wide">
+          {t("auth.staging")}
+        </StatusChip>
+      )}
       {/* Tapping re-checks now, e.g. after plugging the cable back in. */}
       <button
         type="button"
