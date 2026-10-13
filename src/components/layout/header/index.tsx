@@ -1,5 +1,5 @@
 import { Calendar } from "lucide-react";
-import { SidebarTrigger, useSidebar } from "@/components/ui/sidebar";
+import { useSidebar } from "@/components/ui/sidebar";
 import { useEffect, useState } from "react";
 import { useHeader } from "./hooks";
 import { useQueryStore } from "@/hooks/queries/useQueryStore";
@@ -27,9 +27,8 @@ const Header: React.FC = () => {
 
   return (
     <header className="bg-surface border-b border-theme-border shadow h-24 px-6 flex items-center justify-between shrink-0">
-      <div className="flex items-center gap-4">
-        {!sidebar.open && <SidebarTrigger />}
-      </div>
+      {/* Folded, the sidebar's fold button sits here; keep the space so nothing slides under it. */}
+      <div className={sidebar.open ? "" : "w-16 shrink-0"} />
       <div>
         {logoSrc ? (
           <img

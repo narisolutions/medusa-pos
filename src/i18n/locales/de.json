@@ -46,7 +46,8 @@
     "collapse": "Menü einklappen",
     "logout_confirm_title": "Abmelden?",
     "logout_confirm_message": "Sie müssen sich erneut anmelden, um die Kasse zu nutzen.",
-    "logout_confirm_sale": "Der aktuelle Verkauf bleibt im Warenkorb und ist nach der Anmeldung wieder da."
+    "logout_confirm_sale": "Der aktuelle Verkauf bleibt im Warenkorb und ist nach der Anmeldung wieder da.",
+    "expand": "Menü ausklappen"
   },
   "auth": {
     "sign_in": "Anmelden",

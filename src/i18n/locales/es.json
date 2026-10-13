@@ -46,7 +46,8 @@
     "collapse": "Contraer menú",
     "logout_confirm_title": "¿Cerrar sesión?",
     "logout_confirm_message": "Tendrá que iniciar sesión de nuevo para usar la caja.",
-    "logout_confirm_sale": "La venta actual se queda en el carrito y estará ahí cuando vuelva a iniciar sesión."
+    "logout_confirm_sale": "La venta actual se queda en el carrito y estará ahí cuando vuelva a iniciar sesión.",
+    "expand": "Expandir menú"
   },
   "auth": {
     "sign_in": "Iniciar sesión",
