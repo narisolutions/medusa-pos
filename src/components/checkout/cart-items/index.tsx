@@ -149,7 +149,7 @@ const CartItems: React.FC<Props> = ({ lastAdded }) => {
                         </div>
                       </TableCell>
                       <TableCell className="hidden @4xl:table-cell">
-                        <div className="text-base text-fg">{String(sku || "-")}</div>
+                        <div className="text-base text-fg break-all">{String(sku || "-")}</div>
                       </TableCell>
                       <TableCell className="hidden @4xl:table-cell">
                         <div className="text-base text-fg">
