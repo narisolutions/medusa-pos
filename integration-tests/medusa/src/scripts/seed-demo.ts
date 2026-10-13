@@ -89,8 +89,8 @@ const ORDERS: DemoOrder[] = [
   { customer: "john.smith@example.com", items: [["MOUSE-WL-BLK", 1], ["SLEEVE-14-GRY", 1]], provider: "pp_cash_pos", cashPaid: 100, outcome: "delivered", daysAgo: 0, time: "11:50" },
 ]
 
-// A plain wordmark: the header and the receipt preview show it in place of a real logo.
-const LOGO_SVG = `<svg xmlns="http://www.w3.org/2000/svg" width="230" height="64" viewBox="0 0 230 64"><path d="M30 6 12 36h14l-4 22 20-32H28z" fill="#2563eb"/><text x="54" y="42" font-family="Arial, Helvetica, sans-serif" font-size="30" font-weight="700" fill="#0f172a">Demo</text><text x="136" y="42" font-family="Arial, Helvetica, sans-serif" font-size="30" fill="#2563eb">Store</text></svg>`
+// A white wordmark on a brand-blue badge: it reads on the light and the dark header alike.
+const LOGO_SVG = `<svg xmlns="http://www.w3.org/2000/svg" width="236" height="64" viewBox="0 0 236 64"><rect width="236" height="64" rx="14" fill="#2563eb"/><path d="M36 10 20 37h12l-3 18 18-29H35z" fill="#ffffff"/><text x="60" y="42" font-family="Arial, Helvetica, sans-serif" font-size="28" font-weight="700" fill="#ffffff">Demo Store</text></svg>`
 
 const STORE_METADATA = {
   brand_name: "Demo Store",
