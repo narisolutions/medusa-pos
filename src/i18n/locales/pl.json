@@ -46,7 +46,8 @@
     "collapse": "Zwiń menu",
     "logout_confirm_title": "Wylogować?",
     "logout_confirm_message": "Aby korzystać z kasy, trzeba będzie zalogować się ponownie.",
-    "logout_confirm_sale": "Bieżąca sprzedaż zostanie w koszyku i będzie tam po ponownym zalogowaniu."
+    "logout_confirm_sale": "Bieżąca sprzedaż zostanie w koszyku i będzie tam po ponownym zalogowaniu.",
+    "expand": "Rozwiń menu"
   },
   "auth": {
     "sign_in": "Zaloguj się",

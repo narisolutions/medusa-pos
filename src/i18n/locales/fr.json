@@ -46,7 +46,8 @@
     "collapse": "Réduire le menu",
     "logout_confirm_title": "Se déconnecter ?",
     "logout_confirm_message": "Vous devrez vous reconnecter pour utiliser la caisse.",
-    "logout_confirm_sale": "La vente en cours reste dans le panier et sera là à votre reconnexion."
+    "logout_confirm_sale": "La vente en cours reste dans le panier et sera là à votre reconnexion.",
+    "expand": "Développer le menu"
   },
   "auth": {
     "sign_in": "Se connecter",

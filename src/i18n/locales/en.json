@@ -46,7 +46,8 @@
     "collapse": "Collapse menu",
     "logout_confirm_title": "Log out?",
     "logout_confirm_message": "You'll need to sign in again to use the till.",
-    "logout_confirm_sale": "The current sale stays in the cart and will be there when you sign back in."
+    "logout_confirm_sale": "The current sale stays in the cart and will be there when you sign back in.",
+    "expand": "Expand menu"
   },
   "auth": {
     "sign_in": "Sign in",

@@ -2,6 +2,7 @@ import { useRef, useLayoutEffect } from "react";
 import { Outlet, useLocation } from "react-router-dom";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import AppSidebar from "./sidebar";
+import SidebarToggle from "./sidebar-toggle";
 import Header from "./header";
 import StoreSetupModal from "@/components/base/store-setup-dialog";
 import SalesChannelWarningDialog from "@/components/base/sales-channel-dialog";
@@ -22,6 +23,7 @@ export function Layout() {
       <PluginProviders>
       <SidebarProvider>
         <AppSidebar />
+        <SidebarToggle />
         <SidebarInset className="flex flex-col h-screen">
           <Header />
           <main ref={mainRef} className="flex-1 min-h-0 overflow-auto">

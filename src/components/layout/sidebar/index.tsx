@@ -6,11 +6,10 @@ import {
   SidebarHeader,
   SidebarMenu,
   SidebarMenuItem,
-  useSidebar,
 } from "@/components/ui/sidebar";
 import { useUser } from "@/context/user";
 import { NavLink, useNavigate } from "react-router-dom";
-import { Bookmark, ChevronLeft, LogOut, Settings, Loader2 } from "lucide-react";
+import { Bookmark, LogOut, Settings, Loader2 } from "lucide-react";
 import Payments from "@/assets/icons/payments";
 import Checkout from "@/assets/icons/checkout";
 import { useUnfulfilledOrdersCount } from "@/hooks/queries/useUnfulfilledOrdersCount";
@@ -23,7 +22,6 @@ import { useState } from "react";
 import LogoutDialog from "./logout-dialog";
 
 const AppSidebar = () => {
-  const sidebar = useSidebar();
   const logout = useUser((state) => state.logout);
   const navigate = useNavigate();
   const unfulfilled = useUnfulfilledOrdersCount();
@@ -69,15 +67,8 @@ const AppSidebar = () => {
   return (
     <Sidebar>
       <SidebarContent className="flex flex-col h-full">
+        {/* Room for the fold button, which is pinned here in both states (layout/sidebar-toggle). */}
         <SidebarHeader className="h-24 flex flex-col items-center justify-center shadow gap-2">
-          <Button
-            variant="ghost"
-            size="icon-lg"
-            onClick={() => sidebar.toggleSidebar()}
-            aria-label={t("nav.collapse")}
-          >
-            <ChevronLeft className="size-8" />
-          </Button>
         </SidebarHeader>
 
         <SidebarMenu className="px-2 py-6 flex-1">

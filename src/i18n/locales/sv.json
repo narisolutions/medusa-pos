@@ -46,7 +46,8 @@
     "collapse": "Fäll ihop menyn",
     "logout_confirm_title": "Logga ut?",
     "logout_confirm_message": "Du behöver logga in igen för att använda kassan.",
-    "logout_confirm_sale": "Den pågående försäljningen ligger kvar i varukorgen när du loggar in igen."
+    "logout_confirm_sale": "Den pågående försäljningen ligger kvar i varukorgen när du loggar in igen.",
+    "expand": "Fäll ut menyn"
   },
   "auth": {
     "sign_in": "Logga in",
