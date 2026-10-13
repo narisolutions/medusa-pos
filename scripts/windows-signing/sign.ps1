@@ -8,7 +8,7 @@
 #
 #   pwsh -File scripts/windows-signing/sign.ps1 <file>
 #
-# Reads BRINDOLA_SIGNTOOL, BRINDOLA_SIGN_DLIB and BRINDOLA_SIGN_METADATA (set
+# Reads WINSIGN_SIGNTOOL, WINSIGN_DLIB and WINSIGN_METADATA (set
 # by prepare.ps1) and the AZURE_* credentials the dlib picks up itself.
 #
 # A non-zero exit fails `tauri build`, so a file that is unsigned, untimestamped
@@ -19,7 +19,7 @@ param([Parameter(Mandatory)][string]$Path)
 $ErrorActionPreference = 'Stop'
 $ExpectedPublisher = 'Pliu AB'
 
-foreach ($name in 'BRINDOLA_SIGNTOOL', 'BRINDOLA_SIGN_DLIB', 'BRINDOLA_SIGN_METADATA') {
+foreach ($name in 'WINSIGN_SIGNTOOL', 'WINSIGN_DLIB', 'WINSIGN_METADATA') {
   if (-not [Environment]::GetEnvironmentVariable($name)) {
     Write-Host "::error::$name is not set — run scripts/windows-signing/prepare.ps1 first"
     exit 1
@@ -28,9 +28,9 @@ foreach ($name in 'BRINDOLA_SIGNTOOL', 'BRINDOLA_SIGN_DLIB', 'BRINDOLA_SIGN_META
 
 # The certificate lives three days: without the RFC 3161
 # timestamp the signature would die with it.
-& $env:BRINDOLA_SIGNTOOL sign /v /fd SHA256 `
+& $env:WINSIGN_SIGNTOOL sign /v /fd SHA256 `
   /tr 'http://timestamp.acs.microsoft.com' /td SHA256 `
-  /dlib $env:BRINDOLA_SIGN_DLIB /dmdf $env:BRINDOLA_SIGN_METADATA `
+  /dlib $env:WINSIGN_DLIB /dmdf $env:WINSIGN_METADATA `
   $Path
 if ($LASTEXITCODE -ne 0) {
   Write-Host "::error::signtool failed ($LASTEXITCODE) on $Path"

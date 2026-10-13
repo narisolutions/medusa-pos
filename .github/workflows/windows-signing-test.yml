@@ -2,9 +2,9 @@
 # A few Windows minutes instead of a full Tauri build: it runs
 # the same prepare.ps1 + sign.ps1 that release.yml's Windows leg runs, so a
 # green run here means the credentials, the account, the profile and the role
-# assignment are right. What it does not prove is the signCommand plumbing
-# inside `tauri build` — the first release does, and sign.ps1 fails that leg
-# rather than let an unsigned file through.
+# assignment are right. The `tauri-build` job then signs through the
+# signCommand inside a real `tauri build`, as the release does, without
+# publishing anything.
 #
 # Starts on a tag so it can run from any branch (a dispatch needs the file on
 # the default branch first).
@@ -55,4 +55,54 @@ jobs:
         with:
           name: signing-test-exe
           path: signing-test/signing-test.exe
+          retention-days: 7
+
+  tauri-build:
+    runs-on: windows-latest
+    env:
+      AZURE_TENANT_ID: ${{ vars.AZURE_TENANT_ID }}
+      AZURE_CLIENT_ID: ${{ vars.AZURE_CLIENT_ID }}
+      AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
+      AZURE_SIGNING_ENDPOINT: ${{ vars.AZURE_SIGNING_ENDPOINT }}
+      AZURE_SIGNING_ACCOUNT: ${{ vars.AZURE_SIGNING_ACCOUNT }}
+      AZURE_SIGNING_PROFILE: ${{ vars.AZURE_SIGNING_PROFILE }}
+      TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+      TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Setup Node 22 LTS
+        uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: yarn
+
+      - name: Install Rust stable
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: x86_64-pc-windows-msvc
+
+      - name: Cache Rust build artifacts
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: src-tauri -> target
+
+      - name: Install frontend dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Prepare Windows code signing
+        id: winsign
+        shell: pwsh
+        run: ./scripts/windows-signing/prepare.ps1
+
+      - name: Build and sign
+        shell: bash
+        run: yarn tauri build --target x86_64-pc-windows-msvc ${{ steps.winsign.outputs.args }}
+
+      - name: Upload the signed MSI
+        uses: actions/upload-artifact@v4
+        with:
+          name: signing-test-msi
+          path: src-tauri/target/x86_64-pc-windows-msvc/release/bundle/msi/*.msi
           retention-days: 7

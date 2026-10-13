@@ -22,9 +22,9 @@
 #   AZURE_SIGNING_ACCOUNT, AZURE_SIGNING_PROFILE — the account and the
 #     Public Trust certificate profile
 #
-# Outputs: GITHUB_ENV gets BRINDOLA_SIGNTOOL, BRINDOLA_SIGN_DLIB and
-# BRINDOLA_SIGN_METADATA (what sign.ps1 reads); GITHUB_OUTPUT gets `args`,
-# the `--config <overlay>` to append to `tauri build`.
+# Outputs: GITHUB_ENV gets WINSIGN_SIGNTOOL, WINSIGN_DLIB and
+# WINSIGN_METADATA (what sign.ps1 reads); GITHUB_OUTPUT gets `args`,
+# the `--verbose --config <overlay>` to append to `tauri build`.
 #
 # Bumping the client is deliberate work: change $ClientVersion, download the
 # .nupkg from nuget.org, `sha256sum` it, paste the hash below.
@@ -116,12 +116,13 @@ $overlay = Join-Path $root 'tauri.signing.conf.json'
   }
 } | ConvertTo-Json -Depth 6 | Set-Content -Path $overlay -Encoding utf8
 
-"BRINDOLA_SIGNTOOL=$($signtool.FullName)" >> $env:GITHUB_ENV
-"BRINDOLA_SIGN_DLIB=$dlib" >> $env:GITHUB_ENV
-"BRINDOLA_SIGN_METADATA=$metadata" >> $env:GITHUB_ENV
+"WINSIGN_SIGNTOOL=$($signtool.FullName)" >> $env:GITHUB_ENV
+"WINSIGN_DLIB=$dlib" >> $env:GITHUB_ENV
+"WINSIGN_METADATA=$metadata" >> $env:GITHUB_ENV
 # Forward slashes: the path may be spliced into a bash command line, where a
 # backslash is an escape. Windows and Tauri read either.
-"args=--config $($overlay -replace '\\', '/')" >> $env:GITHUB_OUTPUT
+# --verbose: Tauri shows the sign command's output only at debug level.
+"args=--verbose --config $($overlay -replace '\\', '/')" >> $env:GITHUB_OUTPUT
 
 Write-Host "Signing prepared: $ClientPackage $ClientVersion, $($signtool.FullName)"
 Write-Host "Account $env:AZURE_SIGNING_ACCOUNT / profile $env:AZURE_SIGNING_PROFILE at $env:AZURE_SIGNING_ENDPOINT"

@@ -214,6 +214,6 @@ jobs:
           releaseDraft: false
           prerelease: ${{ inputs.prerelease || false }}
           includeUpdaterJson: true
-          # `--config <signing overlay>` on Windows, empty elsewhere.
+          # `--verbose --config <signing overlay>` on Windows, empty elsewhere.
           args: --target ${{ matrix.target }} ${{ steps.winsign.outputs.args }}
 
