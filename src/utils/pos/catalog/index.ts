@@ -116,11 +116,28 @@ const cheapestVariant = (product: AdminProduct): AdminProductVariant | null =>
     null
   );
 
+type OptionValue = { value?: string | null; option?: { title?: string | null } | null };
+
+/**
+ * A variant's real option values. A product made without options (a gift box, a bag)
+ * gets Medusa's placeholder "Default option" / "Default option value", which means none.
+ */
+const realOptions = <T extends OptionValue>(options: T[] | null | undefined): T[] =>
+  (options ?? []).filter(
+    (option) =>
+      !!option.value && option.value !== "Default option value" && option.option?.title !== "Default option"
+  );
+
+/** Option values as the till shows them ("750/2020"); empty when there are none. */
+const optionValuesText = (options: OptionValue[] | null | undefined): string =>
+  realOptions(options)
+    .map((option) => option.value)
+    .join("/");
+
 /** What tells a variant apart: its title (Medusa's "Default variant" means none) and option values. */
 const variantLabel = (variant: AdminProductVariant): string => {
   const title = variant.title && variant.title !== "Default variant" ? variant.title : "";
-  const options = (variant.options ?? []).map((option) => option.value).filter(Boolean);
-  return [title, options.join("/")].filter(Boolean).join(" • ");
+  return [title, optionValuesText(variant.options)].filter(Boolean).join(" • ");
 };
 
 /** The rest of the product a variant belongs to, in catalog order; empty when it stands alone. */
@@ -144,7 +161,9 @@ export {
   filterCatalog,
   otherVariants,
   productPriceRange,
+  optionValuesText,
   productStock,
+  realOptions,
   variantLabel,
   variantPrice,
 };

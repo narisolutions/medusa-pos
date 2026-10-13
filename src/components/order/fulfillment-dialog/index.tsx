@@ -123,7 +123,9 @@ const FulfillmentDialog: React.FC<FulfillmentDialogProps> = ({
               const gtin = orderItem.variant?.ean || orderItem.variant?.barcode || null;
               const thumbnail = orderItem.thumbnail || null;
               const productTitle = orderItem.product_title || null;
-              const subtitle = orderItem.subtitle || orderItem.variant_title || null;
+              // Medusa's "Default variant" names no variant, so it isn't worth a line.
+              const variantTitle = orderItem.variant_title !== "Default variant" ? orderItem.variant_title : null;
+              const subtitle = orderItem.subtitle || variantTitle || null;
 
               return (
                 <div

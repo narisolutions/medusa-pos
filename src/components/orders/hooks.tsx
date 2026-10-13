@@ -21,6 +21,10 @@ import OrderStatusChip from "@/components/base/order-status-chip";
 
 const columnHelper = createColumnHelper<AdminOrder>();
 
+// Shown only when the list is wide enough (a container query, so it follows the till's
+// Display size): at Large the rest of the row fits without scrolling sideways.
+const OPTIONAL_COLUMN = "hidden @6xl:table-cell";
+
 const useOrders = () => {
   const { t } = useTranslation();
   const { data: store } = useQueryStore();
@@ -39,6 +43,7 @@ const useOrders = () => {
       columnHelper.display({
         id: "provider_name",
         header: t("orders.column_method"),
+        meta: { className: OPTIONAL_COLUMN },
         cell: (info) => {
           const order = info.row.original;
           // A plugin's badge replaces the method: the order's source says how it leaves.
@@ -80,7 +85,7 @@ const useOrders = () => {
       columnHelper.accessor((row) => getOrderCustomerLabel(row), {
         id: "customer_email",
         header: t("orders.column_customer"),
-        cell: (info) => <span className="text-base">{info.getValue()}</span>,
+        cell: (info) => <span className="text-base break-all">{info.getValue()}</span>,
         filterFn: "includesString",
       }),
       columnHelper.accessor("sales_channel.name", {
@@ -114,6 +119,7 @@ const useOrders = () => {
       columnHelper.display({
         id: "payment_method",
         header: t("orders.payment_method_label"),
+        meta: { className: OPTIONAL_COLUMN },
         cell: (info) => {
           const label = getOrderPaymentMethodLabel(info.row.original, store);
           if (!label) {

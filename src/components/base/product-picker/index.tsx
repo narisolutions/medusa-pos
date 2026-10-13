@@ -18,6 +18,7 @@ import ItemDialog from "./variant-dialog";
 import { getVariantAvailableQuantity, getVariantUnitPrice } from "@/utils/pos/cart";
 import { useQueryPosPlugin } from "@/hooks/queries/useQueryPosPlugin";
 import { useTranslation } from "@/i18n";
+import { optionValuesText } from "@/utils/pos/catalog";
 
 interface Props {
   products: AdminProduct[];
@@ -149,9 +150,7 @@ const ProductPicker: React.FC<Props> = ({ products, currency, onSelect, extraAct
                   const options = variant.options as
                     | Array<{ value: string; option: { title: string } }>
                     | undefined;
-                  const optionsDisplay = options && options.length > 0
-                    ? options.map((opt) => opt.value).join("/")
-                    : null;
+                  const optionsDisplay = optionValuesText(options) || null;
 
                   return (
                     <CommandItem

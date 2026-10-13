@@ -28,7 +28,7 @@ const Items: React.FC<ItemsProps> = ({
     isNegativeFulfillmentStatus && !!contactEmail;
 
   return (
-    <div className="rounded-lg border border-theme-border overflow-hidden shadow-sm bg-surface flex flex-col h-full">
+    <div className="rounded-lg border border-theme-border overflow-hidden shadow-sm bg-surface">
       <div className="px-6 py-4 border-b border-theme-border bg-surface-muted shrink-0">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
@@ -45,7 +45,7 @@ const Items: React.FC<ItemsProps> = ({
           )}
         </div>
       </div>
-      <div className="p-6 space-y-3 overflow-y-auto flex-1 min-h-0">
+      <div className="p-6 space-y-3">
         {items?.map((item, index) => {
           const metadata = item.metadata as { public?: { vintage?: string; volume?: string }; item_discount?: { type: "amount" | "percent"; value: number }; original_unit_price?: number };
           const vintage = metadata?.public?.vintage ? String(metadata?.public?.vintage) : null;
@@ -57,7 +57,9 @@ const Items: React.FC<ItemsProps> = ({
           // product/variant pair renders blank.
           const primaryTitle = item.product_title || item.title;
           const secondaryTitle =
-            item.variant_title && item.variant_title !== primaryTitle ? item.variant_title : null;
+            item.variant_title && item.variant_title !== primaryTitle && item.variant_title !== "Default variant"
+              ? item.variant_title
+              : null;
           const restocked = toNumber(item.detail?.return_received_quantity);
           const damaged = toNumber(item.detail?.return_dismissed_quantity);
           // The backend values a returned bottle at 0; say why instead of showing a bare 0.00.

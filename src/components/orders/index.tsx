@@ -25,6 +25,9 @@ import { ChevronRight, ReceiptText } from "lucide-react";
 import { useTranslation } from "@/i18n";
 import { ROUTES } from "@/router/routes";
 
+/** A column's own classes, e.g. one hidden on narrow lists. */
+const columnClass = (def: { meta?: unknown }) => (def.meta as { className?: string } | undefined)?.className ?? "";
+
 const Orders: React.FC = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
@@ -135,7 +138,7 @@ const Orders: React.FC = () => {
         <div className="bg-surface rounded-lg border border-theme-border overflow-hidden shadow-sm h-full flex flex-col">
           {/* Single dedicated scroll region: only the rows scroll (header stays sticky),
               so each scroll frame repaints just the rows instead of the whole card. */}
-          <div className="flex-1 min-h-0 overflow-y-auto">
+          <div className="@container flex-1 min-h-0 overflow-y-auto">
           <Table>
             <TableHeader className="bg-surface-muted sticky top-0 z-10">
               {table.getHeaderGroups().map((headerGroup) => (
@@ -146,7 +149,7 @@ const Orders: React.FC = () => {
                   {headerGroup.headers.map((header) => (
                     <TableHead
                       key={header.id}
-                      className="text-base font-semibold text-fg-muted py-4 px-4 first:pl-6 last:pr-6"
+                      className={`text-base font-semibold text-fg-muted py-4 px-4 first:pl-6 last:pr-6 ${columnClass(header.column.columnDef)}`}
                     >
                       {header.isPlaceholder
                         ? null
@@ -171,7 +174,7 @@ const Orders: React.FC = () => {
                       {row.getVisibleCells().map((cell) => (
                         <TableCell
                           key={cell.id}
-                          className="text-base text-fg py-5 px-4 first:pl-6 last:pr-6"
+                          className={`text-base text-fg py-5 px-4 first:pl-6 last:pr-6 ${columnClass(cell.column.columnDef)}`}
                           style={{
                             width: cell.column.getSize(),
                           }}

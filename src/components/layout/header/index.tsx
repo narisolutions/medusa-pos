@@ -26,7 +26,8 @@ const Header: React.FC = () => {
   const logoSrc = getLogoUrl(store);
 
   return (
-    <header className="bg-surface border-b border-theme-border shadow h-24 px-6 flex items-center justify-between shrink-0">
+    // Three columns: the logo stays centred, and the status side wraps rather than running off-screen.
+    <header className="bg-surface border-b border-theme-border shadow h-24 px-6 grid grid-cols-[1fr_auto_1fr] items-center gap-4 shrink-0">
       {/* Folded, the sidebar's fold button sits here; keep the space so nothing slides under it. */}
       <div className={sidebar.open ? "" : "w-16 shrink-0"} />
       <div>
@@ -45,9 +46,9 @@ const Header: React.FC = () => {
           </span>
         )}
       </div>
-      <div className="flex items-center gap-4">
+      <div className="flex min-w-0 flex-wrap items-center justify-end gap-x-4 gap-y-1">
         <StatusIndicators />
-        <div className="flex gap-1.5 items-center text-base text-fg-muted">
+        <div className="flex gap-1.5 items-center whitespace-nowrap text-base text-fg-muted">
           <span>{formatDate(now)}</span>
           <Calendar />
         </div>

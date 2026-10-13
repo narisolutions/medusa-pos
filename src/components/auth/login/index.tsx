@@ -20,6 +20,7 @@ import { useLogin } from "./hooks";
 import { useStoreManager } from "@/context/store-manager";
 import StoreSelectorBox from "@/components/auth/store-selector";
 import { useTranslation } from "@/i18n";
+import { isStagingBackend } from "@/utils/auth/environment";
 
 const Login: React.FC = () => {
   const form = useForm<Forms["Login"]>({
@@ -32,7 +33,7 @@ const Login: React.FC = () => {
   const { t } = useTranslation();
 
   const isConfigured = Boolean(activeStore);
-  const isBackendStaging = activeStore?.backendUrl?.includes("staging");
+  const isBackendStaging = isStagingBackend(activeStore?.backendUrl);
 
   const { onLogin, error, clearError } = useLogin(isConfigured);
   const [showPassword, setShowPassword] = useState(false);

@@ -25,7 +25,8 @@ function SegmentedControl<T extends string>({ options, value, onChange, label, s
       role="radiogroup"
       aria-label={label}
       data-slot="segmented-control"
-      className={cn("inline-flex gap-1 rounded-lg bg-muted p-1", className)}
+      // Options wrap to a second row rather than overflow (long labels, Large display size).
+      className={cn("inline-flex flex-wrap gap-1 rounded-lg bg-muted p-1", className)}
     >
       {options.map((option) => {
         const selected = option.value === value
