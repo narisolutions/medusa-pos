@@ -679,7 +679,6 @@
       "loading": "Ładowanie drukarek...",
       "testing_print": "Test druku…",
       "testing_drawer": "Test szuflady…",
-      "not_tested": "Nie testowano",
       "print_ok": "Druk OK",
       "print_issue": "Problem z drukiem",
       "drawer_ok": "Szuflada OK",
@@ -1031,6 +1030,18 @@
     "checking": "Sprawdzanie…",
     "recheck": "Sprawdź połączenie ponownie",
     "register_open": "Kasa otwarta",
-    "register_closed": "Kasa zamknięta"
+    "register_closed": "Kasa zamknięta",
+    "printer_checking": "Sprawdzanie drukarki…",
+    "printer_ready": "Drukarka gotowa",
+    "printer_connected": "Drukarka połączona",
+    "printer_paper_low": "Kończy się papier",
+    "printer_paper_out": "Brak papieru",
+    "printer_cover_open": "Pokrywa drukarki otwarta",
+    "printer_error": "Błąd drukarki",
+    "printer_offline": "Drukarka offline",
+    "printer_unreachable": "Drukarka niedostępna",
+    "printer_unsupported": "Stan niedostępny",
+    "printer_none": "Brak drukarki",
+    "printer_open_settings": "Otwórz ustawienia drukarki"
   }
 }

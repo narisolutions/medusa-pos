@@ -679,7 +679,6 @@
       "loading": "Laddar skrivare...",
       "testing_print": "Testar utskrift…",
       "testing_drawer": "Testar låda…",
-      "not_tested": "Inte testad",
       "print_ok": "Utskrift OK",
       "print_issue": "Utskriftsproblem",
       "drawer_ok": "Låda OK",
@@ -1031,6 +1030,18 @@
     "checking": "Kontrollerar…",
     "recheck": "Kontrollera anslutningen igen",
     "register_open": "Kassan öppen",
-    "register_closed": "Kassan stängd"
+    "register_closed": "Kassan stängd",
+    "printer_checking": "Kontrollerar skrivaren…",
+    "printer_ready": "Skrivaren redo",
+    "printer_connected": "Skrivaren ansluten",
+    "printer_paper_low": "Lite papper kvar",
+    "printer_paper_out": "Slut på papper",
+    "printer_cover_open": "Skrivarluckan öppen",
+    "printer_error": "Skrivarfel",
+    "printer_offline": "Skrivaren offline",
+    "printer_unreachable": "Skrivaren nås inte",
+    "printer_unsupported": "Status ej tillgänglig",
+    "printer_none": "Ingen skrivare",
+    "printer_open_settings": "Öppna skrivarinställningar"
   }
 }

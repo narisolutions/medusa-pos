@@ -1,6 +1,7 @@
 import React from "react";
 import { Edit2Icon, Loader2, Plus, Trash2Icon, PrinterIcon } from "lucide-react";
 import { StatusChip } from "@/components/ui/status-chip";
+import PrinterStatusChip from "@/components/base/printer-status-chip";
 import { Button } from "@/components/ui/button";
 import {
   Table,
@@ -52,7 +53,7 @@ const PrinterSettings: React.FC = () => {
     );
   }
 
-  // The last test's outcome; there is no live link check, so "not tested" is said plainly.
+  // The live state first, then what the last test print or drawer kick did.
   const renderStatus = (printer: Printer) => {
     const printResult = testResults[printer.id];
     const drawerResult = cashDrawerTestResults[printer.id];
@@ -66,12 +67,9 @@ const PrinterSettings: React.FC = () => {
       );
     }
 
-    if (!printResult && !drawerResult) {
-      return <StatusChip intent="neutral">{t("settings.printer.not_tested")}</StatusChip>;
-    }
-
     return (
       <div className="flex flex-col items-start gap-2">
+        <PrinterStatusChip printer={printer} />
         {printResult && (
           <StatusChip intent={printResult.success ? "success" : "danger"}>
             {printResult.success ? t("settings.printer.print_ok") : t("settings.printer.print_issue")}

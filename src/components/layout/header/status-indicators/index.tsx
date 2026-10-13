@@ -4,10 +4,14 @@ import { StatusChip } from "@/components/ui/status-chip";
 import { useQueryBackendHealth } from "@/hooks/queries/useQueryBackendHealth";
 import { useRegister } from "@/context/register";
 import { useTranslation } from "@/i18n";
+import { useNavigate } from "react-router-dom";
+import { ROUTES } from "@/router/routes";
+import PrinterStatusChip from "@/components/base/printer-status-chip";
 
-/** The till's state on every page: can it reach the server, and can it take a sale. */
+/** The till's state on every page: can it reach the server and the printer, and can it take a sale. */
 const StatusIndicators: React.FC = () => {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const health = useQueryBackendHealth();
   const { enabled: registerEnabled, isOpen: registerOpen } = useRegister();
 
@@ -36,6 +40,15 @@ const StatusIndicators: React.FC = () => {
             {t("status.offline")}
           </StatusChip>
         )}
+      </button>
+      {/* Opens the printer settings, where the problem gets fixed or tested. */}
+      <button
+        type="button"
+        onClick={() => navigate(ROUTES.settingsSection("printer"))}
+        aria-label={t("status.printer_open_settings")}
+        className="flex min-h-tap items-center rounded-full cursor-pointer active:opacity-80"
+      >
+        <PrinterStatusChip hideUnknown />
       </button>
       {registerEnabled && (
         <StatusChip intent={registerOpen ? "success" : "warning"} icon={<Wallet className="size-4" />}>
