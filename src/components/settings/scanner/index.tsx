@@ -10,6 +10,8 @@ import {
 } from "@/components/ui/select";
 import { useTranslation } from "@/i18n";
 import { BAUD_RATES, useScannerSettings } from "./hooks";
+import { Tile } from "@/components/ui/tile";
+import WedgeTest from "./wedge-test";
 
 const ScannerSettings: React.FC = () => {
   const { t } = useTranslation();
@@ -51,28 +53,18 @@ const ScannerSettings: React.FC = () => {
             {t("settings.scanner.transport_label")}
           </h3>
           <div className="grid grid-cols-2 gap-3">
-            <Button
+            <Tile
+              icon={<Keyboard />}
+              label={t("settings.scanner.transport_wedge")}
+              selected={!isSerial}
               onClick={() => handleTransportChange("wedge")}
-              className={`h-16 text-base font-semibold justify-start px-4 ${
-                !isSerial
-                  ? "bg-primary text-white shadow"
-                  : "bg-surface border border-theme-border hover:bg-surface-hover text-fg"
-              }`}
-            >
-              <Keyboard className="w-5 h-5 mr-3 shrink-0" />
-              <span className="text-left">{t("settings.scanner.transport_wedge")}</span>
-            </Button>
-            <Button
+            />
+            <Tile
+              icon={<Usb />}
+              label={t("settings.scanner.transport_serial")}
+              selected={isSerial}
               onClick={() => handleTransportChange("serial")}
-              className={`h-16 text-base font-semibold justify-start px-4 ${
-                isSerial
-                  ? "bg-primary text-white shadow"
-                  : "bg-surface border border-theme-border hover:bg-surface-hover text-fg"
-              }`}
-            >
-              <Usb className="w-5 h-5 mr-3 shrink-0" />
-              <span className="text-left">{t("settings.scanner.transport_serial")}</span>
-            </Button>
+            />
           </div>
           <p className="text-base text-fg-muted mt-3">
             {isSerial
@@ -80,6 +72,8 @@ const ScannerSettings: React.FC = () => {
               : t("settings.scanner.transport_wedge_hint")}
           </p>
         </div>
+
+        {!isSerial && <WedgeTest />}
 
         {isSerial && (
           <>
@@ -94,7 +88,7 @@ const ScannerSettings: React.FC = () => {
                   disabled={isScanning}
                   className="h-11"
                 >
-                  {isScanning && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+                  {isScanning && <Loader2 className="size-4 animate-spin" />}
                   {isScanning
                     ? t("settings.scanner.scanning")
                     : t("settings.scanner.scan_ports")}
@@ -123,7 +117,7 @@ const ScannerSettings: React.FC = () => {
                     >
                       <div className="flex flex-col">
                         <span>{port.product ?? port.path}</span>
-                        <span className="text-sm text-fg-muted">
+                        <span className="text-base text-fg-muted">
                           {port.path} · {port.kind}
                           {port.manufacturer ? ` · ${port.manufacturer}` : ""}
                         </span>
@@ -134,7 +128,7 @@ const ScannerSettings: React.FC = () => {
               </Select>
 
               {portError && (
-                <p className="text-base text-red-500 mt-2">{portError}</p>
+                <p className="text-base text-danger-text mt-2">{portError}</p>
               )}
               {hiddenPortCount > 0 && !showAllPorts && (
                 <Button
@@ -218,7 +212,7 @@ const ScannerSettings: React.FC = () => {
                     {testScans.map((scan, index) => (
                       <li key={`${scan.port}-${index}`} className="font-mono text-base">
                         <div className="text-fg break-all">{scan.text}</div>
-                        <div className="text-sm text-fg-subtle">
+                        <div className="text-base text-fg-subtle">
                           {scan.bytes.length} {t("settings.scanner.test_bytes")} ·{" "}
                           {t("settings.scanner.test_terminator")}: {scan.terminatedBy}
                         </div>

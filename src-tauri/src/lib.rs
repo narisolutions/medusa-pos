@@ -265,6 +265,33 @@ async fn open_cash_drawer(
     printing::open_cash_drawer(&target)
 }
 
+/// The printer's real-time status bytes: `DLE EOT 1` (printer) and `DLE EOT 4`
+/// (paper roll). `None` for a byte the head did not answer. Asked one after the
+/// other, since a cheap head with one socket refuses a second connection. What
+/// the bits mean is read in TypeScript (`utils/pos/printer-status`).
+#[derive(serde::Serialize)]
+struct PrinterStatusBytes {
+    printer: Option<u8>,
+    paper: Option<u8>,
+}
+
+#[tauri::command]
+async fn query_printer_status(
+    connection_type: String,
+    address: String,
+    port: Option<String>,
+    vendor_id: Option<u16>,
+    product_id: Option<u16>,
+) -> Result<PrinterStatusBytes, String> {
+    let target = printer_target(&connection_type, &address, port, vendor_id, product_id)?;
+    let ask = |n: u8| -> Result<Option<u8>, String> {
+        Ok(printing::query(&target, &[0x10, 0x04, n], 1500)?.first().copied())
+    };
+    let printer = ask(1)?;
+    let paper = ask(4)?;
+    Ok(PrinterStatusBytes { printer, paper })
+}
+
 #[allow(clippy::too_many_arguments)]
 #[tauri::command]
 async fn print_receipt(
@@ -678,6 +705,7 @@ pub fn run() {
             close_serial_scanner,
             print_test,
             open_cash_drawer,
+            query_printer_status,
             print_receipt,
             print_handoff_ticket,
             list_usb_devices,

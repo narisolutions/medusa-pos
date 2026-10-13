@@ -50,6 +50,9 @@ jobs:
       - name: Typecheck
         run: yarn typecheck
 
+      - name: Touch-UI rules
+        run: yarn check:ui
+
       - name: Test
         run: yarn test
 

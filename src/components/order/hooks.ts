@@ -6,10 +6,6 @@ import { AdminOrder } from "@medusajs/types";
 import { toast } from "sonner";
 import {
   handleErrorToast,
-  formatOrderStatusText,
-  getOrderStatusColor,
-  getOrderFulfillmentStatusColor,
-  getOrderPaymentStatusColor,
   printerIssueStaffHintToast,
 } from "@/utils/helpers";
 import { triggerFileDownload, openDownloadsFolder } from "@/utils/downloads";
@@ -54,7 +50,7 @@ export const useOrder = (order: AdminOrder) => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { t } = useTranslation();
-  const { printOrderReceipt, printHandoffTicket, downloadReceiptAsPDF, getDefaultPrinter } =
+  const { printOrderReceipt, printHandoffTicket, downloadReceiptAsPDF, getDefaultPrinter, buildReceiptDataFromOrder, buildReceiptPreview } =
     usePrinterService();
   const [isPrinting, setIsPrinting] = useState(false);
   const [isPrintingTicket, setIsPrintingTicket] = useState(false);
@@ -88,11 +84,6 @@ export const useOrder = (order: AdminOrder) => {
   const fulfillment = order.fulfillments?.[0] as unknown as
     | ExtendedFulfillment
     | undefined;
-
-  // Status color getters (using helpers from utils)
-  const getStatusColor = getOrderStatusColor;
-  const getFulfillmentStatusColor = getOrderFulfillmentStatusColor;
-  const getPaymentStatusColor = getOrderPaymentStatusColor;
 
   // Helper to invalidate order queries
   const invalidateOrderQueries = () => {
@@ -359,11 +350,11 @@ export const useOrder = (order: AdminOrder) => {
     setOwedAfterChange(null);
   };
 
+  // Built when asked for, so it shows the order as it is now with today's printer settings.
+  const getReceiptPreview = () => buildReceiptPreview(buildReceiptDataFromOrder(order));
+
   return {
-    getStatusColor,
-    getFulfillmentStatusColor,
-    getPaymentStatusColor,
-    formatStatusText: formatOrderStatusText,
+    getReceiptPreview,
     handleBackToOrders,
     handleReprintReceipt,
     handlePrintHandoffTicket,

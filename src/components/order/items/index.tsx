@@ -28,7 +28,7 @@ const Items: React.FC<ItemsProps> = ({
     isNegativeFulfillmentStatus && !!contactEmail;
 
   return (
-    <div className="rounded-lg border border-theme-border overflow-hidden shadow-sm bg-surface flex flex-col h-full">
+    <div className="rounded-lg border border-theme-border overflow-hidden shadow-sm bg-surface">
       <div className="px-6 py-4 border-b border-theme-border bg-surface-muted shrink-0">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
@@ -38,19 +38,14 @@ const Items: React.FC<ItemsProps> = ({
           </div>
           {showFulfillButton && (
             <div>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={onOpenFulfillmentDialog}
-                className="bg-primary hover:bg-primary/90 text-white text-sm font-semibold py-2.5 px-5 touch-manipulation whitespace-nowrap"
-              >
+              <Button onClick={onOpenFulfillmentDialog} className="px-5 font-semibold">
                 {t("orders.fulfill_items_button")}
               </Button>
             </div>
           )}
         </div>
       </div>
-      <div className="p-6 space-y-3 overflow-y-auto flex-1 min-h-0">
+      <div className="p-6 space-y-3">
         {items?.map((item, index) => {
           const metadata = item.metadata as { public?: { vintage?: string; volume?: string }; item_discount?: { type: "amount" | "percent"; value: number }; original_unit_price?: number };
           const vintage = metadata?.public?.vintage ? String(metadata?.public?.vintage) : null;
@@ -62,7 +57,9 @@ const Items: React.FC<ItemsProps> = ({
           // product/variant pair renders blank.
           const primaryTitle = item.product_title || item.title;
           const secondaryTitle =
-            item.variant_title && item.variant_title !== primaryTitle ? item.variant_title : null;
+            item.variant_title && item.variant_title !== primaryTitle && item.variant_title !== "Default variant"
+              ? item.variant_title
+              : null;
           const restocked = toNumber(item.detail?.return_received_quantity);
           const damaged = toNumber(item.detail?.return_dismissed_quantity);
           // The backend values a returned bottle at 0; say why instead of showing a bare 0.00.
@@ -78,16 +75,16 @@ const Items: React.FC<ItemsProps> = ({
                   <>
                     <h3 className="text-base font-medium text-fg">{primaryTitle}</h3>
                     <div className="flex items-center gap-2 mb-1">
-                      <p className="text-sm text-fg-muted">{secondaryTitle}</p>
+                      <p className="text-base text-fg-muted">{secondaryTitle}</p>
                       {(vintage || volume) && (
                         <div className="flex items-center gap-1.5">
                           {vintage && (
-                            <span className="text-xs px-2 py-0.5 rounded bg-surface-subtle text-fg-muted font-medium">
+                            <span className="text-base px-2 py-0.5 rounded bg-surface-subtle text-fg-muted font-medium">
                               {vintage}
                             </span>
                           )}
                           {volume && (
-                            <span className="text-xs px-2 py-0.5 rounded bg-surface-subtle text-fg-muted font-medium">
+                            <span className="text-base px-2 py-0.5 rounded bg-surface-subtle text-fg-muted font-medium">
                               {volume}ml
                             </span>
                           )}
@@ -101,12 +98,12 @@ const Items: React.FC<ItemsProps> = ({
                     {(vintage || volume) && (
                       <div className="flex items-center gap-1.5">
                         {vintage && (
-                          <span className="text-xs px-2 py-0.5 rounded bg-surface-subtle text-fg-muted font-medium">
+                          <span className="text-base px-2 py-0.5 rounded bg-surface-subtle text-fg-muted font-medium">
                             {vintage}
                           </span>
                         )}
                         {volume && (
-                          <span className="text-xs px-2 py-0.5 rounded bg-surface-subtle text-fg-muted font-medium">
+                          <span className="text-base px-2 py-0.5 rounded bg-surface-subtle text-fg-muted font-medium">
                             {volume}ml
                           </span>
                         )}
@@ -137,10 +134,10 @@ const Items: React.FC<ItemsProps> = ({
                   </p>
                 ) : hasManualDiscount && originalTotal != null ? (
                   <>
-                    <p className="text-sm text-fg-muted line-through">
+                    <p className="text-base text-fg-muted line-through">
                       {formatPrice(originalTotal, currency)}
                     </p>
-                    <p className="text-lg font-semibold text-orange-600">
+                    <p className="text-lg font-semibold text-warning-text">
                       {formatPrice(item.total, currency)}
                     </p>
                   </>

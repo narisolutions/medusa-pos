@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useTheme } from "@/context/theme";
 import { loadPreferences } from "@/utils/settings/preferences";
 import { logger, safeStringify } from "@/utils/logger";
+import { applyDisplaySize } from "@/utils/ui/display-size";
 
 function applyThemeClass(mode: string, systemPrefersDark: boolean) {
   const html = document.documentElement;
@@ -22,7 +23,9 @@ function useApplyTheme() {
     let ignore = false;
     loadPreferences()
       .then((prefs) => {
-        if (!ignore) setThemeMode(prefs.appearance?.themeMode ?? "system");
+        if (ignore) return;
+        setThemeMode(prefs.appearance?.themeMode ?? "system");
+        applyDisplaySize(prefs.display?.size);
       })
       .catch((error) => void logger.warn(`Failed to load theme preference: ${safeStringify(error)}`))
       // Unreadable preferences still apply the default, rather than leaving the theme unset.

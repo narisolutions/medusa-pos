@@ -5,14 +5,8 @@ import { ImageIcon, Upload, X, Banknote, CreditCard, ArrowLeftRight, Landmark, P
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Checkbox } from "@/components/ui/checkbox";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
+import { SegmentedControl } from "@/components/ui/segmented-control";
 import {
   Form,
   FormControl,
@@ -31,7 +25,10 @@ import { DEFAULT_PAYMENT_METHODS, IBAN_PATTERN, normalizeIban } from "@/utils/se
 import { useQueryPaymentProviders } from "@/hooks/queries/useQueryPaymentProviders";
 import { useStoreSettings } from "./hooks";
 import ColorField from "./color-field";
+import ProviderPicker from "./provider-picker";
 import { useTranslation } from "@/i18n";
+import SaveBar from "../save-bar";
+import { useUnsavedChanges } from "@/hooks/utils/useUnsavedChanges";
 
 const StoreSettings: React.FC = () => {
   const { t } = useTranslation();
@@ -58,8 +55,9 @@ const StoreSettings: React.FC = () => {
   const {
     handleSubmit,
     control,
-    formState: { isDirty, isSubmitting },
+    formState: { isSubmitting },
   } = form;
+  const isDirty = useUnsavedChanges(form);
 
   const { fields, append, remove } = useFieldArray({
     control,
@@ -78,6 +76,10 @@ const StoreSettings: React.FC = () => {
     () => new Set(providersError ? [] : installedProviders?.map((p) => p.id) ?? []),
     [installedProviders, providersError]
   );
+  // Picked from what the backend has loaded; typed only when that list can't be read.
+  const providerChoices = providersError
+    ? []
+    : (installedProviders ?? []).filter((p) => p.is_enabled !== false).map((p) => p.id);
 
   const {
     currentLogoUrl,
@@ -153,7 +155,7 @@ const StoreSettings: React.FC = () => {
                       className="max-w-full max-h-full object-contain"
                     />
                   ) : (
-                    <ImageIcon className="w-8 h-8 text-fg-subtle" />
+                    <ImageIcon className="size-8 text-fg-subtle" />
                   )}
                 </div>
                 <div className="flex flex-col gap-2">
@@ -171,14 +173,14 @@ const StoreSettings: React.FC = () => {
                       type="button"
                       variant="ghost"
                       onClick={handleRemoveLogo}
-                      className="text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20"
+                      className="text-danger-text"
                     >
                       <X className="w-4 h-4 mr-2" /> {t("settings.store.remove_logo_button")}
                     </Button>
                   )}
                 </div>
               </div>
-              <p className="text-sm text-fg-muted">
+              <p className="text-base text-fg-muted">
                 {t("settings.store.logo_requirements")}
               </p>
             </div>
@@ -283,134 +285,125 @@ const StoreSettings: React.FC = () => {
 
             <div className="space-y-4">
               <Label className="text-lg font-medium">{t("settings.store.payment_methods_label")}</Label>
-              <p className="text-sm text-fg-muted">
+              <p className="text-base text-fg-muted">
                 {t("settings.store.payment_methods_description")}
               </p>
-              <div className="space-y-3 rounded-lg border border-theme-border p-4 bg-surface-muted">
-                <div className="flex items-end gap-3 px-3 border border-transparent text-base leading-tight font-medium text-fg-muted">
-                  <span className="w-4 shrink-0" />
-                  <span className="w-48 shrink-0">{t("settings.store.column_provider_id")}</span>
-                  <span className="flex-1 min-w-0">{t("settings.store.column_display_name")}</span>
-                  <span className="w-40 shrink-0">{t("settings.store.column_icon")}</span>
-                  <span className="w-40 shrink-0">{t("settings.store.column_type")}</span>
-                  <span className="size-12 shrink-0" />
-                </div>
+              <div className="space-y-4">
                 {fields.map((field, index) => (
-                  <div
-                    key={field.id}
-                    className="flex items-center gap-3 p-3 bg-surface rounded-lg border border-theme-border"
-                  >
-                    <FormField
-                      control={control}
-                      name={`paymentMethods.${index}.enabled`}
-                      render={({ field: checkboxField }) => (
-                        <FormItem className="flex items-center gap-2 space-y-0 shrink-0">
-                          <FormControl>
-                            <Checkbox
-                              checked={checkboxField.value}
-                              onCheckedChange={(v) =>
-                                checkboxField.onChange(v === true)
-                              }
-                              disabled={isLoading}
-                            />
-                          </FormControl>
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={control}
-                      name={`paymentMethods.${index}.id`}
-                      render={({ field: idField }) => {
-                        const idValue = idField.value ?? "";
-                        const isUnknown =
-                          installedProviders !== undefined &&
-                          installedProviderIds.size > 0 &&
-                          idValue.length > 0 &&
-                          !installedProviderIds.has(idValue);
-                        return (
-                          <FormItem className="w-48 shrink-0">
-                            <div className="relative">
-                              <FormControl>
-                                <Input
-                                  placeholder={t("settings.store.provider_id_placeholder")}
-                                  className={`h-10 font-mono text-sm${isUnknown ? " pr-8 border-yellow-500" : ""}`}
-                                  disabled={isLoading}
-                                  {...idField}
-                                />
-                              </FormControl>
-                              {isUnknown && (
-                                <Tooltip>
-                                  <TooltipTrigger asChild>
-                                    <span className="absolute right-2 top-1/2 -translate-y-1/2 text-yellow-500 cursor-help">
-                                      <AlertTriangle className="w-4 h-4" />
-                                    </span>
-                                  </TooltipTrigger>
-                                  <TooltipContent>
-                                    {t("settings.store.provider_id_not_installed")}
-                                  </TooltipContent>
-                                </Tooltip>
-                              )}
-                            </div>
+                  <div key={field.id} className="space-y-4 rounded-lg border border-theme-border bg-surface p-4">
+                    <div className="flex items-center gap-3">
+                      <FormField
+                        control={control}
+                        name={`paymentMethods.${index}.enabled`}
+                        render={({ field: enabledField }) => (
+                          <FormItem className="flex items-center gap-3 space-y-0">
+                            <FormControl>
+                              <Switch
+                                checked={enabledField.value}
+                                onCheckedChange={(v) => enabledField.onChange(v === true)}
+                                disabled={isLoading}
+                              />
+                            </FormControl>
+                            <FormLabel className="text-base font-medium">
+                              {t("settings.store.payment_method_enabled")}
+                            </FormLabel>
                           </FormItem>
-                        );
-                      }}
-                    />
-                    <FormField
-                      control={control}
-                      name={`paymentMethods.${index}.label`}
-                      render={({ field: inputField }) => (
-                        <FormItem className="flex-1 min-w-0">
-                          <FormControl>
-                            <Input
-                              placeholder={t("settings.store.display_name_placeholder")}
-                              className="h-10"
-                              disabled={isLoading}
-                              {...inputField}
-                            />
-                          </FormControl>
-                        </FormItem>
-                      )}
-                    />
+                        )}
+                      />
+                      <Button
+                        type="button"
+                        variant="outline"
+                        className="ml-auto text-danger-text"
+                        onClick={() => remove(index)}
+                        disabled={isLoading || fields.length <= 1}
+                      >
+                        <Trash2 className="size-5" />
+                        {t("common.remove")}
+                      </Button>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4">
+                      <FormField
+                        control={control}
+                        name={`paymentMethods.${index}.id`}
+                        render={({ field: idField }) => {
+                          const idValue = idField.value ?? "";
+                          const isUnknown =
+                            installedProviders !== undefined &&
+                            installedProviderIds.size > 0 &&
+                            idValue.length > 0 &&
+                            !installedProviderIds.has(idValue);
+                          const usedElsewhere = new Set(
+                            (paymentMethods ?? []).filter((_, i) => i !== index).map((m) => m.id)
+                          );
+                          return (
+                            <FormItem className="min-w-0">
+                              <FormLabel className="text-base">{t("settings.store.column_provider_id")}</FormLabel>
+                              {providerChoices.length > 0 ? (
+                                <ProviderPicker
+                                  value={idValue}
+                                  onChange={idField.onChange}
+                                  providerIds={providerChoices}
+                                  usedElsewhere={usedElsewhere}
+                                  notInstalled={isUnknown}
+                                  disabled={isLoading}
+                                />
+                              ) : (
+                                <FormControl>
+                                  <Input
+                                    placeholder={t("settings.store.provider_id_placeholder")}
+                                    className={`font-mono${isUnknown ? " border-warning" : ""}`}
+                                    disabled={isLoading}
+                                    {...idField}
+                                  />
+                                </FormControl>
+                              )}
+                              {providerChoices.length === 0 && isUnknown && (
+                                <p className="flex items-center gap-2 text-base text-warning-text">
+                                  <AlertTriangle className="size-5 shrink-0" />
+                                  {t("settings.store.provider_id_not_installed")}
+                                </p>
+                              )}
+                            </FormItem>
+                          );
+                        }}
+                      />
+                      <FormField
+                        control={control}
+                        name={`paymentMethods.${index}.label`}
+                        render={({ field: inputField }) => (
+                          <FormItem className="min-w-0">
+                            <FormLabel className="text-base">{t("settings.store.column_display_name")}</FormLabel>
+                            <FormControl>
+                              <Input
+                                placeholder={t("settings.store.display_name_placeholder")}
+                                disabled={isLoading}
+                                {...inputField}
+                              />
+                            </FormControl>
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+
                     <FormField
                       control={control}
                       name={`paymentMethods.${index}.icon`}
                       render={({ field: iconField }) => (
-                        <FormItem className="w-40 shrink-0">
-                          <Select
+                        <FormItem>
+                          <FormLabel className="text-base">{t("settings.store.column_icon")}</FormLabel>
+                          <SegmentedControl
+                            label={t("settings.store.column_icon")}
+                            className="w-full"
                             value={iconField.value ?? "card"}
-                            onValueChange={iconField.onChange}
-                          >
-                            <FormControl>
-                              <SelectTrigger
-                                className="h-10"
-                                disabled={isLoading}
-                              >
-                                <SelectValue placeholder={t("settings.store.icon_label")} />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              <SelectItem value="cash">
-                                <span className="flex items-center gap-2">
-                                  <Banknote className="w-4 h-4" /> {t("settings.store.icon_cash")}
-                                </span>
-                              </SelectItem>
-                              <SelectItem value="card">
-                                <span className="flex items-center gap-2">
-                                  <CreditCard className="w-4 h-4" /> {t("settings.store.icon_card")}
-                                </span>
-                              </SelectItem>
-                              <SelectItem value="transfer">
-                                <span className="flex items-center gap-2">
-                                  <ArrowLeftRight className="w-4 h-4" /> {t("settings.store.icon_transfer")}
-                                </span>
-                              </SelectItem>
-                              <SelectItem value="bank_transfer">
-                                <span className="flex items-center gap-2">
-                                  <Landmark className="w-4 h-4" /> {t("settings.store.icon_bank_transfer")}
-                                </span>
-                              </SelectItem>
-                            </SelectContent>
-                          </Select>
+                            onChange={iconField.onChange}
+                            options={[
+                              { value: "cash", label: t("settings.store.icon_cash"), icon: <Banknote />, disabled: isLoading },
+                              { value: "card", label: t("settings.store.icon_card"), icon: <CreditCard />, disabled: isLoading },
+                              { value: "transfer", label: t("settings.store.icon_transfer"), icon: <ArrowLeftRight />, disabled: isLoading },
+                              { value: "bank_transfer", label: t("settings.store.icon_bank_transfer"), icon: <Landmark />, disabled: isLoading },
+                            ]}
+                          />
                         </FormItem>
                       )}
                     />
@@ -418,48 +411,23 @@ const StoreSettings: React.FC = () => {
                       control={control}
                       name={`paymentMethods.${index}.type`}
                       render={({ field: typeField }) => (
-                        <FormItem className="w-40 shrink-0">
-                          <Select
+                        <FormItem>
+                          <FormLabel className="text-base">{t("settings.store.column_type")}</FormLabel>
+                          <SegmentedControl
+                            label={t("settings.store.column_type")}
+                            className="w-full"
                             value={typeField.value ?? "card"}
-                            onValueChange={typeField.onChange}
-                          >
-                            <FormControl>
-                              <SelectTrigger
-                                className="h-10"
-                                disabled={isLoading}
-                              >
-                                <SelectValue placeholder={t("settings.store.type_label")} />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              <SelectItem value="cash">
-                                {t("settings.store.type_cash")}
-                              </SelectItem>
-                              <SelectItem value="card">
-                                {t("settings.store.type_card")}
-                              </SelectItem>
-                              <SelectItem value="transfer">
-                                {t("settings.store.type_transfer")}
-                              </SelectItem>
-                              <SelectItem value="bank_transfer">
-                                {t("settings.store.type_bank_transfer")}
-                              </SelectItem>
-                            </SelectContent>
-                          </Select>
+                            onChange={typeField.onChange}
+                            options={[
+                              { value: "cash", label: t("settings.store.type_cash"), disabled: isLoading },
+                              { value: "card", label: t("settings.store.type_card"), disabled: isLoading },
+                              { value: "transfer", label: t("settings.store.type_transfer"), disabled: isLoading },
+                              { value: "bank_transfer", label: t("settings.store.type_bank_transfer"), disabled: isLoading },
+                            ]}
+                          />
                         </FormItem>
                       )}
                     />
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="icon"
-                      className="shrink-0 text-fg-muted hover:text-destructive hover:bg-destructive/10"
-                      onClick={() => remove(index)}
-                      disabled={isLoading || fields.length <= 1}
-                      aria-label={t("settings.store.remove_payment_method_aria")}
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </Button>
                   </div>
                 ))}
                 <Button
@@ -477,7 +445,7 @@ const StoreSettings: React.FC = () => {
                   }
                   disabled={isLoading}
                 >
-                  <Plus className="w-4 h-4 mr-2" />
+                  <Plus className="size-5" />
                   {t("settings.store.add_payment_method_button")}
                 </Button>
               </div>
@@ -593,7 +561,7 @@ const StoreSettings: React.FC = () => {
                             {...field}
                           />
                         </FormControl>
-                        <FormMessage className="text-red-500" />
+                        <FormMessage className="text-base" />
                       </FormItem>
                     )}
                   />
@@ -655,13 +623,14 @@ const StoreSettings: React.FC = () => {
               />
             </div>
 
-            <Button
-              type="submit"
-              disabled={!isDirty || isSubmitting || isLoading}
-              className="h-12 px-6 text-white text-lg min-w-[48px] bg-primary hover:bg-primary/90"
-            >
-              {isSubmitting ? t("settings.store.saving") : t("settings.store.save_button")}
-            </Button>
+            <SaveBar
+              dirty={isDirty}
+              saving={isSubmitting}
+              disabled={isLoading}
+              onDiscard={() => form.reset()}
+              saveLabel={t("settings.store.save_button")}
+              savingLabel={t("settings.store.saving")}
+            />
           </form>
         </Form>
       </div>

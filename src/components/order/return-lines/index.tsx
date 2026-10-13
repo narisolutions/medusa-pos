@@ -20,7 +20,6 @@ const ReturnLines: React.FC<Props> = ({ lines, selection, change, disabled }) =>
     <div className="rounded-lg border border-theme-border divide-y divide-theme-border">
       {lines.map(({ item, returnable }) => {
         const s = selection[item.id] ?? { restock: 0, damaged: 0 };
-        const full = s.restock + s.damaged >= returnable;
         return (
           <div key={item.id} className="p-4 space-y-3">
             <div className="flex items-baseline justify-between gap-4">
@@ -32,18 +31,18 @@ const ReturnLines: React.FC<Props> = ({ lines, selection, change, disabled }) =>
             <div className="flex flex-wrap gap-x-8 gap-y-3">
               <ConditionStepper
                 label={t("orders.post_sale.return_restock")}
-                icon={<PackageCheck className="size-5 text-green-600" />}
+                icon={<PackageCheck className="size-5 text-success-text" />}
                 value={s.restock}
                 disabled={disabled}
-                canIncrease={!full}
+                max={returnable - s.damaged}
                 onChange={(delta) => change(item.id, "restock", delta, returnable)}
               />
               <ConditionStepper
                 label={t("orders.post_sale.return_damaged")}
-                icon={<PackageX className="size-5 text-red-600" />}
+                icon={<PackageX className="size-5 text-danger-text" />}
                 value={s.damaged}
                 disabled={disabled}
-                canIncrease={!full}
+                max={returnable - s.restock}
                 onChange={(delta) => change(item.id, "damaged", delta, returnable)}
               />
             </div>

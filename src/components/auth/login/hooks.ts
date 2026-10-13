@@ -7,14 +7,19 @@ import { handleErrorToast, isNetworkError } from "@/utils/helpers";
 import { ROUTES } from "@/router/routes";
 import { AdminUser } from "@medusajs/types";
 import { runPostAuthInit } from "@/utils/auth/post-auth-init";
+import { useState } from "react";
+import { t } from "@/i18n";
 
 const useLogin = (isConfigured: boolean) => {
   const setGlobalLoading = useUser((state) => state.setGlobalLoading);
   const login = useUser((state) => state.login);
   const navigate = useNavigate();
+  // Shown in the form, where the operator is looking; cleared as soon as they edit.
+  const [error, setError] = useState<string | null>(null);
 
   const onLogin = async (data: Forms["Login"]) => {
     if (!isConfigured) return;
+    setError(null);
 
     try {
       setGlobalLoading(true);
@@ -39,11 +44,11 @@ const useLogin = (isConfigured: boolean) => {
 
       const status = (e as { status?: number })?.status;
       if (status === 401 || (e instanceof Error && e.message.includes("HTTP 401"))) {
-        handleErrorToast("Incorrect email or password");
+        setError(t("auth.incorrect_credentials"));
       } else if (!status && (isNetworkError(e) || (e instanceof Error && e.name === "AbortError"))) {
         // Only a request that got no answer (or timed out) means the backend is unreachable;
         // any other failure shows its own reason instead of blaming the connection.
-        handleErrorToast("Backend unreachable — please check your connection or switch stores.");
+        setError(t("auth.backend_unreachable"));
       } else {
         handleErrorToast(e);
       }
@@ -52,7 +57,7 @@ const useLogin = (isConfigured: boolean) => {
     }
   };
 
-  return { onLogin };
+  return { onLogin, error, clearError: () => setError(null) };
 };
 
 export { useLogin };

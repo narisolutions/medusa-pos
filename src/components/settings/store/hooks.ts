@@ -154,11 +154,13 @@ const useStoreSettings = ({ form }: Props): UseStoreSettingsReturn => {
         }
       }
 
+      // What was just saved is the new baseline, so the Save bar settles straight away.
+      reset(data);
       setNeedsSetup(false);
       await storage.removeItem("store_setup_dismissed");
       toast.success(t("settings.store.saved"));
     },
-    [store, updateStore, setNeedsSetup]
+    [store, updateStore, setNeedsSetup, reset]
   );
 
   const handlePickLogo = useCallback(async () => {

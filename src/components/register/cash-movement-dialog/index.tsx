@@ -14,13 +14,12 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-} from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
+import { Numpad } from "@/components/ui/numpad";
+import { SegmentedControl } from "@/components/ui/segmented-control";
+import { ArrowDownToLine, ArrowUpFromLine } from "lucide-react";
+import { formatPrice } from "@/utils/helpers";
+import { useQueryRegion } from "@/hooks/queries/useQueryRegion";
 import { Button } from "@/components/ui/button";
 import { useCashMovement } from "./hooks";
 import { useTranslation } from "@/i18n";
@@ -32,13 +31,15 @@ type Props = {
 
 const CashMovementDialog: React.FC<Props> = ({ open, onOpenChange }) => {
   const { t } = useTranslation();
+  const { data: regionData } = useQueryRegion();
+  const currency = regionData?.defaultRegion?.currency_code?.toUpperCase() ?? "USD";
   const { form, isSubmitting, onSubmit } = useCashMovement(() =>
     onOpenChange(false)
   );
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md">
+      <DialogContent className="max-w-md max-h-[94vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>{t("register.movement.title")}</DialogTitle>
           <DialogDescription>
@@ -56,25 +57,16 @@ const CashMovementDialog: React.FC<Props> = ({ open, onOpenChange }) => {
                   <FormLabel className="text-base font-medium">
                     {t("register.movement.type")}
                   </FormLabel>
-                  <Select value={field.value} onValueChange={field.onChange}>
-                    <FormControl>
-                      <SelectTrigger className="h-11 text-base px-4">
-                        <span>
-                          {field.value === "drop"
-                            ? t("register.movement.drop")
-                            : t("register.movement.payin")}
-                        </span>
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value="drop">
-                        {t("register.movement.drop")}
-                      </SelectItem>
-                      <SelectItem value="payin">
-                        {t("register.movement.payin")}
-                      </SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <SegmentedControl
+                    label={t("register.movement.type")}
+                    className="w-full"
+                    value={field.value}
+                    onChange={field.onChange}
+                    options={[
+                      { value: "drop", label: t("register.movement.drop"), icon: <ArrowUpFromLine /> },
+                      { value: "payin", label: t("register.movement.payin"), icon: <ArrowDownToLine /> },
+                    ]}
+                  />
                 </FormItem>
               )}
             />
@@ -88,18 +80,18 @@ const CashMovementDialog: React.FC<Props> = ({ open, onOpenChange }) => {
                     {t("register.movement.amount")}
                   </FormLabel>
                   <FormControl>
-                    <Input
-                      type="number"
-                      min={0}
-                      step="0.01"
-                      autoFocus
-                      placeholder="0.00"
-                      value={field.value === 0 ? "" : field.value}
-                      onChange={(e) => field.onChange(e.target.value)}
-                      className="h-11 text-base"
-                    />
+                    <output aria-live="polite" className="block rounded-lg border border-theme-border bg-surface-muted px-4 py-3 text-right text-amount tabular-nums text-fg">
+                      {formatPrice(Number(field.value) || 0, currency)}
+                    </output>
                   </FormControl>
-                  <FormMessage />
+                  <FormMessage className="text-base" />
+                  <Numpad
+                    value={field.value ? String(field.value) : ""}
+                    onChange={field.onChange}
+                    hideActions
+                    maxDecimals={2}
+                    className="pt-2"
+                  />
                 </FormItem>
               )}
             />
@@ -117,27 +109,24 @@ const CashMovementDialog: React.FC<Props> = ({ open, onOpenChange }) => {
                       type="text"
                       value={field.value}
                       onChange={field.onChange}
-                      className="h-11 text-base"
                     />
                   </FormControl>
-                  <FormMessage className="text-red-500" />
+                  <FormMessage className="text-base" />
                 </FormItem>
               )}
             />
 
-            <div className="flex justify-end gap-2 pt-2">
+            <div className="flex gap-3 pt-2">
               <Button
                 type="button"
                 variant="outline"
+                size="lg"
+                className="flex-1"
                 onClick={() => onOpenChange(false)}
               >
                 {t("common.cancel")}
               </Button>
-              <Button
-                type="submit"
-                disabled={isSubmitting}
-                className="text-white bg-primary hover:bg-primary/90"
-              >
+              <Button type="submit" size="lg" loading={isSubmitting} className="flex-2">
                 {t("register.movement.submit")}
               </Button>
             </div>

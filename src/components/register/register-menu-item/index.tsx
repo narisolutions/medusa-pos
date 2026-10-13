@@ -47,21 +47,21 @@ const RegisterMenuItem: React.FC = () => {
         variant="ghost"
         disabled={!isOpen && !canReopen}
         onClick={() => (isOpen ? setChooserOpen(true) : setReopenOpen(true))}
-        className="flex flex-col h-auto items-center justify-center gap-1 px-2 py-3 w-full text-center rounded-md disabled:opacity-100"
+        className="flex flex-col h-auto min-h-tap-xl items-center justify-center gap-1 px-2 py-3 w-full text-center rounded-md disabled:opacity-100"
       >
         <div className="relative">
           <Wallet className="size-8 text-fg-muted" />
           <span
-            className={`absolute -top-0.5 -right-0.5 size-2.5 rounded-full ring-2 ring-(--color-bg-base) ${
+            className={`absolute -top-1 -right-1 size-3.5 rounded-full ring-2 ring-(--color-bg-base) ${
               isOpen
-                ? "bg-green-500"
+                ? "bg-success"
                 : canReopen
-                  ? "bg-amber-500"
+                  ? "bg-warning"
                   : "bg-fg-subtle"
             }`}
           />
         </div>
-        <span className="block w-full text-sm font-medium text-fg-muted leading-tight text-center truncate">
+        <span className="block w-full text-base font-medium text-fg-muted leading-tight text-center whitespace-normal break-words">
           {canReopen
             ? t("register.status.reopen")
             : t("register.status.label")}
@@ -92,7 +92,7 @@ const RegisterMenuItem: React.FC = () => {
             </Button>
             <Button
               type="button"
-              className="h-14 justify-start gap-3 text-base text-white bg-primary hover:bg-primary/90"
+              className="h-14 justify-start gap-3 text-base"
               onClick={() => {
                 setChooserOpen(false);
                 setCloseOpen(true);
@@ -128,8 +128,7 @@ const RegisterMenuItem: React.FC = () => {
             </Button>
             <Button
               type="button"
-              disabled={reopenBusy}
-              className="text-white bg-primary hover:bg-primary/90"
+              loading={reopenBusy}
               onClick={handleReopen}
             >
               {t("register.reopen.submit")}

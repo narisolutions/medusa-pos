@@ -25,7 +25,7 @@ const ProductPrice: React.FC<Props> = ({ product, currency }) => {
           {formatPrice(original, currency)}
         </span>
       )}
-      <span className={`text-lg font-semibold ${original !== null ? "text-red-600" : "text-fg"}`}>
+      <span className={`text-lg font-semibold ${original !== null ? "text-danger-text" : "text-fg"}`}>
         {range.min === range.max ? price : t("checkout.catalog_from_price", { price })}
       </span>
     </span>

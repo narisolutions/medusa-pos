@@ -3,7 +3,6 @@ import { useChange } from "@/hooks/utils/useChange";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useSalesChannel } from "@/context/sales-channel";
 import { useUser } from "@/context/user";
-import storage from "@/utils/storage";
 import {
   Dialog,
   DialogContent,
@@ -14,9 +13,11 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { ROUTES } from "@/router/routes";
+import { useTranslation } from "@/i18n";
 
 const SalesChannelWarningDialog: React.FC = () => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const { pathname } = useLocation();
   const needsWarning = useSalesChannel((s) => s.needsWarning);
   const setNeedsWarning = useSalesChannel((s) => s.setNeedsWarning);
@@ -31,10 +32,9 @@ const SalesChannelWarningDialog: React.FC = () => {
   const isCheckoutPage = pathname.startsWith(ROUTES.checkout);
   const open = isAuthenticated && !dismissed && (needsWarning || (!salesChannelId && isCheckoutPage));
 
-  const handleGoToSettings = async () => {
+  const handleGoToSettings = () => {
     setNeedsWarning(false);
-    await storage.setItem("settings_tab", "connection");
-    navigate(ROUTES.settings);
+    navigate(ROUTES.settingsSection("connection"));
   };
 
   const handleContinueAnyway = () => {
@@ -46,22 +46,17 @@ const SalesChannelWarningDialog: React.FC = () => {
     <Dialog open={open}>
       <DialogContent className="sm:max-w-md" showCloseButton={false}>
         <DialogHeader>
-          <DialogTitle className="text-xl">Sales Channel Required</DialogTitle>
+          <DialogTitle className="text-xl">{t("errors.sales_channel_required_title")}</DialogTitle>
           <DialogDescription className="text-base mt-1">
-            A sales channel must be configured before you can add products to
-            cart. Please go to Settings → API Settings to configure your sales
-            channel.
+            {t("errors.sales_channel_required_message")}
           </DialogDescription>
         </DialogHeader>
-        <DialogFooter className="flex-col sm:flex-row gap-2 mt-4">
-          <Button variant="outline" onClick={handleContinueAnyway}>
-            Continue Anyway
+        <DialogFooter className="flex-col sm:flex-row gap-3 mt-4">
+          <Button variant="outline" size="lg" className="flex-1" onClick={handleContinueAnyway}>
+            {t("common.continue_anyway")}
           </Button>
-          <Button
-            className="bg-primary hover:bg-primary/90 text-white"
-            onClick={handleGoToSettings}
-          >
-            Go to Settings
+          <Button size="lg" className="flex-1" onClick={handleGoToSettings}>
+            {t("common.go_to_settings")}
           </Button>
         </DialogFooter>
       </DialogContent>

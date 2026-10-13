@@ -10,6 +10,8 @@ import { getBrandName } from "@/utils/settings/store/metadata";
 import { getTauriInvokeErrorMessage } from "@/utils/helpers";
 import { printerIssueStaffHintSettings } from "@/utils/helpers";
 import { toast } from "sonner";
+import { useQueryClient } from "@tanstack/react-query";
+import { queryKeys } from "@/config/query";
 
 export type Printer = Forms["Printer"] & {
   id: string;
@@ -17,6 +19,7 @@ export type Printer = Forms["Printer"] & {
 
 const usePrinterSettings = (editingPrinter: Printer | null) => {
   const { t } = useTranslation();
+  const queryClient = useQueryClient();
   const { data: store } = useQueryStore();
   const { data: salesChannels } = useQuerySalesChannel();
   const [printers, setPrinters] = useState<Printer[]>([]);
@@ -110,9 +113,10 @@ const usePrinterSettings = (editingPrinter: Printer | null) => {
         salesChannelName,
       });
 
+      toast.success(t("settings.printer.test_page_sent"));
       setTestResults((prev) => ({
         ...prev,
-        [printer.id]: { success: true, message: t("settings.printer.test_page_sent") },
+        [printer.id]: { success: true, message: "" },
       }));
     } catch (error) {
       const detail = getTauriInvokeErrorMessage(error, "Test failed");
@@ -122,13 +126,12 @@ const usePrinterSettings = (editingPrinter: Printer | null) => {
       });
       setTestResults((prev) => ({
         ...prev,
-        [printer.id]: {
-          success: false,
-          message: "",
-        },
+        [printer.id]: { success: false, message: detail },
       }));
     } finally {
       setTestingPrinter(null);
+      // A test just showed whether the printer answers; don't wait a minute to say so.
+      void queryClient.invalidateQueries({ queryKey: queryKeys.printerStatus(printer.id) });
     }
   };
 
@@ -143,9 +146,10 @@ const usePrinterSettings = (editingPrinter: Printer | null) => {
         vendorId: printer.vendorId ?? null,
         productId: printer.productId ?? null,
       });
+      toast.success(t("settings.printer.cash_drawer_signal_sent"));
       setCashDrawerTestResults((prev) => ({
         ...prev,
-        [printer.id]: { success: true, message: t("settings.printer.cash_drawer_signal_sent") },
+        [printer.id]: { success: true, message: "" },
       }));
     } catch (error) {
       const detail = getTauriInvokeErrorMessage(
@@ -158,10 +162,7 @@ const usePrinterSettings = (editingPrinter: Printer | null) => {
       });
       setCashDrawerTestResults((prev) => ({
         ...prev,
-        [printer.id]: {
-          success: false,
-          message: "",
-        },
+        [printer.id]: { success: false, message: detail },
       }));
     } finally {
       setTestingCashDrawer(null);

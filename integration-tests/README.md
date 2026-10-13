@@ -1,6 +1,6 @@
 # Integration Tests
 
-Docker Compose environment that spins up a complete Medusa v2 backend pre-loaded with POS-relevant test data.
+Docker Compose environment that spins up a complete Medusa 2.21 backend (with the POS plugin and the till's payment providers) pre-loaded with POS-relevant test data.
 
 ## Prerequisites
 
@@ -51,13 +51,13 @@ docker compose down -v         # stop and delete volumes
 
 **Products:**
 
-| Product        | Variants                 | Price (USD) |
-| -------------- | ------------------------ | ----------- |
-| Classic T-Shirt| S, M, L, XL             | $19.99-22.99|
-| Coffee Mug     | Default                  | $12.99      |
-| Wireless Mouse | Default                  | $34.99      |
-| Notebook       | Ruled, Blank             | $8.99       |
-| Water Bottle   | 500ml, 1L               | $24.99-29.99|
+| Product                | Variants                 | Price (USD)   |
+| ---------------------- | ------------------------ | ------------- |
+| USB-C Charging Cable   | 1 m, 1.5 m, 2 m, 3 m     | $9.99–14.99   |
+| USB-C Wall Charger 20W | White                    | $18.99        |
+| Wireless Optical Mouse | Black                    | $24.99        |
+| HDMI 4K Cable          | 1 m, 2 m                 | $12.99–15.99  |
+| Portable Power Bank    | 5000 mAh, 10000 mAh      | $22.99–32.99  |
 
 All variants have SKUs, barcodes, and 100 units of inventory at the Main Store location.
 
@@ -65,6 +65,29 @@ All variants have SKUs, barcodes, and 100 units of inventory at the Main Store l
 - Jane Doe (jane.doe@example.com)
 - John Smith (john.smith@example.com)
 - Walk-in Customer (walkin@example.com)
+
+## Demo Shop (for screenshots)
+
+`yarn test:env:demo` turns the running test store into **Demo Store**, a made-up shop for screenshots
+and demos. Run it once, after `yarn test:env:up`:
+
+```bash
+yarn test:env:up
+yarn test:env:demo
+```
+
+It adds, through the same admin API calls the till makes:
+
+- **Branding:** store name, wordmark logo, brand colour (#2563eb), address and phone
+- **Payments:** Cash, Card and Bank transfer methods, backed by the `pp_cash_pos`, `pp_card_pos` and
+  `pp_banktransfer_pos` providers; bank details
+- **Catalog:** five categories and five more products, three of them made without options
+- **Quick keys:** five, with short labels
+- **Sales:** a week of 12 orders. Most are paid and handed over, one is waiting for pickup, one is delivered and
+  unpaid (pay later), and one is refunded.
+- **Stock:** one low item and one out of stock, so the badges show
+
+It runs once: the store is marked when done. `yarn test:env:reset` wipes everything, including the demo.
 
 ## Connecting the POS App
 

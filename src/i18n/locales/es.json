@@ -34,14 +34,20 @@
     "back_to_orders": "Volver a Pedidos",
     "pos": "TPV",
     "processing": "Procesando...",
-    "downloading": "Descargando..."
+    "downloading": "Descargando...",
+    "undo": "Deshacer"
   },
   "nav": {
     "pos": "TPV",
     "orders": "Pedidos",
     "settings": "Ajustes",
     "logout": "Cerrar sesión",
-    "parked": "En espera"
+    "parked": "En espera",
+    "collapse": "Contraer menú",
+    "logout_confirm_title": "¿Cerrar sesión?",
+    "logout_confirm_message": "Tendrá que iniciar sesión de nuevo para usar la caja.",
+    "logout_confirm_sale": "La venta actual se queda en el carrito y estará ahí cuando vuelva a iniciar sesión.",
+    "expand": "Expandir menú"
   },
   "auth": {
     "sign_in": "Iniciar sesión",
@@ -64,7 +70,9 @@
     "staging": "Staging",
     "production": "Producción",
     "fullscreen_hint": "Pulsa F11 para alternar pantalla completa",
-    "api_url_host_placeholder": "api.example.com o localhost:9000"
+    "api_url_host_placeholder": "api.example.com o localhost:9000",
+    "show_password": "Mostrar contraseña",
+    "hide_password": "Ocultar contraseña"
   },
   "checkout": {
     "add_item": "Añadir artículo",
@@ -155,7 +163,6 @@
     "discount_type_label": "Tipo de descuento",
     "discount_amount": "Importe",
     "discount_percentage": "Porcentaje",
-    "discount_value_label": "Valor del descuento ",
     "select_item_for_discount": "Selecciona un artículo para aplicar un descuento.",
     "column_item": "Artículo",
     "column_sku": "SKU",
@@ -193,7 +200,6 @@
     "set_quantity_for_next_item": "Establecer cantidad para el siguiente artículo añadido al carrito",
     "item_added": "{{title}} añadido al carrito",
     "item_removed": "{{title}} eliminado del carrito",
-    "quantity_decreased": "Cantidad de {{title}} reducida",
     "quantity_increased": "Cantidad de {{title}} aumentada",
     "select_payment_method": "Selecciona un método de pago antes de pasar por caja.",
     "region_channel_missing": "Falta información de la región o del canal de venta.",
@@ -202,7 +208,6 @@
     "no_default_printer": "No hay ninguna impresora predeterminada configurada. Añade una en Ajustes → Impresoras.",
     "cannot_add_to_cart": "No se puede añadir el artículo al carrito",
     "no_sales_channel_configured": "No hay canal de venta configurado",
-    "product_not_found": "Producto no encontrado",
     "product_not_for_sale": "{{title}} no está a la venta.",
     "items_not_for_sale_one": "{{names}} ya no está a la venta. Quítalo del carrito para continuar.",
     "items_not_for_sale_other": "{{names}} ya no están a la venta. Quítalos del carrito para continuar.",
@@ -247,7 +252,17 @@
     "park_name_optional": "opcional",
     "products_load_failed": "No se pudieron cargar los productos.",
     "products_load_failed_hint": "Suele ser la conexión. Se cargan de nuevo solos cuando el servidor vuelve a estar disponible.",
-    "fulfillment_failed_order_created": "El pedido se creó, pero los artículos no se pudieron marcar como entregados: {{reason}}"
+    "fulfillment_failed_order_created": "El pedido se creó, pero los artículos no se pudieron marcar como entregados: {{reason}}",
+    "cart_cleared": "Carrito vaciado",
+    "pay_blocked_out_of_stock": "Quita los artículos sin stock para cobrar",
+    "scan_not_found": "Ningún producto con el código {{barcode}}",
+    "catalog_view": "Vista",
+    "discount_remove": "Quitar descuento",
+    "sale_complete": "Venta completada",
+    "sale_outstanding": "Entregado — pago pendiente",
+    "new_sale": "Nueva venta",
+    "new_sale_hint": "Escanear el siguiente artículo también inicia una nueva venta.",
+    "quick_keys_label": "Teclas rápidas"
   },
   "orders": {
     "search_placeholder": "Buscar pedidos...",
@@ -450,8 +465,6 @@
       "warn_fulfil_failed": "Los artículos se añadieron pero no se marcaron como entregados. Complételos desde la página del pedido.",
       "warn_settle_failed": "Los artículos se añadieron pero no se registró el pago. Use Registrar pago.",
       "add_success": "Artículos añadidos, {{amount}} cobrado",
-      "decrease": "Reducir cantidad",
-      "increase": "Aumentar cantidad",
       "return_title": "Devolver artículos",
       "return_description": "Elija qué vuelve y si cada artículo puede venderse de nuevo.",
       "return_restock": "De vuelta al stock",
@@ -485,7 +498,18 @@
       "add_success_unpaid": "Artículos añadidos a lo que debe el cliente",
       "add_authorized_warning": "La autorización de pago anterior del cliente se cancelará. Deberá pagarse de nuevo el importe completo."
     },
-    "item_returned": "Devuelto"
+    "item_returned": "Devuelto",
+    "status_pending": "Pendiente",
+    "status_completed": "Completado",
+    "status_draft": "Borrador",
+    "status_archived": "Archivado",
+    "status_requires_action": "Requiere acción",
+    "status_not_paid": "No pagado",
+    "status_authorized": "Autorizado",
+    "status_partially_authorized": "Parcialmente autorizado",
+    "status_partially_refunded": "Parcialmente reembolsado",
+    "filter_to_fulfil": "Por preparar",
+    "quick_filter_label": "Mostrar"
   },
   "parked": {
     "title": "Ventas aparcadas",
@@ -569,7 +593,11 @@
       "even": "IGUALADO - NADA QUE LIQUIDAR",
       "footer": "Guarde este comprobante con su recibo",
       "owed": "Añadido al importe pendiente"
-    }
+    },
+    "preview_button": "Ver recibo",
+    "preview_title": "Vista previa del recibo",
+    "preview_description": "Lo que imprime la impresora predeterminada para este pedido, a su ancho de papel y con el logo de la tienda.",
+    "preview_sale_note": "Lo que imprimirá esta venta una vez pagada. El número de pedido se asigna al completar el pago."
   },
   "handoff": {
     "title": "TICKET DE TRANSFERENCIA",
@@ -626,7 +654,22 @@
       },
       "cash_rounding": "Redondeo de efectivo",
       "cash_rounding_description": "Redondea los pagos en efectivo al incremento más cercano. Los pagos con tarjeta y otros se mantienen exactos.",
-      "cash_rounding_increment": "Incremento de redondeo"
+      "cash_rounding_increment": "Incremento de redondeo",
+      "display_size": "Tamaño de pantalla",
+      "display_size_compact": "Compacto",
+      "display_size_standard": "Estándar",
+      "display_size_large": "Grande",
+      "display_size_hint": "Ajusta el texto y los botones solo en esta caja. Grande se lee y toca mejor; compacto cabe más en una pantalla pequeña.",
+      "sounds": "Sonidos",
+      "sound_preview": "Reproducir este sonido",
+      "sound_scan": "Artículo escaneado",
+      "sound_scan_hint": "Un pitido corto al añadir un artículo.",
+      "sound_scanError": "Escaneo fallido",
+      "sound_scanError_hint": "Dos zumbidos graves cuando un código no se encuentra o no se puede añadir.",
+      "sound_sale": "Venta completada",
+      "sound_sale_hint": "Dos pitidos ascendentes cuando se completa un pago.",
+      "sound_error": "Error",
+      "sound_error_hint": "Un zumbido grave cuando algo más falla, p. ej. un pago."
     },
     "printer": {
       "title": "Impresoras",
@@ -641,7 +684,6 @@
       "loading": "Cargando impresoras...",
       "testing_print": "Probando impresión…",
       "testing_drawer": "Probando cajón…",
-      "not_tested": "Sin probar",
       "print_ok": "Impresión correcta",
       "print_issue": "Problema de impresión",
       "drawer_ok": "Cajón correcto",
@@ -649,13 +691,6 @@
       "no_printers_title": "Ninguna impresora configurada",
       "no_printers_description": "Empieza añadiendo tu primera impresora para imprimir recibos.",
       "add_first_printer": "Añadir tu primera impresora",
-      "column_name": "Nombre",
-      "column_type": "Tipo",
-      "column_connection": "Conexión",
-      "column_address": "Dirección",
-      "column_status": "Estado",
-      "column_default": "Predeterminada",
-      "column_actions": "Acciones",
       "default_badge": "Predeterminada",
       "test_button": "Probar",
       "test_drawer_button": "Probar cajón",
@@ -767,13 +802,12 @@
       "payment_methods_label": "Métodos de pago",
       "payment_methods_description": "Añade, quita o personaliza los métodos de pago. El ID del proveedor debe coincidir con el de tu backend de Medusa (p. ej. pp_cash_pos).",
       "provider_id_placeholder": "ID del proveedor",
+      "provider_choose": "Elige un proveedor",
       "display_name_placeholder": "Nombre visible",
-      "icon_label": "Icono",
       "icon_cash": "Efectivo",
       "icon_card": "Tarjeta",
       "icon_transfer": "Transferencia interna",
       "icon_bank_transfer": "Transferencia bancaria",
-      "type_label": "Tipo",
       "type_cash": "Efectivo",
       "type_card": "Tarjeta",
       "type_transfer": "Transferencia interna",
@@ -783,6 +817,13 @@
       "column_icon": "Icono del botón",
       "column_type": "Se procesa como",
       "provider_id_not_installed": "Este ID de proveedor no está instalado en Medusa.",
+      "provider_not_installed_short": "no instalado",
+      "provider_picker_title": "Elige un proveedor de pago",
+      "provider_picker_description": "Los proveedores de pago de tu backend de Medusa. Los del terminal terminan en _pos.",
+      "provider_group_till": "Métodos de pago del terminal",
+      "provider_group_other": "Otros proveedores (tienda web, entrega)",
+      "provider_in_use": "en uso",
+      "provider_current": "actual",
       "add_payment_method_button": "Añadir método de pago",
       "font_size_label": "Tamaño de fuente base (px)",
       "primary_color_label": "Color primario",
@@ -794,10 +835,10 @@
       "saved": "Ajustes de la tienda guardados",
       "logo_load_error": "Error al cargar la imagen del logotipo",
       "logo_preview_alt": "Vista previa del logotipo",
-      "remove_payment_method_aria": "Quitar método de pago",
       "pick_logo_dialog_title": "Seleccionar logotipo de la tienda",
       "pick_logo_filter_name": "Imagen",
-      "logo_too_large": "La imagen del logotipo debe ser menor de 256 KB"
+      "logo_too_large": "La imagen del logotipo debe ser menor de 256 KB",
+      "payment_method_enabled": "Visible en el cobro"
     },
     "scanner": {
       "title": "Escáner",
@@ -826,12 +867,30 @@
       "test_terminator": "terminado por",
       "open_failed": "No se pudo abrir el puerto del escáner",
       "reader_stopped": "Escáner desconectado",
-      "save_failed": "No se han podido guardar los ajustes del escáner"
+      "save_failed": "No se han podido guardar los ajustes del escáner",
+      "wedge_test_hint": "Escanee cualquier código mientras esta página esté abierta. Si el código aparece aquí, el escáner funciona.",
+      "wedge_test_read": "Escaneo {{count}} · {{time}}"
     },
     "plugins": {
       "title": "Plugins",
       "description": "Plugins de POS conectados. Cada plugin gestiona aquí su conexión y preferencias.",
       "empty": "No hay plugins instalados."
+    },
+    "unsaved_changes": "Cambios sin guardar",
+    "discard_changes": "Descartar",
+    "quick_keys": {
+      "title": "Teclas rápidas",
+      "description": "Hasta {{count}} productos como botones grandes sobre el carrito, para artículos sin código de barras o muy vendidos. Iguales en todas las cajas de esta tienda.",
+      "empty": "Aún no hay teclas rápidas",
+      "add_hint": "Busque o escanee un producto arriba para añadirlo.",
+      "already_added": "Este producto ya es una tecla rápida.",
+      "max_reached": "Máximo {{count}} teclas rápidas. Quite una para añadir otra.",
+      "unavailable": "No disponible en esta caja (sin publicar u otro canal de venta).",
+      "name_label": "Nombre del botón",
+      "name_placeholder": "Nombre del botón (opcional, corto)",
+      "move_up": "Subir",
+      "move_down": "Bajar",
+      "saved": "Teclas rápidas guardadas"
     }
   },
   "errors": {
@@ -844,7 +903,7 @@
     "boot_slow_title": "Cargando…",
     "boot_slow_message": "Está tardando más de lo habitual. Puedes esperar, reintentar o cambiar de tienda.",
     "sales_channel_required_title": "Canal de venta requerido",
-    "sales_channel_required_message": "Debes configurar un canal de venta antes de añadir productos al carrito. Ve a Ajustes → Ajustes de la API para configurar tu canal de venta.",
+    "sales_channel_required_message": "Hay que elegir un canal de venta antes de añadir productos al carrito. Elíjalo en Ajustes → Conexión.",
     "store_setup_title": "Configura los datos de la tienda",
     "store_setup_message": "Añade el nombre de tu tienda, la marca y los datos de contacto para que aparezcan correctamente en los recibos y en toda la aplicación.",
     "something_went_wrong_title": "Vaya... algo ha salido mal.",
@@ -865,12 +924,12 @@
     "restored_offline": "No se puede conectar con el servidor: se usa la sesión guardada."
   },
   "pagination": {
-    "first_page": "Primera",
-    "previous_page": "Anterior",
+    "first_page": "Primera página",
+    "previous_page": "Página anterior",
     "page_label": "Página",
     "of": "de",
-    "next_page": "Siguiente",
-    "last_page": "Última",
+    "next_page": "Página siguiente",
+    "last_page": "Última página",
     "rows_per_page": "Filas por página:"
   },
   "printer_service": {
@@ -952,5 +1011,35 @@
       "description": "Reanuda el turno actual para seguir vendiendo. Se conservan el fondo inicial y los movimientos de efectivo.",
       "submit": "Reabrir la caja"
     }
+  },
+  "ui": {
+    "numpad_clear": "Borrar",
+    "numpad_done": "Listo",
+    "numpad_backspace": "Borrar el último dígito (mantén pulsado para vaciar)",
+    "stepper_decrease": "Disminuir",
+    "stepper_increase": "Aumentar",
+    "clear_input": "Borrar",
+    "toggle_keyboard": "Mostrar u ocultar el teclado en pantalla",
+    "search": "Buscar"
+  },
+  "status": {
+    "online": "En línea",
+    "offline": "Sin conexión",
+    "checking": "Comprobando…",
+    "recheck": "Volver a comprobar la conexión",
+    "register_open": "Caja abierta",
+    "register_closed": "Caja cerrada",
+    "printer_checking": "Comprobando impresora…",
+    "printer_ready": "Impresora lista",
+    "printer_connected": "Impresora conectada",
+    "printer_paper_low": "Queda poco papel",
+    "printer_paper_out": "Sin papel",
+    "printer_cover_open": "Tapa de la impresora abierta",
+    "printer_error": "Error de la impresora",
+    "printer_offline": "Impresora desconectada",
+    "printer_unreachable": "Impresora no accesible",
+    "printer_unsupported": "Estado no disponible",
+    "printer_none": "Sin impresora",
+    "printer_open_settings": "Abrir ajustes de impresora"
   }
 }

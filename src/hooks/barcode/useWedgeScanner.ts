@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import { playErrorSound } from "@/utils/sounds";
+import { playSound } from "@/utils/sounds";
 import constants from "@/utils/constants";
 import { SCAN_MAX_GAP_MS, isEditableTarget, isScannerBurst } from "@/utils/pos/barcode/wedge";
 
@@ -98,7 +98,7 @@ const useWedgeScanner = ({ onScan, inputRef, enabled = true }: UseWedgeScannerPr
         emit(text);
       } else if (!isEditableTarget(event.target)) {
         // Pasting text into a field is ordinary editing; outside one it was meant as a code.
-        playErrorSound();
+        playSound("scanError");
       }
     };
 

@@ -1,12 +1,10 @@
 import React, { useMemo, useState } from "react";
 import { useChange } from "@/hooks/utils/useChange";
-import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Numpad } from "@/components/ui/numpad";
 import { Minus, Plus } from "lucide-react";
 import { useCartStore } from "@/context/cart";
-import { toast } from "sonner";
 import { handleErrorToast } from "@/utils/helpers";
 import { useTranslation } from "@/i18n";
 
@@ -23,111 +21,89 @@ const QuantityModal: React.FC<Props> = ({ open, onClose }) => {
   const itemQuantity = useCartStore((state) => state.itemQuantity);
   const setItemQuantity = useCartStore((state) => state.setItemQuantity);
   const [input, setInput] = useState<string>("");
-  const [showNumpad, setShowNumpad] = useState(false);
+  // The prefilled value is typed over, not appended to.
+  const [fresh, setFresh] = useState(true);
 
   const currentItem = useMemo(
     () => items.find((i) => i.variant_id === selectedItemId),
     [items, selectedItemId]
   );
   const currentQty = currentItem?.quantity || 0;
+  const parsed = parseInt(input || "", 10);
+  const isValid = !Number.isNaN(parsed) && parsed >= 1;
 
-  const applyQty = (qty: number): boolean => {
-    if (!selectedItemId) return false;
-    try {
-      updateItemQuantity(selectedItemId, Math.max(0, qty));
-      toast.success(`Updated quantity to ${qty}`);
-      return true;
-    } catch (error) {
-      handleErrorToast((error as Error).message);
-      return false;
-    }
+  useChange(`${open}|${selectedItemId ?? ""}`, () => {
+    if (!open) return;
+    setInput(String(selectedItemId ? currentQty : (itemQuantity ?? 1)));
+    setFresh(true);
+  });
+
+  const edit = (value: string) => {
+    setInput(value);
+    setFresh(false);
   };
+
+  const step = (delta: number) => edit(String(Math.max(1, (isValid ? parsed : 0) + delta)));
 
   const onApply = () => {
-    const parsed = parseInt(input || "", 10);
-    if (Number.isNaN(parsed)) return;
+    if (!isValid) return;
 
     if (selectedItemId) {
-      const success = applyQty(parsed);
-      if (success) {
-        onClose();
-        setShowNumpad(false);
+      try {
+        updateItemQuantity(selectedItemId, parsed);
+      } catch (error) {
+        handleErrorToast((error as Error).message);
+        return;
       }
     } else {
-      setItemQuantity(Math.max(0, parsed));
-      onClose();
-      setShowNumpad(false);
+      setItemQuantity(parsed);
     }
+    onClose();
   };
-
-  useChange(`${open}|${selectedItemId ?? ""}|${currentQty}|${itemQuantity}`, () => {
-    if (!open) setShowNumpad(false);
-    else if (selectedItemId) setInput(currentQty.toString());
-    else setInput("");
-  });
 
   return (
     <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
-      <DialogContent className="max-w-lg">
-        <DialogTitle className="text-center text-lg font-medium">
-          {selectedItemId
-            ? currentItem?.title
-            : t("checkout.set_quantity_for_next_item")}
-        </DialogTitle>
+      <DialogContent className="max-w-md">
+        <DialogHeader>
+          <DialogTitle className="px-12 text-center text-xl">
+            {selectedItemId ? currentItem?.title : t("checkout.set_quantity_for_next_item")}
+          </DialogTitle>
+        </DialogHeader>
 
-        <div className="flex flex-col items-center gap-4 py-6">
-          <div className="flex items-center gap-6">
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-16 w-16 border text-2xl"
-              onClick={() => {
-                if (selectedItemId) {
-                  applyQty(currentQty - 1);
-                } else {
-                  setInput((prev) => String(Math.max(1, (parseInt(prev, 10) || 1) - 1)));
-                }
-              }}
-              disabled={selectedItemId ? currentQty <= 1 : false}
-            >
-              <Minus className="h-8 w-8" />
-            </Button>
-            <Input
-              type="text"
-              inputMode="decimal"
-              className="h-16 w-24 border-0 bg-muted text-center text-3xl font-semibold focus-visible:ring-2"
-              placeholder="0"
-              value={input}
-              autoFocus={true}
-              onFocus={() => setShowNumpad(true)}
-              onClick={() => setShowNumpad(true)}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && onApply()}
-            />
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-16 w-16 border text-2xl"
-              onClick={() => {
-                if (selectedItemId) {
-                  applyQty(currentQty + 1);
-                } else {
-                  setInput((prev) => String((parseInt(prev, 10) || 0) + 1));
-                }
-              }}
-            >
-              <Plus className="h-8 w-8" />
-            </Button>
-          </div>
-          {showNumpad && (
-            <Numpad
-              value={input}
-              onChange={setInput}
-              onEnter={onApply}
-              allowDecimal={false}
-            />
-          )}
+        <div className="flex items-center justify-center gap-4">
+          <Button
+            variant="outline"
+            size="icon-lg"
+            aria-label={t("ui.stepper_decrease")}
+            disabled={!isValid || parsed <= 1}
+            onClick={() => step(-1)}
+          >
+            <Minus className="size-6" />
+          </Button>
+          <output
+            aria-live="polite"
+            className={`min-w-32 rounded-lg px-4 py-2 text-center text-total tabular-nums ${fresh ? "bg-primary/10" : "bg-surface-subtle"}`}
+          >
+            {input || "0"}
+          </output>
+          <Button
+            variant="outline"
+            size="icon-lg"
+            aria-label={t("ui.stepper_increase")}
+            onClick={() => step(1)}
+          >
+            <Plus className="size-6" />
+          </Button>
         </div>
+
+        <Numpad
+          value={input}
+          onChange={edit}
+          onEnter={onApply}
+          enterDisabled={!isValid}
+          replace={fresh}
+          allowDecimal={false}
+        />
       </DialogContent>
     </Dialog>
   );

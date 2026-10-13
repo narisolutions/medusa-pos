@@ -6,6 +6,7 @@ import {
   getOrderChosenProviderId,
   getOrderPaymentMethodType,
   getPaymentMethodLabel,
+  groupProvidersForTill,
   paymentsCovering,
   type RefundablePayment,
 } from "@/utils/pos/payment";
@@ -100,5 +101,24 @@ describe("getOrderChosenProviderId", () => {
     const unpaid = order({ metadata: { pay_later_method: "pp_cash_pos" } });
     expect(getOrderChosenProviderId(unpaid)).toBe("pp_cash_pos");
     expect(getOrderPaymentMethodType(unpaid, store)).toBe("card");
+  });
+});
+
+describe("groupProvidersForTill", () => {
+  it("puts the till's own providers first and the web shop's and platforms' after, each sorted", () => {
+    expect(
+      groupProvidersForTill([
+        "pp_bog_wineland",
+        "pp_tbc_pos",
+        "pp_banktransfer_pos",
+        "pp_system_default",
+        "pp_bolt_delivery",
+        "pp_cash_pos",
+        "pp_cash_pos",
+      ])
+    ).toEqual({
+      till: ["pp_banktransfer_pos", "pp_cash_pos", "pp_system_default", "pp_tbc_pos"],
+      other: ["pp_bog_wineland", "pp_bolt_delivery"],
+    });
   });
 });

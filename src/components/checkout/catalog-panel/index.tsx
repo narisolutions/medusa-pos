@@ -1,8 +1,10 @@
 import React from "react";
 import { AdminProduct, AdminProductVariant } from "@medusajs/types";
-import { LayoutGrid, List, X } from "lucide-react";
+import { LayoutGrid, List, PackageSearch, X } from "lucide-react";
+import { SegmentedControl } from "@/components/ui/segmented-control";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { EmptyState } from "@/components/ui/state-panel";
 import type { ProductPickerResult } from "@/components/base/product-picker/hooks";
 import { formatPrice } from "@/utils/helpers";
 import { useTranslation } from "@/i18n";
@@ -78,26 +80,15 @@ const CatalogPanel: React.FC<Props> = ({ open, onClose, products, onSelect }) =>
               })}
             </p>
           </div>
-          <div className="flex gap-1 rounded-lg border border-theme-border p-1">
-            <Button
-              type="button"
-              variant={view === "cards" ? "default" : "ghost"}
-              aria-pressed={view === "cards"}
-              onClick={() => changeView("cards")}
-            >
-              <LayoutGrid className="size-5" />
-              {t("checkout.catalog_cards")}
-            </Button>
-            <Button
-              type="button"
-              variant={view === "list" ? "default" : "ghost"}
-              aria-pressed={view === "list"}
-              onClick={() => changeView("list")}
-            >
-              <List className="size-5" />
-              {t("checkout.catalog_list")}
-            </Button>
-          </div>
+          <SegmentedControl
+            label={t("checkout.catalog_view")}
+            value={view}
+            onChange={changeView}
+            options={[
+              { value: "cards", label: t("checkout.catalog_cards"), icon: <LayoutGrid /> },
+              { value: "list", label: t("checkout.catalog_list"), icon: <List /> },
+            ]}
+          />
           <Button
             type="button"
             variant="ghost"
@@ -114,7 +105,8 @@ const CatalogPanel: React.FC<Props> = ({ open, onClose, products, onSelect }) =>
             value={query}
             onChange={(event) => setQuery(event.target.value)}
             placeholder={t("checkout.catalog_search_placeholder")}
-            className="text-base"
+            clearable
+            aria-label={t("checkout.catalog_search_placeholder")}
           />
           <div className="flex flex-wrap gap-2">
             <Chip selected={!topCategoryId} onClick={() => selectTopCategory(null)}>
@@ -147,9 +139,10 @@ const CatalogPanel: React.FC<Props> = ({ open, onClose, products, onSelect }) =>
 
         <div className="flex-1 overflow-y-auto p-6">
           {visibleProducts.length === 0 ? (
-            <p className="py-12 text-center text-lg text-fg-muted">
-              {hasFilter ? t("checkout.catalog_no_matches") : t("checkout.catalog_empty_category")}
-            </p>
+            <EmptyState
+              icon={<PackageSearch />}
+              title={hasFilter ? t("checkout.catalog_no_matches") : t("checkout.catalog_empty_category")}
+            />
           ) : view === "list" ? (
             <div className="flex flex-col gap-2">
               {visibleProducts.map((product) => (
@@ -162,7 +155,7 @@ const CatalogPanel: React.FC<Props> = ({ open, onClose, products, onSelect }) =>
               ))}
             </div>
           ) : (
-            <div className="grid grid-cols-[repeat(auto-fill,minmax(11rem,1fr))] gap-4">
+            <div className="grid grid-cols-[repeat(auto-fill,minmax(11rem,1fr))] gap-3">
               {visibleProducts.map((product) => (
                 <ProductTile
                   key={product.id}

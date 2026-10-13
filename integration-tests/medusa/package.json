@@ -7,16 +7,17 @@
     "dev": "medusa develop",
     "build": "medusa build",
     "seed": "medusa exec src/scripts/seed.ts",
+    "seed:demo": "medusa exec src/scripts/seed-demo.ts",
     "db:migrate": "medusa db:migrate"
   },
   "dependencies": {
-    "@medusajs/framework": "^2.15.1",
-    "@medusajs/medusa": "^2.15.1",
-    "@narisolutions/medusa-plugin-pos": "0.1.1",
+    "@medusajs/framework": "^2.21.1",
+    "@medusajs/medusa": "^2.21.1",
+    "@narisolutions/medusa-plugin-pos": "0.1.3",
     "awilix": "^8.0.1"
   },
   "devDependencies": {
-    "@medusajs/types": "^2.15.1",
+    "@medusajs/types": "^2.21.1",
     "@swc/core": "^1.7.28",
     "ts-node": "^10.9.2",
     "typescript": "^5.6.2"

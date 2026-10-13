@@ -1,10 +1,11 @@
 import React from "react";
 import { AdminOrder } from "@medusajs/types";
-import { AlertTriangle, Loader2 } from "lucide-react";
+import { AlertTriangle } from "lucide-react";
 import {
   Dialog,
   DialogContent,
   DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
@@ -71,8 +72,6 @@ const AddItemsDialog: React.FC<Props> = ({ isOpen, onClose, order }) => {
             disabled={isBusy}
           />
 
-          <PostSaleDifference currency={currency} goingOut={goingOut} settleLater={isUnpaidOrder} />
-
           {!isUnpaidOrder && (
             <PaymentMethodPicker
               methods={methods}
@@ -83,34 +82,35 @@ const AddItemsDialog: React.FC<Props> = ({ isOpen, onClose, order }) => {
           )}
 
           {(order.payment_status === "authorized" || order.payment_status === "partially_authorized") && (
-            <div className="flex items-start gap-3 rounded-lg border border-amber-500/40 bg-amber-500/10 p-4">
-              <AlertTriangle className="size-5 shrink-0 text-amber-600 mt-0.5" />
+            <div className="flex items-start gap-3 rounded-lg border border-warning bg-warning-subtle p-4">
+              <AlertTriangle className="size-5 shrink-0 text-warning-text mt-0.5" />
               <p className="text-base text-fg">{t("orders.post_sale.add_authorized_warning")}</p>
             </div>
           )}
 
-          <div className="flex gap-3 pt-2">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={onClose}
-              disabled={isBusy}
-              className="flex-1 h-14 text-lg font-medium"
-            >
+        </div>
+
+        {/* The difference and the decision stay in view while long line lists scroll. */}
+        <DialogFooter sticky className="block space-y-3">
+          <PostSaleDifference currency={currency} goingOut={goingOut} settleLater={isUnpaidOrder} />
+          <div className="flex gap-3">
+            <Button type="button" variant="outline" size="lg" onClick={onClose} disabled={isBusy} className="flex-1 text-lg">
               {t("common.cancel")}
             </Button>
             <Button
               type="button"
+              variant="success"
+              size="lg"
               onClick={() => void handleConfirm()}
-              disabled={isBusy || !canConfirm}
-              className="flex-1 h-14 text-lg font-semibold bg-green-600 hover:bg-green-700 text-white"
+              disabled={!canConfirm}
+              loading={isBusy}
+              className="flex-2 text-lg font-semibold"
             >
-              {isBusy && <Loader2 className="size-5 mr-2 animate-spin" />}
               {progressLabel ??
                 (isUnpaidOrder ? t("orders.post_sale.add_title") : t("orders.post_sale.add_confirm"))}
             </Button>
           </div>
-        </div>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );

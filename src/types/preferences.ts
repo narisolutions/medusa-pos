@@ -5,8 +5,12 @@ export type DateTimePreferences = {
 
 export type CatalogView = "cards" | "list";
 
+/** How large this till draws everything, for its screen and its staff. */
+export type DisplaySize = "compact" | "standard" | "large";
+
 export type DisplayPreferences = {
   startFullscreen: boolean;
+  size: DisplaySize;
   /** Checkout catalog drawing; the set of products is the same in both. */
   catalogView: CatalogView;
 };
@@ -74,6 +78,11 @@ export type ScannerPreferences = {
   idleMs: number;
 };
 
+/** The moments the till can sound; each is switched on or off per terminal. */
+export type SoundEvent = "scan" | "scanError" | "sale" | "error";
+
+export type SoundPreferences = Record<SoundEvent, boolean>;
+
 export type UserPreferences = {
   dateTime: DateTimePreferences;
   display: DisplayPreferences;
@@ -82,4 +91,5 @@ export type UserPreferences = {
   language: LanguageMode;
   register: RegisterPreferences;
   scanner: ScannerPreferences;
+  sounds: SoundPreferences;
 };

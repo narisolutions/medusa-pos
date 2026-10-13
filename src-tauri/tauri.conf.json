@@ -45,7 +45,7 @@
     "resources": {
       "icons/icon.png": "icons/512x512.png"
     },
-    "publisher": "Nari Solutions",
+    "publisher": "Pliu AB",
     "copyright": "Copyright 2026 Nari Solutions",
     "createUpdaterArtifacts": true,
     "targets": ["appimage", "dmg", "msi"],

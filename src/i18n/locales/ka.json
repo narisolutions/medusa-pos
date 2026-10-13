@@ -34,26 +34,32 @@
     "back_to_orders": "შეკვეთებზე დაბრუნება",
     "pos": "POS",
     "processing": "მუშავდება...",
-    "downloading": "იტვირთება..."
+    "downloading": "იტვირთება...",
+    "undo": "გაუქმება"
   },
   "nav": {
     "pos": "POS",
     "orders": "შეკვეთები",
     "settings": "პარამეტრები",
     "logout": "გამოსვლა",
-    "parked": "გადადებული"
+    "parked": "გადადებული",
+    "collapse": "მენიუს აკეცვა",
+    "logout_confirm_title": "გამოსვლა?",
+    "logout_confirm_message": "სალაროს გამოსაყენებლად ხელახლა შესვლა დაგჭირდებათ.",
+    "logout_confirm_sale": "მიმდინარე გაყიდვა კალათაში დარჩება და ხელახლა შესვლისას დაგხვდებათ.",
+    "expand": "მენიუს გაშლა"
   },
   "auth": {
     "sign_in": "შესვლა",
     "email": "ელ.ფოსტა",
     "password": "პაროლი",
     "incorrect_credentials": "არასწორი ელ.ფოსტა ან პაროლი",
-    "backend_unreachable": "REVIEW: Backend unreachable — please check your connection or switch stores.",
+    "backend_unreachable": "სერვერთან კავშირი ვერ დამყარდა — შეამოწმეთ კავშირი ან აირჩიეთ სხვა მაღაზია.",
     "exit_application": "გასვლა",
     "add_store_hint": "გასაგრძელებლად დაამატეთ მაღაზია.",
     "add_store": "ობიექტის დამატება",
     "edit_store": "ობიექტის რედაქტირება",
-    "cannot_reach_backend": "REVIEW: Cannot reach backend: {{error}}",
+    "cannot_reach_backend": "სერვერთან კავშირი ვერ დამყარდა: {{error}}",
     "no_store_selected": "მაღაზია არ არის არჩეული — დასამატებლად გადახედეთ",
     "select_store_title": "ობიექტის არჩევა",
     "add_store_title": "ობიექტის დამატება",
@@ -64,7 +70,9 @@
     "staging": "Staging",
     "production": "Production",
     "fullscreen_hint": "F11 - სრული ეკრანის ჩართვა/გამორთვა",
-    "api_url_host_placeholder": "api.example.com ან localhost:9000"
+    "api_url_host_placeholder": "api.example.com ან localhost:9000",
+    "show_password": "პაროლის ჩვენება",
+    "hide_password": "პაროლის დამალვა"
   },
   "checkout": {
     "add_item": "ნივთის დამატება",
@@ -94,8 +102,8 @@
     "out_of_stock": "გაყიდულია",
     "last_one": "ბოლო ერთეული",
     "only_n_left": "დარჩა მხოლოდ {{count}}",
-    "endpoints_disabled_warning": "REVIEW: Custom POS endpoints aren't available — stock isn't checked automatically and prices are raw (not context-calculated). Install @narisolutions/medusa-plugin-pos on your backend to enable these routes.",
-    "barcode_custom_endpoints_disabled": "REVIEW: Barcode lookup requires the POS plugin. Install @narisolutions/medusa-plugin-pos on your backend to enable these routes.",
+    "endpoints_disabled_warning": "POS-ის საკუთარი მისამართები მიუწვდომელია — მარაგი ავტომატურად არ მოწმდება და ფასები დაუმუშავებელია. ჩართვისთვის სერვერზე დააინსტალირეთ @narisolutions/medusa-plugin-pos.",
+    "barcode_custom_endpoints_disabled": "შტრიხკოდით ძებნას სჭირდება POS პლაგინი. ჩართვისთვის სერვერზე დააინსტალირეთ @narisolutions/medusa-plugin-pos.",
     "payment_method": "გადახდის მეთოდი",
     "amount_paid": "გადახდილი თანხა",
     "change": "ხურდა",
@@ -155,7 +163,6 @@
     "discount_type_label": "ფასდაკლების ტიპი",
     "discount_amount": "თანხა",
     "discount_percentage": "პროცენტი",
-    "discount_value_label": "ფასდაკლების მნიშვნელობა ",
     "select_item_for_discount": "ფასდაკლების გამოსაყენებლად აირჩიეთ ნივთი.",
     "column_item": "ნივთი",
     "column_sku": "SKU",
@@ -193,7 +200,6 @@
     "set_quantity_for_next_item": "კალათაში შემდეგი ნივთისთვის რაოდენობის დაყენება",
     "item_added": "{{title}} დაემატა კალათაში",
     "item_removed": "{{title}} წაიშალა კალათიდან",
-    "quantity_decreased": "{{title}}-ის რაოდენობა შემცირდა",
     "quantity_increased": "{{title}}-ის რაოდენობა გაიზარდა",
     "select_payment_method": "გადახდამდე აირჩიეთ გადახდის მეთოდი.",
     "region_channel_missing": "რეგიონის ან გაყიდვების არხის ინფორმაცია არ არის.",
@@ -202,7 +208,6 @@
     "no_default_printer": "ძირითადი პრინტერი არ არის. დაამატეთ პარამეტრები → პრინტერები.",
     "cannot_add_to_cart": "ნივთი ვერ დაემატა კალათაში",
     "no_sales_channel_configured": "გაყიდვების არხი არ არის კონფიგურირებული",
-    "product_not_found": "პროდუქტი ვერ მოიძებნა",
     "product_not_for_sale": "{{title}} არ იყიდება.",
     "items_not_for_sale_one": "{{names}} აღარ იყიდება. გასაგრძელებლად წაშალეთ კალათიდან.",
     "items_not_for_sale_other": "{{names}} აღარ იყიდება. გასაგრძელებლად წაშალეთ კალათიდან.",
@@ -247,7 +252,17 @@
     "park_name_optional": "არასავალდებულო",
     "products_load_failed": "პროდუქტების ჩატვირთვა ვერ მოხერხდა.",
     "products_load_failed_hint": "ჩვეულებრივ ეს კავშირის პრობლემაა. სერვერის ხელმისაწვდომობისას ისინი თავისით ჩაიტვირთება.",
-    "fulfillment_failed_order_created": "შეკვეთა შეიქმნა, მაგრამ ნივთების გადაცემულად მონიშვნა ვერ მოხერხდა: {{reason}}"
+    "fulfillment_failed_order_created": "შეკვეთა შეიქმნა, მაგრამ ნივთების გადაცემულად მონიშვნა ვერ მოხერხდა: {{reason}}",
+    "cart_cleared": "კალათა გასუფთავდა",
+    "pay_blocked_out_of_stock": "გადახდისთვის ამოიღეთ მარაგში არარსებული ნივთები",
+    "scan_not_found": "შტრიხკოდით {{barcode}} პროდუქტი ვერ მოიძებნა",
+    "catalog_view": "ხედი",
+    "discount_remove": "ფასდაკლების მოხსნა",
+    "sale_complete": "გაყიდვა დასრულდა",
+    "sale_outstanding": "გაცემულია — გადახდა მოსალოდნელია",
+    "new_sale": "ახალი გაყიდვა",
+    "new_sale_hint": "შემდეგი ნივთის დასკანერებაც იწყებს ახალ გაყიდვას.",
+    "quick_keys_label": "სწრაფი ღილაკები"
   },
   "orders": {
     "search_placeholder": "შეკვეთების ძებნა...",
@@ -450,8 +465,6 @@
       "warn_fulfil_failed": "ნივთები დაემატა, მაგრამ გაცემულად არ მოინიშნა. გაეცით შეკვეთის გვერდიდან.",
       "warn_settle_failed": "ნივთები დაემატა, მაგრამ გადახდა არ აისახა. გამოიყენეთ „გადახდის დაფიქსირება“.",
       "add_success": "ნივთები დაემატა, მიღებულია {{amount}}",
-      "decrease": "რაოდენობის შემცირება",
-      "increase": "რაოდენობის გაზრდა",
       "return_title": "ნივთების დაბრუნება",
       "return_description": "აირჩიეთ, რა ბრუნდება და შეიძლება თუ არა თითოეულის ხელახლა გაყიდვა.",
       "return_restock": "საწყობში დაბრუნება",
@@ -485,7 +498,18 @@
       "add_success_unpaid": "ნივთები დაემატა მომხმარებლის დავალიანებას",
       "add_authorized_warning": "მომხმარებლის წინა გადახდის ავტორიზაცია გაუქმდება. მთელი თანხა თავიდან უნდა გადაიხადოს."
     },
-    "item_returned": "დაბრუნდა"
+    "item_returned": "დაბრუნდა",
+    "status_pending": "მოლოდინში",
+    "status_completed": "დასრულებული",
+    "status_draft": "მონახაზი",
+    "status_archived": "დაარქივებული",
+    "status_requires_action": "საჭიროებს მოქმედებას",
+    "status_not_paid": "გადაუხდელი",
+    "status_authorized": "ავტორიზებული",
+    "status_partially_authorized": "ნაწილობრივ ავტორიზებული",
+    "status_partially_refunded": "ნაწილობრივ დაბრუნებული",
+    "filter_to_fulfil": "გასაცემი",
+    "quick_filter_label": "ჩვენება"
   },
   "parked": {
     "title": "გადადებული გაყიდვები",
@@ -569,7 +593,11 @@
       "even": "თანაბარია - გასასწორებელი არაფერია",
       "footer": "შეინახეთ ეს ქვითარი ჩეკთან ერთად",
       "owed": "დაემატა დავალიანებას"
-    }
+    },
+    "preview_button": "ქვითრის ნახვა",
+    "preview_title": "ქვითრის წინასწარი ნახვა",
+    "preview_description": "რას დაბეჭდავს ძირითადი პრინტერი ამ შეკვეთისთვის — მისი ქაღალდის სიგანით და მაღაზიის ლოგოთი.",
+    "preview_sale_note": "რას დაბეჭდავს ეს გაყიდვა გადახდის შემდეგ. შეკვეთის ნომერი გადახდისას მიენიჭება."
   },
   "handoff": {
     "title": "გადაცემის ქვითარი",
@@ -626,7 +654,22 @@
       },
       "cash_rounding": "ნაღდი ფულის დამრგვალება",
       "cash_rounding_description": "ნაღდი ფულის გადახდები მრგვალდება უახლოეს საფეხურამდე. ბარათით და სხვა გადახდები რჩება ზუსტი.",
-      "cash_rounding_increment": "დამრგვალების საფეხური"
+      "cash_rounding_increment": "დამრგვალების საფეხური",
+      "display_size": "ეკრანის ზომა",
+      "display_size_compact": "კომპაქტური",
+      "display_size_standard": "სტანდარტული",
+      "display_size_large": "დიდი",
+      "display_size_hint": "ცვლის ტექსტისა და ღილაკების ზომას მხოლოდ ამ სალაროზე. დიდი უფრო ადვილად იკითხება და ეჭირება; კომპაქტური მეტს ატევს პატარა ეკრანზე.",
+      "sounds": "ხმები",
+      "sound_preview": "ხმის მოსმენა",
+      "sound_scan": "ნივთი დასკანერდა",
+      "sound_scan_hint": "მოკლე სიგნალი ნივთის დამატებისას.",
+      "sound_scanError": "სკანირება ვერ მოხერხდა",
+      "sound_scanError_hint": "ორი დაბალი სიგნალი, როცა შტრიხკოდი ვერ მოიძებნა ან ვერ დაემატა.",
+      "sound_sale": "გაყიდვა დასრულდა",
+      "sound_sale_hint": "ორი მზარდი სიგნალი გადახდის დასრულებისას.",
+      "sound_error": "შეცდომა",
+      "sound_error_hint": "დაბალი სიგნალი სხვა შეცდომისას, მაგ. გადახდა ვერ შესრულდა."
     },
     "printer": {
       "title": "პრინტერები",
@@ -636,12 +679,11 @@
       "encoding": "სიმბოლოების კოდირება",
       "encoding_ascii": "ASCII (ძირითადი — არა-ASCII სიმბოლოები იჭრება)",
       "encoding_utf8": "UTF-8 (Unicode — ყველა სიმბოლო გადის)",
-      "encoding_cp852": "REVIEW: CP852 (Central European mapping)",
+      "encoding_cp852": "CP852 (ცენტრალურ-ევროპული კოდირება)",
       "encoding_translit": "ლათინურად ტრანსლიტერაცია",
       "loading": "პრინტერები იტვირთება...",
       "testing_print": "ბეჭდვის ტესტი...",
       "testing_drawer": "სალაროს ტესტი...",
-      "not_tested": "არ არის ტესტირებული",
       "print_ok": "ბეჭდვა კარგად",
       "print_issue": "ბეჭდვის პრობლემა",
       "drawer_ok": "სალარო კარგად",
@@ -649,13 +691,6 @@
       "no_printers_title": "პრინტერები არ არის",
       "no_printers_description": "ქვითრების დასაბეჭდად დაამატეთ პირველი პრინტერი.",
       "add_first_printer": "პირველი პრინტერის დამატება",
-      "column_name": "სახელი",
-      "column_type": "ტიპი",
-      "column_connection": "კავშირი",
-      "column_address": "მისამართი",
-      "column_status": "სტატუსი",
-      "column_default": "ძირითადი",
-      "column_actions": "მოქმედებები",
       "default_badge": "ძირითადი",
       "test_button": "ტესტი",
       "test_drawer_button": "სალაროს ტესტი",
@@ -767,13 +802,12 @@
       "payment_methods_label": "გადახდის მეთოდები",
       "payment_methods_description": "დაამატეთ, წაშალეთ ან მოარგეთ გადახდის მეთოდები. Provider ID უნდა შეესაბამებოდეს Medusa backend-ს (მაგ. pp_cash_pos).",
       "provider_id_placeholder": "Provider ID",
+      "provider_choose": "აირჩიეთ პროვაიდერი",
       "display_name_placeholder": "სახელი",
-      "icon_label": "ხატულა",
       "icon_cash": "ნაღდი",
       "icon_card": "ბარათი",
       "icon_transfer": "შიდა გადაცემა",
       "icon_bank_transfer": "საბანკო გადარიცხვა",
-      "type_label": "ტიპი",
       "type_cash": "ნაღდი",
       "type_card": "ბარათი",
       "type_transfer": "შიდა გადაცემა",
@@ -783,6 +817,13 @@
       "column_icon": "ღილაკის ხატულა",
       "column_type": "დამუშავდება როგორც",
       "provider_id_not_installed": "ეს provider ID არ არის დაინსტალირებული Medusa-ში.",
+      "provider_not_installed_short": "არ არის დაყენებული",
+      "provider_picker_title": "აირჩიეთ გადახდის პროვაიდერი",
+      "provider_picker_description": "Medusa-ს ბექენდში არსებული გადახდის პროვაიდერები. სალაროსი მთავრდება _pos-ით.",
+      "provider_group_till": "სალაროს გადახდის მეთოდები",
+      "provider_group_other": "სხვა პროვაიდერები (ვებ-მაღაზია, მიწოდება)",
+      "provider_in_use": "გამოყენებულია",
+      "provider_current": "მიმდინარე",
       "add_payment_method_button": "გადახდის მეთოდის დამატება",
       "font_size_label": "ძირითადი შრიფტის ზომა (px)",
       "primary_color_label": "მთავარი ფერი",
@@ -794,10 +835,10 @@
       "saved": "პარამეტრები შენახულია",
       "logo_load_error": "ლოგოს ჩატვირთვა ვერ მოხდა",
       "logo_preview_alt": "ლოგოს გადახედვა",
-      "remove_payment_method_aria": "გადახდის მეთოდის წაშლა",
       "pick_logo_dialog_title": "ლოგოს არჩევა",
       "pick_logo_filter_name": "სურათი",
-      "logo_too_large": "ლოგოს ზომა უნდა იყოს 256 KB-ზე ნაკლები"
+      "logo_too_large": "ლოგოს ზომა უნდა იყოს 256 KB-ზე ნაკლები",
+      "payment_method_enabled": "ჩანს გადახდისას"
     },
     "scanner": {
       "title": "სკანერი",
@@ -826,12 +867,30 @@
       "test_terminator": "დასრულდა",
       "open_failed": "სკანერის პორტის გახსნა ვერ მოხერხდა",
       "reader_stopped": "სკანერი გაითიშა",
-      "save_failed": "სკანერის პარამეტრების შენახვა ვერ მოხერხდა"
+      "save_failed": "სკანერის პარამეტრების შენახვა ვერ მოხერხდა",
+      "wedge_test_hint": "დაასკანერეთ ნებისმიერი შტრიხკოდი, სანამ ეს გვერდი ღიაა. თუ კოდი აქ გამოჩნდა, სკანერი მუშაობს.",
+      "wedge_test_read": "სკანირება {{count}} · {{time}}"
     },
     "plugins": {
       "title": "პლაგინები",
       "description": "დაკავშირებული POS პლაგინები. თითოეული პლაგინი აქ მართავს საკუთარ კავშირსა და პარამეტრებს.",
       "empty": "პლაგინები დაყენებული არ არის."
+    },
+    "unsaved_changes": "შეუნახავი ცვლილებები",
+    "discard_changes": "გაუქმება",
+    "quick_keys": {
+      "title": "სწრაფი ღილაკები",
+      "description": "{{count}}-მდე პროდუქტი დიდ ღილაკებად კალათის ზემოთ — შტრიხკოდის არმქონე ან ხშირად გაყიდვადი ნივთებისთვის. ერთნაირია ამ მაღაზიის ყველა სალაროსთვის.",
+      "empty": "სწრაფი ღილაკები ჯერ არ არის",
+      "add_hint": "დასამატებლად მოძებნეთ ან დაასკანერეთ პროდუქტი ზემოთ.",
+      "already_added": "ეს პროდუქტი უკვე სწრაფ ღილაკებშია.",
+      "max_reached": "მაქსიმუმ {{count}} სწრაფი ღილაკი. ახლის დასამატებლად წაშალეთ ერთი.",
+      "unavailable": "ამ სალაროზე მიუწვდომელია (გამოუქვეყნებელი ან სხვა გაყიდვის არხი).",
+      "name_label": "ღილაკის სახელი",
+      "name_placeholder": "ღილაკის სახელი (არასავალდებულო, მოკლე)",
+      "move_up": "ზემოთ",
+      "move_down": "ქვემოთ",
+      "saved": "სწრაფი ღილაკები შენახულია"
     }
   },
   "errors": {
@@ -842,9 +901,9 @@
       "too_short": "{{field}} უნდა შეიცავდეს მინიმუმ {{min}} სიმბოლოს."
     },
     "boot_slow_title": "ჯერ კიდევ იტვირთება…",
-    "boot_slow_message": "REVIEW: This is taking longer than usual. You can keep waiting, or retry / switch store.",
+    "boot_slow_message": "ჩვეულებრივზე მეტხანს გრძელდება. შეგიძლიათ დაელოდოთ, ან სცადოთ ხელახლა / აირჩიოთ სხვა მაღაზია.",
     "sales_channel_required_title": "გაყიდვების არხი საჭიროა",
-    "sales_channel_required_message": "კალათაში ნივთების დასამატებლად უნდა იყოს კონფიგურირებული გაყიდვების არხი. გადადით პარამეტრები → API პარამეტრები.",
+    "sales_channel_required_message": "კალათაში პროდუქტების დასამატებლად საჭიროა გაყიდვების არხი. აირჩიეთ ის: პარამეტრები → კავშირი.",
     "store_setup_title": "ობიექტის ინფორმაციის შევსება",
     "store_setup_message": "დაამატეთ ობიექტის სახელი, ბრენდინგი და საკონტაქტო ინფორმაცია, რათა სწორად გამოჩნდეს ქვითრებსა და აპლიკაციაში.",
     "something_went_wrong_title": "ჰმ... რაღაც შეცდომა მოხდა.",
@@ -865,12 +924,12 @@
     "restored_offline": "სერვერთან დაკავშირება ვერ ხერხდება — გამოიყენება შენახული სესია."
   },
   "pagination": {
-    "first_page": "პირველი",
-    "previous_page": "წინა",
+    "first_page": "პირველი გვერდი",
+    "previous_page": "წინა გვერდი",
     "page_label": "გვერდი",
     "of": "სულ",
-    "next_page": "შემდეგი",
-    "last_page": "ბოლო",
+    "next_page": "შემდეგი გვერდი",
+    "last_page": "ბოლო გვერდი",
     "rows_per_page": "სტრიქონი გვერდზე:"
   },
   "printer_service": {
@@ -878,7 +937,7 @@
     "saved_to_downloads": "შენახულია ჩამოტვირთვების საქაღალდეში",
     "open_folder_button": "საქაღალდის გახსნა",
     "save_pdf_error_title": "ქვითრის PDF ვერ შეინახა",
-    "save_pdf_error_message": "REVIEW: Check that your device has free storage space and that saving to Downloads is allowed. If this keeps happening, contact support.",
+    "save_pdf_error_message": "შეამოწმეთ, რომ მოწყობილობაზე საკმარისი ადგილია და Downloads-ში შენახვა ნებადართულია. თუ პრობლემა განმეორდა, დაუკავშირდით მხარდაჭერას.",
     "hint_check_connected": "დარწმუნდით, რომ \"{{printer}}\" ჩართულია და დაკავშირებულია.",
     "hint_restart": "თუ პრინტერი კვლავ არ პასუხობს, გადატვირთეთ იგი.",
     "hint_verify_connection": "გახსენით ამ პრინტერის რედაქტირება კავშირის ტიპისა და მისამართის შესამოწმებლად. Windows-ზე ხშირად მუშაობს ლოკალური (სისტემური პრინტერი), როცა პირდაპირი USB არა.",
@@ -952,5 +1011,35 @@
       "description": "აგრძელებს მიმდინარე ცვლას, რომ გააგრძელოთ გაყიდვა. საწყისი ნაშთი და ნაღდი ფულის მოძრაობა შენარჩუნდება.",
       "submit": "სალაროს ხელახლა გახსნა"
     }
+  },
+  "ui": {
+    "numpad_clear": "გასუფთავება",
+    "numpad_done": "მზადაა",
+    "numpad_backspace": "ბოლო ციფრის წაშლა (დააჭირეთ და დააყოვნეთ სრულად გასასუფთავებლად)",
+    "stepper_decrease": "შემცირება",
+    "stepper_increase": "გაზრდა",
+    "clear_input": "გასუფთავება",
+    "toggle_keyboard": "ეკრანული კლავიატურის ჩვენება ან დამალვა",
+    "search": "ძიება"
+  },
+  "status": {
+    "online": "ონლაინ",
+    "offline": "ოფლაინ",
+    "checking": "მოწმდება…",
+    "recheck": "კავშირის ხელახლა შემოწმება",
+    "register_open": "სალარო ღიაა",
+    "register_closed": "სალარო დახურულია",
+    "printer_checking": "პრინტერი მოწმდება…",
+    "printer_ready": "პრინტერი მზადაა",
+    "printer_connected": "პრინტერი დაკავშირებულია",
+    "printer_paper_low": "ქაღალდი იწურება",
+    "printer_paper_out": "ქაღალდი გათავდა",
+    "printer_cover_open": "პრინტერის სახურავი ღიაა",
+    "printer_error": "პრინტერის შეცდომა",
+    "printer_offline": "პრინტერი გათიშულია",
+    "printer_unreachable": "პრინტერი მიუწვდომელია",
+    "printer_unsupported": "სტატუსი მიუწვდომელია",
+    "printer_none": "პრინტერი არ არის",
+    "printer_open_settings": "პრინტერის პარამეტრები"
   }
 }

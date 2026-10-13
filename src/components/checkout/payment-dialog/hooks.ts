@@ -7,7 +7,7 @@ import { useChange } from "@/hooks/utils/useChange";
 import { toast } from "sonner";
 import { queryClient, queryKeys } from "@/config/query";
 import { getSdk } from "@/config/medusa";
-import { playErrorSound, playSuccessSound } from "@/utils/sounds";
+import { playSound } from "@/utils/sounds";
 import { usePrinterService } from "@/hooks/printer/usePrinterService";
 import { AdminOrder, AdminDraftOrder } from "@medusajs/types";
 import { useCartStore } from "@/context/cart";
@@ -85,7 +85,8 @@ const useDraftOrderState = (draftOrderId?: string | null, isOpen?: boolean) => {
         draftOrderId,
         {
           fields:
-            "*items,*summary,*region,*sales_channel,subtotal,discount_total,tax_total,total",
+            // currency, customer and metadata: the receipt preview prints them.
+            "*items,*summary,*region,*sales_channel,*customer,subtotal,discount_total,tax_total,total,currency_code,email,metadata",
         }
       );
 
@@ -228,6 +229,8 @@ const useCashPayment = (total: number, isCashType: boolean) => {
   };
 };
 
+type CompletedSale = { order: AdminOrder; change: number; outstanding: boolean; method?: PaymentMethod };
+
 const usePaymentModal = (
   draftOrderId?: string | null,
   onClose?: () => void,
@@ -237,6 +240,10 @@ const usePaymentModal = (
   // Single-flight guard: a ref (not state) so a double-tap can't convert the draft twice.
   const submissionRef = useRef(false);
   const [showConfirmation, setShowConfirmation] = useState(false);
+  // The finished sale the dialog shows until "New sale"; the ref carries it out of the
+  // async flow, which also returns an order for an unpaid fallback that just closes.
+  const [completed, setCompleted] = useState<CompletedSale | null>(null);
+  const succeeded = useRef<Omit<CompletedSale, "change"> | null>(null);
   const [showPayLaterConfirmation, setShowPayLaterConfirmation] =
     useState(false);
   // Draft snapshotted at submit: conversion clears draftOrderId mid-flow, which would blank the dialog.
@@ -254,7 +261,8 @@ const usePaymentModal = (
   const items = useCartStore((state) => state.items);
 
   // Get payment method display info
-  const paymentMethodInfo = usePaymentMethodDisplay(selectedPaymentMethod);
+  // The cart's method is reset after a sale; the success screen still names the one used.
+  const paymentMethodInfo = usePaymentMethodDisplay(completed?.method ?? selectedPaymentMethod);
   const { data: store } = useQueryStore();
   const methodType = getMethodType(store, selectedPaymentMethod);
   const isCashType = methodType === "cash";
@@ -340,13 +348,14 @@ const usePaymentModal = (
   );
 
   // Clean up after successful order — synchronous-ish: clears cart, resets
-  // state, shows success toast. Hardware side effects are fire-and-forget.
+  // state, marks the sale for the success screen. Hardware side effects are fire-and-forget.
   const cleanupAfterOrder = useCallback(
     async (
       order: AdminOrder,
       paymentMethod: PaymentMethod | undefined,
-      options?: { successMessage?: string }
+      options?: { successMessage?: string; outstanding?: boolean }
     ): Promise<void> => {
+      succeeded.current = { order, outstanding: !!options?.outstanding, method: paymentMethod };
       clearItems();
       setDraftOrderId(null);
       void queryClient.invalidateQueries({ queryKey: queryKeys.orders.all });
@@ -357,11 +366,9 @@ const usePaymentModal = (
       resetCashState();
       setPaymentMethod(undefined);
 
-      toast.success(
-        options?.successMessage ??
-          `Order #${order.display_id} created successfully!`
-      );
-      playSuccessSound();
+      // The dialog's success screen says it; pay-later also says whether it was delivered.
+      if (options?.successMessage) toast.success(options.successMessage);
+      playSound("sale");
 
       runPostOrderHardware(order, paymentMethod);
     },
@@ -382,16 +389,16 @@ const usePaymentModal = (
       }
       if (!draftOrderId) {
         handleErrorToast("No order prepared. Please create order first.");
-        playErrorSound();
+        playSound("error");
         return null;
       }
       if (!selectedPaymentMethod) {
         handleErrorToast("No payment method selected.");
-        playErrorSound();
+        playSound("error");
         return null;
       }
       if (!canProcessPayment) {
-        playErrorSound();
+        playSound("error");
         handleErrorToast("Insufficient payment amount");
         return null;
       }
@@ -490,7 +497,7 @@ const usePaymentModal = (
             setPaymentMethod(undefined);
             void queryClient.invalidateQueries({ queryKey: queryKeys.orders.all });
             void queryClient.invalidateQueries({ queryKey: queryKeys.draftOrders.all });
-            playErrorSound();
+            playSound("error");
             toast.warning(
               t("checkout.order_saved_unpaid", { displayId: order.display_id })
             );
@@ -524,7 +531,7 @@ const usePaymentModal = (
         return finalOrder;
 
       } catch (error) {
-        playErrorSound();
+        playSound("error");
         setFrozenDraft(null);
         handleErrorToast(
           error instanceof Error ? error.message : "Failed to create order. Please try again."
@@ -570,7 +577,7 @@ const usePaymentModal = (
       }
       if (!draftOrderId) {
         handleErrorToast("No order prepared. Please create order first.");
-        playErrorSound();
+        playSound("error");
         return null;
       }
 
@@ -618,13 +625,14 @@ const usePaymentModal = (
 
         // Step 5: Clean up and finalize with an "outstanding" toast.
         await cleanupAfterOrder(order, selectedPaymentMethod, {
+          outstanding: true,
           successMessage: delivered
             ? `Order #${order.display_id} delivered — payment outstanding`
             : `Order #${order.display_id} created, not delivered — payment outstanding`,
         });
         return order;
       } catch (error) {
-        playErrorSound();
+        playSound("error");
         setFrozenDraft(null);
         handleErrorToast(
           error instanceof Error
@@ -660,8 +668,22 @@ const usePaymentModal = (
     setFrozenDraft(null);
     setShowConfirmation(false);
     setShowPayLaterConfirmation(false);
+    setCompleted(null);
+    succeeded.current = null;
     onClose?.();
   }, [resetCashState, onClose]);
+
+  // A finished sale shows its success screen; anything else that returned an order closes.
+  const settle = useCallback(
+    (result: AdminOrder | null, changeDue: number) => {
+      if (!result) return;
+      const success = succeeded.current;
+      succeeded.current = null;
+      if (success) setCompleted({ ...success, change: Math.max(0, changeDue) });
+      else handleClose();
+    },
+    [handleClose]
+  );
 
   // Open the pay-later confirmation dialog.
   const handleDeliverPayLaterClick = useCallback(() => {
@@ -671,11 +693,9 @@ const usePaymentModal = (
   // Confirm pay-later from the confirmation dialog.
   const handleConfirmPayLater = useCallback(async (): Promise<void> => {
     const result = await handleDeliverPayLater();
-    if (result) {
-      setShowPayLaterConfirmation(false);
-      handleClose();
-    }
-  }, [handleDeliverPayLater, handleClose]);
+    if (result) setShowPayLaterConfirmation(false);
+    settle(result, 0);
+  }, [handleDeliverPayLater, settle]);
 
   // Handle complete button click
   const handleCompleteClick = useCallback(() => {
@@ -687,13 +707,11 @@ const usePaymentModal = (
     if (needsConfirmation) {
       setShowConfirmation(true);
     } else {
-      handleProcessPayment().then((result) => {
-        if (result) {
-          handleClose();
-        }
-      });
+      // Change is read now: the cash state is reset once the sale completes.
+      const changeDue = change;
+      handleProcessPayment().then((result) => settle(result, changeDue));
     }
-  }, [methodType, handleProcessPayment, handleClose]);
+  }, [methodType, handleProcessPayment, settle, change]);
 
   // Handle complete payment with modal close (legacy, kept for backwards compatibility)
   const handleCompletePayment = useCallback(async (): Promise<void> => {
@@ -710,10 +728,8 @@ const usePaymentModal = (
     // returns null and closes the parent modal via onClose, which would otherwise
     // leave this sibling dialog orphaned on screen.
     setShowConfirmation(false);
-    if (result) {
-      handleClose();
-    }
-  }, [handleProcessPayment, handleClose]);
+    settle(result, 0);
+  }, [handleProcessPayment, settle]);
 
   return {
     // State
@@ -723,6 +739,7 @@ const usePaymentModal = (
     draftOrder,
     showConfirmation,
     showPayLaterConfirmation,
+    completed,
 
     // Calculations
     ...calculations,
@@ -762,3 +779,4 @@ const usePaymentModal = (
 };
 
 export { usePaymentModal };
+export type { CompletedSale };

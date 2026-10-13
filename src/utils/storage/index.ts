@@ -3,7 +3,7 @@ import { Store } from "@tauri-apps/plugin-store";
 
 type NumberKeys = "last_login";
 
-export type StringKeys = "draft_order_id" | "sales_channel_id" | "stock_location_id" | "settings_tab" | "active_store_id";
+export type StringKeys = "draft_order_id" | "sales_channel_id" | "stock_location_id" | "active_store_id";
 
 type BooleanKeys = "sound_enabled" | "store_setup_dismissed";
 
@@ -131,7 +131,7 @@ async function clearOnBackendChange(): Promise<void> {
     const store = await Store.load("pos-storage.json");
 
     const objectKeysToPreserve: ObjectKeys[] = ["printers", "stores", "user_preferences"];
-    const stringKeysToPreserve: StringKeys[] = ["settings_tab", "active_store_id"];
+    const stringKeysToPreserve: StringKeys[] = ["active_store_id"];
     const booleanKeysToPreserve: BooleanKeys[] = ["sound_enabled"];
     const allKeysToPreserve = [
       ...objectKeysToPreserve,

@@ -34,14 +34,20 @@
     "back_to_orders": "Retour aux commandes",
     "pos": "Caisse",
     "processing": "Traitement...",
-    "downloading": "Téléchargement..."
+    "downloading": "Téléchargement...",
+    "undo": "Annuler"
   },
   "nav": {
     "pos": "Caisse",
     "orders": "Commandes",
     "settings": "Paramètres",
     "logout": "Se déconnecter",
-    "parked": "En attente"
+    "parked": "En attente",
+    "collapse": "Réduire le menu",
+    "logout_confirm_title": "Se déconnecter ?",
+    "logout_confirm_message": "Vous devrez vous reconnecter pour utiliser la caisse.",
+    "logout_confirm_sale": "La vente en cours reste dans le panier et sera là à votre reconnexion.",
+    "expand": "Développer le menu"
   },
   "auth": {
     "sign_in": "Se connecter",
@@ -64,7 +70,9 @@
     "staging": "Staging",
     "production": "Production",
     "fullscreen_hint": "Appuyez sur F11 pour basculer en plein écran",
-    "api_url_host_placeholder": "api.example.com ou localhost:9000"
+    "api_url_host_placeholder": "api.example.com ou localhost:9000",
+    "show_password": "Afficher le mot de passe",
+    "hide_password": "Masquer le mot de passe"
   },
   "checkout": {
     "add_item": "Ajouter un article",
@@ -155,7 +163,6 @@
     "discount_type_label": "Type de remise",
     "discount_amount": "Montant",
     "discount_percentage": "Pourcentage",
-    "discount_value_label": "Valeur de la remise ",
     "select_item_for_discount": "Veuillez sélectionner un article pour appliquer une remise.",
     "column_item": "Article",
     "column_sku": "SKU",
@@ -193,7 +200,6 @@
     "set_quantity_for_next_item": "Définir la quantité du prochain article ajouté au panier",
     "item_added": "{{title}} ajouté au panier",
     "item_removed": "{{title}} retiré du panier",
-    "quantity_decreased": "Quantité de {{title}} diminuée",
     "quantity_increased": "Quantité de {{title}} augmentée",
     "select_payment_method": "Veuillez sélectionner un mode de paiement avant de passer en caisse.",
     "region_channel_missing": "Les informations de région ou de canal de vente sont manquantes.",
@@ -202,7 +208,6 @@
     "no_default_printer": "Aucune imprimante par défaut n’est configurée. Ajoutez-en une dans Paramètres → Imprimantes.",
     "cannot_add_to_cart": "Impossible d’ajouter l’article au panier",
     "no_sales_channel_configured": "Aucun canal de vente configuré",
-    "product_not_found": "Produit introuvable",
     "product_not_for_sale": "{{title}} n'est pas en vente.",
     "items_not_for_sale_one": "{{names}} n'est plus en vente. Retirez-le du panier pour continuer.",
     "items_not_for_sale_other": "{{names}} ne sont plus en vente. Retirez-les du panier pour continuer.",
@@ -247,7 +252,17 @@
     "park_name_optional": "facultatif",
     "products_load_failed": "Impossible de charger les produits.",
     "products_load_failed_hint": "C'est généralement la connexion. Ils se rechargent seuls dès que le serveur est joignable.",
-    "fulfillment_failed_order_created": "La commande a été créée, mais les articles n'ont pas pu être marqués comme remis : {{reason}}"
+    "fulfillment_failed_order_created": "La commande a été créée, mais les articles n'ont pas pu être marqués comme remis : {{reason}}",
+    "cart_cleared": "Panier vidé",
+    "pay_blocked_out_of_stock": "Retirez les articles en rupture pour encaisser",
+    "scan_not_found": "Aucun produit avec le code-barres {{barcode}}",
+    "catalog_view": "Affichage",
+    "discount_remove": "Retirer la remise",
+    "sale_complete": "Vente terminée",
+    "sale_outstanding": "Remis — paiement en attente",
+    "new_sale": "Nouvelle vente",
+    "new_sale_hint": "Scanner l'article suivant lance aussi une nouvelle vente.",
+    "quick_keys_label": "Touches rapides"
   },
   "orders": {
     "search_placeholder": "Rechercher des commandes...",
@@ -450,8 +465,6 @@
       "warn_fulfil_failed": "Les articles ont été ajoutés mais pas marqués comme remis. Traitez-les depuis la page de la commande.",
       "warn_settle_failed": "Les articles ont été ajoutés mais le paiement n'a pas été enregistré. Utilisez Enregistrer le paiement.",
       "add_success": "Articles ajoutés, {{amount}} encaissé",
-      "decrease": "Diminuer la quantité",
-      "increase": "Augmenter la quantité",
       "return_title": "Retourner des articles",
       "return_description": "Choisissez ce qui revient, et si chaque article peut être revendu.",
       "return_restock": "Remis en stock",
@@ -485,7 +498,18 @@
       "add_success_unpaid": "Articles ajoutés au montant dû par le client",
       "add_authorized_warning": "L'autorisation de paiement précédente du client sera annulée. Le montant total devra être réglé à nouveau."
     },
-    "item_returned": "Retourné"
+    "item_returned": "Retourné",
+    "status_pending": "En attente",
+    "status_completed": "Terminée",
+    "status_draft": "Brouillon",
+    "status_archived": "Archivée",
+    "status_requires_action": "Action requise",
+    "status_not_paid": "Non payée",
+    "status_authorized": "Autorisée",
+    "status_partially_authorized": "Partiellement autorisée",
+    "status_partially_refunded": "Partiellement remboursée",
+    "filter_to_fulfil": "À traiter",
+    "quick_filter_label": "Afficher"
   },
   "parked": {
     "title": "Ventes en attente",
@@ -569,7 +593,11 @@
       "even": "À ÉGALITÉ - RIEN À RÉGLER",
       "footer": "Conservez ce bon avec votre ticket",
       "owed": "Ajouté au montant dû"
-    }
+    },
+    "preview_button": "Aperçu du ticket",
+    "preview_title": "Aperçu du ticket",
+    "preview_description": "Ce que l'imprimante par défaut imprime pour cette commande, à sa largeur de papier et avec le logo de la boutique.",
+    "preview_sale_note": "Ce que cette vente imprimera une fois payée. Le numéro de commande est attribué à la fin du paiement."
   },
   "handoff": {
     "title": "TICKET DE TRANSFERT",
@@ -626,7 +654,22 @@
       },
       "cash_rounding": "Arrondi des espèces",
       "cash_rounding_description": "Arrondit les paiements en espèces au pas le plus proche. Les paiements par carte et autres restent exacts.",
-      "cash_rounding_increment": "Pas d'arrondi"
+      "cash_rounding_increment": "Pas d'arrondi",
+      "display_size": "Taille d'affichage",
+      "display_size_compact": "Compacte",
+      "display_size_standard": "Standard",
+      "display_size_large": "Grande",
+      "display_size_hint": "Ajuste le texte et les boutons sur cette caisse uniquement. Grand se lit et se touche plus facilement ; compact en affiche plus sur un petit écran.",
+      "sounds": "Sons",
+      "sound_preview": "Écouter ce son",
+      "sound_scan": "Article scanné",
+      "sound_scan_hint": "Un bip court quand un article est ajouté.",
+      "sound_scanError": "Échec du scan",
+      "sound_scanError_hint": "Deux bourdonnements graves quand un code-barres est introuvable ou ne peut pas être ajouté.",
+      "sound_sale": "Vente terminée",
+      "sound_sale_hint": "Deux bips montants quand un paiement aboutit.",
+      "sound_error": "Erreur",
+      "sound_error_hint": "Un bourdonnement grave quand autre chose échoue, par ex. un paiement."
     },
     "printer": {
       "title": "Imprimantes",
@@ -641,7 +684,6 @@
       "loading": "Chargement des imprimantes...",
       "testing_print": "Test d’impression…",
       "testing_drawer": "Test du tiroir…",
-      "not_tested": "Non testée",
       "print_ok": "Impression OK",
       "print_issue": "Problème d’impression",
       "drawer_ok": "Tiroir OK",
@@ -649,13 +691,6 @@
       "no_printers_title": "Aucune imprimante configurée",
       "no_printers_description": "Commencez par ajouter votre première imprimante pour imprimer des reçus.",
       "add_first_printer": "Ajouter votre première imprimante",
-      "column_name": "Nom",
-      "column_type": "Type",
-      "column_connection": "Connexion",
-      "column_address": "Adresse",
-      "column_status": "Statut",
-      "column_default": "Par défaut",
-      "column_actions": "Actions",
       "default_badge": "Par défaut",
       "test_button": "Tester",
       "test_drawer_button": "Tester le tiroir",
@@ -767,13 +802,12 @@
       "payment_methods_label": "Modes de paiement",
       "payment_methods_description": "Ajoutez, supprimez ou personnalisez les modes de paiement. L’ID du fournisseur doit correspondre à votre backend Medusa (ex. pp_cash_pos).",
       "provider_id_placeholder": "ID du fournisseur",
+      "provider_choose": "Choisir un fournisseur",
       "display_name_placeholder": "Nom affiché",
-      "icon_label": "Icône",
       "icon_cash": "Espèces",
       "icon_card": "Carte",
       "icon_transfer": "Transfert interne",
       "icon_bank_transfer": "Virement bancaire",
-      "type_label": "Type",
       "type_cash": "Espèces",
       "type_card": "Carte",
       "type_transfer": "Transfert interne",
@@ -783,6 +817,13 @@
       "column_icon": "Icône du bouton",
       "column_type": "Traité comme",
       "provider_id_not_installed": "Cet identifiant de fournisseur n'est pas installé dans Medusa.",
+      "provider_not_installed_short": "non installé",
+      "provider_picker_title": "Choisir un fournisseur de paiement",
+      "provider_picker_description": "Les fournisseurs de paiement de votre backend Medusa. Ceux du terminal se terminent par _pos.",
+      "provider_group_till": "Modes de paiement du terminal",
+      "provider_group_other": "Autres fournisseurs (boutique en ligne, livraison)",
+      "provider_in_use": "utilisé",
+      "provider_current": "actuel",
       "add_payment_method_button": "Ajouter un mode de paiement",
       "font_size_label": "Taille de police de base (px)",
       "primary_color_label": "Couleur principale",
@@ -794,10 +835,10 @@
       "saved": "Paramètres du magasin enregistrés",
       "logo_load_error": "Échec du chargement de l’image du logo",
       "logo_preview_alt": "Aperçu du logo",
-      "remove_payment_method_aria": "Supprimer le mode de paiement",
       "pick_logo_dialog_title": "Sélectionner le logo du magasin",
       "pick_logo_filter_name": "Image",
-      "logo_too_large": "L’image du logo doit faire moins de 256 Ko"
+      "logo_too_large": "L’image du logo doit faire moins de 256 Ko",
+      "payment_method_enabled": "Affiché à l'encaissement"
     },
     "scanner": {
       "title": "Scanner",
@@ -826,12 +867,30 @@
       "test_terminator": "terminé par",
       "open_failed": "Impossible d'ouvrir le port du lecteur",
       "reader_stopped": "Lecteur déconnecté",
-      "save_failed": "Échec de l'enregistrement des réglages du lecteur"
+      "save_failed": "Échec de l'enregistrement des réglages du lecteur",
+      "wedge_test_hint": "Scannez un code-barres pendant que cette page est ouverte. Si le code s'affiche ici, le scanner fonctionne.",
+      "wedge_test_read": "Scan {{count}} · {{time}}"
     },
     "plugins": {
       "title": "Plugins",
       "description": "Plugins POS connectés. Chaque plugin gère ici sa connexion et ses préférences.",
       "empty": "Aucun plugin installé."
+    },
+    "unsaved_changes": "Modifications non enregistrées",
+    "discard_changes": "Annuler les modifications",
+    "quick_keys": {
+      "title": "Touches rapides",
+      "description": "Jusqu'à {{count}} produits en grands boutons au-dessus du panier, pour les articles sans code-barres ou très vendus. Identiques sur toutes les caisses de la boutique.",
+      "empty": "Aucune touche rapide",
+      "add_hint": "Recherchez ou scannez un produit ci-dessus pour l'ajouter.",
+      "already_added": "Ce produit est déjà une touche rapide.",
+      "max_reached": "{{count}} touches rapides au maximum. Retirez-en une pour en ajouter une autre.",
+      "unavailable": "Indisponible sur cette caisse (non publié ou autre canal de vente).",
+      "name_label": "Nom du bouton",
+      "name_placeholder": "Nom du bouton (facultatif, court)",
+      "move_up": "Monter",
+      "move_down": "Descendre",
+      "saved": "Touches rapides enregistrées"
     }
   },
   "errors": {
@@ -844,7 +903,7 @@
     "boot_slow_title": "Chargement en cours…",
     "boot_slow_message": "Cela prend plus de temps que d'habitude. Vous pouvez patienter, réessayer ou changer de magasin.",
     "sales_channel_required_title": "Canal de vente requis",
-    "sales_channel_required_message": "Un canal de vente doit être configuré avant d’ajouter des produits au panier. Allez dans Paramètres → Paramètres API pour configurer votre canal de vente.",
+    "sales_channel_required_message": "Un canal de vente doit être défini avant d'ajouter des produits au panier. Choisissez-le dans Paramètres → Connexion.",
     "store_setup_title": "Configurer les informations du magasin",
     "store_setup_message": "Ajoutez le nom de votre magasin, son identité visuelle et ses coordonnées pour qu’ils apparaissent correctement sur les reçus et dans toute l’application.",
     "something_went_wrong_title": "Hum… une erreur s’est produite.",
@@ -865,12 +924,12 @@
     "restored_offline": "Serveur injoignable — la session enregistrée est utilisée."
   },
   "pagination": {
-    "first_page": "Première",
-    "previous_page": "Précédente",
+    "first_page": "Première page",
+    "previous_page": "Page précédente",
     "page_label": "Page",
     "of": "sur",
-    "next_page": "Suivante",
-    "last_page": "Dernière",
+    "next_page": "Page suivante",
+    "last_page": "Dernière page",
     "rows_per_page": "Lignes par page :"
   },
   "printer_service": {
@@ -952,5 +1011,35 @@
       "description": "Reprend le service en cours pour continuer à vendre. Le fonds de caisse et les mouvements d'espèces sont conservés.",
       "submit": "Rouvrir la caisse"
     }
+  },
+  "ui": {
+    "numpad_clear": "Effacer",
+    "numpad_done": "Terminé",
+    "numpad_backspace": "Effacer le dernier chiffre (maintenir pour tout effacer)",
+    "stepper_decrease": "Diminuer",
+    "stepper_increase": "Augmenter",
+    "clear_input": "Effacer",
+    "toggle_keyboard": "Afficher ou masquer le clavier à l'écran",
+    "search": "Rechercher"
+  },
+  "status": {
+    "online": "En ligne",
+    "offline": "Hors ligne",
+    "checking": "Vérification…",
+    "recheck": "Vérifier à nouveau la connexion",
+    "register_open": "Caisse ouverte",
+    "register_closed": "Caisse fermée",
+    "printer_checking": "Vérification de l'imprimante…",
+    "printer_ready": "Imprimante prête",
+    "printer_connected": "Imprimante connectée",
+    "printer_paper_low": "Papier presque épuisé",
+    "printer_paper_out": "Plus de papier",
+    "printer_cover_open": "Capot de l'imprimante ouvert",
+    "printer_error": "Erreur d'imprimante",
+    "printer_offline": "Imprimante hors ligne",
+    "printer_unreachable": "Imprimante injoignable",
+    "printer_unsupported": "État indisponible",
+    "printer_none": "Aucune imprimante",
+    "printer_open_settings": "Ouvrir les réglages d'imprimante"
   }
 }

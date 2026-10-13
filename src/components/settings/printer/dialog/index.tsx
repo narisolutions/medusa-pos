@@ -168,10 +168,8 @@ const PrinterDialog: React.FC<Props> = ({
                       <Button
                         type="button"
                         variant="outline"
-                        size="sm"
                         onClick={loadSystemPrinters}
                         disabled={isLoadingSystemPrinters}
-                        className="h-8 text-sm"
                       >
                         {isLoadingSystemPrinters ? (
                           <Loader2 className="h-4 w-4 animate-spin mr-1.5" />
@@ -205,7 +203,7 @@ const PrinterDialog: React.FC<Props> = ({
                             <SelectItem key={printer.name} value={printer.name}>
                               <div className="flex flex-col">
                                 <span>{printer.name}</span>
-                                <span className="text-sm text-fg-muted">
+                                <span className="text-base text-fg-muted">
                                   {printer.portName}
                                   {printer.isDefault && ` ${t("settings.printer.dialog_default_badge")}`}
                                 </span>
@@ -216,7 +214,7 @@ const PrinterDialog: React.FC<Props> = ({
                       </Select>
                     </FormControl>
                     {systemPrinterError && (
-                      <p className="text-sm text-destructive mt-1">{systemPrinterError}</p>
+                      <p className="text-base text-danger-text mt-1">{systemPrinterError}</p>
                     )}
                     <FormMessage className="text-base" />
                   </FormItem>
@@ -235,10 +233,8 @@ const PrinterDialog: React.FC<Props> = ({
                       <Button
                         type="button"
                         variant="outline"
-                        size="sm"
                         onClick={scanUsbDevices}
                         disabled={isScanning}
-                        className="h-8 text-sm"
                       >
                         {isScanning ? (
                           <Loader2 className="h-4 w-4 animate-spin mr-1.5" />
@@ -283,7 +279,7 @@ const PrinterDialog: React.FC<Props> = ({
                             >
                               <div className="flex flex-col">
                                 <span>{device.description}</span>
-                                <span className="text-sm text-fg-muted">
+                                <span className="text-base text-fg-muted">
                                   {formatVidPid(device.vendorId, device.productId)}
                                 </span>
                               </div>
@@ -293,7 +289,7 @@ const PrinterDialog: React.FC<Props> = ({
                       </Select>
                     </FormControl>
                     {scanError && (
-                      <p className="text-sm text-destructive mt-1">{scanError}</p>
+                      <p className="text-base text-danger-text mt-1">{scanError}</p>
                     )}
                     <FormMessage className="text-base" />
                   </FormItem>
@@ -491,7 +487,7 @@ const PrinterDialog: React.FC<Props> = ({
                       </SelectContent>
                     </Select>
                   </FormControl>
-                  <p className="text-sm text-fg-muted mt-1">
+                  <p className="text-base text-fg-muted mt-1">
                     {field.value === "ascii" && t("settings.printer.dialog_encoding_ascii_desc")}
                     {field.value === "utf8" && t("settings.printer.dialog_encoding_utf8_desc")}
                     {field.value === "cp852" && t("settings.printer.dialog_encoding_cp852_desc")}

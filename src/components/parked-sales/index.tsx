@@ -19,6 +19,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
+import { EmptyState, LoadingState } from "@/components/ui/state-panel";
 import { useParkedSalesColumns, useParkedSalesWithData } from "./hooks";
 import Header from "./table-header";
 import Footer from "@/components/orders/table-footer";
@@ -28,6 +29,9 @@ import { useParkedSales } from "@/hooks/draft-order/useParkedSales";
 import { useCartStore } from "@/context/cart";
 import { useTranslation } from "@/i18n";
 import { ROUTES } from "@/router/routes";
+
+/** A column's own classes, e.g. one hidden on narrow lists. */
+const columnClass = (def: { meta?: unknown }) => (def.meta as { className?: string } | undefined)?.className ?? "";
 
 const ParkedSales: React.FC = () => {
   const navigate = useNavigate();
@@ -159,7 +163,7 @@ const ParkedSales: React.FC = () => {
         className={`${isLoading ? "opacity-60 pointer-events-none" : ""} transition-opacity duration-200 flex-1 min-h-0`}
       >
         <div className="bg-surface rounded-lg border border-theme-border overflow-hidden shadow-sm h-full flex flex-col">
-          <div className="flex-1 min-h-0 overflow-y-auto">
+          <div className="@container flex-1 min-h-0 overflow-y-auto">
             <Table>
               <TableHeader className="bg-surface-muted sticky top-0 z-10">
                 {table.getHeaderGroups().map((headerGroup) => (
@@ -170,7 +174,7 @@ const ParkedSales: React.FC = () => {
                     {headerGroup.headers.map((header) => (
                       <TableHead
                         key={header.id}
-                        className="text-base font-semibold text-fg-muted py-4 px-4 first:pl-6 last:pr-6"
+                        className={`text-base font-semibold text-fg-muted py-4 px-4 first:pl-6 last:pr-6 ${columnClass(header.column.columnDef)}`}
                       >
                         {header.isPlaceholder
                           ? null
@@ -195,7 +199,7 @@ const ParkedSales: React.FC = () => {
                       {row.getVisibleCells().map((cell) => (
                         <TableCell
                           key={cell.id}
-                          className="text-base text-fg py-5 px-4 first:pl-6 last:pr-6"
+                          className={`text-base text-fg py-5 px-4 first:pl-6 last:pr-6 ${columnClass(cell.column.columnDef)}`}
                           style={{ width: cell.column.getSize() }}
                         >
                           {flexRender(cell.column.columnDef.cell, cell.getContext())}
@@ -210,26 +214,19 @@ const ParkedSales: React.FC = () => {
                       className="text-center h-96 align-middle"
                     >
                       {isLoading ? (
-                        <div className="flex items-center justify-center gap-3">
-                          <div className="w-5 h-5 border-2 border-theme-border border-t-theme-border-strong rounded-full animate-spin" />
-                          <span className="text-base text-fg-muted">
-                            {t("parked.loading")}
-                          </span>
-                        </div>
+                        <LoadingState label={t("parked.loading")} />
                       ) : (
                         // Empty is the normal state, so it teaches rather than apologises.
-                        <div className="flex flex-col items-center justify-center gap-3">
-                          <Bookmark className="size-10 text-fg-muted" />
-                          <span className="text-base font-medium text-fg">
-                            {t("parked.empty_title")}
-                          </span>
-                          <span className="text-base text-fg-muted">
-                            {t("parked.empty_description")}
-                          </span>
-                          <Button className="mt-2" onClick={goToCheckout}>
-                            {t("parked.empty_cta")}
-                          </Button>
-                        </div>
+                        <EmptyState
+                          icon={<Bookmark />}
+                          title={t("parked.empty_title")}
+                          hint={t("parked.empty_description")}
+                          action={
+                            <Button size="lg" onClick={goToCheckout}>
+                              {t("parked.empty_cta")}
+                            </Button>
+                          }
+                        />
                       )}
                     </TableCell>
                   </TableRow>

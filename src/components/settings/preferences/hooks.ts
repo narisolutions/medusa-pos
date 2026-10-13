@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { useForm } from "react-hook-form";
+import { useUnsavedChanges } from "@/hooks/utils/useUnsavedChanges";
 import { toast } from "sonner";
 import { t } from "@/i18n";
 import { Forms } from "@/types/form";
@@ -13,7 +14,9 @@ import {
   updatePreferences,
 } from "@/utils/settings/preferences";
 import { useTheme } from "@/context/theme";
-import type { ThemeMode, LanguageMode } from "@/types/preferences";
+import type { ThemeMode, LanguageMode, DisplaySize } from "@/types/preferences";
+import { applyDisplaySize } from "@/utils/ui/display-size";
+import { setSoundPreferences } from "@/utils/sounds";
 import { setLocale } from "@/i18n";
 import { REGISTER_CONFIG_CHANGED_EVENT } from "@/context/register";
 
@@ -30,6 +33,7 @@ const defaults: Forms["PreferencesSettings"] = {
   symbolPosition: DEFAULT_PREFERENCES.currency.symbolPosition,
   decimalSeparator: DEFAULT_PREFERENCES.currency.decimalSeparator,
   startFullscreen: DEFAULT_PREFERENCES.display.startFullscreen,
+  displaySize: DEFAULT_PREFERENCES.display.size,
   themeMode: DEFAULT_PREFERENCES.appearance.themeMode,
   language: DEFAULT_PREFERENCES.language,
   registerEnabled: DEFAULT_PREFERENCES.register.enabled,
@@ -37,6 +41,10 @@ const defaults: Forms["PreferencesSettings"] = {
   registerDiscrepancyThreshold: DEFAULT_PREFERENCES.register.discrepancyThreshold,
   cashRoundingEnabled: DEFAULT_PREFERENCES.currency.cashRounding.enabled,
   cashRoundingIncrement: DEFAULT_PREFERENCES.currency.cashRounding.increment,
+  soundScan: DEFAULT_PREFERENCES.sounds.scan,
+  soundScanError: DEFAULT_PREFERENCES.sounds.scanError,
+  soundSale: DEFAULT_PREFERENCES.sounds.sale,
+  soundError: DEFAULT_PREFERENCES.sounds.error,
 };
 
 export const usePreferencesSettings = () => {
@@ -45,11 +53,8 @@ export const usePreferencesSettings = () => {
     defaultValues: defaults,
   });
 
-  const {
-    reset,
-    handleSubmit,
-    formState: { isDirty },
-  } = form;
+  const { reset, handleSubmit } = form;
+  const isDirty = useUnsavedChanges(form);
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const setThemeMode = useTheme((s) => s.setThemeMode);
@@ -63,6 +68,7 @@ export const usePreferencesSettings = () => {
         symbolPosition: prefs.currency.symbolPosition,
         decimalSeparator: prefs.currency.decimalSeparator,
         startFullscreen: prefs.display.startFullscreen,
+        displaySize: prefs.display.size,
         themeMode: prefs.appearance.themeMode,
         language: prefs.language,
         registerEnabled: prefs.register.enabled,
@@ -70,6 +76,10 @@ export const usePreferencesSettings = () => {
         registerDiscrepancyThreshold: prefs.register.discrepancyThreshold,
         cashRoundingEnabled: prefs.currency.cashRounding.enabled,
         cashRoundingIncrement: prefs.currency.cashRounding.increment,
+        soundScan: prefs.sounds.scan,
+        soundScanError: prefs.sounds.scanError,
+        soundSale: prefs.sounds.sale,
+        soundError: prefs.sounds.error,
       });
     };
     load();
@@ -81,6 +91,15 @@ export const usePreferencesSettings = () => {
       setThemeMode(mode);
     },
     [form, setThemeMode],
+  );
+
+  // Applied as it's picked, like the theme, so the operator sees the size before saving.
+  const handleDisplaySizeChange = useCallback(
+    (size: DisplaySize) => {
+      form.setValue("displaySize", size, { shouldDirty: true });
+      applyDisplaySize(size);
+    },
+    [form],
   );
 
   const handleLanguageChange = useCallback(
@@ -104,7 +123,7 @@ export const usePreferencesSettings = () => {
             increment: data.cashRoundingIncrement,
           },
         } as const;
-        const display = { startFullscreen: data.startFullscreen };
+        const display = { startFullscreen: data.startFullscreen, size: data.displaySize };
         const appearance = { themeMode: data.themeMode };
         const language = data.language;
         const register = {
@@ -113,7 +132,15 @@ export const usePreferencesSettings = () => {
           discrepancyThreshold: data.registerDiscrepancyThreshold,
         };
 
-        await updatePreferences({ dateTime, currency, display, appearance, language, register });
+        const sounds = {
+          scan: data.soundScan,
+          scanError: data.soundScanError,
+          sale: data.soundSale,
+          error: data.soundError,
+        };
+
+        await updatePreferences({ dateTime, currency, display, appearance, language, register, sounds });
+        setSoundPreferences(sounds);
 
         initDateTimePrefs(dateTime);
         initCurrencyPrefs(currency);
@@ -145,6 +172,7 @@ export const usePreferencesSettings = () => {
     onSubmit,
     isTauri,
     handleThemeModeChange,
+    handleDisplaySizeChange,
     handleLanguageChange,
   };
 };

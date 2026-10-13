@@ -1,5 +1,5 @@
 import React from "react";
-import { Button } from "@/components/ui/button";
+import { Tile } from "@/components/ui/tile";
 import { useTranslation } from "@/i18n";
 
 interface Props {
@@ -20,20 +20,13 @@ const PaymentMethodPicker: React.FC<Props> = ({ methods, selected, onSelect, dis
       </div>
       <div className="grid grid-cols-2 gap-3">
         {methods.map((method) => (
-          <Button
+          <Tile
             key={method.id}
-            type="button"
+            label={method.label}
+            selected={selected === method.id}
             onClick={() => onSelect(method.id)}
             disabled={disabled}
-            aria-pressed={selected === method.id}
-            className={`h-16 text-base font-semibold ${
-              selected === method.id
-                ? "bg-primary text-white shadow"
-                : "bg-surface border border-theme-border hover:bg-surface-hover text-fg"
-            }`}
-          >
-            {method.label}
-          </Button>
+          />
         ))}
       </div>
     </div>

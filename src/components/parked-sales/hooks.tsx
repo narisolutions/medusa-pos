@@ -2,6 +2,7 @@ import { createColumnHelper } from "@tanstack/react-table";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { AdminDraftOrder } from "@medusajs/types";
 import { Button } from "@/components/ui/button";
+import { StatusChip } from "@/components/ui/status-chip";
 import { useTranslation } from "@/i18n";
 import { formatDate, formatPrice, getOrderCurrency } from "@/utils/helpers";
 import { useQueryDraftOrders } from "@/hooks/queries/useQueryDraftOrders";
@@ -10,6 +11,10 @@ import { useCartStore } from "@/context/cart";
 import storage from "@/utils/storage";
 
 const columnHelper = createColumnHelper<AdminDraftOrder>();
+
+// Shown only when the list is wide enough (a container query, so it follows the till's
+// Display size): at Large the rest of the row fits without scrolling sideways.
+const OPTIONAL_COLUMN = "hidden @6xl:table-cell";
 
 /** The operator's name for a parked sale, falling back to its reference number. */
 const parkLabelOf = (draftOrder: AdminDraftOrder): string =>
@@ -59,10 +64,7 @@ const useParkedSalesColumns = ({
             <div className="flex items-center gap-2">
               <span className="font-semibold text-fg text-base">{info.getValue()}</span>
               {isActive && (
-                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium border bg-primary/10 text-primary border-primary/30">
-                  <span className="size-1.5 rounded-full bg-primary" />
-                  {t("parked.active_here_badge")}
-                </span>
+                <StatusChip intent="info">{t("parked.active_here_badge")}</StatusChip>
               )}
             </div>
           );
@@ -71,6 +73,7 @@ const useParkedSalesColumns = ({
       }),
       columnHelper.accessor("display_id", {
         id: "display_id",
+        meta: { className: OPTIONAL_COLUMN },
         header: t("parked.column_id"),
         cell: (info) => (
           <span className="text-base text-fg-muted">#{info.getValue()}</span>
@@ -85,7 +88,7 @@ const useParkedSalesColumns = ({
           return (
             <div className="flex flex-col">
               <span className="text-base text-fg">{formatDate(parkedAt)}</span>
-              <span className="text-xs text-fg-muted">
+              <span className="text-base text-fg-muted">
                 {t(relative.key, { value: relative.value })}
               </span>
             </div>
@@ -100,6 +103,7 @@ const useParkedSalesColumns = ({
       }),
       columnHelper.display({
         id: "item_count",
+        meta: { className: OPTIONAL_COLUMN },
         header: t("parked.column_items"),
         cell: (info) => (
           <span className="text-base text-fg">
@@ -131,15 +135,16 @@ const useParkedSalesColumns = ({
             // Rows are not clickable, so the actions must stop any bubbling themselves.
             <div className="flex gap-2" onClick={(e) => e.stopPropagation()}>
               <Button
-                className="h-12 px-4 text-base"
-                disabled={isBusy}
+                className="h-12 px-5 text-base"
+                disabled={!!busyId && !isBusy}
+                loading={isBusy}
                 onClick={() => (isActive ? onOpen() : onResume(draftOrder))}
               >
                 {isActive ? t("parked.open_button") : t("parked.resume_button")}
               </Button>
               <Button
                 variant="outline"
-                className="h-12 px-4 text-base text-red-600 border-red-300 hover:bg-red-50 hover:text-red-700"
+                className="h-12 px-4 text-base text-danger-text"
                 disabled={isBusy}
                 onClick={() => onDiscard(draftOrder)}
               >

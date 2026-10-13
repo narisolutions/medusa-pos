@@ -159,36 +159,6 @@ const isEmpty = (value: unknown): boolean => {
   );
 };
 
-// Order Status Helpers
-const formatOrderStatusText = (status: string): string => {
-  return status.charAt(0).toUpperCase() + status.slice(1).replace(/_/g, " ");
-};
-
-const getOrderStatusColorFromMapping = (
-  status: string,
-  mapping: Record<string, string>
-): string => {
-  return mapping[status.toLowerCase()] || "bg-gray-400";
-};
-
-const getOrderStatusColor = (status: string): string => {
-  return getOrderStatusColorFromMapping(status, constants.ORDER_STATUS_COLORS);
-};
-
-const getOrderFulfillmentStatusColor = (status: string): string => {
-  return getOrderStatusColorFromMapping(
-    status,
-    constants.ORDER_FULFILLMENT_STATUS_COLORS
-  );
-};
-
-const getOrderPaymentStatusColor = (status: string): string => {
-  return getOrderStatusColorFromMapping(
-    status,
-    constants.ORDER_PAYMENT_STATUS_COLORS
-  );
-};
-
 /** Order currency with the store default as fallback. */
 const getOrderCurrency = (order: { currency_code?: string | null }): string =>
   order.currency_code || constants.CHECKOUT_CONFIG.CURRENCY;
@@ -288,11 +258,6 @@ export {
   formatTimeAgo,
   formatPrice,
   isEmpty,
-  formatOrderStatusText,
-  getOrderStatusColorFromMapping,
-  getOrderStatusColor,
-  getOrderFulfillmentStatusColor,
-  getOrderPaymentStatusColor,
   getOrderCurrency,
   isOrderGuestCustomer,
   getOrderDeliveryCustomer,

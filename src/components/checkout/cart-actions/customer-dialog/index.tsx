@@ -115,12 +115,12 @@ const CustomerDialog: React.FC<CustomerDialogProps> = ({
 
           {/* Current Customer Display */}
           {hasAccount && initialEmail && (
-            <div className="p-5 bg-blue-50 border border-blue-200 rounded-xl">
+            <div className="p-5 bg-info-subtle border border-info rounded-xl">
               <div>
-                <div className="text-base font-semibold text-blue-900">
+                <div className="text-base font-semibold text-info-text">
                   {t("checkout.customer_current")}
                 </div>
-                <div className="text-base text-blue-700">
+                <div className="text-base text-fg">
                   {initialEmail}
                 </div>
               </div>
@@ -131,15 +131,17 @@ const CustomerDialog: React.FC<CustomerDialogProps> = ({
             <div className="flex justify-end gap-4 pt-4">
               <Button
                 variant="outline"
+                size="lg"
                 onClick={onClose}
-                className="h-12 px-5 text-base"
+                className="px-6"
               >
                 {t("common.cancel")}
               </Button>
               <Button
                 onClick={handleApply}
                 disabled={!selectedCustomer && !(onRemove && initialEmail)}
-                className="h-12 px-6 text-base bg-primary hover:bg-primary/90 text-white"
+                size="lg"
+                className="px-8"
               >
                 {t("common.save")}
               </Button>

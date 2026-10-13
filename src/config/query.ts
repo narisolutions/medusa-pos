@@ -37,6 +37,8 @@ export const queryKeys = {
   paymentProviders: ["payment-providers"] as const,
   refundReasons: ["refund-reasons"] as const,
   posPlugin: ["pos-plugin-installed"] as const,
+  backendHealth: ["backend-health"] as const,
+  printerStatus: (printerId: string) => ["printer-status", printerId] as const,
   products: {
     all: ["products"] as const,
     list: (salesChannelId?: string) => ["products", salesChannelId] as const,

@@ -18,11 +18,11 @@ const Activity: React.FC<Props> = ({ order }) => {
   }
 
   return (
-    <div className="bg-surface rounded-lg border border-theme-border overflow-hidden shadow-sm flex flex-col h-full">
+    <div className="bg-surface rounded-lg border border-theme-border overflow-hidden shadow-sm">
       <div className="px-6 py-4 border-b border-theme-border bg-surface-muted shrink-0">
         <h2 className="text-lg font-semibold text-fg">{t("orders.activity_header")}</h2>
       </div>
-      <div className="p-6 space-y-4 overflow-y-auto flex-1 min-h-0">
+      <div className="p-6 space-y-4">
         {events.map((event) => (
           <div key={event.id} className="pb-4 border-b border-theme-border last:border-b-0 last:pb-0">
             <div className="mb-2">
@@ -31,8 +31,8 @@ const Activity: React.FC<Props> = ({ order }) => {
                 <p className="text-base text-fg-muted">{event.detail}</p>
               )}
             </div>
-            <div className="flex items-center gap-2 text-sm text-fg-subtle">
-              <Clock className="w-4 h-4" />
+            <div className="flex items-center gap-2 text-base text-fg-muted">
+              <Clock className="size-4" />
               <span>{formatTimeAgo(event.timestamp)}</span>
               <span className="text-fg-subtle">•</span>
               <span>{formatDate(event.timestamp)}</span>

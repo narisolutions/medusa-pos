@@ -40,7 +40,7 @@ const PayLaterConfirmationDialog: React.FC<PayLaterConfirmationDialogProps> = ({
           <div className="bg-surface-muted border border-theme-border rounded-lg p-4">
             <p className="text-center text-fg-muted font-medium">
               {t("checkout.amount_due_label")}:{" "}
-              <span className="text-2xl font-bold text-fg">
+              <span className="text-amount tabular-nums text-fg">
                 {formatPrice(total, currency)}
               </span>
             </p>
@@ -51,15 +51,17 @@ const PayLaterConfirmationDialog: React.FC<PayLaterConfirmationDialogProps> = ({
           <Button
             variant="outline"
             onClick={onCancel}
-            className="flex-1 h-14 text-lg font-medium border-theme-border text-fg-muted hover:text-fg hover:bg-surface-hover"
+            size="lg"
+            className="flex-1 text-lg"
             disabled={isProcessing}
           >
             {t("common.cancel")}
           </Button>
           <Button
             onClick={onConfirm}
-            disabled={isProcessing}
-            className="flex-1 h-14 text-lg font-medium"
+            size="lg"
+            loading={isProcessing}
+            className="flex-1 text-lg"
           >
             {isProcessing
               ? t("common.processing")
