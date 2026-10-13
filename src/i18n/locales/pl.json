@@ -903,7 +903,7 @@
     "boot_slow_title": "Wciąż trwa ładowanie…",
     "boot_slow_message": "Trwa to dłużej niż zwykle. Możesz poczekać, spróbować ponownie lub zmienić sklep.",
     "sales_channel_required_title": "Wymagany kanał sprzedaży",
-    "sales_channel_required_message": "Przed dodaniem produktów do koszyka należy skonfigurować kanał sprzedaży. Przejdź do Ustawienia → Ustawienia API.",
+    "sales_channel_required_message": "Przed dodaniem produktów do koszyka trzeba wybrać kanał sprzedaży. Wybierz go w Ustawienia → Połączenie.",
     "store_setup_title": "Skonfiguruj dane sklepu",
     "store_setup_message": "Dodaj nazwę sklepu, branding i dane kontaktowe, aby poprawnie wyświetlały się na paragonach i w aplikacji.",
     "something_went_wrong_title": "Hmm... coś poszło nie tak.",

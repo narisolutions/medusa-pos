@@ -903,7 +903,7 @@
     "boot_slow_title": "Laddar fortfarande…",
     "boot_slow_message": "Det här tar längre tid än vanligt. Du kan vänta, försöka igen eller byta butik.",
     "sales_channel_required_title": "Försäljningskanal krävs",
-    "sales_channel_required_message": "En försäljningskanal måste konfigureras innan du kan lägga produkter i kundvagnen. Gå till Inställningar → API-inställningar för att konfigurera din försäljningskanal.",
+    "sales_channel_required_message": "En försäljningskanal måste väljas innan varor kan läggas i varukorgen. Välj den under Inställningar → Anslutning.",
     "store_setup_title": "Konfigurera butiksinformation",
     "store_setup_message": "Lägg till butikens namn, varumärke och kontaktuppgifter så att de visas korrekt på kvitton och i hela appen.",
     "something_went_wrong_title": "Hmm... något gick fel.",

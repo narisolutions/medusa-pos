@@ -903,7 +903,7 @@
     "boot_slow_title": "Cargando…",
     "boot_slow_message": "Está tardando más de lo habitual. Puedes esperar, reintentar o cambiar de tienda.",
     "sales_channel_required_title": "Canal de venta requerido",
-    "sales_channel_required_message": "Debes configurar un canal de venta antes de añadir productos al carrito. Ve a Ajustes → Ajustes de la API para configurar tu canal de venta.",
+    "sales_channel_required_message": "Hay que elegir un canal de venta antes de añadir productos al carrito. Elíjalo en Ajustes → Conexión.",
     "store_setup_title": "Configura los datos de la tienda",
     "store_setup_message": "Añade el nombre de tu tienda, la marca y los datos de contacto para que aparezcan correctamente en los recibos y en toda la aplicación.",
     "something_went_wrong_title": "Vaya... algo ha salido mal.",

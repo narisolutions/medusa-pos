@@ -903,7 +903,7 @@
     "boot_slow_title": "Chargement en cours…",
     "boot_slow_message": "Cela prend plus de temps que d'habitude. Vous pouvez patienter, réessayer ou changer de magasin.",
     "sales_channel_required_title": "Canal de vente requis",
-    "sales_channel_required_message": "Un canal de vente doit être configuré avant d’ajouter des produits au panier. Allez dans Paramètres → Paramètres API pour configurer votre canal de vente.",
+    "sales_channel_required_message": "Un canal de vente doit être défini avant d'ajouter des produits au panier. Choisissez-le dans Paramètres → Connexion.",
     "store_setup_title": "Configurer les informations du magasin",
     "store_setup_message": "Ajoutez le nom de votre magasin, son identité visuelle et ses coordonnées pour qu’ils apparaissent correctement sur les reçus et dans toute l’application.",
     "something_went_wrong_title": "Hum… une erreur s’est produite.",

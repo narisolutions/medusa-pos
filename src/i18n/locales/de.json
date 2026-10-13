@@ -903,7 +903,7 @@
     "boot_slow_title": "Wird noch geladen…",
     "boot_slow_message": "Das dauert länger als gewöhnlich. Sie können weiter warten, es erneut versuchen oder die Filiale wechseln.",
     "sales_channel_required_title": "Verkaufskanal erforderlich",
-    "sales_channel_required_message": "Bevor Sie Produkte zum Warenkorb hinzufügen können, muss ein Verkaufskanal konfiguriert werden. Gehen Sie zu Einstellungen → API-Einstellungen, um Ihren Verkaufskanal zu konfigurieren.",
+    "sales_channel_required_message": "Bevor Produkte in den Warenkorb können, muss ein Verkaufskanal festgelegt sein. Wählen Sie ihn unter Einstellungen → Verbindung.",
     "store_setup_title": "Filialdaten einrichten",
     "store_setup_message": "Fügen Sie Filialnamen, Branding und Kontaktdaten hinzu, damit sie auf Belegen und in der gesamten App korrekt angezeigt werden.",
     "something_went_wrong_title": "Hmm... etwas ist schiefgelaufen.",
