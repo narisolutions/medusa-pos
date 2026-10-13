@@ -21,7 +21,10 @@ const REPEAT_AFTER_MS = 400
 const REPEAT_EVERY_MS = 120
 
 const SIDE =
-  "flex size-tap-lg shrink-0 items-center justify-center rounded-lg border border-theme-border bg-surface text-fg transition-all duration-100 active:scale-[0.96] active:bg-accent disabled:opacity-40 disabled:pointer-events-none cursor-pointer [&_svg]:size-6"
+  "flex size-tap-lg shrink-0 items-center justify-center rounded-lg border-2 shadow-sm transition-all duration-100 active:scale-[0.96] disabled:opacity-35 disabled:shadow-none disabled:pointer-events-none cursor-pointer [&_svg]:size-6 [&_svg]:stroke-[2.75]"
+// Filled and outlined so they read as buttons at a glance; + (the one used most) in the brand colour.
+const DECREASE = cn(SIDE, "border-theme-border-strong bg-surface-subtle text-fg active:bg-theme-border")
+const INCREASE = cn(SIDE, "border-primary bg-primary/10 text-primary active:bg-primary/20")
 
 /** − value + with 56px buttons; holding a button repeats the step. */
 function Stepper({ value, onChange, min = 0, max, step = 1, onValueClick, disabled, className }: StepperProps) {
@@ -76,7 +79,7 @@ function Stepper({ value, onChange, min = 0, max, step = 1, onValueClick, disabl
     <div data-slot="stepper" className={cn("inline-flex items-center gap-2", className)}>
       <button
         type="button"
-        className={SIDE}
+        className={DECREASE}
         aria-label={t("ui.stepper_decrease")}
         disabled={disabled || atMin}
         onPointerDown={() => startHold(-1)}
@@ -101,7 +104,7 @@ function Stepper({ value, onChange, min = 0, max, step = 1, onValueClick, disabl
       )}
       <button
         type="button"
-        className={SIDE}
+        className={INCREASE}
         aria-label={t("ui.stepper_increase")}
         disabled={disabled || atMax}
         onPointerDown={() => startHold(1)}
