@@ -592,7 +592,11 @@
       "even": "IGUALADO - NADA QUE LIQUIDAR",
       "footer": "Guarde este comprobante con su recibo",
       "owed": "Añadido al importe pendiente"
-    }
+    },
+    "preview_button": "Ver recibo",
+    "preview_title": "Vista previa del recibo",
+    "preview_description": "Lo que imprime la impresora predeterminada para este pedido, a su ancho de papel y con el logo de la tienda.",
+    "preview_sale_note": "Lo que imprimirá esta venta una vez pagada. El número de pedido se asigna al completar el pago."
   },
   "handoff": {
     "title": "TICKET DE TRANSFERENCIA",
@@ -679,7 +683,6 @@
       "loading": "Cargando impresoras...",
       "testing_print": "Probando impresión…",
       "testing_drawer": "Probando cajón…",
-      "not_tested": "Sin probar",
       "print_ok": "Impresión correcta",
       "print_issue": "Problema de impresión",
       "drawer_ok": "Cajón correcto",
@@ -1031,6 +1034,18 @@
     "checking": "Comprobando…",
     "recheck": "Volver a comprobar la conexión",
     "register_open": "Caja abierta",
-    "register_closed": "Caja cerrada"
+    "register_closed": "Caja cerrada",
+    "printer_checking": "Comprobando impresora…",
+    "printer_ready": "Impresora lista",
+    "printer_connected": "Impresora conectada",
+    "printer_paper_low": "Queda poco papel",
+    "printer_paper_out": "Sin papel",
+    "printer_cover_open": "Tapa de la impresora abierta",
+    "printer_error": "Error de la impresora",
+    "printer_offline": "Impresora desconectada",
+    "printer_unreachable": "Impresora no accesible",
+    "printer_unsupported": "Estado no disponible",
+    "printer_none": "Sin impresora",
+    "printer_open_settings": "Abrir ajustes de impresora"
   }
 }

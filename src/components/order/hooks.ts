@@ -50,7 +50,7 @@ export const useOrder = (order: AdminOrder) => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { t } = useTranslation();
-  const { printOrderReceipt, printHandoffTicket, downloadReceiptAsPDF, getDefaultPrinter } =
+  const { printOrderReceipt, printHandoffTicket, downloadReceiptAsPDF, getDefaultPrinter, buildReceiptDataFromOrder, buildReceiptPreview } =
     usePrinterService();
   const [isPrinting, setIsPrinting] = useState(false);
   const [isPrintingTicket, setIsPrintingTicket] = useState(false);
@@ -350,7 +350,11 @@ export const useOrder = (order: AdminOrder) => {
     setOwedAfterChange(null);
   };
 
+  // Built when asked for, so it shows the order as it is now with today's printer settings.
+  const getReceiptPreview = () => buildReceiptPreview(buildReceiptDataFromOrder(order));
+
   return {
+    getReceiptPreview,
     handleBackToOrders,
     handleReprintReceipt,
     handlePrintHandoffTicket,

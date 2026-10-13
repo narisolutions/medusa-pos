@@ -592,7 +592,11 @@
       "even": "EVEN - NOTHING TO SETTLE",
       "footer": "Keep this slip with your receipt",
       "owed": "Added to amount owed"
-    }
+    },
+    "preview_button": "Preview receipt",
+    "preview_title": "Receipt preview",
+    "preview_description": "What the default printer prints for this order, at its paper width and with the store logo.",
+    "preview_sale_note": "What this sale will print once paid. The order number is assigned when payment completes."
   },
   "handoff": {
     "title": "TRANSFER TICKET",
@@ -679,7 +683,6 @@
       "loading": "Loading printers...",
       "testing_print": "Testing print…",
       "testing_drawer": "Testing drawer…",
-      "not_tested": "Not tested",
       "print_ok": "Print OK",
       "print_issue": "Print issue",
       "drawer_ok": "Drawer OK",
@@ -1031,6 +1034,18 @@
     "checking": "Checking…",
     "recheck": "Check the connection again",
     "register_open": "Register open",
-    "register_closed": "Register closed"
+    "register_closed": "Register closed",
+    "printer_checking": "Checking printer…",
+    "printer_ready": "Printer ready",
+    "printer_connected": "Printer connected",
+    "printer_paper_low": "Paper low",
+    "printer_paper_out": "Out of paper",
+    "printer_cover_open": "Printer cover open",
+    "printer_error": "Printer error",
+    "printer_offline": "Printer offline",
+    "printer_unreachable": "Printer not reachable",
+    "printer_unsupported": "Status not available",
+    "printer_none": "No printer",
+    "printer_open_settings": "Open printer settings"
   }
 }

@@ -592,7 +592,11 @@
       "even": "AUSGEGLICHEN - NICHTS ZU BEGLEICHEN",
       "footer": "Bewahren Sie diesen Beleg mit Ihrer Quittung auf",
       "owed": "Zum offenen Betrag hinzugefügt"
-    }
+    },
+    "preview_button": "Beleg ansehen",
+    "preview_title": "Belegvorschau",
+    "preview_description": "Was der Standarddrucker für diese Bestellung druckt, in seiner Papierbreite und mit dem Shop-Logo.",
+    "preview_sale_note": "Was dieser Verkauf nach der Zahlung druckt. Die Bestellnummer wird bei Zahlungsabschluss vergeben."
   },
   "handoff": {
     "title": "TRANSFERBELEG",
@@ -679,7 +683,6 @@
       "loading": "Drucker werden geladen...",
       "testing_print": "Druck wird getestet…",
       "testing_drawer": "Schublade wird getestet…",
-      "not_tested": "Nicht getestet",
       "print_ok": "Druck OK",
       "print_issue": "Druckproblem",
       "drawer_ok": "Schublade OK",
@@ -1031,6 +1034,18 @@
     "checking": "Prüfe…",
     "recheck": "Verbindung erneut prüfen",
     "register_open": "Kasse offen",
-    "register_closed": "Kasse geschlossen"
+    "register_closed": "Kasse geschlossen",
+    "printer_checking": "Drucker wird geprüft…",
+    "printer_ready": "Drucker bereit",
+    "printer_connected": "Drucker verbunden",
+    "printer_paper_low": "Papier fast leer",
+    "printer_paper_out": "Papier leer",
+    "printer_cover_open": "Druckerdeckel offen",
+    "printer_error": "Druckerfehler",
+    "printer_offline": "Drucker offline",
+    "printer_unreachable": "Drucker nicht erreichbar",
+    "printer_unsupported": "Status nicht verfügbar",
+    "printer_none": "Kein Drucker",
+    "printer_open_settings": "Druckereinstellungen öffnen"
   }
 }

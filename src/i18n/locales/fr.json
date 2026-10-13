@@ -592,7 +592,11 @@
       "even": "À ÉGALITÉ - RIEN À RÉGLER",
       "footer": "Conservez ce bon avec votre ticket",
       "owed": "Ajouté au montant dû"
-    }
+    },
+    "preview_button": "Aperçu du ticket",
+    "preview_title": "Aperçu du ticket",
+    "preview_description": "Ce que l'imprimante par défaut imprime pour cette commande, à sa largeur de papier et avec le logo de la boutique.",
+    "preview_sale_note": "Ce que cette vente imprimera une fois payée. Le numéro de commande est attribué à la fin du paiement."
   },
   "handoff": {
     "title": "TICKET DE TRANSFERT",
@@ -679,7 +683,6 @@
       "loading": "Chargement des imprimantes...",
       "testing_print": "Test d’impression…",
       "testing_drawer": "Test du tiroir…",
-      "not_tested": "Non testée",
       "print_ok": "Impression OK",
       "print_issue": "Problème d’impression",
       "drawer_ok": "Tiroir OK",
@@ -1031,6 +1034,18 @@
     "checking": "Vérification…",
     "recheck": "Vérifier à nouveau la connexion",
     "register_open": "Caisse ouverte",
-    "register_closed": "Caisse fermée"
+    "register_closed": "Caisse fermée",
+    "printer_checking": "Vérification de l'imprimante…",
+    "printer_ready": "Imprimante prête",
+    "printer_connected": "Imprimante connectée",
+    "printer_paper_low": "Papier presque épuisé",
+    "printer_paper_out": "Plus de papier",
+    "printer_cover_open": "Capot de l'imprimante ouvert",
+    "printer_error": "Erreur d'imprimante",
+    "printer_offline": "Imprimante hors ligne",
+    "printer_unreachable": "Imprimante injoignable",
+    "printer_unsupported": "État indisponible",
+    "printer_none": "Aucune imprimante",
+    "printer_open_settings": "Ouvrir les réglages d'imprimante"
   }
 }

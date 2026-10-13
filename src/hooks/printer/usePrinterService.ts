@@ -12,6 +12,7 @@ import { openDownloadsFolder } from "@/utils/downloads";
 import { useQueryStore } from "@/hooks/queries/useQueryStore";
 import {
   getBrandName,
+  getLogoUrl,
   getStoreAddress,
   getStoreAddress2,
   getStorePhone,
@@ -492,12 +493,34 @@ const usePrinterService = () => {
     [buildReceiptDataFromOrder, getDefaultPrinter, getReceiptLabels, t]
   );
 
+  /**
+   * What the default printer would print for this receipt: the same text, paper width
+   * and encoding, and the store logo the print job puts above it (or, without a logo,
+   * the brand name the job prints instead).
+   */
+  const buildReceiptPreview = useCallback(
+    (data: ReceiptData) => {
+      const printer = getDefaultPrinter();
+      const paperWidth = printer?.paperWidth ?? "80mm";
+      const encoding = (printer as (Printer & { encoding?: PrinterEncoding }) | null)?.encoding ?? "translit";
+      return {
+        text: buildReceipt(data, paperWidth, getReceiptLabels(), encoding),
+        paperWidth,
+        logoSrc: getLogoUrl(store) ?? null,
+        companyName: getBrandName(store) || "POS",
+      };
+    },
+    [getDefaultPrinter, getReceiptLabels, store]
+  );
+
   return {
     printers,
     isLoading,
     getDefaultPrinter,
     printReceiptText,
     printOrderReceipt,
+    buildReceiptDataFromOrder,
+    buildReceiptPreview,
     printHandoffTicket,
     printPostSaleSlip,
     downloadReceiptAsPDF,

@@ -1,6 +1,7 @@
 import React from "react";
-import { Edit2Icon, Loader2, Plus, Trash2Icon, PrinterIcon } from "lucide-react";
+import { Edit2Icon, Loader2, Plus, Trash2Icon, PrinterIcon, XCircle } from "lucide-react";
 import { StatusChip } from "@/components/ui/status-chip";
+import PrinterStatusChip from "@/components/base/printer-status-chip";
 import { Button } from "@/components/ui/button";
 import {
   Table,
@@ -52,7 +53,7 @@ const PrinterSettings: React.FC = () => {
     );
   }
 
-  // The last test's outcome; there is no live link check, so "not tested" is said plainly.
+  // The live state first, then what the last test print or drawer kick did.
   const renderStatus = (printer: Printer) => {
     const printResult = testResults[printer.id];
     const drawerResult = cashDrawerTestResults[printer.id];
@@ -66,28 +67,33 @@ const PrinterSettings: React.FC = () => {
       );
     }
 
-    if (!printResult && !drawerResult) {
-      return <StatusChip intent="neutral">{t("settings.printer.not_tested")}</StatusChip>;
-    }
+    // Network and USB printers report their state live, so a test only adds news when it
+    // failed. A system-queue printer can't report, so its last test is all there is to show.
+    const isLive = printer.connectionType !== "local";
+    const failures = [
+      printResult && !printResult.success && { label: t("settings.printer.print_issue"), detail: printResult.message },
+      drawerResult && !drawerResult.success && { label: t("settings.printer.drawer_issue"), detail: drawerResult.message },
+    ].filter((f): f is { label: string; detail: string } => !!f);
 
     return (
       <div className="flex flex-col items-start gap-2">
-        {printResult && (
-          <StatusChip intent={printResult.success ? "success" : "danger"}>
-            {printResult.success ? t("settings.printer.print_ok") : t("settings.printer.print_issue")}
-          </StatusChip>
+        {isLive || (!printResult && !drawerResult) ? (
+          <PrinterStatusChip printer={printer} />
+        ) : (
+          [
+            printResult?.success && <StatusChip key="print" intent="success">{t("settings.printer.print_ok")}</StatusChip>,
+            drawerResult?.success && <StatusChip key="drawer" intent="success">{t("settings.printer.drawer_ok")}</StatusChip>,
+          ]
         )}
-        {drawerResult && (
-          <StatusChip intent={drawerResult.success ? "success" : "danger"}>
-            {drawerResult.success ? t("settings.printer.drawer_ok") : t("settings.printer.drawer_issue")}
-          </StatusChip>
-        )}
-        {[printResult, drawerResult].map(
-          (result, i) =>
-            result?.success && result.message && (
-              <span key={i} className="text-base text-fg-muted leading-snug">{result.message}</span>
-            )
-        )}
+        {failures.map(({ label, detail }) => (
+          <p key={label} className="flex items-start gap-2 text-base leading-snug text-danger-text">
+            <XCircle className="mt-0.5 size-5 shrink-0" aria-hidden />
+            <span>
+              {label}
+              {detail && <span className="block text-fg-muted">{detail}</span>}
+            </span>
+          </p>
+        ))}
       </div>
     );
   };
