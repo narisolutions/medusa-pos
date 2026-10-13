@@ -64,13 +64,15 @@ const CartItems: React.FC<Props> = ({ lastAdded }) => {
   return (
     <div className="flex flex-col flex-1 border border-theme-border bg-surface rounded-lg overflow-hidden h-full">
       <div className="flex flex-col flex-1 min-h-0 overflow-hidden">
-        <div ref={scrollRef} className="flex-1 overflow-auto" onClick={handleContainerClick}>
+        {/* A narrow cart (Large display size, a small screen) drops SKU and Options, which the
+            item's details still show, so the quantity buttons keep their room. */}
+        <div ref={scrollRef} className="@container flex-1 overflow-auto" onClick={handleContainerClick}>
           <Table className="table-fixed w-full">
             <TableHeader className="sticky top-0 bg-primary text-white [&_th]:px-7 z-10">
               <TableRow className="h-13">
                 <TableHead className="text-white w-[28%]">{t("checkout.column_item")}</TableHead>
-                <TableHead className="text-white w-[10%]">{t("checkout.column_sku")}</TableHead>
-                <TableHead className="text-white w-[12%]">{t("checkout.column_options")}</TableHead>
+                <TableHead className="text-white w-[10%] hidden @4xl:table-cell">{t("checkout.column_sku")}</TableHead>
+                <TableHead className="text-white w-[12%] hidden @4xl:table-cell">{t("checkout.column_options")}</TableHead>
                 <TableHead className="text-white text-center w-[22%]">
                   {t("checkout.column_quantity")}
                 </TableHead>
@@ -145,10 +147,10 @@ const CartItems: React.FC<Props> = ({ lastAdded }) => {
                           </div>
                         </div>
                       </TableCell>
-                      <TableCell>
+                      <TableCell className="hidden @4xl:table-cell">
                         <div className="text-base text-fg">{String(sku || "-")}</div>
                       </TableCell>
-                      <TableCell>
+                      <TableCell className="hidden @4xl:table-cell">
                         <div className="text-base text-fg">
                           {options && options.length > 0
                             ? options.map((opt) => opt.value).join("/")

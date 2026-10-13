@@ -30,6 +30,9 @@ import { useCartStore } from "@/context/cart";
 import { useTranslation } from "@/i18n";
 import { ROUTES } from "@/router/routes";
 
+/** A column's own classes, e.g. one hidden on narrow lists. */
+const columnClass = (def: { meta?: unknown }) => (def.meta as { className?: string } | undefined)?.className ?? "";
+
 const ParkedSales: React.FC = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
@@ -160,7 +163,7 @@ const ParkedSales: React.FC = () => {
         className={`${isLoading ? "opacity-60 pointer-events-none" : ""} transition-opacity duration-200 flex-1 min-h-0`}
       >
         <div className="bg-surface rounded-lg border border-theme-border overflow-hidden shadow-sm h-full flex flex-col">
-          <div className="flex-1 min-h-0 overflow-y-auto">
+          <div className="@container flex-1 min-h-0 overflow-y-auto">
             <Table>
               <TableHeader className="bg-surface-muted sticky top-0 z-10">
                 {table.getHeaderGroups().map((headerGroup) => (
@@ -171,7 +174,7 @@ const ParkedSales: React.FC = () => {
                     {headerGroup.headers.map((header) => (
                       <TableHead
                         key={header.id}
-                        className="text-base font-semibold text-fg-muted py-4 px-4 first:pl-6 last:pr-6"
+                        className={`text-base font-semibold text-fg-muted py-4 px-4 first:pl-6 last:pr-6 ${columnClass(header.column.columnDef)}`}
                       >
                         {header.isPlaceholder
                           ? null
@@ -196,7 +199,7 @@ const ParkedSales: React.FC = () => {
                       {row.getVisibleCells().map((cell) => (
                         <TableCell
                           key={cell.id}
-                          className="text-base text-fg py-5 px-4 first:pl-6 last:pr-6"
+                          className={`text-base text-fg py-5 px-4 first:pl-6 last:pr-6 ${columnClass(cell.column.columnDef)}`}
                           style={{ width: cell.column.getSize() }}
                         >
                           {flexRender(cell.column.columnDef.cell, cell.getContext())}

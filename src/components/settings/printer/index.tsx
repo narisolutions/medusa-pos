@@ -3,14 +3,6 @@ import { Edit2Icon, Loader2, Plus, Trash2Icon, PrinterIcon, XCircle } from "luci
 import { StatusChip } from "@/components/ui/status-chip";
 import PrinterStatusChip from "@/components/base/printer-status-chip";
 import { Button } from "@/components/ui/button";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 
 import { usePrinterModal } from "./dialog/hooks";
 import { Printer, usePrinterSettings } from "./hooks";
@@ -100,7 +92,7 @@ const PrinterSettings: React.FC = () => {
 
   return (
     <div className="flex flex-col h-full space-y-8">
-      <div className="flex items-center justify-between border-b border-theme-border pb-6">
+      <div className="flex flex-wrap items-center justify-between gap-4 border-b border-theme-border pb-6">
         <p className="text-lg leading-relaxed text-fg-muted font-medium">
           {t("settings.printer.description")}
         </p>
@@ -135,96 +127,70 @@ const PrinterSettings: React.FC = () => {
           </div>
         </div>
       ) : (
-        <div className="flex-1 bg-surface rounded-lg border border-theme-border overflow-hidden shadow-sm flex flex-col">
-          <Table className="h-full">
-            <TableHeader className="bg-surface-muted shrink-0">
-              <TableRow className="border-b border-theme-border hover:bg-transparent">
-                <TableHead className="text-base font-semibold text-fg-muted py-4 px-4 first:pl-6">{t("settings.printer.column_name")}</TableHead>
-                <TableHead className="text-base font-semibold text-fg-muted py-4 px-4">{t("settings.printer.column_type")}</TableHead>
-                <TableHead className="text-lg font-semibold text-fg-muted py-6 px-6">{t("settings.printer.column_connection")}</TableHead>
-                <TableHead className="text-lg font-semibold text-fg-muted py-6 px-6">{t("settings.printer.column_address")}</TableHead>
-                <TableHead className="text-lg font-semibold text-fg-muted py-6 px-6">{t("settings.printer.column_status")}</TableHead>
-                <TableHead className="text-lg font-semibold text-fg-muted py-6 px-6">{t("settings.printer.column_default")}</TableHead>
-                <TableHead className="text-right text-lg font-semibold text-fg-muted py-6 px-6 last:pr-8">{t("settings.printer.column_actions")}</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody className="flex-1 overflow-auto">
-              {printers.map((printer) => (
-                <TableRow 
-                  key={printer.id} 
-                  className="border-b border-theme-border hover:bg-surface-hover transition-colors duration-150"
+        // A list, not a table: each printer's details, status and actions wrap to fit any
+        // display size instead of pushing the page sideways.
+        <ul className="space-y-3">
+          {printers.map((printer) => (
+            <li
+              key={printer.id}
+              className="flex flex-wrap items-center gap-x-6 gap-y-4 rounded-lg border border-theme-border bg-surface p-5 shadow-sm"
+            >
+              <div className="min-w-56 flex-1 space-y-1">
+                <div className="flex flex-wrap items-center gap-3">
+                  <span className="text-lg font-semibold text-fg">{printer.name}</span>
+                  {printer.isDefault && (
+                    <StatusChip intent="info">{t("settings.printer.default_badge")}</StatusChip>
+                  )}
+                </div>
+                <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-base text-fg-muted">
+                  <span className="flex items-center gap-2">
+                    <PrinterIcon className="size-5" />
+                    <span className="capitalize">{printer.type}</span>
+                  </span>
+                  <span className="flex items-center gap-2">
+                    {getConnectionIcon(printer.connectionType)}
+                    {getConnectionTypeLabel(printer.connectionType)}
+                  </span>
+                  <span className="break-all font-mono">
+                    {printer.address}
+                    {printer.port && `:${printer.port}`}
+                  </span>
+                </div>
+              </div>
+              <div className="min-w-48">{renderStatus(printer)}</div>
+              <div className="flex flex-wrap items-center gap-3">
+                <Button
+                  variant="outline"
+                  onClick={() => handleTestPrinter(printer)}
+                  loading={testingPrinter === printer.id}
+                  className="text-lg px-5"
                 >
-                  <TableCell className="text-lg text-fg py-6 px-6 first:pl-8 font-medium">
-                    {printer.name}
-                  </TableCell>
-                  <TableCell className="text-lg text-fg py-6 px-6">
-                    <div className="flex items-center space-x-3">
-                      <PrinterIcon className="size-5 text-fg-subtle" />
-                      <span className="capitalize">{printer.type}</span>
-                    </div>
-                  </TableCell>
-                  <TableCell className="text-lg text-fg py-6 px-6">
-                    <div className="flex items-center space-x-3">
-                      {getConnectionIcon(printer.connectionType)}
-                      <span>
-                        {getConnectionTypeLabel(printer.connectionType)}
-                      </span>
-                    </div>
-                  </TableCell>
-                  <TableCell className="text-lg text-fg py-6 px-6">
-                    <div className="text-lg font-mono">
-                      {printer.address}
-                      {printer.port && `:${printer.port}`}
-                    </div>
-                  </TableCell>
-                  <TableCell className="text-lg text-fg py-6 px-6">{renderStatus(printer)}</TableCell>
-                  <TableCell className="text-lg text-fg py-6 px-6">
-                    {printer.isDefault && (
-                      <StatusChip intent="info">{t("settings.printer.default_badge")}</StatusChip>
-                    )}
-                  </TableCell>
-                  <TableCell className="text-right text-lg text-fg py-6 px-6 last:pr-8">
-                    <div className="flex items-center justify-end space-x-3">
-                      <Button
-                        variant="outline"
-                        onClick={() => handleTestPrinter(printer)}
-                        loading={testingPrinter === printer.id}
-                        className="text-lg px-5"
-                      >
-                        {t("settings.printer.test_button")}
-                      </Button>
-                      <Button
-                        variant="outline"
-                        onClick={() => handleTestCashDrawer(printer)}
-                        loading={testingCashDrawer === printer.id}
-                        className="text-lg px-5"
-                      >
-                        {testingCashDrawer === printer.id ? t("settings.printer.opening") : t("settings.printer.test_drawer_button")}
-                      </Button>
-                      <Button
-                        variant="outline"
-                        onClick={() => openModal(printer)}
-                        size="icon"
-                        aria-label={t("common.edit")}
-                      >
-                        <Edit2Icon className="size-5" />
-                      </Button>
-                      <Button
-                        variant="outline"
-                        onClick={async () => await deletePrinter(printer.id)}
-                        size="icon"
-                        className="text-danger-text"
-                        aria-label={t("common.delete")}
-                      >
-                        <Trash2Icon className="size-5" />
-                      </Button>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </div>
+                  {t("settings.printer.test_button")}
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => handleTestCashDrawer(printer)}
+                  loading={testingCashDrawer === printer.id}
+                  className="text-lg px-5"
+                >
+                  {testingCashDrawer === printer.id ? t("settings.printer.opening") : t("settings.printer.test_drawer_button")}
+                </Button>
+                <Button variant="outline" size="icon" onClick={() => openModal(printer)} aria-label={t("common.edit")}>
+                  <Edit2Icon className="size-5" />
+                </Button>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className="text-danger-text"
+                  onClick={async () => await deletePrinter(printer.id)}
+                  aria-label={t("common.delete")}
+                >
+                  <Trash2Icon className="size-5" />
+                </Button>
+              </div>
+            </li>
+          ))}
+        </ul>
       )}
 
       <PrinterModal

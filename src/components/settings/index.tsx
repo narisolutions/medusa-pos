@@ -38,8 +38,8 @@ const Settings: React.FC = () => {
   const { Page } = SECTIONS[section];
 
   return (
-    <div className="flex items-start gap-8 bg-surface p-8 rounded-lg min-h-full">
-      <nav aria-label={t("nav.settings")} className="sticky top-0 flex w-60 shrink-0 flex-col gap-1">
+    <div className="flex items-start gap-6 bg-surface p-6 rounded-lg min-h-full">
+      <nav aria-label={t("nav.settings")} className="sticky top-0 flex w-56 shrink-0 flex-col gap-1">
         {SETTINGS_SECTIONS.map((id) => {
           const Icon = SECTIONS[id].icon;
           return (

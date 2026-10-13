@@ -22,7 +22,7 @@ const StatusIndicators: React.FC = () => {
   const checking = health.isFetching && online === undefined;
 
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex flex-wrap items-center justify-end gap-2">
       {/* So test sales on staging are never mistaken for real ones. */}
       {isStaging && (
         <StatusChip intent="warning" icon={<FlaskConical className="size-4" />} className="font-bold uppercase tracking-wide">

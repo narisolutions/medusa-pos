@@ -12,6 +12,10 @@ import storage from "@/utils/storage";
 
 const columnHelper = createColumnHelper<AdminDraftOrder>();
 
+// Shown only when the list is wide enough (a container query, so it follows the till's
+// Display size): at Large the rest of the row fits without scrolling sideways.
+const OPTIONAL_COLUMN = "hidden @6xl:table-cell";
+
 /** The operator's name for a parked sale, falling back to its reference number. */
 const parkLabelOf = (draftOrder: AdminDraftOrder): string =>
   ((draftOrder.metadata?.park_label as string | undefined) || "").trim() ||
@@ -69,6 +73,7 @@ const useParkedSalesColumns = ({
       }),
       columnHelper.accessor("display_id", {
         id: "display_id",
+        meta: { className: OPTIONAL_COLUMN },
         header: t("parked.column_id"),
         cell: (info) => (
           <span className="text-base text-fg-muted">#{info.getValue()}</span>
@@ -98,6 +103,7 @@ const useParkedSalesColumns = ({
       }),
       columnHelper.display({
         id: "item_count",
+        meta: { className: OPTIONAL_COLUMN },
         header: t("parked.column_items"),
         cell: (info) => (
           <span className="text-base text-fg">
