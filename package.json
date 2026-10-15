@@ -41,7 +41,7 @@
     "test:watch": "vitest"
   },
   "dependencies": {
-    "@hookform/resolvers": "^5.7.1",
+    "@hookform/resolvers": "^5.9.1",
     "@medusajs/js-sdk": "^2.21.1",
     "@medusajs/types": "^2.21.1",
     "@narisolutions/pos-toolkit": "github:narisolutions/pos-toolkit#d9c78da85b83065ec3a8baa48f1e734afbc3190c",
