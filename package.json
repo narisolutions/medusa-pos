@@ -96,7 +96,7 @@
     "typescript": "~6.0.3",
     "typescript-eslint": "^8.67.0",
     "vite": "^8.1.5",
-    "vitest": "^4.1.10"
+    "vitest": "^5.0.1"
   },
   "resolutions": {
     "vitest/vite": "8.1.5"
