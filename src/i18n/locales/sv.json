@@ -401,6 +401,11 @@
     "refund_payment_select_label": "Betalning att återbetala",
     "refund_reason_label": "Orsak",
     "refund_reason_none": "Ingen orsak",
+    "refund_reason_defaults": {
+      "shipping_issue": "Leveransproblem",
+      "customer_care_adjustment": "Kompensation till kund",
+      "pricing_error": "Prisfel"
+    },
     "refund_note_label": "Notering",
     "refund_note_placeholder": "Valfri notering för återbetalningen",
     "refund_continue_button": "Fortsätt",
@@ -876,6 +881,8 @@
       "description": "Anslutna POS-plugin. Varje plugin hanterar sin egen anslutning och sina inställningar här.",
       "empty": "Inga plugin installerade."
     },
+    "search_placeholder": "Sök i inställningar",
+    "search_no_results": "Inga matchande inställningar",
     "unsaved_changes": "Osparade ändringar",
     "discard_changes": "Ignorera",
     "quick_keys": {

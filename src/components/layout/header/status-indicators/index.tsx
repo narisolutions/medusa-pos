@@ -25,7 +25,7 @@ const StatusIndicators: React.FC = () => {
     <div className="flex flex-wrap items-center justify-end gap-2">
       {/* So test sales on staging are never mistaken for real ones. */}
       {isStaging && (
-        <StatusChip intent="warning" icon={<FlaskConical className="size-4" />} className="font-bold uppercase tracking-wide">
+        <StatusChip intent="warning" icon={<FlaskConical className="size-4" />} className="font-bold">
           {t("auth.staging")}
         </StatusChip>
       )}

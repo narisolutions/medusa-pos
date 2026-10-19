@@ -24,7 +24,7 @@ export function Layout() {
       <SidebarProvider>
         <AppSidebar />
         <SidebarToggle />
-        <SidebarInset className="flex flex-col h-screen">
+        <SidebarInset className="flex flex-col h-[calc(100dvh-var(--keyboard-inset,0px))]">
           <Header />
           <main ref={mainRef} className="flex-1 min-h-0 overflow-auto">
             <div className="h-full w-full p-6">

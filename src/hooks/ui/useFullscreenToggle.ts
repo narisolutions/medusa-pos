@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { getCurrentWindow } from "@tauri-apps/api/window";
+import { setWindowFullscreen } from "@/utils/ui/window";
 
 function useFullscreenToggle() {
   useEffect(() => {
@@ -10,7 +11,7 @@ function useFullscreenToggle() {
         e.preventDefault();
         const win = getCurrentWindow();
         const isFullscreen = await win.isFullscreen();
-        await win.setFullscreen(!isFullscreen);
+        await setWindowFullscreen(!isFullscreen);
       }
     };
 

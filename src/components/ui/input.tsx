@@ -5,6 +5,7 @@ import { X } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useTranslation } from "@/i18n"
 import { useVirtualKeyboard } from "@/context/virtual-keyboard"
+import { scrollToCenter } from "@/utils/ui/scroll"
 
 /**
  * Empties the field the way typing would, so React and form libraries see an ordinary change.
@@ -36,7 +37,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(({ className, type,
       toggleKeyboard();
       // Scroll input into view so the keyboard doesn't hide it
       setTimeout(() => {
-        e.target.scrollIntoView({ behavior: "smooth", block: "center" });
+        scrollToCenter(e.target);
       }, 300);
     }
     onFocus?.(e);
@@ -115,9 +116,12 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(({ className, type,
               // Keep focus (and the on-screen keyboard) on the field.
               onMouseDown={(e) => e.preventDefault()}
               onClick={() => inputRef.current && clearNativeInput(inputRef.current)}
-              className="absolute inset-y-0 right-0 flex w-12 items-center justify-center rounded-r-md text-fg-muted active:bg-accent cursor-pointer"
+              // A round button inside the field; the 48px column stays the tap target.
+              className="group absolute inset-y-0 right-0 flex w-12 items-center justify-center cursor-pointer"
             >
-              <X className="size-5" />
+              <span className="flex size-8 items-center justify-center rounded-full bg-surface-subtle text-fg-muted transition-colors duration-100 group-hover:text-fg group-active:bg-accent group-active:text-fg">
+                <X className="size-4" />
+              </span>
             </button>
           )}
         </div>

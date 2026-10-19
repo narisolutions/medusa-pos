@@ -401,6 +401,11 @@
     "refund_payment_select_label": "Płatność do zwrotu",
     "refund_reason_label": "Powód",
     "refund_reason_none": "Bez powodu",
+    "refund_reason_defaults": {
+      "shipping_issue": "Problem z dostawą",
+      "customer_care_adjustment": "Rekompensata dla klienta",
+      "pricing_error": "Błąd ceny"
+    },
     "refund_note_label": "Notatka",
     "refund_note_placeholder": "Opcjonalna notatka do zwrotu",
     "refund_continue_button": "Dalej",
@@ -876,6 +881,8 @@
       "description": "Podłączone wtyczki POS. Każda wtyczka zarządza tutaj własnym połączeniem i preferencjami.",
       "empty": "Brak zainstalowanych wtyczek."
     },
+    "search_placeholder": "Szukaj w ustawieniach",
+    "search_no_results": "Brak pasujących ustawień",
     "unsaved_changes": "Niezapisane zmiany",
     "discard_changes": "Odrzuć",
     "quick_keys": {

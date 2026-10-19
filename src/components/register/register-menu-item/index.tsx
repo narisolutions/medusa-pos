@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { SidebarMenuItem } from "@/components/ui/sidebar";
+import { FitText } from "@/components/ui/fit-text";
 import { useRegister } from "@/context/register";
 import { useTranslation } from "@/i18n";
 import CashMovementDialog from "../cash-movement-dialog";
@@ -61,11 +62,11 @@ const RegisterMenuItem: React.FC = () => {
             }`}
           />
         </div>
-        <span className="block w-full text-base font-medium text-fg-muted leading-tight text-center whitespace-normal break-words">
+        <FitText className="w-full text-base font-medium text-fg-muted leading-tight text-center">
           {canReopen
             ? t("register.status.reopen")
             : t("register.status.label")}
-        </span>
+        </FitText>
       </Button>
 
       <Dialog open={chooserOpen} onOpenChange={setChooserOpen}>

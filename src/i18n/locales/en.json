@@ -401,6 +401,11 @@
     "refund_payment_select_label": "Payment to refund",
     "refund_reason_label": "Reason",
     "refund_reason_none": "No reason",
+    "refund_reason_defaults": {
+      "shipping_issue": "Shipping issue",
+      "customer_care_adjustment": "Customer care adjustment",
+      "pricing_error": "Pricing error"
+    },
     "refund_note_label": "Note",
     "refund_note_placeholder": "Optional note for this refund",
     "refund_continue_button": "Continue",
@@ -876,6 +881,8 @@
       "description": "Connected POS plugins. Each plugin manages its own connection and preferences here.",
       "empty": "No plugins installed."
     },
+    "search_placeholder": "Search settings",
+    "search_no_results": "No matching settings",
     "unsaved_changes": "Unsaved changes",
     "discard_changes": "Discard",
     "quick_keys": {

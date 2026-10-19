@@ -401,6 +401,11 @@
     "refund_payment_select_label": "Pago a reembolsar",
     "refund_reason_label": "Motivo",
     "refund_reason_none": "Sin motivo",
+    "refund_reason_defaults": {
+      "shipping_issue": "Problema de envío",
+      "customer_care_adjustment": "Compensación al cliente",
+      "pricing_error": "Error de precio"
+    },
     "refund_note_label": "Nota",
     "refund_note_placeholder": "Nota opcional para este reembolso",
     "refund_continue_button": "Continuar",
@@ -876,6 +881,8 @@
       "description": "Plugins de POS conectados. Cada plugin gestiona aquí su conexión y preferencias.",
       "empty": "No hay plugins instalados."
     },
+    "search_placeholder": "Buscar en ajustes",
+    "search_no_results": "Ningún ajuste coincide",
     "unsaved_changes": "Cambios sin guardar",
     "discard_changes": "Descartar",
     "quick_keys": {

@@ -401,6 +401,11 @@
     "refund_payment_select_label": "Zu erstattende Zahlung",
     "refund_reason_label": "Grund",
     "refund_reason_none": "Kein Grund",
+    "refund_reason_defaults": {
+      "shipping_issue": "Versandproblem",
+      "customer_care_adjustment": "Kulanz",
+      "pricing_error": "Preisfehler"
+    },
     "refund_note_label": "Notiz",
     "refund_note_placeholder": "Optionale Notiz zur Erstattung",
     "refund_continue_button": "Weiter",
@@ -876,6 +881,8 @@
       "description": "Verbundene POS-Plugins. Jedes Plugin verwaltet hier seine eigene Verbindung und Einstellungen.",
       "empty": "Keine Plugins installiert."
     },
+    "search_placeholder": "Einstellungen durchsuchen",
+    "search_no_results": "Keine passende Einstellung",
     "unsaved_changes": "Ungespeicherte Änderungen",
     "discard_changes": "Verwerfen",
     "quick_keys": {
