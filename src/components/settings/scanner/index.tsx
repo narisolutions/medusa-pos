@@ -48,7 +48,7 @@ const ScannerSettings: React.FC = () => {
       </div>
 
       <div className="space-y-6 max-w-3xl">
-        <div>
+        <div data-setting="scanner-transport">
           <h3 className="text-base font-semibold text-fg mb-3">
             {t("settings.scanner.transport_label")}
           </h3>
@@ -163,7 +163,7 @@ const ScannerSettings: React.FC = () => {
                 </Select>
               </div>
 
-              <div>
+              <div data-setting="scanner-idle">
                 <h3 className="text-base font-semibold text-fg mb-3">
                   {t("settings.scanner.idle_label")}
                 </h3>
@@ -180,7 +180,7 @@ const ScannerSettings: React.FC = () => {
               </div>
             </div>
 
-            <div className="border-t border-theme-border pt-6">
+            <div data-setting="scanner-test" className="border-t border-theme-border pt-6">
               <div className="flex items-center justify-between mb-3">
                 <h3 className="text-base font-semibold text-fg">
                   {t("settings.scanner.test_label")}

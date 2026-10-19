@@ -2,6 +2,7 @@ import * as React from "react"
 import { Check } from "lucide-react"
 
 import { cn } from "@/lib/utils"
+import { FitText } from "@/components/ui/fit-text"
 
 type TileProps = Omit<React.ComponentProps<"button">, "children"> & {
   icon?: React.ReactNode
@@ -37,7 +38,7 @@ function Tile({ icon, label, subline, badge, selected, size = "md", className, t
       {...props}
     >
       {icon && <span aria-hidden className="inline-flex">{icon}</span>}
-      <span className="text-base font-semibold leading-tight">{label}</span>
+      <FitText className="w-full text-base font-semibold leading-tight">{label}</FitText>
       {subline && (
         <span className={cn("text-base leading-tight", selected ? "text-primary-foreground/85" : "text-fg-muted")}>
           {subline}

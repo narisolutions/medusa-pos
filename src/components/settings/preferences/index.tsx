@@ -87,7 +87,7 @@ const PreferencesSettings: React.FC = () => {
               control={control}
               name="language"
               render={({ field }) => (
-                <FormItem>
+                <FormItem data-setting="language">
                   <FormLabel className="text-base font-medium">{t("settings.preferences.language")}</FormLabel>
                   <Select
                     value={field.value}
@@ -121,7 +121,7 @@ const PreferencesSettings: React.FC = () => {
               control={control}
               name="themeMode"
               render={({ field }) => (
-                <FormItem>
+                <FormItem data-setting="theme">
                   <FormLabel className="text-base font-medium">{t("settings.preferences.theme")}</FormLabel>
                   <SegmentedControl
                     label={t("settings.preferences.theme")}
@@ -144,7 +144,7 @@ const PreferencesSettings: React.FC = () => {
               control={control}
               name="displaySize"
               render={({ field }) => (
-                <FormItem>
+                <FormItem data-setting="display-size">
                   <FormLabel className="text-base font-medium">{t("settings.preferences.display_size")}</FormLabel>
                   <SegmentedControl
                     label={t("settings.preferences.display_size")}
@@ -166,7 +166,7 @@ const PreferencesSettings: React.FC = () => {
                 control={control}
                 name="startFullscreen"
                 render={({ field }) => (
-                  <FormItem>
+                  <FormItem data-setting="fullscreen">
                     <div className="flex items-center justify-between">
                       <div className="space-y-0.5">
                         <FormLabel className="text-base font-medium">
@@ -201,7 +201,7 @@ const PreferencesSettings: React.FC = () => {
               control={control}
               name="dateFormat"
               render={({ field }) => (
-                <FormItem>
+                <FormItem data-setting="date-format">
                   <FormLabel className="text-base font-medium">
                     {t("settings.preferences.date_format")}
                   </FormLabel>
@@ -243,7 +243,7 @@ const PreferencesSettings: React.FC = () => {
               control={control}
               name="timeFormat"
               render={({ field }) => (
-                <FormItem>
+                <FormItem data-setting="time-format">
                   <FormLabel className="text-base font-medium">
                     {t("settings.preferences.time_format")}
                   </FormLabel>
@@ -275,7 +275,7 @@ const PreferencesSettings: React.FC = () => {
           <div className="border-t border-theme-border" />
 
           {/* Currency Format */}
-          <section className="space-y-4">
+          <section data-setting="currency-format" className="space-y-4">
             <h3 className="text-lg font-semibold text-fg">
               {t("settings.preferences.currency_format")}
             </h3>
@@ -316,7 +316,7 @@ const PreferencesSettings: React.FC = () => {
               control={control}
               name="decimalSeparator"
               render={({ field }) => (
-                <FormItem>
+                <FormItem data-setting="decimal-separator">
                   <FormLabel className="text-base font-medium">
                     {t("settings.preferences.decimal_separator")}
                   </FormLabel>
@@ -346,7 +346,7 @@ const PreferencesSettings: React.FC = () => {
               control={control}
               name="cashRoundingEnabled"
               render={({ field }) => (
-                <FormItem>
+                <FormItem data-setting="cash-rounding">
                   <div className="flex items-center justify-between">
                     <div className="space-y-0.5">
                       <FormLabel className="text-base font-medium">
@@ -490,7 +490,7 @@ const PreferencesSettings: React.FC = () => {
 
           <div className="border-t border-theme-border" />
 
-          <section className="space-y-4">
+          <section data-setting="sounds" className="space-y-4">
             <h3 className="text-lg font-semibold text-fg">{t("settings.preferences.sounds")}</h3>
             {SOUND_ROWS.map(({ name, event }) => (
               <FormField

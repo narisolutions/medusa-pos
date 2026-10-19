@@ -26,7 +26,7 @@ const StoreSelectorBox: React.FC = () => {
             <img
               src={activeStore.logo}
               alt={activeStore.name}
-              className="h-10 w-10 object-contain rounded-lg"
+              className="size-10 object-contain rounded-lg"
             />
           ) : (
             <MedusaIcon className="size-10 shrink-0" />

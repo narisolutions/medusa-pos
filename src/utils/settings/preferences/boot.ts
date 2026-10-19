@@ -23,8 +23,8 @@ export const applyBootPreferences = async () => {
     const prefs = await store.get<StoredPrefs>("user_preferences");
 
     if (prefs?.display?.startFullscreen === false) {
-      const { getCurrentWindow } = await import("@tauri-apps/api/window");
-      await getCurrentWindow().setFullscreen(false);
+      const { setWindowFullscreen } = await import("@/utils/ui/window");
+      await setWindowFullscreen(false);
     }
 
     applyStoredTheme(prefs?.appearance?.themeMode);

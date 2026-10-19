@@ -2,6 +2,7 @@ import React, { useRef } from "react";
 import { Delete } from "lucide-react";
 import { useTranslation } from "@/i18n";
 import { cn } from "@/lib/utils";
+import { FitText } from "@/components/ui/fit-text";
 import { applyNumpadKey, type NumpadKey } from "@/utils/ui/numpad";
 
 export type NumpadProps = {
@@ -88,8 +89,15 @@ export const Numpad: React.FC<NumpadProps> = ({
       {digit("4")}
       {digit("5")}
       {digit("6")}
-      <button type="button" className={cn(EDIT, "text-xl")} onClick={() => press("clear")}>
-        {t("ui.numpad_clear")}
+      {/* "C" fits every language; the full word is its accessible name. */}
+      <button
+        type="button"
+        className={cn(EDIT, "text-2xl font-semibold")}
+        aria-label={t("ui.numpad_clear")}
+        title={t("ui.numpad_clear")}
+        onClick={() => press("clear")}
+      >
+        C
       </button>
 
       {digit("1")}
@@ -104,7 +112,7 @@ export const Numpad: React.FC<NumpadProps> = ({
           disabled={enterDisabled}
           onClick={() => onEnter?.()}
         >
-          {t("ui.numpad_done")}
+          <FitText className="px-2 text-center">{t("ui.numpad_done")}</FitText>
         </button>
       )}
 

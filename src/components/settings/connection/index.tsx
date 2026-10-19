@@ -76,7 +76,7 @@ const ConnectionSettings: React.FC = () => {
             control={control}
             name="backend_url"
             render={({ field }) => (
-              <FormItem>
+              <FormItem data-setting="backend-url">
                 <FormLabel className="text-lg font-medium">{t("settings.connection.api_url_label")}</FormLabel>
                 <FormControl>
                   <Input
@@ -96,7 +96,7 @@ const ConnectionSettings: React.FC = () => {
             control={control}
             name="sales_channel"
             render={({ field }) => (
-              <FormItem>
+              <FormItem data-setting="sales-channel">
                 <FormLabel className="text-lg font-medium">
                   {t("settings.connection.sales_channel_label")}
                 </FormLabel>
@@ -143,7 +143,7 @@ const ConnectionSettings: React.FC = () => {
             control={control}
             name="stock_location"
             render={({ field }) => (
-              <FormItem>
+              <FormItem data-setting="stock-location">
                 <FormLabel className="text-lg font-medium">
                   {t("settings.connection.stock_location_label")}
                 </FormLabel>

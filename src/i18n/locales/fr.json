@@ -401,6 +401,11 @@
     "refund_payment_select_label": "Paiement à rembourser",
     "refund_reason_label": "Motif",
     "refund_reason_none": "Sans motif",
+    "refund_reason_defaults": {
+      "shipping_issue": "Problème de livraison",
+      "customer_care_adjustment": "Geste commercial",
+      "pricing_error": "Erreur de prix"
+    },
     "refund_note_label": "Note",
     "refund_note_placeholder": "Note facultative pour ce remboursement",
     "refund_continue_button": "Continuer",
@@ -876,6 +881,8 @@
       "description": "Plugins POS connectés. Chaque plugin gère ici sa connexion et ses préférences.",
       "empty": "Aucun plugin installé."
     },
+    "search_placeholder": "Rechercher dans les paramètres",
+    "search_no_results": "Aucun paramètre ne correspond",
     "unsaved_changes": "Modifications non enregistrées",
     "discard_changes": "Annuler les modifications",
     "quick_keys": {

@@ -19,13 +19,9 @@ import { applyDisplaySize } from "@/utils/ui/display-size";
 import { setSoundPreferences } from "@/utils/sounds";
 import { setLocale } from "@/i18n";
 import { REGISTER_CONFIG_CHANGED_EVENT } from "@/context/register";
+import { setWindowFullscreen } from "@/utils/ui/window";
 
 const isTauri = "__TAURI_INTERNALS__" in window;
-
-async function setFullscreen(enabled: boolean): Promise<void> {
-  const { getCurrentWindow } = await import("@tauri-apps/api/window");
-  await getCurrentWindow().setFullscreen(enabled);
-}
 
 const defaults: Forms["PreferencesSettings"] = {
   dateFormat: DEFAULT_PREFERENCES.dateTime.dateFormat,
@@ -150,7 +146,7 @@ export const usePreferencesSettings = () => {
         window.dispatchEvent(new Event(REGISTER_CONFIG_CHANGED_EVENT));
 
         if (isTauri) {
-          await setFullscreen(data.startFullscreen);
+          await setWindowFullscreen(data.startFullscreen);
         }
 
         reset(data);

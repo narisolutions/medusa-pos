@@ -1,5 +1,6 @@
 import { logger, safeStringify } from "@/utils/logger";
 import { Button } from "@/components/ui/button";
+import { FitText } from "@/components/ui/fit-text";
 import {
   Sidebar,
   SidebarContent,
@@ -104,9 +105,9 @@ const AppSidebar = () => {
                         </span>
                       )}
                     </div>
-                    <span className="block w-full text-base font-medium leading-tight text-center whitespace-normal break-words">
+                    <FitText className="w-full text-base font-medium leading-tight text-center">
                       {item.label}
-                    </span>
+                    </FitText>
                   </>
                 )}
               </NavLink>
@@ -129,9 +130,9 @@ const AppSidebar = () => {
                   className="flex flex-col h-auto min-h-tap-xl items-center justify-center gap-1 px-2 py-3 w-full text-center rounded-md"
                 >
                   <item.icon className="size-8 text-fg-muted" />
-                  <span className="block w-full text-base font-medium text-fg-muted leading-tight text-center whitespace-normal break-words">
+                  <FitText className="w-full text-base font-medium text-fg-muted leading-tight text-center">
                     {item.label}
-                  </span>
+                  </FitText>
                 </Button>
               ) : (
                 <NavLink
@@ -149,9 +150,9 @@ const AppSidebar = () => {
                       <item.icon
                         className={`size-8 ${isActive ? "text-primary" : ""}`}
                       />
-                      <span className="block w-full text-base font-medium leading-tight text-center whitespace-normal break-words">
+                      <FitText className="w-full text-base font-medium leading-tight text-center">
                         {item.label}
-                      </span>
+                      </FitText>
                     </>
                   )}
                 </NavLink>

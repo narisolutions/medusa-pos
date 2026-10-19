@@ -8,21 +8,24 @@ import PreferencesSettings from "./preferences";
 import PluginsSettings from "./plugins";
 import ScannerSettings from "./scanner";
 import QuickKeysSettings from "./quick-keys";
+import SettingsSearch from "./settings-search";
+import { useSettingHighlight } from "./hooks";
 import { useTranslation } from "@/i18n";
 import { cn } from "@/lib/utils";
 import { ROUTES, SETTINGS_SECTIONS, type SettingsSection } from "@/router/routes";
+import { SETTINGS_SECTION_TITLES } from "@/utils/settings/search";
 
 const SECTIONS: Record<
   SettingsSection,
-  { title: string; icon: React.ComponentType<{ className?: string }>; Page: React.ComponentType }
+  { icon: React.ComponentType<{ className?: string }>; Page: React.ComponentType }
 > = {
-  printer: { title: "settings.printer.title", icon: Printer, Page: PrinterSettings },
-  scanner: { title: "settings.scanner.title", icon: ScanBarcode, Page: ScannerSettings },
-  connection: { title: "settings.connection.title", icon: Plug, Page: ConnectionSettings },
-  store: { title: "settings.store.title", icon: Store, Page: StoreSettings },
-  "quick-keys": { title: "settings.quick_keys.title", icon: Zap, Page: QuickKeysSettings },
-  preferences: { title: "settings.preferences.title", icon: SlidersHorizontal, Page: PreferencesSettings },
-  plugins: { title: "settings.plugins.title", icon: Puzzle, Page: PluginsSettings },
+  printer: { icon: Printer, Page: PrinterSettings },
+  scanner: { icon: ScanBarcode, Page: ScannerSettings },
+  connection: { icon: Plug, Page: ConnectionSettings },
+  store: { icon: Store, Page: StoreSettings },
+  "quick-keys": { icon: Zap, Page: QuickKeysSettings },
+  preferences: { icon: SlidersHorizontal, Page: PreferencesSettings },
+  plugins: { icon: Puzzle, Page: PluginsSettings },
 };
 
 const isSection = (value: string | undefined): value is SettingsSection =>
@@ -32,6 +35,7 @@ const isSection = (value: string | undefined): value is SettingsSection =>
 const Settings: React.FC = () => {
   const { t } = useTranslation();
   const { section } = useParams();
+  useSettingHighlight();
 
   if (!isSection(section)) return <Navigate to={ROUTES.settingsSection("printer")} replace />;
 
@@ -40,27 +44,29 @@ const Settings: React.FC = () => {
   return (
     <div className="flex items-start gap-6 bg-surface p-6 rounded-lg min-h-full">
       <nav aria-label={t("nav.settings")} className="sticky top-0 flex w-56 shrink-0 flex-col gap-1">
-        {SETTINGS_SECTIONS.map((id) => {
-          const Icon = SECTIONS[id].icon;
-          return (
-            <NavLink
-              key={id}
-              to={ROUTES.settingsSection(id)}
-              replace
-              className={({ isActive }) =>
-                cn(
-                  "flex min-h-tap-xl items-center gap-3 rounded-lg px-4 text-lg transition-colors duration-100",
-                  isActive
-                    ? "bg-primary font-semibold text-primary-foreground"
-                    : "text-fg-muted hover:bg-accent hover:text-fg active:bg-accent"
-                )
-              }
-            >
-              <Icon className="size-6 shrink-0" />
-              {t(SECTIONS[id].title)}
-            </NavLink>
-          );
-        })}
+        <SettingsSearch>
+          {SETTINGS_SECTIONS.map((id) => {
+            const Icon = SECTIONS[id].icon;
+            return (
+              <NavLink
+                key={id}
+                to={ROUTES.settingsSection(id)}
+                replace
+                className={({ isActive }) =>
+                  cn(
+                    "flex min-h-tap-xl items-center gap-3 rounded-lg px-4 text-lg transition-colors duration-100",
+                    isActive
+                      ? "bg-primary font-semibold text-primary-foreground"
+                      : "text-fg-muted hover:bg-accent hover:text-fg active:bg-accent"
+                  )
+                }
+              >
+                <Icon className="size-6 shrink-0" />
+                {t(SETTINGS_SECTION_TITLES[id])}
+              </NavLink>
+            );
+          })}
+        </SettingsSearch>
         {/* Dev builds only: the component catalogue, a tool rather than a setting. */}
         {import.meta.env.DEV && (
           <div className="mt-4 border-t border-theme-border pt-4">

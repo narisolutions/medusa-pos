@@ -108,7 +108,7 @@ const StoreSettings: React.FC = () => {
               control={control}
               name="storeName"
               render={({ field }) => (
-                <FormItem>
+                <FormItem data-setting="store-name">
                   <FormLabel className="text-lg font-medium">
                     {t("settings.store.store_name_label")}
                   </FormLabel>
@@ -128,7 +128,7 @@ const StoreSettings: React.FC = () => {
               control={control}
               name="brandName"
               render={({ field }) => (
-                <FormItem>
+                <FormItem data-setting="brand-name">
                   <FormLabel className="text-lg font-medium">
                     {t("settings.store.brand_name_label")}
                   </FormLabel>
@@ -144,7 +144,7 @@ const StoreSettings: React.FC = () => {
               )}
             />
 
-            <div className="flex flex-col gap-3">
+            <div data-setting="logo" className="flex flex-col gap-3">
               <Label className="text-lg font-medium">{t("settings.store.logo_label")}</Label>
               <div className="flex items-center gap-4">
                 <div className="w-24 h-24 border-2 border-dashed border-theme-border-strong rounded-lg flex items-center justify-center bg-surface-subtle shrink-0 overflow-hidden">
@@ -189,7 +189,7 @@ const StoreSettings: React.FC = () => {
               control={control}
               name="storeAddress"
               render={({ field }) => (
-                <FormItem>
+                <FormItem data-setting="store-address">
                   <FormLabel className="text-lg font-medium">
                     {t("settings.store.store_address_label")}
                   </FormLabel>
@@ -229,7 +229,7 @@ const StoreSettings: React.FC = () => {
               control={control}
               name="storePhone"
               render={({ field }) => (
-                <FormItem>
+                <FormItem data-setting="store-phone">
                   <FormLabel className="text-lg font-medium">
                     {t("settings.store.store_phone_label")}
                   </FormLabel>
@@ -249,7 +249,7 @@ const StoreSettings: React.FC = () => {
               control={control}
               name="guestCustomerEmail"
               render={({ field }) => (
-                <FormItem id="guest-customer-email">
+                <FormItem data-setting="guest-email">
                   <FormLabel className="text-lg font-medium flex items-center gap-2">
                     {t("settings.store.guest_email_label")}
                     <Tooltip>
@@ -283,7 +283,7 @@ const StoreSettings: React.FC = () => {
               )}
             />
 
-            <div className="space-y-4">
+            <div data-setting="payment-methods" className="space-y-4">
               <Label className="text-lg font-medium">{t("settings.store.payment_methods_label")}</Label>
               <p className="text-base text-fg-muted">
                 {t("settings.store.payment_methods_description")}
@@ -456,7 +456,7 @@ const StoreSettings: React.FC = () => {
                 control={control}
                 name="transferCounterparty"
                 render={({ field }) => (
-                  <FormItem>
+                  <FormItem data-setting="transfer-counterparty">
                     <FormLabel className="text-lg font-medium flex items-center gap-2">
                       {t("settings.store.transfer_counterparty_label")}
                       <Tooltip>
@@ -491,7 +491,7 @@ const StoreSettings: React.FC = () => {
             )}
 
             {hasBankTransferMethod && (
-              <div className="space-y-3">
+              <div data-setting="bank-details" className="space-y-3">
                 <div className="text-lg font-medium flex items-center gap-2">
                   {t("settings.store.bank_details_label")}
                   <Tooltip>
@@ -574,7 +574,7 @@ const StoreSettings: React.FC = () => {
                 control={control}
                 name="fontSize"
                 render={({ field }) => (
-                  <FormItem>
+                  <FormItem data-setting="font-size">
                     <FormLabel className="text-lg font-medium">
                       {t("settings.store.font_size_label")}
                     </FormLabel>
@@ -593,7 +593,7 @@ const StoreSettings: React.FC = () => {
               />
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div data-setting="brand-colors" className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <FormField
                 control={control}
                 name="primaryColor"
