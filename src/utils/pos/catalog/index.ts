@@ -65,8 +65,29 @@ const inCategory = (product: AdminProduct, categoryId: string) =>
     (category) => category.id === categoryId || parentId(category) === categoryId
   );
 
+type BrandLike = { title?: unknown; name?: unknown } | null | undefined;
+
+/** Every name of the product's brand: a linked brand (title may be `{ en, ka }`) or an older `metadata.brand`. */
+const brandNames = (product: AdminProduct): Record<string, string> => {
+  const linked = (product as AdminProduct & { brand?: BrandLike }).brand;
+  const brand = linked ?? (product.metadata?.brand as BrandLike);
+  const raw = brand?.title ?? brand?.name;
+  if (typeof raw === "string") return raw ? { en: raw } : {};
+  if (!raw || typeof raw !== "object") return {};
+  return Object.fromEntries(
+    Object.entries(raw as Record<string, unknown>).filter((entry): entry is [string, string] => typeof entry[1] === "string" && !!entry[1])
+  );
+};
+
+/** The brand in the till's language, else English, else any. */
+const productBrand = (product: AdminProduct, language?: string): string | null => {
+  const names = brandNames(product);
+  return (language && names[language]) || names.en || Object.values(names)[0] || null;
+};
+
 const matchesQuery = (product: AdminProduct, query: string) => {
   if (normalize(product.title ?? "").includes(query)) return true;
+  if (Object.values(brandNames(product)).some((name) => normalize(name).includes(query))) return true;
   return (product.variants ?? []).some((variant) =>
     [variant.title, variant.sku, variant.ean, variant.barcode].some(
       (field) => !!field && normalize(field).includes(query)
@@ -160,6 +181,7 @@ export {
   cheapestVariant,
   filterCatalog,
   otherVariants,
+  productBrand,
   productPriceRange,
   optionValuesText,
   productStock,

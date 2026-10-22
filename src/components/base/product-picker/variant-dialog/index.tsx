@@ -31,6 +31,7 @@ const ItemDialog: React.FC<Props> = ({
     title,
     unit_price,
     productTitle,
+    brand,
     sku,
     ean,
     thumbnail,
@@ -116,9 +117,16 @@ const ItemDialog: React.FC<Props> = ({
               <span className="text-fg-muted font-medium">{t("checkout.product_label")}:</span>
               <div className="text-right">
                 <div className="font-medium">{productTitle || "-"}</div>
-                {title && <div className="text-base text-fg-subtle">{title}</div>}
+                {title && title !== productTitle && <div className="text-base text-fg-subtle">{title}</div>}
               </div>
             </div>
+
+            {brand && (
+              <div className="flex justify-between items-center p-3 bg-surface-muted rounded">
+                <span className="text-fg-muted font-medium">{t("checkout.brand_label")}:</span>
+                <span className="font-medium">{brand}</span>
+              </div>
+            )}
 
             <div className="flex justify-between items-center p-3 bg-surface-muted rounded">
               <span className="text-fg-muted font-medium">{t("checkout.price_label")}:</span>

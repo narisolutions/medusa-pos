@@ -1,4 +1,7 @@
-import { realOptions } from "@/utils/pos/catalog";
+import { productBrand, realOptions } from "@/utils/pos/catalog";
+import { useTranslation } from "@/i18n";
+import { useSalesChannel } from "@/context/sales-channel";
+import { useQueryProducts } from "@/hooks/queries/useQueryProducts";
 import { CartItem } from "@/types/utils";
 import { AdminProductVariant, AdminProduct } from "@medusajs/types";
 import { useQueryInventoryKitItems } from "@/hooks/queries/useQueryInventoryKitItems";
@@ -47,6 +50,15 @@ const useItemDialog = (
   const currentVariantId = isCartItem
     ? item.variant_id
     : (item as AdminProductVariant).id;
+
+  // A cart line carries no product: the brand comes from the catalogue the checkout already loaded.
+  const { i18n } = useTranslation();
+  const salesChannelId = useSalesChannel((s) => s.salesChannelId);
+  const { data: products = [] } = useQueryProducts(salesChannelId);
+  const product =
+    products.find((p) => p.variants?.some((v) => v.id === currentVariantId)) ??
+    (isCartItem ? undefined : (item as AdminProductVariant & { product: AdminProduct }).product);
+  const brand = product ? productBrand(product, i18n.language) : null;
 
   const {
     product_title,
@@ -155,6 +167,7 @@ const useItemDialog = (
     title,
     unit_price,
     productTitle,
+    brand,
     sku,
     ean,
     thumbnail,

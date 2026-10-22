@@ -5,7 +5,7 @@ import { handleErrorToast } from "@/utils/helpers";
 import { useUser } from "@/context/user";
 import { AdminProduct } from "@medusajs/types";
 import { isPosPluginInstalled } from "@/utils/pos/plugin";
-import { logger } from "@/utils/logger";
+import { logger, safeStringify } from "@/utils/logger";
 
 const MEDUSA_PRODUCT_FIELDS = [
   "*variants",
@@ -59,6 +59,27 @@ const fetchAllProductPages = async (
   return all;
 };
 
+// A brand is a link some backends add to products (a marketplace module); a backend
+// without it refuses the field, so ask once and fall back to the plain catalogue.
+const BRAND_FIELDS = "brand.id,brand.title";
+let brandFieldsSupported = true;
+
+const fetchPosProducts = async (salesChannelId: string): Promise<AdminProduct[]> => {
+  const sdk = getSdk();
+  const path = `/pos/products/${salesChannelId}`;
+  if (brandFieldsSupported) {
+    try {
+      return await sdk.client.fetch<AdminProduct[]>(path, { query: { custom_fields: BRAND_FIELDS } });
+    } catch (error) {
+      // Only a backend that answered can refuse the field; a network failure fails the plain request too.
+      if (typeof (error as { status?: unknown })?.status !== "number") throw error;
+      brandFieldsSupported = false;
+      void logger.warn(`POS catalogue without brands, the backend refused them: ${safeStringify(error)}`);
+    }
+  }
+  return sdk.client.fetch<AdminProduct[]>(path);
+};
+
 // Failures throw after explaining themselves: an empty list would read as an empty
 // catalogue, and the checkout's retry screen would never show.
 const fetchProducts = async (
@@ -70,11 +91,7 @@ const fetchProducts = async (
 
   if (await isPosPluginInstalled()) {
     try {
-      const sdk = getSdk();
-      const products = await sdk.client.fetch<AdminProduct[]>(
-        `/pos/products/${salesChannelId}`
-      );
-      return products;
+      return await fetchPosProducts(salesChannelId);
     } catch (error) {
       handleErrorToast(error, { posEndpointError: true });
       throw error;

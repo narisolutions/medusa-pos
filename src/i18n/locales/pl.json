@@ -215,6 +215,7 @@
     "item_dialog_title": "Szczegóły produktu",
     "kit_badge": "Zestaw",
     "product_label": "Produkt",
+    "brand_label": "Marka",
     "price_label": "Cena",
     "save_label": "Oszczędzasz {{amount}} ({{percentage}}% taniej)",
     "manual_discount_badge": "Ręczna zniżka",

@@ -215,6 +215,7 @@
     "item_dialog_title": "Detalles del artículo",
     "kit_badge": "Pack",
     "product_label": "Producto",
+    "brand_label": "Marca",
     "price_label": "Precio",
     "save_label": "Ahorras {{amount}} ({{percentage}}% de descuento)",
     "manual_discount_badge": "Descuento manual",

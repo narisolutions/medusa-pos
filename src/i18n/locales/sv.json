@@ -215,6 +215,7 @@
     "item_dialog_title": "Artikeldetaljer",
     "kit_badge": "Paket",
     "product_label": "Produkt",
+    "brand_label": "Varumärke",
     "price_label": "Pris",
     "save_label": "Spara {{amount}} ({{percentage}}% rabatt)",
     "manual_discount_badge": "Manuell rabatt",

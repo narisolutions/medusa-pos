@@ -116,8 +116,9 @@ type OrderDiscount = { type: "amount" | "percent"; value: number } | null;
 type PaymentMethod = string | undefined;
 
 interface ExtendedAdminProduct extends AdminProduct {
+  /** A linked brand (marketplace module); its title may be localized ({ en, ka }). */
   brand?: {
-    title?: string;
+    title?: string | Record<string, string>;
     name?: string;
   };
   metadata?: {

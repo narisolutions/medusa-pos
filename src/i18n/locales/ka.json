@@ -215,6 +215,7 @@
     "item_dialog_title": "ნივთის დეტალები",
     "kit_badge": "კომპლექტი",
     "product_label": "პროდუქტი",
+    "brand_label": "ბრენდი",
     "price_label": "ფასი",
     "save_label": "დაზოგვა {{amount}} ({{percentage}}% ფასდაკლება)",
     "manual_discount_badge": "ხელოვნური ფასდაკლება",
