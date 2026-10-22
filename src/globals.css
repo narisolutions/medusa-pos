@@ -5,8 +5,8 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
-  /* Neutral fallback when store theme is not configured */
-  --color-primary: oklch(55% 0.02 0);
+  /* Fallback when the store sets no brand colour: a clear action blue, since a grey reads as disabled */
+  --color-primary: #2563eb;
   --color-secondary: oklch(35% 0.02 0);
   /* Text on primary-bg surfaces (buttons): always white — brand primaries are
      dark enough in both themes; without this the token was undefined and
@@ -154,7 +154,7 @@
   --font-sans: "Firago", sans-serif;
 
   /* Brand colors — overridden at runtime from store settings via API */
-  --color-primary: oklch(55% 0.02 0);
+  --color-primary: #2563eb;
   --color-secondary: oklch(35% 0.02 0);
   --color-primary-foreground: #ffffff;
 

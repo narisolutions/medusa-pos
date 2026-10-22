@@ -44,7 +44,12 @@ const SalesChannelWarningDialog: React.FC = () => {
 
   return (
     <Dialog open={open}>
-      <DialogContent className="sm:max-w-md" showCloseButton={false}>
+      <DialogContent
+        className="sm:max-w-md"
+        showCloseButton={false}
+        // A prompt, not a form: no ring on a button nobody has touched yet.
+        onOpenAutoFocus={(e) => e.preventDefault()}
+      >
         <DialogHeader>
           <DialogTitle className="text-xl">{t("errors.sales_channel_required_title")}</DialogTitle>
           <DialogDescription className="text-base mt-1">

@@ -41,6 +41,7 @@ const StoreSetupDialog: React.FC = () => {
   return (
     <Dialog open={open} onOpenChange={(nextOpen) => !nextOpen && handleDismiss()}>
       <DialogContent
+        onOpenAutoFocus={(e) => e.preventDefault()}
         className="sm:max-w-md"
       >
         <DialogHeader>
