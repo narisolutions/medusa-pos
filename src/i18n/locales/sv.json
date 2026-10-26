@@ -99,6 +99,7 @@
     "by_brand": "av ",
     "sku_label": "SKU: ",
     "barcode_label": "Streckkod: ",
+    "ean_label": "EAN: ",
     "out_of_stock": "Slut i lager",
     "last_one": "Sista exemplaret",
     "only_n_left": "Endast {{count}} kvar",

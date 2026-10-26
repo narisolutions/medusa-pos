@@ -28,7 +28,8 @@ const buildItemMetadata = (variant: AdminProductVariant) => {
   const baseMetadata = {
     product_title: variant.product?.title,
     variant_sku: variant.sku,
-    barcode: variant.ean,
+    barcode: variant.barcode,
+    ean: variant.ean,
     thumbnail: variant.product?.thumbnail,
     available_quantity: availableQuantity,
     original_price: originalPrice,

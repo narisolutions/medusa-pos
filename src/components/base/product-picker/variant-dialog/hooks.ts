@@ -21,7 +21,8 @@ const transformVariantToItem = (
     metadata: {
       product_title: variant.product?.title,
       variant_sku: variant.sku,
-      barcode: variant.ean,
+      barcode: variant.barcode,
+      ean: variant.ean,
       thumbnail: variant.product?.thumbnail,
       available_quantity: getVariantAvailableQuantity(variant),
       original_price:
@@ -103,7 +104,9 @@ const useItemDialog = (
   // Convert to safe values
   const productTitle = String(product_title || "");
   const sku = String(variant_sku || "");
-  const ean = String(barcode || "");
+  const barcodeText = String(barcode || "");
+  // The waybill reads Barcode only, so EAN is shown on its own rather than in its place.
+  const eanText = metadata && "ean" in metadata ? String(metadata.ean || "") : "";
   const originalPrice =
     typeof original_price === "number" ? original_price : null;
   const availableQuantityValue =
@@ -169,7 +172,8 @@ const useItemDialog = (
     productTitle,
     brand,
     sku,
-    ean,
+    barcode: barcodeText,
+    ean: eanText,
     thumbnail,
     originalPrice,
     optionsDisplay,

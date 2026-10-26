@@ -33,6 +33,7 @@ const ItemDialog: React.FC<Props> = ({
     productTitle,
     brand,
     sku,
+    barcode,
     ean,
     thumbnail,
     originalPrice,
@@ -178,8 +179,15 @@ const ItemDialog: React.FC<Props> = ({
 
             <div className="flex justify-between items-center p-3 bg-surface-muted rounded">
               <span className="text-fg-muted font-medium">{t("checkout.barcode_label")}</span>
-              <span>{ean || "-"}</span>
+              <span>{barcode || "-"}</span>
             </div>
+
+            {ean && ean !== barcode && (
+              <div className="flex justify-between items-center p-3 bg-surface-muted rounded">
+                <span className="text-fg-muted font-medium">{t("checkout.ean_label")}</span>
+                <span>{ean}</span>
+              </div>
+            )}
 
             {optionsDisplay && (
               <div className="flex justify-between items-center p-3 bg-surface-muted rounded">

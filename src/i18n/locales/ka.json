@@ -99,6 +99,7 @@
     "by_brand": "მიერ",
     "sku_label": "SKU: ",
     "barcode_label": "შტრიხ-კოდი: ",
+    "ean_label": "EAN: ",
     "out_of_stock": "გაყიდულია",
     "last_one": "ბოლო ერთეული",
     "only_n_left": "დარჩა მხოლოდ {{count}}",

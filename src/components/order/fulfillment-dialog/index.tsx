@@ -120,7 +120,7 @@ const FulfillmentDialog: React.FC<FulfillmentDialogProps> = ({
               const vintage = metadata.vintage ? String(metadata.vintage) : null;
               const volume = metadata.volume ? String(metadata.volume) : null;
               const sku = orderItem.variant_sku || orderItem.variant?.sku || null;
-              const gtin = orderItem.variant?.ean || orderItem.variant?.barcode || null;
+              const gtin = orderItem.variant_barcode || orderItem.variant?.barcode || orderItem.variant?.ean || null;
               const thumbnail = orderItem.thumbnail || null;
               const productTitle = orderItem.product_title || null;
               // Medusa's "Default variant" names no variant, so it isn't worth a line.

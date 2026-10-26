@@ -91,7 +91,8 @@ const useProductPicker = ({ products = [], inputRef, onSelect }: Props) => {
           variant.product?.title?.toLowerCase().includes(searchText) ||
           variant.title?.toLowerCase().includes(searchText) ||
           variant.sku?.toLowerCase().includes(searchText) ||
-          variant.ean?.toLowerCase().includes(searchText)
+          variant.ean?.toLowerCase().includes(searchText) ||
+          variant.barcode?.toLowerCase().includes(searchText)
         );
       })
       .slice(0, constants.CHECKOUT_CONFIG.SEARCH_RESULTS_LIMIT);

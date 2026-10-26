@@ -99,6 +99,7 @@
     "by_brand": "von ",
     "sku_label": "SKU: ",
     "barcode_label": "Barcode: ",
+    "ean_label": "EAN: ",
     "out_of_stock": "Nicht auf Lager",
     "last_one": "Letztes Stück",
     "only_n_left": "Nur noch {{count}} verfügbar",

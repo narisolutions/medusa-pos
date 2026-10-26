@@ -65,6 +65,10 @@ const inCategory = (product: AdminProduct, categoryId: string) =>
     (category) => category.id === categoryId || parentId(category) === categoryId
   );
 
+/** The variant's GTIN: Medusa's Barcode field, else EAN. Stores fill either one. */
+const variantGtin = (variant: Pick<AdminProductVariant, "barcode" | "ean">): string | null =>
+  variant.barcode || variant.ean || null;
+
 type BrandLike = { title?: unknown; name?: unknown } | null | undefined;
 
 /** Every name of the product's brand: a linked brand (title may be `{ en, ka }`) or an older `metadata.brand`. */
@@ -182,6 +186,7 @@ export {
   filterCatalog,
   otherVariants,
   productBrand,
+  variantGtin,
   productPriceRange,
   optionValuesText,
   productStock,

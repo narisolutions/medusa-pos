@@ -7,6 +7,7 @@ import {
   filterCatalog,
   otherVariants,
   productBrand,
+  variantGtin,
   productPriceRange,
   productStock,
   variantLabel,
@@ -283,5 +284,13 @@ describe("productBrand", () => {
   it("lets the catalog search find wines by brand, in any language", () => {
     expect(filterCatalog([linked, legacy], { query: "akhmet" }).map((p) => p.title)).toEqual(["Kindzmarauli"]);
     expect(filterCatalog([linked, legacy], { query: "ახმეტ" }).map((p) => p.title)).toEqual(["Kindzmarauli"]);
+  });
+});
+
+describe("variantGtin", () => {
+  it("prefers Medusa's Barcode field, then EAN", () => {
+    expect(variantGtin({ barcode: "4860117330126", ean: "4860000000000" })).toBe("4860117330126");
+    expect(variantGtin({ barcode: null, ean: "4860123590118" })).toBe("4860123590118");
+    expect(variantGtin({ barcode: "", ean: null })).toBeNull();
   });
 });
