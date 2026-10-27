@@ -1049,6 +1049,36 @@
     "printer_unreachable": "Imprimante injoignable",
     "printer_unsupported": "État indisponible",
     "printer_none": "Aucune imprimante",
-    "printer_open_settings": "Ouvrir les réglages d'imprimante"
+    "printer_open_settings": "Ouvrir les réglages d'imprimante",
+    "connection": {
+      "lost": "Pas de connexion au serveur",
+      "lost_for": "Pas de connexion au serveur · {{age}}",
+      "age_minutes": "{{minutes}} min",
+      "age_hours": "{{hours}} h {{minutes}} min",
+      "details": "Détails",
+      "title": "Connexion au serveur",
+      "server": "Serveur",
+      "result": "Dernière vérification",
+      "answered_by": "Réponse de",
+      "last_answered": "Dernière réponse",
+      "never": "Pas depuis le lancement de l'appli",
+      "device": "Cet appareil",
+      "device_online": "Connecté à un réseau",
+      "device_offline": "Pas de réseau",
+      "checked": "Vérifié",
+      "just_now": "À l'instant",
+      "ago": "Il y a {{age}}",
+      "retry": "Réessayer",
+      "kind_ok": "Connecté. Le serveur répond.",
+      "kind_http_error": "Le serveur est joignable, mais le système de la boutique ne répond pas (erreur {{status}}).",
+      "kind_other_host": "Autre chose a répondu, souvent une page de connexion Wi-Fi. Ouvrez un navigateur et connectez-vous au réseau.",
+      "kind_refused": "La machine du serveur est joignable, mais le système de la boutique n'y tourne pas.",
+      "kind_not_found": "L'adresse du serveur est introuvable. Vérifiez-la dans Paramètres → Connexion.",
+      "kind_unreachable": "Le serveur est injoignable depuis ce réseau.",
+      "kind_timed_out": "Le serveur n'a pas répondu à temps.",
+      "kind_tls": "La connexion sécurisée a échoué. Vérifiez la date et l'heure de cet appareil.",
+      "kind_error": "La vérification a échoué.",
+      "kind_no_network": "Cet appareil n'a pas de réseau. Vérifiez le câble ou le Wi-Fi."
+    }
   }
 }

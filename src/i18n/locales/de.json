@@ -1049,6 +1049,36 @@
     "printer_unreachable": "Drucker nicht erreichbar",
     "printer_unsupported": "Status nicht verfügbar",
     "printer_none": "Kein Drucker",
-    "printer_open_settings": "Druckereinstellungen öffnen"
+    "printer_open_settings": "Druckereinstellungen öffnen",
+    "connection": {
+      "lost": "Keine Verbindung zum Server",
+      "lost_for": "Keine Verbindung zum Server · {{age}}",
+      "age_minutes": "{{minutes}} Min.",
+      "age_hours": "{{hours}} Std. {{minutes}} Min.",
+      "details": "Details",
+      "title": "Serververbindung",
+      "server": "Server",
+      "result": "Letzte Prüfung",
+      "answered_by": "Geantwortet hat",
+      "last_answered": "Zuletzt geantwortet",
+      "never": "Nicht seit dem App-Start",
+      "device": "Dieses Gerät",
+      "device_online": "Mit einem Netzwerk verbunden",
+      "device_offline": "Kein Netzwerk",
+      "checked": "Geprüft",
+      "just_now": "Gerade eben",
+      "ago": "Vor {{age}}",
+      "retry": "Jetzt erneut versuchen",
+      "kind_ok": "Verbunden. Der Server antwortet.",
+      "kind_http_error": "Der Server ist erreichbar, aber das Shopsystem antwortet nicht (Fehler {{status}}).",
+      "kind_other_host": "Etwas anderes hat geantwortet, oft eine WLAN-Anmeldeseite. Öffnen Sie einen Browser und melden Sie sich im Netzwerk an.",
+      "kind_refused": "Der Server-Rechner ist erreichbar, aber das Shopsystem läuft darauf nicht.",
+      "kind_not_found": "Die Serveradresse wurde nicht gefunden. Prüfen Sie sie unter Einstellungen → Verbindung.",
+      "kind_unreachable": "Der Server ist aus diesem Netzwerk nicht erreichbar.",
+      "kind_timed_out": "Der Server hat nicht rechtzeitig geantwortet.",
+      "kind_tls": "Die sichere Verbindung ist fehlgeschlagen. Prüfen Sie Datum und Uhrzeit des Geräts.",
+      "kind_error": "Die Prüfung ist fehlgeschlagen.",
+      "kind_no_network": "Dieses Gerät hat kein Netzwerk. Prüfen Sie Kabel oder WLAN."
+    }
   }
 }

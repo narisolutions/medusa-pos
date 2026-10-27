@@ -9,6 +9,7 @@ import { useTranslation } from "@/i18n";
 import { useNavigate } from "react-router-dom";
 import { ROUTES } from "@/router/routes";
 import PrinterStatusChip from "@/components/base/printer-status-chip";
+import BackendStatusSheet from "@/components/base/backend-status-sheet";
 
 /** The till's state on every page: can it reach the server and the printer, and can it take a sale. */
 const StatusIndicators: React.FC = () => {
@@ -18,7 +19,7 @@ const StatusIndicators: React.FC = () => {
   const { enabled: registerEnabled, isOpen: registerOpen } = useRegister();
 
   const isStaging = isStagingBackend(useStoreManager((s) => s.activeStore?.backendUrl));
-  const online = health.data;
+  const online = health.data ? health.data.probe.kind === "ok" : undefined;
   const checking = health.isFetching && online === undefined;
 
   return (
@@ -29,27 +30,28 @@ const StatusIndicators: React.FC = () => {
           {t("auth.staging")}
         </StatusChip>
       )}
-      {/* Tapping re-checks now, e.g. after plugging the cable back in. */}
-      <button
-        type="button"
-        onClick={() => void health.refetch()}
-        aria-label={t("status.recheck")}
-        className="flex min-h-tap items-center rounded-full cursor-pointer active:opacity-80"
-      >
-        {checking || online === undefined ? (
-          <StatusChip intent="neutral" icon={<Loader2 className="size-4 animate-spin" />}>
-            {t("status.checking")}
-          </StatusChip>
-        ) : online ? (
-          <StatusChip intent="success" icon={<Wifi className="size-4" />}>
-            {t("status.online")}
-          </StatusChip>
-        ) : (
-          <StatusChip intent="danger" icon={<WifiOff className="size-4" />}>
-            {t("status.offline")}
-          </StatusChip>
-        )}
-      </button>
+      {/* Opens the connection details, which re-check at once and say why it's down. */}
+      <BackendStatusSheet>
+        <button
+          type="button"
+          aria-label={t("status.connection.title")}
+          className="flex min-h-tap items-center rounded-full cursor-pointer active:opacity-80"
+        >
+          {checking || online === undefined ? (
+            <StatusChip intent="neutral" icon={<Loader2 className="size-4 animate-spin" />}>
+              {t("status.checking")}
+            </StatusChip>
+          ) : online ? (
+            <StatusChip intent="success" icon={<Wifi className="size-4" />}>
+              {t("status.online")}
+            </StatusChip>
+          ) : (
+            <StatusChip intent="danger" icon={<WifiOff className="size-4" />}>
+              {t("status.offline")}
+            </StatusChip>
+          )}
+        </button>
+      </BackendStatusSheet>
       {/* Opens the printer settings, where the problem gets fixed or tested. */}
       <button
         type="button"

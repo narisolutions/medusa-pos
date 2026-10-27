@@ -6,6 +6,7 @@ use tauri_plugin_log::{Target, TargetKind};
 use tauri_plugin_pos_hardware::printing::{self, Align, PrintOp, PrinterTarget, QrEcc};
 use tauri_plugin_pos_hardware::{keyboard, serial, usb, winprint};
 
+mod backend_probe;
 mod config;
 #[cfg(target_os = "linux")]
 mod appimage_integrate;
@@ -698,6 +699,7 @@ pub fn run() {
         .plugin(tauri_plugin_process::init())
         .plugin(tauri_plugin_updater::Builder::new().build())
         .invoke_handler(tauri::generate_handler![
+            backend_probe::probe_backend,
             check_physical_keyboard,
             toggle_virtual_keyboard,
             list_serial_ports,

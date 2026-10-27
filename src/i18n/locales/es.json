@@ -1049,6 +1049,36 @@
     "printer_unreachable": "Impresora no accesible",
     "printer_unsupported": "Estado no disponible",
     "printer_none": "Sin impresora",
-    "printer_open_settings": "Abrir ajustes de impresora"
+    "printer_open_settings": "Abrir ajustes de impresora",
+    "connection": {
+      "lost": "Sin conexión con el servidor",
+      "lost_for": "Sin conexión con el servidor · {{age}}",
+      "age_minutes": "{{minutes}} min",
+      "age_hours": "{{hours}} h {{minutes}} min",
+      "details": "Detalles",
+      "title": "Conexión con el servidor",
+      "server": "Servidor",
+      "result": "Última comprobación",
+      "answered_by": "Respondió",
+      "last_answered": "Última respuesta",
+      "never": "No desde que se abrió la app",
+      "device": "Este dispositivo",
+      "device_online": "Conectado a una red",
+      "device_offline": "Sin red",
+      "checked": "Comprobado",
+      "just_now": "Ahora mismo",
+      "ago": "Hace {{age}}",
+      "retry": "Reintentar ahora",
+      "kind_ok": "Conectado. El servidor responde.",
+      "kind_http_error": "Se llega al servidor, pero el sistema de la tienda no responde (error {{status}}).",
+      "kind_other_host": "Respondió otra cosa, a menudo una página de acceso Wi-Fi. Abre un navegador e inicia sesión en la red.",
+      "kind_refused": "La máquina del servidor es accesible, pero el sistema de la tienda no está funcionando en ella.",
+      "kind_not_found": "No se encuentra la dirección del servidor. Revísala en Ajustes → Conexión.",
+      "kind_unreachable": "No se puede llegar al servidor desde esta red.",
+      "kind_timed_out": "El servidor no respondió a tiempo.",
+      "kind_tls": "Falló la conexión segura. Revisa la fecha y hora de este dispositivo.",
+      "kind_error": "La comprobación falló.",
+      "kind_no_network": "Este dispositivo no tiene red. Revisa el cable o el Wi-Fi."
+    }
   }
 }

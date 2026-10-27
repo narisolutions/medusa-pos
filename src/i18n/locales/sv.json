@@ -1049,6 +1049,36 @@
     "printer_unreachable": "Skrivaren nås inte",
     "printer_unsupported": "Status ej tillgänglig",
     "printer_none": "Ingen skrivare",
-    "printer_open_settings": "Öppna skrivarinställningar"
+    "printer_open_settings": "Öppna skrivarinställningar",
+    "connection": {
+      "lost": "Ingen anslutning till servern",
+      "lost_for": "Ingen anslutning till servern · {{age}}",
+      "age_minutes": "{{minutes}} min",
+      "age_hours": "{{hours}} h {{minutes}} min",
+      "details": "Detaljer",
+      "title": "Serveranslutning",
+      "server": "Server",
+      "result": "Senaste kontroll",
+      "answered_by": "Svarade",
+      "last_answered": "Svarade senast",
+      "never": "Inte sedan appen startade",
+      "device": "Den här enheten",
+      "device_online": "Ansluten till ett nätverk",
+      "device_offline": "Inget nätverk",
+      "checked": "Kontrollerad",
+      "just_now": "Nyss",
+      "ago": "För {{age}} sedan",
+      "retry": "Försök igen nu",
+      "kind_ok": "Ansluten. Servern svarar.",
+      "kind_http_error": "Servern nås, men butikssystemet svarar inte (fel {{status}}).",
+      "kind_other_host": "Något annat svarade, ofta en inloggningssida för wifi. Öppna en webbläsare och logga in på nätverket.",
+      "kind_refused": "Serverdatorn nås, men butikssystemet körs inte på den.",
+      "kind_not_found": "Serveradressen hittas inte. Kontrollera den under Inställningar → Anslutning.",
+      "kind_unreachable": "Servern kan inte nås från det här nätverket.",
+      "kind_timed_out": "Servern svarade inte i tid.",
+      "kind_tls": "Den säkra anslutningen misslyckades. Kontrollera enhetens datum och tid.",
+      "kind_error": "Kontrollen misslyckades.",
+      "kind_no_network": "Den här enheten har inget nätverk. Kontrollera kabeln eller wifi."
+    }
   }
 }

@@ -1049,6 +1049,36 @@
     "printer_unreachable": "Printer not reachable",
     "printer_unsupported": "Status not available",
     "printer_none": "No printer",
-    "printer_open_settings": "Open printer settings"
+    "printer_open_settings": "Open printer settings",
+    "connection": {
+      "lost": "No connection to the server",
+      "lost_for": "No connection to the server · {{age}}",
+      "age_minutes": "{{minutes}} min",
+      "age_hours": "{{hours}} h {{minutes}} min",
+      "details": "Details",
+      "title": "Server connection",
+      "server": "Server",
+      "result": "Last check",
+      "answered_by": "Answered by",
+      "last_answered": "Last answered",
+      "never": "Not since the app started",
+      "device": "This device",
+      "device_online": "Connected to a network",
+      "device_offline": "No network",
+      "checked": "Checked",
+      "just_now": "Just now",
+      "ago": "{{age}} ago",
+      "retry": "Retry now",
+      "kind_ok": "Connected. The server answers.",
+      "kind_http_error": "The server is reached, but the shop system isn't answering (error {{status}}).",
+      "kind_other_host": "Something else answered, often a Wi-Fi sign-in page. Open a browser and sign in to the network.",
+      "kind_refused": "The server's machine is reachable, but the shop system isn't running on it.",
+      "kind_not_found": "The server address can't be found. Check it in Settings → Connection.",
+      "kind_unreachable": "The server can't be reached from this network.",
+      "kind_timed_out": "The server didn't answer in time.",
+      "kind_tls": "The secure connection failed. Check this device's date and time.",
+      "kind_error": "The check failed.",
+      "kind_no_network": "This device has no network. Check the cable or Wi-Fi."
+    }
   }
 }

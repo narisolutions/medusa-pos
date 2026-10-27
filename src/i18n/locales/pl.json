@@ -1049,6 +1049,36 @@
     "printer_unreachable": "Drukarka niedostępna",
     "printer_unsupported": "Stan niedostępny",
     "printer_none": "Brak drukarki",
-    "printer_open_settings": "Otwórz ustawienia drukarki"
+    "printer_open_settings": "Otwórz ustawienia drukarki",
+    "connection": {
+      "lost": "Brak połączenia z serwerem",
+      "lost_for": "Brak połączenia z serwerem · {{age}}",
+      "age_minutes": "{{minutes}} min",
+      "age_hours": "{{hours}} godz. {{minutes}} min",
+      "details": "Szczegóły",
+      "title": "Połączenie z serwerem",
+      "server": "Serwer",
+      "result": "Ostatnie sprawdzenie",
+      "answered_by": "Odpowiedział",
+      "last_answered": "Ostatnia odpowiedź",
+      "never": "Nie od uruchomienia aplikacji",
+      "device": "To urządzenie",
+      "device_online": "Połączone z siecią",
+      "device_offline": "Brak sieci",
+      "checked": "Sprawdzono",
+      "just_now": "Przed chwilą",
+      "ago": "{{age}} temu",
+      "retry": "Ponów teraz",
+      "kind_ok": "Połączono. Serwer odpowiada.",
+      "kind_http_error": "Serwer jest osiągalny, ale system sklepu nie odpowiada (błąd {{status}}).",
+      "kind_other_host": "Odpowiedziało coś innego, często strona logowania Wi-Fi. Otwórz przeglądarkę i zaloguj się do sieci.",
+      "kind_refused": "Komputer serwera jest osiągalny, ale system sklepu na nim nie działa.",
+      "kind_not_found": "Nie można znaleźć adresu serwera. Sprawdź go w Ustawienia → Połączenie.",
+      "kind_unreachable": "Serwer jest nieosiągalny z tej sieci.",
+      "kind_timed_out": "Serwer nie odpowiedział na czas.",
+      "kind_tls": "Bezpieczne połączenie nie powiodło się. Sprawdź datę i godzinę urządzenia.",
+      "kind_error": "Sprawdzenie nie powiodło się.",
+      "kind_no_network": "To urządzenie nie ma sieci. Sprawdź kabel lub Wi-Fi."
+    }
   }
 }
