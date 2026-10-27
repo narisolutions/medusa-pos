@@ -10,7 +10,7 @@ import { execSync } from "child_process";
  * src/plugins/index.ts); Vite's dev-server fs guard needs their REAL paths.
  */
 function pluginRealPaths(): string[] {
-  const nodeModules = path.resolve(__dirname, "node_modules");
+  const nodeModules = path.resolve(import.meta.dirname, "node_modules");
   // Scopes are discovered, not named: a public config must not advertise
   // private ones. Only entries resolving outside the repo survive below, so
   // ordinary installed packages are skipped and just linked ones are allowed.
@@ -20,14 +20,14 @@ function pluginRealPaths(): string[] {
         .filter((entry) => entry.startsWith("@"))
         .map((entry) => path.join(nodeModules, entry))
     : [];
-  const roots = [path.resolve(__dirname, "src/plugins"), ...scopes];
+  const roots = [path.resolve(import.meta.dirname, "src/plugins"), ...scopes];
   const real: string[] = [];
   for (const root of roots) {
     if (!fs.existsSync(root)) continue;
     for (const entry of fs.readdirSync(root)) {
       try {
         const resolved = fs.realpathSync(path.join(root, entry));
-        if (!resolved.startsWith(__dirname)) real.push(resolved);
+        if (!resolved.startsWith(import.meta.dirname)) real.push(resolved);
       } catch {
         /* dangling symlink — ignore */
       }
@@ -71,7 +71,7 @@ export default defineConfig(() => ({
   plugins: [react(), tailwindcss()],
   resolve: {
     alias: {
-      "@": path.resolve(__dirname, "./src"),
+      "@": path.resolve(import.meta.dirname, "./src"),
     },
     // Symlinked plugin sources (src/plugins/*) and linked packages resolve bare
     // imports from their REAL location — force host-app copies for everything
