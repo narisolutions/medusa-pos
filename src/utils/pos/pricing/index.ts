@@ -45,4 +45,36 @@ const applyDiscountToUnitPrice = (
 };
 
 
-export { toNumber, discountPerUnit, applyDiscountToUnitPrice };
+/** ISO 4217 decimals of a currency (GEL 2, JPY 0, KWD 3); 2 when unknown. */
+function currencyExponent(currency?: string | null): number {
+  if (!currency) return 2;
+  try {
+    return new Intl.NumberFormat("en", { style: "currency", currency }).resolvedOptions()
+      .maximumFractionDigits ?? 2;
+  } catch {
+    return 2;
+  }
+}
+
+/**
+ * Decimal major units → integer minor units of `currency`: the one place this app converts.
+ * Sum money in minor units, where float drift can't creep in. Must round, not truncate:
+ * 4.5 * 100 is 450.00000000000006 in IEEE-754.
+ */
+function toMinorUnits(amount: number, currency?: string | null): number {
+  return Math.round(toNumber(amount) * 10 ** currencyExponent(currency));
+}
+
+/** Integer minor units of `currency` → decimal major units, for display and storage. */
+function fromMinorUnits(minor: number, currency?: string | null): number {
+  return minor / 10 ** currencyExponent(currency);
+}
+
+export {
+  toNumber,
+  discountPerUnit,
+  applyDiscountToUnitPrice,
+  currencyExponent,
+  toMinorUnits,
+  fromMinorUnits,
+};

@@ -1,4 +1,4 @@
-import { toNumber } from "@/utils/pos/pricing";
+import { fromMinorUnits, toMinorUnits, toNumber } from "@/utils/pos/pricing";
 import { AdminOrder, AdminStore } from "@medusajs/types";
 import { getMethodType } from "@/utils/settings/store/metadata";
 import { getOrderPaymentMethodType } from "@/utils/pos/payment";
@@ -8,6 +8,9 @@ import type { RegisterSession } from "@/types/register";
  * Cash-reconciliation helpers. Pure and (mostly) backend-agnostic — the only
  * Medusa-aware seam is `orderCashContribution`, which reads payment collections.
  * See docs/cash-reconciliation/09-portability.md.
+ *
+ * Sums run in integer minor units (tetri) and return display units: added as floats,
+ * 100 + 14.99 + 5.49 … drifts to 132.26999999999998 and a balanced drawer reads SHORT.
  */
 
 /**
@@ -73,18 +76,19 @@ export function orderCashContribution(
   );
   let cashPayments = 0;
   let cashTopUps = 0;
-  let cashRefunds = 0;
+  let cashRefunds = 0; // all three in minor units
   let cashPaymentSeen = false;
 
   for (const [index, collection] of collections.entries()) {
     for (const payment of collection.payments ?? []) {
       if (getMethodType(store, payment.provider_id) === "cash") {
         cashPaymentSeen = true;
-        cashPayments += toNumber(payment.amount);
+        const amount = toMinorUnits(toNumber(payment.amount));
+        cashPayments += amount;
         // Later collections are post-sale top-ups (added items, an exchange difference).
-        if (index > 0) cashTopUps += toNumber(payment.amount);
+        if (index > 0) cashTopUps += amount;
         const refunds = (payment as { refunds?: { amount?: unknown }[] }).refunds ?? [];
-        for (const refund of refunds) cashRefunds += toNumber(refund.amount);
+        for (const refund of refunds) cashRefunds += toMinorUnits(toNumber(refund.amount));
       }
     }
   }
@@ -93,13 +97,13 @@ export function orderCashContribution(
   // cash matches the physical drawer in cash-rounding markets. The stamp covers the
   // sale only, so cash top-ups after it are added; refunds still net out.
   const collected = cashCollectedFromMeta(order);
-  if (collected != null) return collected + cashTopUps - cashRefunds;
+  if (collected != null) return fromMinorUnits(toMinorUnits(collected) + cashTopUps - cashRefunds);
 
-  if (cashPaymentSeen) return cashPayments - cashRefunds;
+  if (cashPaymentSeen) return fromMinorUnits(cashPayments - cashRefunds);
 
   if (getOrderPaymentMethodType(order, store) === "cash") {
     const refunded = toNumber((order as { refunded_total?: unknown }).refunded_total);
-    return toNumber(order.total) - refunded;
+    return fromMinorUnits(toMinorUnits(toNumber(order.total)) - toMinorUnits(refunded));
   }
 
   return 0;
@@ -125,10 +129,10 @@ export function movementTotals(session: RegisterSession): {
   let payins = 0;
   let drops = 0;
   for (const m of session.movements) {
-    if (m.type === "payin") payins += m.amount;
-    else if (m.type === "drop") drops += m.amount;
+    if (m.type === "payin") payins += toMinorUnits(m.amount);
+    else if (m.type === "drop") drops += toMinorUnits(m.amount);
   }
-  return { payins, drops };
+  return { payins: fromMinorUnits(payins), drops: fromMinorUnits(drops) };
 }
 
 /**
@@ -154,12 +158,12 @@ export function computeExpectedCash(
   store: AdminStore | null | undefined
 ): number {
   const sales = orders.reduce(
-    (sum, order) => sum + orderCashContribution(order, store),
+    (sum, order) => sum + toMinorUnits(orderCashContribution(order, store)),
     0
   );
   const { payins, drops } = movementTotals(session);
 
-  return session.openingFloat + sales + payins - drops;
+  return fromMinorUnits(toMinorUnits(session.openingFloat) + sales + toMinorUnits(payins) - toMinorUnits(drops));
 }
 
 export function newSessionId(): string {

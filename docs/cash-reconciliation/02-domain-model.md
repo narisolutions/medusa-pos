@@ -1,6 +1,8 @@
 # 2. Domain model
 
-All amounts are in **display units** (e.g. `50.00` = fifty in store currency).
+All amounts are stored in **display units** (e.g. `50.00` = fifty in store currency), and
+summed in integer **minor units** (`toMinorUnits` / `fromMinorUnits` in `utils/pos/pricing`), so float
+drift never turns a balanced drawer into a 0.00 over/short.
 
 ## `RegisterSession`
 

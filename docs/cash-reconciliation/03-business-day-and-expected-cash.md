@@ -47,7 +47,10 @@ expected = openingFloat
 - **Cash rounding** (Swedish rounding): when enabled, checkout stamps the rounded
   amount actually collected as `metadata.cash_collected`, and the contribution uses
   that instead of the exact captured total — so expected cash matches the physical
-  drawer (no stray cents). Refunds still net out.
+  drawer (no stray cents). Refunds still net out. Rounding is half-up on the absolute
+  value, so a negative amount rounds like a positive one.
+- **Only checkout rounds today.** Cash refunds, *Record payment* and cash for added items or
+  an exchange use the exact amount. With rounding on, those must be handed over exactly.
 - Movements are applied by **type**: `payin` adds, `drop` subtracts.
 
 ### Determining "is this sale cash?"

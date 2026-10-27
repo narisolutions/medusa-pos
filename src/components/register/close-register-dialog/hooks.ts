@@ -10,6 +10,7 @@ import { useExpectedCash } from "@/hooks/register/useExpectedCash";
 import { useQueryRegion } from "@/hooks/queries/useQueryRegion";
 import { usePrinterService } from "@/hooks/printer/usePrinterService";
 import { movementTotals } from "@/utils/pos/register";
+import { fromMinorUnits, toMinorUnits } from "@/utils/pos/pricing";
 import type { RegisterSession } from "@/types/register";
 
 function buildSummary(
@@ -20,7 +21,9 @@ function buildSummary(
   note: string
 ): string {
   const { payins, drops } = movementTotals(session);
-  const sales = expected - session.openingFloat - payins + drops;
+  const sales = fromMinorUnits(
+    toMinorUnits(expected) - toMinorUnits(session.openingFloat) - toMinorUnits(payins) + toMinorUnits(drops)
+  );
   const f = (n: number) => n.toFixed(2);
   const lines = [
     "REGISTER CLOSE",
@@ -65,7 +68,8 @@ export const useCloseRegister = (onDone: () => void) => {
   // Until the cashier actually counts, keep the UI neutral (no scary red "short"
   // and no "reason required" on an untouched dialog). Submit still validates.
   const hasCounted = counted > 0;
-  const difference = counted - expectedCash;
+  // In tetri: a float subtraction leaves 1e-14 and a balanced drawer reads SHORT.
+  const difference = fromMinorUnits(toMinorUnits(counted) - toMinorUnits(expectedCash));
   const overThreshold = Math.abs(difference) > discrepancyThreshold;
 
   // Conditional rules (config-dependent, so enforced here not in the schema).
