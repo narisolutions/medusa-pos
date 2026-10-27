@@ -36,6 +36,9 @@ vi.mock("@/plugins", () => ({
   ],
 }));
 
+// The route tree warns while it is built, at import; vitest clears mock calls before each test.
+const warnedAtImport = vi.mocked(logger.warn).mock.calls.map(([message]) => String(message));
+
 const resolve = (path: string) => {
   const matches = matchRoutes(routes, path) ?? [];
   const last = matches[matches.length - 1];
@@ -93,7 +96,7 @@ describe("route tree", () => {
     expect((resolve("/loyalty").element.type as { displayName?: string }).displayName).toBe("Loyalty");
     expect(hasAncestor("/loyalty", ProtectedRoute)).toBe(true);
     expect(resolve(ROUTES.orders).element.type).toBe(Orders);
-    expect(logger.warn).toHaveBeenCalledTimes(1);
-    expect(vi.mocked(logger.warn).mock.calls[0][0]).toContain('"rogue"');
+    expect(warnedAtImport).toHaveLength(1);
+    expect(warnedAtImport[0]).toContain('"rogue"');
   });
 });
