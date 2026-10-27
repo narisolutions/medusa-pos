@@ -3,6 +3,8 @@ import { AdminOrder } from "@medusajs/types";
 import { getApiErrorMessage, handleErrorToast } from "@/utils/helpers";
 import { logger, safeStringify } from "@/utils/logger";
 import { useTranslation } from "@/i18n";
+import { orderLines } from "@/utils/pos/refusal";
+import { explainRefusalError } from "@/utils/pos/refusal/live";
 import {
   processPaymentCollection,
   processFulfillment as fulfillOrder,
@@ -29,9 +31,10 @@ const useOrderProcessing = () => {
         return true;
       } catch (error) {
         void logger.error(`Fulfillment failed: ${safeStringify(error)}`);
+        const named = await explainRefusalError(error, orderLines(order.items));
         handleErrorToast(
           t("checkout.fulfillment_failed_order_created", {
-            reason: getApiErrorMessage(error, t("common.error")),
+            reason: named ?? getApiErrorMessage(error, t("common.error")),
           })
         );
         return false;

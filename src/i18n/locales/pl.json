@@ -210,6 +210,14 @@
     "cannot_add_to_cart": "Nie można dodać produktu do koszyka",
     "no_sales_channel_configured": "Brak skonfigurowanego kanału sprzedaży",
     "product_not_for_sale": "{{title}} nie jest w sprzedaży.",
+    "no_price": "Brak ceny",
+    "refusal": {
+      "no_price": "Brak ceny: {{names}}. Usuń z koszyka, aby kontynuować.",
+      "not_stocked_here": "Niedostępne w lokalizacji tej kasy: {{names}}. Usuń z koszyka, aby kontynuować.",
+      "short_stock": "Za mało towaru: {{details}}. Zmniejsz ilość lub usuń pozycję.",
+      "short_line": "{{name}} ({{requested}} w koszyku, {{available}} na stanie)",
+      "short_generic": "Niektórych pozycji jest za mało na stanie. Sprawdź ilości w koszyku."
+    },
     "items_not_for_sale_one": "{{names}} nie jest już w sprzedaży. Usuń z koszyka, aby kontynuować.",
     "items_not_for_sale_other": "{{names}} nie są już w sprzedaży. Usuń je z koszyka, aby kontynuować.",
     "failed_to_prepare_checkout": "Nie udało się przygotować kasy: {{error}}",

@@ -210,6 +210,14 @@
     "cannot_add_to_cart": "No se puede añadir el artículo al carrito",
     "no_sales_channel_configured": "No hay canal de venta configurado",
     "product_not_for_sale": "{{title}} no está a la venta.",
+    "no_price": "Sin precio",
+    "refusal": {
+      "no_price": "Sin precio: {{names}}. Retira estos artículos del carrito para continuar.",
+      "not_stocked_here": "No disponible en la ubicación de esta caja: {{names}}. Retira estos artículos del carrito para continuar.",
+      "short_stock": "Stock insuficiente: {{details}}. Reduce la cantidad o elimina la línea.",
+      "short_line": "{{name}} ({{requested}} en el carrito, {{available}} en stock)",
+      "short_generic": "Algunos artículos no tienen suficiente stock. Revisa las cantidades del carrito."
+    },
     "items_not_for_sale_one": "{{names}} ya no está a la venta. Quítalo del carrito para continuar.",
     "items_not_for_sale_other": "{{names}} ya no están a la venta. Quítalos del carrito para continuar.",
     "failed_to_prepare_checkout": "Error al preparar la caja: {{error}}",

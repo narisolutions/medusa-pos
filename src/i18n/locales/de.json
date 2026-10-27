@@ -210,6 +210,14 @@
     "cannot_add_to_cart": "Artikel kann nicht zum Warenkorb hinzugefügt werden",
     "no_sales_channel_configured": "Kein Verkaufskanal konfiguriert",
     "product_not_for_sale": "{{title}} ist nicht im Verkauf.",
+    "no_price": "Kein Preis",
+    "refusal": {
+      "no_price": "Kein Preis hinterlegt: {{names}}. Zum Fortfahren aus dem Warenkorb entfernen.",
+      "not_stocked_here": "Am Standort dieser Kasse nicht geführt: {{names}}. Zum Fortfahren aus dem Warenkorb entfernen.",
+      "short_stock": "Nicht genug Bestand: {{details}}. Menge verringern oder Position entfernen.",
+      "short_line": "{{name}} ({{requested}} im Warenkorb, {{available}} auf Lager)",
+      "short_generic": "Bei einigen Artikeln reicht der Bestand nicht. Mengen im Warenkorb prüfen."
+    },
     "items_not_for_sale_one": "{{names}} ist nicht mehr im Verkauf. Entfernen Sie es aus dem Warenkorb, um fortzufahren.",
     "items_not_for_sale_other": "{{names}} sind nicht mehr im Verkauf. Entfernen Sie sie aus dem Warenkorb, um fortzufahren.",
     "failed_to_prepare_checkout": "Kasse konnte nicht vorbereitet werden: {{error}}",

@@ -154,7 +154,7 @@ interface DraftOrderMetadata extends Record<string, unknown> {
 
 type AddItemResult = {
   success: boolean;
-  action: 'added' | 'increased' | 'out_of_stock' | 'insufficient_stock';
+  action: 'added' | 'increased' | 'out_of_stock' | 'insufficient_stock' | 'no_price';
   quantityAdded: number;
   message?: string;
 };

@@ -210,6 +210,14 @@
     "cannot_add_to_cart": "Impossible d’ajouter l’article au panier",
     "no_sales_channel_configured": "Aucun canal de vente configuré",
     "product_not_for_sale": "{{title}} n'est pas en vente.",
+    "no_price": "Sans prix",
+    "refusal": {
+      "no_price": "Prix manquant : {{names}}. Retirez ces articles du panier pour continuer.",
+      "not_stocked_here": "Non stocké à l'emplacement de cette caisse : {{names}}. Retirez ces articles du panier pour continuer.",
+      "short_stock": "Stock insuffisant : {{details}}. Réduisez la quantité ou supprimez la ligne.",
+      "short_line": "{{name}} ({{requested}} dans le panier, {{available}} en stock)",
+      "short_generic": "Certains articles n'ont pas assez de stock. Vérifiez les quantités du panier."
+    },
     "items_not_for_sale_one": "{{names}} n'est plus en vente. Retirez-le du panier pour continuer.",
     "items_not_for_sale_other": "{{names}} ne sont plus en vente. Retirez-les du panier pour continuer.",
     "failed_to_prepare_checkout": "Échec de la préparation du paiement : {{error}}",

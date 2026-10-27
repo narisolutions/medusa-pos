@@ -15,7 +15,7 @@ import { AdminProduct, AdminProductVariant } from "@medusajs/types";
 import { formatPrice } from "@/utils/helpers";
 import { ExtendedAdminProduct } from "@/types/utils";
 import ItemDialog from "./variant-dialog";
-import { getVariantAvailableQuantity, getVariantUnitPrice } from "@/utils/pos/cart";
+import { getVariantAvailableQuantity, getVariantUnitPrice, variantHasPrice } from "@/utils/pos/cart";
 import { useQueryPosPlugin } from "@/hooks/queries/useQueryPosPlugin";
 import { useTranslation } from "@/i18n";
 import { optionValuesText, variantGtin } from "@/utils/pos/catalog";
@@ -223,7 +223,9 @@ const ProductPicker: React.FC<Props> = ({ products, currency, onSelect, extraAct
                           />
                         </div>
                         <div className="flex flex-col items-end gap-1 min-w-[80px]">
-                          {isSale &&
+                          {!variantHasPrice(variant) ? (
+                            <span className="text-base text-fg-muted">{t("checkout.no_price")}</span>
+                          ) : isSale &&
                             originalPrice &&
                             calculatedPrice &&
                             originalPrice !== calculatedPrice ? (

@@ -7,7 +7,6 @@ import {
   reconcileStock,
   availabilityFromProducts,
   nameVariantIds,
-  unsellableItemNames,
 } from "@/utils/pos/draft-order";
 import { buildItemMetadata } from "@/utils/pos/cart";
 import { CartItem } from "@/types/utils";
@@ -287,28 +286,6 @@ describe("availabilityFromProducts", () => {
   it("reads an empty or missing catalogue as unknown, not as sold out", () => {
     expect(availabilityFromProducts([])).toBeNull();
     expect(availabilityFromProducts(undefined)).toBeNull();
-  });
-});
-
-describe("unsellableItemNames", () => {
-  const items = [
-    { variant_id: "variant_01JV83C5750TPC28RHQH3GDNVT", quantity: 1, title: "Kisi Qvevri 750ml" },
-    { variant_id: "variant_01JV83C5750TPC28RHQH3GDNVU", quantity: 1, metadata: { product_title: "Saperavi" } },
-  ] as CartItem[];
-
-  it("names the lines Medusa refused as unpublished", () => {
-    const message =
-      "Variants variant_01JV83C5750TPC28RHQH3GDNVT, variant_01JV83C5750TPC28RHQH3GDNVU do not exist or belong to a product that is not published";
-    expect(unsellableItemNames(message, items)).toEqual(["Kisi Qvevri 750ml", "Saperavi"]);
-  });
-
-  it("keeps an id it cannot name", () => {
-    const message = "Variants variant_01JV83C5750TPC28RHQH3GDNVX do not exist or belong to a product that is not published";
-    expect(unsellableItemNames(message, items)).toEqual(["variant_01JV83C5750TPC28RHQH3GDNVX"]);
-  });
-
-  it("is null for any other error", () => {
-    expect(unsellableItemNames("Variants with IDs x do not have a price", items)).toBeNull();
   });
 });
 

@@ -16,6 +16,8 @@ import { PaymentMethod } from "@/types/utils";
 import { useCheckout } from "../hooks";
 import { useQueryStore } from "@/hooks/queries/useQueryStore";
 import { useOrderProcessing } from "@/hooks/order/useOrderProcessing";
+import { cartLines } from "@/utils/pos/refusal";
+import { explainRefusalError } from "@/utils/pos/refusal/live";
 import { getBankDetails, getPaymentMethods, getMethodType } from "@/utils/settings/store/metadata";
 import { getCashRounding, roundCashAmount } from "@/utils/settings/preferences";
 import constants from "@/utils/constants";
@@ -534,7 +536,8 @@ const usePaymentModal = (
         playSound("error");
         setFrozenDraft(null);
         handleErrorToast(
-          error instanceof Error ? error.message : "Failed to create order. Please try again."
+          (await explainRefusalError(error, cartLines(items))) ??
+            (error instanceof Error ? error.message : "Failed to create order. Please try again.")
         );
 
         // If the draft was already converted when the error occurred, close the modal
@@ -556,6 +559,7 @@ const usePaymentModal = (
       selectedPaymentMethod,
       customerPaid,
       draftOrder,
+      items,
       calculations.total,
       processPaymentCollection,
       processFulfillment,
@@ -635,9 +639,8 @@ const usePaymentModal = (
         playSound("error");
         setFrozenDraft(null);
         handleErrorToast(
-          error instanceof Error
-            ? error.message
-            : "Failed to create order. Please try again."
+          (await explainRefusalError(error, cartLines(items))) ??
+            (error instanceof Error ? error.message : "Failed to create order. Please try again.")
         );
 
         // Never cancel a pay-later order. If the draft was already converted,
@@ -655,6 +658,7 @@ const usePaymentModal = (
       draftOrderId,
       selectedPaymentMethod,
       draftOrder,
+      items,
       processFulfillment,
       cleanupAfterOrder,
       setDraftOrderId,

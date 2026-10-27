@@ -210,6 +210,14 @@
     "cannot_add_to_cart": "Cannot add item to cart",
     "no_sales_channel_configured": "No sales channel configured",
     "product_not_for_sale": "{{title}} is not for sale.",
+    "no_price": "No price",
+    "refusal": {
+      "no_price": "No price set for: {{names}}. Remove from the cart to continue.",
+      "not_stocked_here": "Not stocked at this till's location: {{names}}. Remove from the cart to continue.",
+      "short_stock": "Not enough stock: {{details}}. Reduce the quantity or remove the line.",
+      "short_line": "{{name}} ({{requested}} in the cart, {{available}} in stock)",
+      "short_generic": "Some items don't have enough stock. Check the quantities in the cart."
+    },
     "items_not_for_sale_one": "{{names}} is no longer for sale. Remove it from the cart to continue.",
     "items_not_for_sale_other": "{{names}} are no longer for sale. Remove them from the cart to continue.",
     "failed_to_prepare_checkout": "Failed to prepare checkout: {{error}}",

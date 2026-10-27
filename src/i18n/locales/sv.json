@@ -210,6 +210,14 @@
     "cannot_add_to_cart": "Det gick inte att lägga artikeln i kundvagnen",
     "no_sales_channel_configured": "Ingen försäljningskanal konfigurerad",
     "product_not_for_sale": "{{title}} säljs inte.",
+    "no_price": "Inget pris",
+    "refusal": {
+      "no_price": "Pris saknas: {{names}}. Ta bort från varukorgen för att fortsätta.",
+      "not_stocked_here": "Finns inte på den här kassans lagerplats: {{names}}. Ta bort från varukorgen för att fortsätta.",
+      "short_stock": "För lite i lager: {{details}}. Minska antalet eller ta bort raden.",
+      "short_line": "{{name}} ({{requested}} i varukorgen, {{available}} i lager)",
+      "short_generic": "Vissa varor har för litet lager. Kontrollera antalen i varukorgen."
+    },
     "items_not_for_sale_one": "{{names}} säljs inte längre. Ta bort den från varukorgen för att fortsätta.",
     "items_not_for_sale_other": "{{names}} säljs inte längre. Ta bort dem från varukorgen för att fortsätta.",
     "failed_to_prepare_checkout": "Det gick inte att förbereda kassan: {{error}}",

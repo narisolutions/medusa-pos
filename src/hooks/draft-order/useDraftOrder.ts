@@ -13,12 +13,9 @@ import {
 import { useQueryShippingOption } from "../queries/useQueryShippingOption";
 import { useQueryStore } from "@/hooks/queries/useQueryStore";
 import { getGuestCustomerEmail } from "@/utils/settings/store/metadata";
-import {
-  nameVariantIds,
-  sanitizeDraftOrderMetadata,
-  unsellableItemNames,
-} from "@/utils/pos/draft-order";
-import { t } from "@/i18n";
+import { nameVariantIds, sanitizeDraftOrderMetadata } from "@/utils/pos/draft-order";
+import { cartLines } from "@/utils/pos/refusal";
+import { explainRefusalError } from "@/utils/pos/refusal/live";
 import {
   beginEditIfNeeded,
   diffDraftItems,
@@ -257,15 +254,8 @@ const useDraftOrder = () => {
       } catch (error) {
         void logger.error(`Failed to sync draft order: ${safeStringify(error)}`);
         const message = getApiErrorMessage(error, String(error));
-        const unsellable = unsellableItemNames(message, items);
-        throw new Error(
-          unsellable
-            ? t("checkout.items_not_for_sale", {
-                count: unsellable.length,
-                names: unsellable.join(", "),
-              })
-            : "Failed to sync changes to draft order: " + nameVariantIds(message, items)
-        );
+        const named = await explainRefusalError(error, cartLines(items));
+        throw new Error(named ?? "Failed to sync changes to draft order: " + nameVariantIds(message, items));
       } finally {
         endLoading();
       }
