@@ -10,6 +10,8 @@ import CommentModal from "./comment-dialog";
 import QuantityModal from "./quantity-dialog";
 import CustomerModal from "./customer-dialog";
 import ParkModal from "./park-dialog";
+import NoSaleDialog from "@/components/register/no-sale-dialog";
+import { useRegister } from "@/context/register";
 import { useCheckout } from "../hooks";
 
 const CartActions: React.FC = () => {
@@ -17,7 +19,6 @@ const CartActions: React.FC = () => {
     items,
     loading,
     isPreparingPayment,
-    handleOpenDrawer,
     handleOpenModal,
     handleClearItems,
     paymentMethods,
@@ -34,6 +35,9 @@ const CartActions: React.FC = () => {
   const hasOutOfStockItem = items.some((item) => item.metadata?.available_quantity === 0);
   const isEmpty = items.length === 0;
   const { t } = useTranslation();
+  // The drawer opens without a sale only as a logged no-sale, so only while a register is open.
+  const { isOpen: isRegisterOpen } = useRegister();
+  const [isNoSaleOpen, setNoSaleOpen] = useState(false);
   const [isDiscountOpen, setDiscountOpen] = useState(false);
   const [isCommentOpen, setCommentOpen] = useState(false);
   const [isQtyOpen, setQtyOpen] = useState(false);
@@ -94,8 +98,8 @@ const CartActions: React.FC = () => {
           <Tile
             icon={<Banknote />}
             label={t("checkout.cash_drawer_button")}
-            disabled
-            onClick={() => void handleOpenDrawer()}
+            disabled={!isRegisterOpen}
+            onClick={() => setNoSaleOpen(true)}
           />
         </div>
 
@@ -132,6 +136,7 @@ const CartActions: React.FC = () => {
         onClose={() => setCustomerOpen(false)}
       />
       <ParkModal open={isParkOpen} onClose={() => setParkOpen(false)} />
+      <NoSaleDialog open={isNoSaleOpen} onOpenChange={setNoSaleOpen} />
     </div>
   );
 };

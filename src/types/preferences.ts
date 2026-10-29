@@ -51,6 +51,8 @@ export type RegisterPreferences = {
   dayCutoffHour: number;
   /** |over/short| above this (display units) requires a reason at close. */
   discrepancyThreshold: number;
+  /** The till sells through a certified cash register: the close requires its Z number. */
+  fiscalDevice: boolean;
 };
 
 /**

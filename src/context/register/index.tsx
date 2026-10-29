@@ -7,12 +7,14 @@ import {
   useState,
 } from "react";
 import storage from "@/utils/storage";
+import { fromMinorUnits, toMinorUnits } from "@/utils/pos/pricing";
 import { loadPreferences, DEFAULT_PREFERENCES } from "@/utils/settings/preferences";
 import type { RegisterPreferences } from "@/types/preferences";
 import type {
   CashMovement,
   CashMovementType,
   RegisterSession,
+  SessionReport,
 } from "@/types/register";
 import {
   isStaleSession,
@@ -34,6 +36,8 @@ type CloseInput = {
   countedCash: number;
   expectedCash: number;
   note?: string;
+  fiscalZRef?: string;
+  report: SessionReport;
 };
 
 type RegisterContextValue = {
@@ -51,15 +55,20 @@ type RegisterContextValue = {
   canReopen: boolean;
   cutoffHour: number;
   discrepancyThreshold: number;
+  /** The till uses a cash register: the close asks for its Z number. */
+  fiscalDevice: boolean;
   openRegister: (openingFloat: number) => Promise<void>;
   addMovement: (
     type: CashMovementType,
     amount: number,
     reason: string
   ) => Promise<void>;
-  closeRegister: (input: CloseInput) => Promise<void>;
-  /** Undo the most recent same-day close: resume the same session, no new float. */
+  /** Resolves with the closed session (its frozen Z), or null when nothing was open. */
+  closeRegister: (input: CloseInput) => Promise<RegisterSession | null>;
+  /** After a same-day close: a new session whose float is the counted cash. */
   reopenRegister: () => Promise<void>;
+  /** Records the Z's first paper print, so every later print says REPRINT. */
+  markZPrinted: (sessionId: string) => Promise<void>;
 };
 
 const Context = createContext<RegisterContextValue | undefined>(undefined);
@@ -151,16 +160,18 @@ export function RegisterProvider({ children }: { children: React.ReactNode }) {
   );
 
   const closeRegister = useCallback(
-    async ({ countedCash, expectedCash, note }: CloseInput) => {
-      if (!session || session.status !== "open") return;
+    async ({ countedCash, expectedCash, note, fiscalZRef, report }: CloseInput) => {
+      if (!session || session.status !== "open") return null;
       const closed: RegisterSession = {
         ...session,
         status: "closed",
         closedAt: new Date().toISOString(),
         countedCash,
         expectedCash,
-        difference: countedCash - expectedCash,
+        difference: fromMinorUnits(toMinorUnits(countedCash) - toMinorUnits(expectedCash)),
         note: note?.trim() ? note.trim() : undefined,
+        fiscalZRef: fiscalZRef?.trim() ? fiscalZRef.trim() : undefined,
+        report,
       };
 
       // Archive to the bounded history BEFORE updating the current session, so a
@@ -181,14 +192,13 @@ export function RegisterProvider({ children }: { children: React.ReactNode }) {
       // Keep the closed session as current so the same business day stays dormant
       // (no immediate re-prompt). The next business day re-triggers the open flow.
       await persist(closed);
+      return closed;
     },
     [session, persist]
   );
 
   const reopenRegister = useCallback(async () => {
-    // Recoverable only while the closed session still belongs to the current
-    // business day; a session closed on an earlier day is finished (the next-day
-    // open flow owns it), so undoing it must not resurrect a stale shift.
+    // Only a close from the current business day; an earlier day's is owned by the next-day open.
     if (
       !session ||
       session.status !== "closed" ||
@@ -197,37 +207,40 @@ export function RegisterProvider({ children }: { children: React.ReactNode }) {
       return;
     }
 
-    // Resume the SAME session (same id, float and movements) so orders stamped
-    // during the shift stay attributed and expected cash continues seamlessly.
-    const reopened: RegisterSession = {
-      id: session.id,
+    // A closed session is never resumed: its Z is already out. The drawer carries on from what was counted.
+    await persist({
+      id: newSessionId(),
       status: "open",
-      openedAt: session.openedAt,
-      openingFloat: session.openingFloat,
-      movements: session.movements,
-    };
-
-    // Mark the just-archived close as voided rather than deleting it, so an
-    // undone close still leaves the over/short on record (audit / anti-fraud).
-    try {
-      const history =
-        (await storage.getItem<RegisterSession[]>(
-          "closed_register_sessions"
-        )) ?? [];
-      await storage.setItem(
-        "closed_register_sessions",
-        history.map((s) =>
-          s.id === session.id && s.closedAt === session.closedAt
-            ? { ...s, voided: true, voidedAt: new Date().toISOString() }
-            : s
-        )
-      );
-    } catch {
-      // History update is best-effort; the reopen itself must still proceed.
-    }
-
-    await persist(reopened);
+      openedAt: new Date().toISOString(),
+      openingFloat: session.countedCash ?? 0,
+      movements: [],
+      reopenedFrom: session.id,
+    });
   }, [session, config.dayCutoffHour, now, persist]);
+
+  const markZPrinted = useCallback(
+    async (sessionId: string) => {
+      const printedAt = new Date().toISOString();
+      try {
+        const history =
+          (await storage.getItem<RegisterSession[]>("closed_register_sessions")) ?? [];
+        if (history.some((s) => s.id === sessionId && !s.zPrintedAt)) {
+          await storage.setItem(
+            "closed_register_sessions",
+            history.map((s) => (s.id === sessionId && !s.zPrintedAt ? { ...s, zPrintedAt: printedAt } : s))
+          );
+        }
+        // Read from storage: right after a close, this render's `session` is still the open one.
+        const current = await storage.getItem<RegisterSession>("register_session");
+        if (current?.id === sessionId && !current.zPrintedAt) {
+          await persist({ ...current, zPrintedAt: printedAt });
+        }
+      } catch {
+        // Best-effort like the history append: at worst the next print omits REPRINT.
+      }
+    },
+    [persist]
+  );
 
   const value = useMemo<RegisterContextValue>(() => {
     const enabled = config.enabled;
@@ -244,10 +257,12 @@ export function RegisterProvider({ children }: { children: React.ReactNode }) {
       canReopen: enabled && session?.status === "closed" && !needsOpen,
       cutoffHour: config.dayCutoffHour,
       discrepancyThreshold: config.discrepancyThreshold,
+      fiscalDevice: config.fiscalDevice,
       openRegister,
       addMovement,
       closeRegister,
       reopenRegister,
+      markZPrinted,
     };
   }, [
     config,
@@ -258,6 +273,7 @@ export function RegisterProvider({ children }: { children: React.ReactNode }) {
     addMovement,
     closeRegister,
     reopenRegister,
+    markZPrinted,
   ]);
 
   return <Context.Provider value={value}>{children}</Context.Provider>;

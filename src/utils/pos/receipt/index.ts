@@ -75,7 +75,7 @@ export const DEFAULT_RECEIPT_LABELS: ReceiptLabels = {
 };
 
 // Text layout widths come from the toolkit; only the PDF sizing is local.
-const PAPER_CONFIG: Record<PaperWidth, { maxItemTitleLen: number; pdfPageWidth: number; pdfMargin: number }> = {
+export const PAPER_CONFIG: Record<PaperWidth, { maxItemTitleLen: number; pdfPageWidth: number; pdfMargin: number }> = {
   "80mm": { maxItemTitleLen: 30, pdfPageWidth: 80, pdfMargin: 5 },
   "57mm": { maxItemTitleLen: 18, pdfPageWidth: 58, pdfMargin: 3 },
 };

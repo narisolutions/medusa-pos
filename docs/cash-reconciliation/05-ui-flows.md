@@ -18,6 +18,19 @@ money use the numeric keypad pattern already used at checkout.
 - **Fields**: type (`drop` | `payin`), amount (> 0), reason (required).
 - **Effect**: appends a `CashMovement`; expected cash updates immediately.
 
+## No-sale
+
+- **When**: the cart's *Cash drawer* button, while a register session is open.
+- **Fields**: reason (required). The `no_sale` movement is logged first, then the drawer opens.
+- **Otherwise** the button stays disabled, as it was before the X/Z: the drawer never opens
+  without a sale unless it is on record.
+
+## X report
+
+- **When**: *X report* in the register chooser, while a session is open.
+- **Shows**: a preview of the live report, then **Print** and **PDF**. Changes nothing.
+  See [X and Z reports](./10-x-and-z-reports.md).
+
 ## Close register dialog
 
 - **When**: invoked from the register status while a session is open.
@@ -31,12 +44,18 @@ money use the numeric keypad pattern already used at checkout.
   this step (it is mandatory).
 - **On confirm**: snapshots `expectedCash`, writes `countedCash`, `difference`, `note`,
   `closedAt`; archives the session to history; optionally prints a close summary.
+- **Guided close**: count → reconcile (over/short before commit, recount) →
+  **cash register Z number** (on the count screen, required, only when the till uses a
+  cash register) → confirm (double tap guarded) → print the
+  **Z (NON-FISCAL)**, frozen into the session as its `report`. See
+  [X and Z reports](./10-x-and-z-reports.md#the-guided-close).
 - **After close**: the register is closed, so checkout is **blocked** (the open-modal gate
   keys off `isOpen`, not just "needs a new day"). No post-close sale can go untracked.
 
 ### Close summary (optional print)
 
-A short receipt-printer text block, not a Z-Report:
+Before the X/Z this was a short text block; the Z
+([paper layout](./10-x-and-z-reports.md#paper-layout)) replaces it:
 
 ```
 REGISTER CLOSE
@@ -63,22 +82,32 @@ The register lives as an item in the sidebar rail (`RegisterMenuItem`), with a s
   See the Reopen flow below.
 - **Otherwise (inert)**: disabled; opening for a new business day is driven by the
   blocking open dialog, not this item.
+- The chooser gains *X report* (open) and *History* (every state), so the
+  item is never inert while enabled; the closed-today state opens a chooser (*Reopen* ·
+  *History*) instead of the Reopen dialog directly. See [Session book](./11-session-book.md#where).
 
-## Reopen (undo a same-day close)
+## Session book
+
+Register → History: closed sessions newest first; a row opens its Z with **Print** and
+**PDF**, rendered from stored figures. See [Session book](./11-session-book.md).
+
+## Reopen (a second session on the same day)
 
 - **When**: a session was closed earlier on the **current** business day (`canReopen`).
   A session closed on a previous day is finished — the next-day open flow owns it.
-- **Why**: recover from an accidental / premature mid-shift close without losing data.
-- **Behavior**: resumes the **same** session (same `id`, `openingFloat`, `movements`),
-  so orders stamped during the shift stay attributed and expected cash continues
-  seamlessly — no re-entered float, no split day.
-- **Audit**: the archived close is **not** deleted; it is flagged `voided` (with
-  `voidedAt`) so the over/short stays on record. A later legitimate close appends a new
-  archive entry alongside it.
+- **Why**: keep selling after an accidental / premature mid-shift close.
+- **Behavior** (since 2026-10-28): starts a **new** session. Its float is the previous
+  session's **counted** cash, carried over without re-entry, and it records the session
+  it follows (`reopenedFrom`). A closed session is never resumed: its Z — and, with a
+  cash register, the device's Z — is already out.
+- **Audit**: the first close stays as it was, a valid Z. Orders are stamped with their
+  own session's id, so neither session counts the other's cash.
+- **Before 2026-10-28** a reopen resumed the same session and flagged its archived close
+  `voided` (with `voidedAt`). Those records stay in history as they are.
 - **Authority**: **ungated on the device.** Reopen is a manager-level undo and belongs
   behind a staff role, but roles are server-side work that does not exist yet, so any
   operator can do it. What protects the number is the audit trail rather than the gate:
-  the voided close stays on record.
+  the first close and its Z stay on record.
 
 > Placement is a host-app choice; the register components are self-contained. See
 > [Portability](./09-portability.md).

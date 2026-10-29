@@ -35,6 +35,7 @@ const defaults: Forms["PreferencesSettings"] = {
   registerEnabled: DEFAULT_PREFERENCES.register.enabled,
   registerCutoffHour: DEFAULT_PREFERENCES.register.dayCutoffHour,
   registerDiscrepancyThreshold: DEFAULT_PREFERENCES.register.discrepancyThreshold,
+  registerFiscalDevice: DEFAULT_PREFERENCES.register.fiscalDevice,
   cashRoundingEnabled: DEFAULT_PREFERENCES.currency.cashRounding.enabled,
   cashRoundingIncrement: DEFAULT_PREFERENCES.currency.cashRounding.increment,
   soundScan: DEFAULT_PREFERENCES.sounds.scan,
@@ -70,6 +71,7 @@ export const usePreferencesSettings = () => {
         registerEnabled: prefs.register.enabled,
         registerCutoffHour: prefs.register.dayCutoffHour,
         registerDiscrepancyThreshold: prefs.register.discrepancyThreshold,
+        registerFiscalDevice: prefs.register.fiscalDevice,
         cashRoundingEnabled: prefs.currency.cashRounding.enabled,
         cashRoundingIncrement: prefs.currency.cashRounding.increment,
         soundScan: prefs.sounds.scan,
@@ -126,6 +128,7 @@ export const usePreferencesSettings = () => {
           enabled: data.registerEnabled,
           dayCutoffHour: data.registerCutoffHour,
           discrepancyThreshold: data.registerDiscrepancyThreshold,
+          fiscalDevice: data.registerFiscalDevice,
         };
 
         const sounds = {

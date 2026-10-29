@@ -38,6 +38,8 @@ export const queryKeys = {
   refundReasons: ["refund-reasons"] as const,
   posPlugin: ["pos-plugin-installed"] as const,
   backendHealth: ["backend-health"] as const,
+  // This till's closed register sessions, from local storage.
+  registerHistory: ["register-history"] as const,
   printerStatus: (printerId: string) => ["printer-status", printerId] as const,
   products: {
     all: ["products"] as const,

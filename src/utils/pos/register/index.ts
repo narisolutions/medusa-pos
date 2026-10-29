@@ -69,7 +69,16 @@ export function orderCashContribution(
   order: AdminOrder,
   store: AdminStore | null | undefined
 ): number {
-  if (order.status === "canceled") return 0;
+  const { sales, refunds } = orderCashParts(order, store);
+  return fromMinorUnits(toMinorUnits(sales) - toMinorUnits(refunds));
+}
+
+/** An order's drawer cash split into what came in and what was refunded, in display units. */
+export function orderCashParts(
+  order: AdminOrder,
+  store: AdminStore | null | undefined
+): { sales: number; refunds: number } {
+  if (order.status === "canceled") return { sales: 0, refunds: 0 };
 
   const collections = [...(order.payment_collections ?? [])].sort(
     (a, b) => new Date(a.created_at ?? 0).getTime() - new Date(b.created_at ?? 0).getTime()
@@ -97,16 +106,18 @@ export function orderCashContribution(
   // cash matches the physical drawer in cash-rounding markets. The stamp covers the
   // sale only, so cash top-ups after it are added; refunds still net out.
   const collected = cashCollectedFromMeta(order);
-  if (collected != null) return fromMinorUnits(toMinorUnits(collected) + cashTopUps - cashRefunds);
+  if (collected != null) {
+    return { sales: fromMinorUnits(toMinorUnits(collected) + cashTopUps), refunds: fromMinorUnits(cashRefunds) };
+  }
 
-  if (cashPaymentSeen) return fromMinorUnits(cashPayments - cashRefunds);
+  if (cashPaymentSeen) return { sales: fromMinorUnits(cashPayments), refunds: fromMinorUnits(cashRefunds) };
 
   if (getOrderPaymentMethodType(order, store) === "cash") {
     const refunded = toNumber((order as { refunded_total?: unknown }).refunded_total);
-    return fromMinorUnits(toMinorUnits(toNumber(order.total)) - toMinorUnits(refunded));
+    return { sales: toNumber(order.total), refunds: refunded };
   }
 
-  return 0;
+  return { sales: 0, refunds: 0 };
 }
 
 /** Rounded cash collected, stamped at checkout (`metadata.cash_collected`), or null. */
@@ -121,7 +132,7 @@ function cashCollectedFromMeta(order: AdminOrder): number | null {
   return null;
 }
 
-/** Sum of mid-shift pay-ins and drops for a session (display units, positive). */
+/** Sum of mid-shift pay-ins and drops for a session (display units, positive). No-sales move nothing. */
 export function movementTotals(session: RegisterSession): {
   payins: number;
   drops: number;

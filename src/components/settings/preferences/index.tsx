@@ -484,6 +484,30 @@ const PreferencesSettings: React.FC = () => {
                   )}
                 />
 
+                <FormField
+                  control={control}
+                  name="registerFiscalDevice"
+                  render={({ field }) => (
+                    <FormItem>
+                      <div className="flex items-center justify-between">
+                        <div className="space-y-0.5">
+                          <FormLabel className="text-base font-medium">
+                            {t("settings.preferences.register.fiscal_device")}
+                          </FormLabel>
+                          <p className="text-base text-fg-muted">
+                            {t("settings.preferences.register.fiscal_device_description")}
+                          </p>
+                        </div>
+                        <FormControl>
+                          <Switch
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                          />
+                        </FormControl>
+                      </div>
+                    </FormItem>
+                  )}
+                />
               </div>
             )}
           </section>

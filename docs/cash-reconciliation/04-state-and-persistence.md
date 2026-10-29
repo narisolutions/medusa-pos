@@ -17,9 +17,10 @@
 - **OPEN → CLOSED**: cashier counts the drawer; difference is computed and snapshotted.
 - **CLOSED → (archive) → NO SESSION**: on close, the session is appended to the bounded
   history list; the next open starts fresh.
-- **CLOSED → OPEN (reopen / undo)**: a close made earlier on the **current** business day
-  can be undone; it resumes the **same** session and flags the archived close `voided`
-  (the record is kept, not removed).
+- **CLOSED → OPEN (reopen)**: after a close earlier on the **current** business day, a
+  **new** session opens with the counted cash as its float (`reopenedFrom` = the closed
+  session's id). The closed session is never resumed. (Before 2026-10-28 a reopen
+  resumed the same session and flagged its archived close `voided`.)
 - **Stale open day**: if an OPEN session's `openedAt` business day is before today, the
   cashier must **close (reconcile) it first**, then open today's.
 
@@ -31,7 +32,7 @@ State is held in a **React context** (`RegisterProvider` / `useRegister`) — de
 | Key | Shape | Purpose |
 |---|---|---|
 | `register_session` | `RegisterSession \| null` | the current (open or just-closed) session |
-| `closed_register_sessions` | `RegisterSession[]` (bounded) | close history; append-only except a reopened close is flagged `voided` in place |
+| `closed_register_sessions` | `RegisterSession[]` (bounded) | close history; append-only (legacy entries may carry `voided`) |
 
 ### Persistence rules
 

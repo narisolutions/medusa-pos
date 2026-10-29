@@ -7,6 +7,7 @@ import Order from "@/pages/order";
 import Parked from "@/pages/parked";
 import Checkout from "@/pages/checkout";
 import Settings from "@/pages/settings";
+import RegisterHistory from "@/pages/register-history";
 import ProtectedRoute from "@/components/router";
 import Auth from "@/components/auth";
 import { logger } from "@/utils/logger";
@@ -23,6 +24,7 @@ vi.mock("@/pages/order", () => stub("Order"));
 vi.mock("@/pages/parked", () => stub("Parked"));
 vi.mock("@/pages/checkout", () => stub("Checkout"));
 vi.mock("@/pages/settings", () => stub("Settings"));
+vi.mock("@/pages/register-history", () => stub("RegisterHistory"));
 vi.mock("@/components/router", () => stub("ProtectedRoute"));
 vi.mock("@/components/router/route-error", () => stub("RouteError"));
 vi.mock("@/components/auth", () => stub("Auth"));
@@ -55,6 +57,7 @@ describe("route tree", () => {
     [ROUTES.orders, Orders],
     [ROUTES.parked, Parked],
     [ROUTES.settings, Settings],
+    [ROUTES.registerHistory, RegisterHistory],
   ])("renders %s behind the sign-in guard", (path, Page) => {
     expect(resolve(path).element.type).toBe(Page);
     expect(hasAncestor(path, ProtectedRoute)).toBe(true);
