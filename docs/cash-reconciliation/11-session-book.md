@@ -26,7 +26,7 @@ Newest first, one large row per closed session:
 
 | Column | Source |
 |---|---|
-| Business day | `businessDay(openedAt, cutoffHour)` |
+| Business day | `businessDay(openedAt, cutoffHour)`, with its weekday |
 | Opened · Closed | `openedAt`, `closedAt` |
 | Expected | `expectedCash` |
 | Counted | `countedCash` |

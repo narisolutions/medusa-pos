@@ -178,15 +178,17 @@ easiest way to take cash without a record.
 
 Plain text through the receipt printer, the channel the old close summary used. Width
 follows the printer's character width (48 on 80mm, 32 on 57mm); labels left, amounts
-right; counted lines read `count   sum`. The printer prints the brand above it.
+right; counted lines read `count   sum`. A row too wide for the roll puts its value on the
+next line, right-aligned. Every date carries its short weekday in the app's language. The
+printer prints the brand above it.
 
 ```
 Z (NON-FISCAL)
 Store Name · Till 1
 Session reg_1761650000_ab12cd
-Business day 2026-10-28
-Opened  2026-10-28 09:00
-Closed  2026-10-28 18:30
+Business day Wed 2026-10-28
+Opened  Wed 2026-10-28 09:00
+Closed  Wed 2026-10-28 18:30
 --------------------------------
 CASH
 Float                      50.00
@@ -267,6 +269,7 @@ move sessions to the backend (phase 2), not to fiscalise the till.
 | 2026-10-29 | A Z says REPRINT only after its first paper print; a PDF is not a print. |
 | 2026-10-29 | The cash register's Z number is digits only. |
 | 2026-10-29 | The PDF is a receipt-width page, not A4. |
+| 2026-10-29 | Every date on the X, the Z and the session book says which weekday it was. |
 | 2026-10-28 | No-sale is a movement (`no_sale`, amount 0) with a required reason. The *Cash drawer* button works only while a session is open. |
 | 2026-10-28 | Phase 1 is till-only; phase 2 (backend sessions) is a separate decision. |
 | 2026-10-28 | A closed session is **never resumed**. Reopen starts a new session for the same business day, float = the counted cash. One Z per session, and one device Z per close. |

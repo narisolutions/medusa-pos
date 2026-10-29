@@ -22,7 +22,7 @@ type PaperInput = {
 
 /** Lays out, prints and saves the register's X and Z with this till's printer, store and language. */
 const useRegisterReport = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { cutoffHour } = useRegister();
   const { printReceiptText, getDefaultPrinter } = usePrinterService();
   const { data: store } = useQueryStore();
@@ -94,6 +94,7 @@ const useRegisterReport = () => {
           currency,
           asOf: kind === "x" ? new Date() : undefined,
           reprintAt: reprint ? new Date() : undefined,
+          locale: i18n.language,
         },
         labels,
         // The PDF's fonts are Latin-only, so it is always transliterated.
@@ -102,7 +103,7 @@ const useRegisterReport = () => {
           : { paperWidth: printer?.paperWidth ?? "80mm", encoding }
       );
     },
-    [getDefaultPrinter, cutoffHour, store, currency, labels]
+    [getDefaultPrinter, cutoffHour, store, currency, labels, i18n.language]
   );
 
   /** Prints on the default printer; false (with a toast) when there is none or it fails. */

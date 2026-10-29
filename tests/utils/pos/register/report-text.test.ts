@@ -131,6 +131,20 @@ describe("buildReportText", () => {
     const text = buildReportText(paper(), labels, { paperWidth: "57mm" });
     for (const line of text.split("\n")) expect(line.length).toBeLessThanOrEqual(32);
   });
+
+  it("says which weekday the business day was", () => {
+    const text = buildReportText(paper({ locale: "en" }), labels);
+    expect(text).toMatch(/Business day\s+Wed 2026-10-28/);
+  });
+
+  it("drops a value to its own line when label and value overflow a 57mm roll", () => {
+    const long = { ...labels, opened: "Mdgomareobit gaikhsna", closed: "Mdgomareobit dakhurda" };
+    const text = buildReportText(paper({ locale: "en", reprintAt: new Date() }), { ...long, reprint: "KHELAKHALI BECHDVA" }, {
+      paperWidth: "57mm",
+    });
+    for (const line of text.split("\n")) expect(line.length).toBeLessThanOrEqual(32);
+    expect(text).toMatch(/Mdgomareobit gaikhsna\n\s+\w{3} \S+ \S+/);
+  });
 });
 
 describe("reportPdfLayout", () => {

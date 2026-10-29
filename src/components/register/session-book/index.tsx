@@ -15,7 +15,7 @@ import { useQueryRegion } from "@/hooks/queries/useQueryRegion";
 import { useTranslation } from "@/i18n";
 import { formatPrice } from "@/utils/helpers";
 import { businessDay } from "@/utils/pos/register";
-import { formatDateTime, formatTimeOnly } from "@/utils/settings/preferences";
+import { formatDateTime, formatTimeOnly, formatWeekday } from "@/utils/settings/preferences";
 import type { RegisterSession } from "@/types/register";
 import { useSessionBook } from "./hooks";
 
@@ -24,7 +24,7 @@ const rowKey = (s: RegisterSession) => `${s.id}:${s.closedAt ?? ""}`;
 
 /** Register → History: this till's closed sessions, each opening its Z for a reprint. */
 const SessionBook = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { cutoffHour } = useRegister();
   const { data: regionData } = useQueryRegion();
   const currency = regionData?.defaultRegion?.currency_code?.toUpperCase() ?? "USD";
@@ -75,6 +75,7 @@ const SessionBook = () => {
                 </TableRow>
               ) : (
                 sessions.map((session) => {
+                  const day = businessDay(session.openedAt, cutoffHour);
                   const diff = session.difference ?? 0;
                   const Icon = diff === 0 ? CheckCircle2 : diff > 0 ? AlertTriangle : XCircle;
                   const tone = diff === 0 ? "text-success-text" : diff > 0 ? "text-warning-text" : "text-danger-text";
@@ -92,7 +93,7 @@ const SessionBook = () => {
                       className="h-14 cursor-pointer border-b border-theme-border text-base hover:bg-surface-hover"
                     >
                       <TableCell className="px-4 pl-6 font-medium text-fg">
-                        {businessDay(session.openedAt, cutoffHour)}
+                        {formatWeekday(`${day}T00:00`, i18n.language)} {day}
                         {session.voided && (
                           <span className="ml-2 rounded-md border border-danger px-2 py-0.5 text-base text-danger-text">
                             {t("register.report.voided")}
@@ -100,7 +101,7 @@ const SessionBook = () => {
                         )}
                       </TableCell>
                       <TableCell className="px-4 tabular-nums text-fg">
-                        {formatDateTime(session.openedAt)} – {session.closedAt ? formatTimeOnly(session.closedAt) : "—"}
+                        {formatWeekday(session.openedAt, i18n.language)} {formatDateTime(session.openedAt)} – {session.closedAt ? formatTimeOnly(session.closedAt) : "—"}
                       </TableCell>
                       <TableCell className="px-4 tabular-nums text-fg">
                         {session.expectedCash != null ? formatPrice(session.expectedCash, currency) : "—"}

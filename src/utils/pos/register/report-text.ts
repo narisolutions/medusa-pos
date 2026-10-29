@@ -7,7 +7,7 @@ import {
   type PaperWidth,
   type PrinterEncoding,
 } from "@narisolutions/pos-toolkit/receipt-builder";
-import { formatCurrencyRaw, formatDateTime, formatTimeOnly } from "@/utils/settings/preferences";
+import { formatCurrencyRaw, formatDateTime, formatTimeOnly, formatWeekday } from "@/utils/settings/preferences";
 import { fromMinorUnits, toMinorUnits } from "@/utils/pos/pricing";
 import { movementTotals } from "@/utils/pos/register";
 import { REPORT_TENDERS } from "@/utils/pos/register/report";
@@ -66,6 +66,8 @@ export type ReportPaper = {
   asOf?: Date;
   /** Set on every Z print after the first. */
   reprintAt?: Date;
+  /** The language weekday names are written in. */
+  locale?: string;
 };
 
 type LayoutOptions = { paperWidth?: PaperWidth; encoding?: PrinterEncoding };
@@ -79,8 +81,14 @@ export function buildReportText(paper: ReportPaper, labels: ReportLabels, option
 
   const lines: string[] = [];
   const rule = () => lines.push("-".repeat(width));
-  const center = (text: string) => lines.push(centerText(clean(text), width));
-  const row = (label: string, right: string) => lines.push(padLine(clean(label), clean(right), width));
+  const center = (text: string) => wrapText(clean(text), width).forEach((l) => lines.push(centerText(l, width)));
+  // A row too wide for the roll puts its value on the next line, right-aligned.
+  const row = (label: string, right: string) => {
+    const [l, r] = [clean(label), clean(right)];
+    if (l.length + 1 + r.length <= width) lines.push(padLine(l, r, width));
+    else lines.push(l, r.padStart(width));
+  };
+  const when = (date: Date | string) => `${formatWeekday(date, paper.locale)} ${formatDateTime(date)}`;
   const amountRow = (label: string, amount: number) => row(label, money(amount));
   const countRow = (label: string, { count, amount }: CountSum) => row(label, `${count}   ${money(amount)}`);
   const text = (value: string) => wrapText(clean(value), width).forEach((l) => lines.push(l));
@@ -88,16 +96,17 @@ export function buildReportText(paper: ReportPaper, labels: ReportLabels, option
   paper.headerLines.forEach(center);
   rule();
   center(paper.kind === "x" ? labels.xTitle : labels.zTitle);
-  if (paper.reprintAt) center(`${labels.reprint} ${formatDateTime(paper.reprintAt)}`);
+  if (paper.reprintAt) center(`${labels.reprint} ${when(paper.reprintAt)}`);
   if (paper.kind === "z" && session.voided && session.voidedAt) {
-    center(`${labels.voided} ${formatDateTime(session.voidedAt)}`);
+    center(`${labels.voided} ${when(session.voidedAt)}`);
   }
   rule();
   row(labels.session, session.id);
-  row(labels.businessDay, paper.businessDay);
-  row(labels.opened, formatDateTime(session.openedAt));
-  if (paper.kind === "z" && session.closedAt) row(labels.closed, formatDateTime(session.closedAt));
-  if (paper.kind === "x") row(labels.asOf, formatDateTime(paper.asOf ?? new Date()));
+  // The business day is a local calendar date; "T00:00" keeps it local rather than UTC.
+  row(labels.businessDay, `${formatWeekday(`${paper.businessDay}T00:00`, paper.locale)} ${paper.businessDay}`);
+  row(labels.opened, when(session.openedAt));
+  if (paper.kind === "z" && session.closedAt) row(labels.closed, when(session.closedAt));
+  if (paper.kind === "x") row(labels.asOf, when(paper.asOf ?? new Date()));
   rule();
 
   lines.push(clean(labels.cash));
