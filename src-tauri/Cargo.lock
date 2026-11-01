@@ -971,7 +971,7 @@ dependencies = [
  "libc",
  "option-ext",
  "redox_users",
- "windows-sys 0.61.2",
+ "windows-sys 0.60.2",
 ]
 
 [[package]]
@@ -2533,7 +2533,7 @@ dependencies = [
  "png",
  "serde",
  "thiserror 2.0.12",
- "windows-sys 0.61.2",
+ "windows-sys 0.60.2",
 ]
 
 [[package]]
@@ -3846,7 +3846,7 @@ dependencies = [
  "security-framework",
  "security-framework-sys",
  "webpki-root-certs",
- "windows-sys 0.61.2",
+ "windows-sys 0.60.2",
 ]
 
 [[package]]
@@ -4268,7 +4268,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "52d1cfed4120b4d927bf7c0f86d2087a4a7d6027c906d9f9d525a80573b9be51"
 dependencies = [
  "libc",
- "windows-sys 0.61.2",
+ "windows-sys 0.60.2",
 ]
 
 [[package]]
@@ -4783,7 +4783,7 @@ dependencies = [
 [[package]]
 name = "tauri-plugin-pos-hardware"
 version = "0.1.0"
-source = "git+https://github.com/narisolutions/pos-toolkit?branch=main#8b2b8021869ae1dc81da45737b63f466f309bdc6"
+source = "git+https://github.com/narisolutions/pos-toolkit?branch=main#750368c4b34af51fab6942616264de61c5f754a1"
 dependencies = [
  "escpos",
  "hidapi",
@@ -5753,7 +5753,7 @@ dependencies = [
  "objc2-foundation 0.3.2",
  "objc2-quartz-core 0.3.2",
  "raw-window-handle",
- "windows-sys 0.61.2",
+ "windows-sys 0.60.2",
  "windows-version",
 ]
 
