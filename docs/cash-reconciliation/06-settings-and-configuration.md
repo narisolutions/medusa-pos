@@ -11,6 +11,7 @@ type RegisterPreferences = {
   enabled: boolean;            // master switch — DEFAULT false
   dayCutoffHour: number;       // 0–23, business-day boundary; DEFAULT 0 (midnight)
   discrepancyThreshold: number;// |over/short| above this requires a reason; DEFAULT 5.00
+  fiscalDevice: boolean;       // till uses a cash register → close asks for its Z; DEFAULT false
 };
 ```
 
@@ -37,6 +38,7 @@ This is the most important control and the one feature added on top of the origi
 |---|---|---|
 | `dayCutoffHour` | When the business day rolls over (see [Business day](./03-business-day-and-expected-cash.md)) | `0` |
 | `discrepancyThreshold` | Over/short magnitude that forces a reason at close | `5.00` |
+| `fiscalDevice` | *Uses a cash register* : the close asks for the cash register's Z number, required ([X and Z reports](./10-x-and-z-reports.md#the-guided-close)) | `false` |
 
 The config fields are only rendered when `enabled` is true, to keep the settings panel
 clean for stores that don't use the feature.

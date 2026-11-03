@@ -26,6 +26,7 @@ export const DEFAULT_PREFERENCES: UserPreferences = {
     enabled: false,
     dayCutoffHour: 0,
     discrepancyThreshold: 5,
+    fiscalDevice: false,
   },
   scanner: {
     transport: "wedge",

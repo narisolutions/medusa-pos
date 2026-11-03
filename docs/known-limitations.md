@@ -72,7 +72,9 @@ session's orders (one request, `limit: 1000`) and adds them up on the device
 
 **Resolution.** Either page through all of the session's orders, or — better — add a
 session cash total to the POS plugin so the device receives one figure instead of every
-order.
+order. The planned backend sessions do this
+([Portability — phase 2](./cash-reconciliation/09-portability.md#phase-2-sessions-on-the-backend));
+the X/Z reports read the same query and share the limit until then.
 
 ## KL-3: The unfulfilled-orders badge counts the newest 1,000 orders
 

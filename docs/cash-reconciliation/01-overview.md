@@ -14,8 +14,12 @@ A daily open/close register flow for a **single terminal**, fully local.
 3. **Close register** — the operator counts the drawer and enters **one total**. The app
    shows `Expected vs Counted vs Over/Short`. A **reason is required** when the
    difference exceeds a configurable threshold.
-4. **Optional** — print a short close summary on the existing receipt printer (this is a
-   summary, not a full Z-Report).
+4. **Optional** — print a short close summary on the existing receipt printer.
+
+**X/Z (built, unreleased):** the close summary becomes a **non-fiscal Z report**
+with a tender breakdown, an **X report** gives the same view live, drawer openings
+without a sale are logged, and a **session book** lists past closes. See
+[X and Z reports](./10-x-and-z-reports.md) and [Session book](./11-session-book.md).
 
 ## The cashier's journey
 
@@ -48,8 +52,11 @@ app start ──► [business day changed or no open session?]
 
 ## Out of scope (deferred)
 
-- Z-Report (short/long) and end-of-day accounting across **all** payment methods.
-- In-app history browser, PDF/CSV export.
+- **Fiscal** reporting: VAT per rate, legal numbering, the fiscal Z. A certified device
+  issues those; the till's Z is non-fiscal and records the device's Z reference
+  ([X and Z reports](./10-x-and-z-reports.md#fiscal-devices-and-card-terminals)).
+- A day report across tills (VAT, discounts, product sales).
+- CSV export. (The X/Z save as PDF.)
 - Denomination ("count by note") breakdown.
 - **Authority — who may close or reopen a register.** There is deliberately **no
   gate** on the device. An earlier version shipped an on-device manager PIN; it was

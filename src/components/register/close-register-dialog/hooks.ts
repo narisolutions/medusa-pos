@@ -7,61 +7,30 @@ import { Forms } from "@/types/form";
 import { t as translate } from "@/i18n";
 import { useRegister } from "@/context/register";
 import { useExpectedCash } from "@/hooks/register/useExpectedCash";
-import { useQueryRegion } from "@/hooks/queries/useQueryRegion";
+import { useRegisterReport } from "@/hooks/register/useRegisterReport";
 import { usePrinterService } from "@/hooks/printer/usePrinterService";
-import { movementTotals } from "@/utils/pos/register";
 import { fromMinorUnits, toMinorUnits } from "@/utils/pos/pricing";
-import type { RegisterSession } from "@/types/register";
 
-function buildSummary(
-  session: RegisterSession,
-  expected: number,
-  counted: number,
-  difference: number,
-  note: string
-): string {
-  const { payins, drops } = movementTotals(session);
-  const sales = fromMinorUnits(
-    toMinorUnits(expected) - toMinorUnits(session.openingFloat) - toMinorUnits(payins) + toMinorUnits(drops)
-  );
-  const f = (n: number) => n.toFixed(2);
-  const lines = [
-    "REGISTER CLOSE",
-    `Opened:  ${new Date(session.openedAt).toLocaleString()}`,
-    `Closed:  ${new Date().toLocaleString()}`,
-    "",
-    `Float:      ${f(session.openingFloat)}`,
-    `Cash sales: ${f(sales)}`,
-    `Pay-ins:    ${f(payins)}`,
-    `Drops:     -${f(drops)}`,
-    `Expected:   ${f(expected)}`,
-    `Counted:    ${f(counted)}`,
-    `Over/Short: ${difference >= 0 ? "+" : ""}${f(difference)} (${
-      difference === 0 ? "BALANCED" : difference > 0 ? "OVER" : "SHORT"
-    })`,
-  ];
-  if (note.trim()) lines.push(`Reason: ${note.trim()}`);
-  return lines.join("\n");
-}
+const EMPTY_FORM = { countedCash: 0, note: "", fiscalZRef: "" };
 
 export const useCloseRegister = (onDone: () => void) => {
   const {
     session,
     closeRegister,
+    markZPrinted,
     discrepancyThreshold,
+    fiscalDevice,
   } = useRegister();
-  const { expectedCash, isLoading } = useExpectedCash(session);
-  const { data: regionData } = useQueryRegion();
-  const currency =
-    regionData?.defaultRegion?.currency_code?.toUpperCase() ?? "USD";
-  const { printReceiptText, getDefaultPrinter } = usePrinterService();
+  const { expectedCash, report, isLoading, isError, refetch } = useExpectedCash(session);
+  const { print, currency } = useRegisterReport();
+  const { getDefaultPrinter } = usePrinterService();
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [printSummary, setPrintSummary] = useState(true);
 
   const form = useForm<Forms["CloseRegister"]>({
     resolver: coercedZodResolver(schemas.closeRegister),
-    defaultValues: { countedCash: 0, note: "" },
+    defaultValues: EMPTY_FORM,
   });
 
   const counted = Number(form.watch("countedCash")) || 0;
@@ -76,49 +45,54 @@ export const useCloseRegister = (onDone: () => void) => {
   // Runs before the confirm step so errors surface on the form, not after.
   const validateClose = useCallback(
     (data: Forms["CloseRegister"]): boolean => {
-      if (!session) return false;
+      if (!session || !report) return false;
+      let valid = true;
       if (overThreshold && !data.note?.trim()) {
         form.setError("note", {
           message: translate("register.close.reason_required"),
         });
-        return false;
+        valid = false;
       }
-      return true;
+      const zRef = data.fiscalZRef?.trim() ?? "";
+      if (fiscalDevice && !zRef) {
+        form.setError("fiscalZRef", {
+          message: translate("register.close.fiscal_z_ref_required"),
+        });
+        valid = false;
+      } else if (fiscalDevice && !/^\d+$/.test(zRef)) {
+        form.setError("fiscalZRef", {
+          message: translate("register.close.fiscal_z_ref_digits"),
+        });
+        valid = false;
+      }
+      return valid;
     },
-    [session, overThreshold, form]
+    [session, report, overThreshold, fiscalDevice, form]
   );
 
   // Performs the actual close. Assumes validateClose already passed.
   const commitClose = useCallback(
     async (data: Forms["CloseRegister"]) => {
-      if (!session) return;
+      // Stale or missing sales would freeze wrong totals into the Z for good.
+      if (!session || !report || isSubmitting || isError) return;
       setIsSubmitting(true);
       try {
-        const snapshot = expectedCash; // freeze before mutating
-        await closeRegister({
+        // The Z is these figures, frozen here; nothing recomputes them later.
+        const closed = await closeRegister({
           countedCash: data.countedCash,
-          expectedCash: snapshot,
+          expectedCash,
           note: data.note,
+          fiscalZRef: fiscalDevice ? data.fiscalZRef : undefined,
+          report,
         });
 
-        if (printSummary && getDefaultPrinter()) {
-          try {
-            await printReceiptText(
-              buildSummary(
-                session,
-                snapshot,
-                data.countedCash,
-                data.countedCash - snapshot,
-                data.note ?? ""
-              )
-            );
-          } catch {
-            toast.error(translate("register.close.print_failed"));
-          }
+        // A failed print leaves the close standing; the Z reprints from History.
+        if (closed && printSummary && getDefaultPrinter()) {
+          if (await print({ kind: "z", session: closed, report: closed.report })) await markZPrinted(closed.id);
         }
 
         toast.success(translate("register.close.success"));
-        form.reset({ countedCash: 0, note: "" });
+        form.reset(EMPTY_FORM);
         onDone();
       } finally {
         setIsSubmitting(false);
@@ -126,10 +100,15 @@ export const useCloseRegister = (onDone: () => void) => {
     },
     [
       session,
+      report,
+      isSubmitting,
+      isError,
       expectedCash,
+      fiscalDevice,
       printSummary,
       closeRegister,
-      printReceiptText,
+      markZPrinted,
+      print,
       getDefaultPrinter,
       form,
       onDone,
@@ -141,11 +120,14 @@ export const useCloseRegister = (onDone: () => void) => {
     session,
     isSubmitting,
     isLoading,
+    salesFailed: isError,
+    retrySales: refetch,
     expectedCash,
     counted,
     hasCounted,
     difference,
     overThreshold,
+    fiscalDevice,
     printSummary,
     setPrintSummary,
     currency,

@@ -24,7 +24,9 @@ float, a counted closing total, and a recorded **over/short** difference.
 | 5 | [UI flows](./05-ui-flows.md) | Open / movement / close dialogs and the sidebar status |
 | 6 | [Settings & configuration](./06-settings-and-configuration.md) | The enable toggle and per-terminal options |
 | 8 | [Edge cases](./08-edge-cases.md) | Restarts, stale days, refunds, fraud, corrupt storage |
-| 9 | [Portability](./09-portability.md) | Reusing this in a non-Medusa restaurant POS |
+| 9 | [Portability](./09-portability.md) | Reusing this in a non-Medusa restaurant POS; phase 2 on the backend |
+| 10 | [X and Z reports](./10-x-and-z-reports.md) | The live X, the frozen non-fiscal Z, no-sale, and how they relate to fiscal devices |
+| 11 | [Session book](./11-session-book.md) | The history of closed sessions, each with its reprintable Z |
 
 ## Core formula
 

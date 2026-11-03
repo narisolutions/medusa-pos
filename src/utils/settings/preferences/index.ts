@@ -33,6 +33,7 @@ export {
   formatDateTime,
   formatDateOnly,
   formatTimeOnly,
+  formatWeekday,
 } from "./datetime";
 
 export {

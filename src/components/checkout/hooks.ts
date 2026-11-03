@@ -13,7 +13,6 @@ import { useRegister } from "@/context/register";
 import { useQueryRegion } from "@/hooks/queries/useQueryRegion";
 import { useQueryStore } from "@/hooks/queries/useQueryStore";
 import { getPaymentMethods } from "@/utils/settings/store/metadata";
-import { usePrinterService } from "@/hooks/printer/usePrinterService";
 import Payments from "@/assets/icons/payments";
 import CardIcon from "@/assets/icons/card";
 import { ArrowLeftRight, Landmark } from "lucide-react";
@@ -23,10 +22,7 @@ import {
   DraftOrderMetadata,
   PaymentMethod,
 } from "@/types/utils";
-import {
-  cashDrawerIssueStaffHintToast,
-  handleErrorToast,
-} from "@/utils/helpers";
+import { handleErrorToast } from "@/utils/helpers";
 import { useTranslation } from "@/i18n";
 
 type PaymentMethodOption = {
@@ -75,7 +71,6 @@ type CheckoutContextValue = {
   paymentMethods: PaymentMethodOption[];
   selectedPaymentMethod: PaymentMethod;
   setPaymentMethod: (method: PaymentMethod) => void;
-  handleOpenDrawer: () => Promise<void>;
   setItemMetadata: (
     itemId: string,
     metadata: Partial<CartItem["metadata"]>
@@ -127,7 +122,6 @@ const useProvideCheckout = (): CheckoutContextValue => {
   const currency =
     defaultRegion?.currency_code?.toUpperCase() ?? "USD";
 
-  const { openCashDrawer, getDefaultPrinter } = usePrinterService();
   const { enabled: registerEnabled, isOpen: registerOpen } = useRegister();
   const { ensureDraftOrderSynced, parkCurrentSale } = useParkedSales();
 
@@ -257,22 +251,6 @@ const useProvideCheckout = (): CheckoutContextValue => {
     [updateMetadata]
   );
 
-  const handleOpenDrawer = useCallback(async () => {
-    const printer = getDefaultPrinter();
-    try {
-      await openCashDrawer();
-    } catch {
-      if (printer) {
-        toast.error(t("checkout.cash_drawer_error_title"), {
-          description: cashDrawerIssueStaffHintToast(printer.name),
-        });
-      } else {
-        toast.error(t("checkout.cash_drawer_error_title"), {
-          description: t("checkout.no_default_printer"),
-        });
-      }
-    }
-  }, [openCashDrawer, getDefaultPrinter, t]);
 
   const customerEmail = (metadata as Record<string, unknown>)
     .customer_email as string | null | undefined;
@@ -331,7 +309,6 @@ const useProvideCheckout = (): CheckoutContextValue => {
       paymentMethods: paymentMethodOptions,
       selectedPaymentMethod: metadata.payment_method as PaymentMethod,
       setPaymentMethod,
-      handleOpenDrawer,
       setItemMetadata,
       customerEmail: customerEmail || null,
       setCustomerEmail,
@@ -345,7 +322,6 @@ const useProvideCheckout = (): CheckoutContextValue => {
       handleClearItems,
       handleCloseModal,
       handleParkSale,
-      handleOpenDrawer,
       handleOpenModal,
       handleQuantityChange,
       handleRemoveItem,

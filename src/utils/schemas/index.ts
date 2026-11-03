@@ -84,6 +84,7 @@ export default {
     registerEnabled: z.boolean(),
     registerCutoffHour: z.coerce.number().int().min(0).max(23),
     registerDiscrepancyThreshold: z.coerce.number().min(0),
+    registerFiscalDevice: z.boolean(),
     cashRoundingEnabled: z.boolean(),
     cashRoundingIncrement: z.coerce.number().positive(),
     soundScan: z.boolean(),
@@ -106,6 +107,11 @@ export default {
       .number()
       .min(0, { message: "Enter a valid amount" }),
     note: z.string().optional(),
+    fiscalZRef: z.string().regex(/^\d*$/, { message: "Digits only" }).optional(),
+  }),
+
+  noSale: z.object({
+    reason: z.string().trim().min(1, { message: "Reason is required" }),
   }),
 
   cashMovement: z.object({

@@ -20,6 +20,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Skeleton } from "@/components/ui/skeleton";
+import { ErrorState } from "@/components/ui/state-panel";
 import { useCloseRegister } from "./hooks";
 import { formatPrice } from "@/utils/helpers";
 import { useTranslation } from "@/i18n";
@@ -56,11 +57,14 @@ const CloseRegisterDialog: React.FC<Props> = ({
     form,
     isSubmitting,
     isLoading,
+    salesFailed,
+    retrySales,
     expectedCash,
     counted,
     hasCounted,
     difference,
     overThreshold,
+    fiscalDevice,
     printSummary,
     setPrintSummary,
     currency,
@@ -155,6 +159,14 @@ const CloseRegisterDialog: React.FC<Props> = ({
                   {formatPrice(difference, currency)} ({diffLabel})
                 </span>
               </div>
+              {fiscalDevice && pending?.fiscalZRef && (
+                <div className="flex items-center justify-between">
+                  <span className="text-base text-fg-muted">
+                    {t("register.close.fiscal_z_ref")}
+                  </span>
+                  <span className="text-base font-semibold text-fg">{pending.fiscalZRef.trim()}</span>
+                </div>
+              )}
             </div>
 
             <div className="flex gap-3 pt-2">
@@ -185,6 +197,14 @@ const CloseRegisterDialog: React.FC<Props> = ({
           <Form {...form}>
             {/* Two columns so a close-out fits one screen: summary left, keypad right. */}
             <form onSubmit={handleValidSubmit} className="grid grid-cols-2 gap-6">
+              {salesFailed && (
+                <ErrorState
+                  className="col-span-2 rounded-lg border-2 border-danger bg-danger-subtle py-6"
+                  title={t("register.close.sales_failed_title")}
+                  hint={t("register.close.sales_failed_hint")}
+                  onRetry={() => void retrySales()}
+                />
+              )}
               <div className="space-y-4">
                 <div className="grid grid-cols-2 gap-3">
                   <div className="rounded-lg border border-theme-border bg-surface-muted px-4 py-3">
@@ -215,9 +235,9 @@ const CloseRegisterDialog: React.FC<Props> = ({
                 </div>
 
                 {isLoading ? (
-                  <Skeleton className="h-16 w-full" />
+                  <Skeleton className="min-h-16 w-full" />
                 ) : hasCounted ? (
-                  <div role="status" className={`flex items-center justify-between gap-3 rounded-lg border-2 px-4 py-3 ${diffPanel}`}>
+                  <div role="status" className={`flex min-h-16 items-center justify-between gap-3 rounded-lg border-2 px-4 py-3 ${diffPanel}`}>
                     <span className={`flex items-center gap-2 text-lg font-semibold ${diffClass}`}>
                       <DiffIcon className="size-6" aria-hidden />
                       {diffLabel}
@@ -228,7 +248,7 @@ const CloseRegisterDialog: React.FC<Props> = ({
                     </span>
                   </div>
                 ) : (
-                  <div className="rounded-lg border-2 border-dashed border-theme-border px-4 py-3 text-base text-fg-muted">
+                  <div className="flex min-h-16 items-center rounded-lg border-2 border-dashed border-theme-border px-4 py-3 text-base text-fg-muted">
                     {t("register.close.difference")}: —
                   </div>
                 )}
@@ -261,6 +281,34 @@ const CloseRegisterDialog: React.FC<Props> = ({
                   )}
                 />
 
+                {fiscalDevice && (
+                  <FormField
+                    control={form.control}
+                    name="fiscalZRef"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-base font-medium">
+                          {t("register.close.fiscal_z_ref")}
+                          <span className="text-danger-text"> *</span>
+                        </FormLabel>
+                        <p className="text-base text-fg-muted">
+                          {t("register.close.fiscal_z_ref_hint")}
+                        </p>
+                        <FormControl>
+                          <Input
+                            type="text"
+                            inputMode="numeric"
+                            maxLength={12}
+                            value={field.value ?? ""}
+                            onChange={(e) => field.onChange(e.target.value.replace(/\D/g, "").slice(0, 12))}
+                          />
+                        </FormControl>
+                        <FormMessage className="text-base" />
+                      </FormItem>
+                    )}
+                  />
+                )}
+
                 <div className="flex min-h-tap items-center justify-between">
                   <span className="text-base text-fg">
                     {t("register.close.print_summary")}
@@ -287,7 +335,7 @@ const CloseRegisterDialog: React.FC<Props> = ({
                     {t("common.cancel")}
                   </Button>
                 )}
-                <Button type="submit" size="lg" className="flex-2" disabled={isLoading} loading={isSubmitting}>
+                <Button type="submit" size="lg" className="flex-2" disabled={isLoading || salesFailed} loading={isSubmitting}>
                   {isSubmitting
                     ? t("register.close.closing")
                     : t("register.close.submit")}
