@@ -12,6 +12,8 @@ interface Props {
   onOpenChange: (open: boolean) => void;
   /** Built when opened, so it reflects the current printer, paper and branding. */
   preview: Preview | null;
+  /** Defaults to the receipt's; a bill says so. */
+  title?: React.ReactNode;
   /** Explains what the preview is not yet, e.g. that the order number comes at payment. */
   note?: React.ReactNode;
   /** Print / PDF and the like; Close is always there. */
@@ -19,13 +21,13 @@ interface Props {
 }
 
 /** The receipt as the default printer would print it, before any paper moves. */
-const ReceiptPreviewDialog: React.FC<Props> = ({ open, onOpenChange, preview, note, actions }) => {
+const ReceiptPreviewDialog: React.FC<Props> = ({ open, onOpenChange, preview, title, note, actions }) => {
   const { t } = useTranslation();
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl max-h-[94vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="text-2xl">{t("receipt.preview_title")}</DialogTitle>
+          <DialogTitle className="text-2xl">{title ?? t("receipt.preview_title")}</DialogTitle>
           <DialogDescription className="text-base">{note ?? t("receipt.preview_description")}</DialogDescription>
         </DialogHeader>
         {preview && <ReceiptPreview {...preview} />}

@@ -337,8 +337,10 @@
     "mark_picked_up_button": "Marcar como recogido",
     "download_shipping_label_button": "Descargar etiqueta de envío",
     "print_receipt_button": "Imprimir recibo",
+    "print_bill_button": "Imprimir cuenta",
     "printing": "Imprimiendo...",
     "download_pdf_button": "Descargar PDF",
+    "download_bill_button": "Descargar cuenta",
     "items_one": "{{count}} artículo",
     "items_other": "{{count}} artículos",
     "order_title": "Pedido #{{id}}",
@@ -359,8 +361,11 @@
     "event_out": "Sale: {{items}}",
     "event_back": "Vuelve: {{items}}",
     "receipt_sent_to_printer": "Recibo enviado a la impresora",
+    "bill_sent_to_printer": "Cuenta enviada a la impresora",
     "receipt_did_not_print": "El recibo no se ha imprimido",
+    "bill_did_not_print": "La cuenta no se imprimió",
     "failed_to_download_receipt": "Error al descargar el recibo. Inténtalo de nuevo.",
+    "failed_to_download_bill": "No se pudo descargar la cuenta",
     "shipping_label_downloaded": "Etiqueta de envío descargada: {{filename}}",
     "failed_to_download_shipping_label": "Error al descargar la etiqueta de envío: {{error}}",
     "no_shipping_label": "No se ha encontrado etiqueta de envío para este cumplimiento",
@@ -569,6 +574,7 @@
   },
   "receipt": {
     "title": "RECIBO DE VENTA",
+    "title_bill": "CUENTA",
     "date": "Fecha",
     "time": "Hora",
     "order": "Pedido",
@@ -610,7 +616,9 @@
       "owed": "Añadido al importe pendiente"
     },
     "preview_button": "Ver recibo",
+    "preview_button_bill": "Ver cuenta",
     "preview_title": "Vista previa del recibo",
+    "preview_title_bill": "Vista previa de la cuenta",
     "preview_description": "Lo que imprime la impresora predeterminada para este pedido, a su ancho de papel y con el logo de la tienda.",
     "preview_sale_note": "Lo que imprimirá esta venta una vez pagada. El número de pedido se asigna al completar el pago."
   },
@@ -953,6 +961,7 @@
   },
   "printer_service": {
     "receipt_saved_success": "Recibo guardado como {{filename}}",
+    "bill_saved_success": "Cuenta guardada como {{filename}}",
     "saved_to_downloads": "Guardado en tu carpeta de Descargas",
     "open_folder_button": "Abrir carpeta",
     "save_pdf_error_title": "No se ha podido guardar el PDF del recibo",

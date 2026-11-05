@@ -16,8 +16,22 @@ export type { ReceiptData };
 export type { PrinterEncoding };
 export type { PaperWidth };
 
+/**
+ * Payment is outstanding, so the document is a bill, not proof of payment. A
+ * partly paid order stays a receipt: it says what was paid and what is left.
+ */
+export const isOrderUnpaid = (order: {
+  payment_status?: string | null;
+  metadata?: Record<string, unknown> | null;
+}): boolean =>
+  order.payment_status === "not_paid" ||
+  order.payment_status === "awaiting" ||
+  order.payment_status === "requires_action" ||
+  (order.metadata?.pay_later === true && order.payment_status !== "captured");
+
 export type ReceiptLabels = {
   title: string;
+  billTitle: string;
   date: string;
   time: string;
   order: string;
@@ -47,6 +61,7 @@ export type ReceiptLabels = {
 
 export const DEFAULT_RECEIPT_LABELS: ReceiptLabels = {
   title: "SALES RECEIPT",
+  billTitle: "BILL",
   date: "Date",
   time: "Time",
   order: "Order",
@@ -195,7 +210,7 @@ const buildReceiptDoc = (
 
   return {
     headerLines,
-    title: labels.title,
+    title: data.isUnpaid ? labels.billTitle : labels.title,
     metaRows,
     itemsHeading: labels.items,
     items,

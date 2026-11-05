@@ -337,8 +337,10 @@
     "mark_picked_up_button": "Als abgeholt markieren",
     "download_shipping_label_button": "Versandetikett herunterladen",
     "print_receipt_button": "Beleg drucken",
+    "print_bill_button": "Rechnung drucken",
     "printing": "Wird gedruckt...",
     "download_pdf_button": "PDF herunterladen",
+    "download_bill_button": "Rechnung herunterladen",
     "items_one": "{{count}} Artikel",
     "items_other": "{{count}} Artikel",
     "order_title": "Bestellung #{{id}}",
@@ -359,8 +361,11 @@
     "event_out": "Raus: {{items}}",
     "event_back": "Zurück: {{items}}",
     "receipt_sent_to_printer": "Beleg an Drucker gesendet",
+    "bill_sent_to_printer": "Rechnung an Drucker gesendet",
     "receipt_did_not_print": "Der Beleg wurde nicht gedruckt",
+    "bill_did_not_print": "Die Rechnung wurde nicht gedruckt",
     "failed_to_download_receipt": "Beleg konnte nicht heruntergeladen werden. Bitte erneut versuchen.",
+    "failed_to_download_bill": "Rechnung konnte nicht heruntergeladen werden",
     "shipping_label_downloaded": "Versandetikett heruntergeladen: {{filename}}",
     "failed_to_download_shipping_label": "Versandetikett konnte nicht heruntergeladen werden: {{error}}",
     "no_shipping_label": "Für dieses Fulfillment wurde kein Versandetikett gefunden",
@@ -569,6 +574,7 @@
   },
   "receipt": {
     "title": "VERKAUFSBELEG",
+    "title_bill": "RECHNUNG",
     "date": "Datum",
     "time": "Uhrzeit",
     "order": "Bestellung",
@@ -610,7 +616,9 @@
       "owed": "Zum offenen Betrag hinzugefügt"
     },
     "preview_button": "Beleg ansehen",
+    "preview_button_bill": "Rechnung ansehen",
     "preview_title": "Belegvorschau",
+    "preview_title_bill": "Rechnungsvorschau",
     "preview_description": "Was der Standarddrucker für diese Bestellung druckt, in seiner Papierbreite und mit dem Shop-Logo.",
     "preview_sale_note": "Was dieser Verkauf nach der Zahlung druckt. Die Bestellnummer wird bei Zahlungsabschluss vergeben."
   },
@@ -953,6 +961,7 @@
   },
   "printer_service": {
     "receipt_saved_success": "Beleg gespeichert als {{filename}}",
+    "bill_saved_success": "Rechnung gespeichert als {{filename}}",
     "saved_to_downloads": "Im Downloads-Ordner gespeichert",
     "open_folder_button": "Ordner öffnen",
     "save_pdf_error_title": "Beleg-PDF konnte nicht gespeichert werden",

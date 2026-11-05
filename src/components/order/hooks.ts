@@ -24,6 +24,7 @@ import { useQueryTerminalStockLocationId } from "@/hooks/queries/useQueryStockLo
 import { useQueryRegion } from "@/hooks/queries/useQueryRegion";
 import { usePostSaleSlip } from "@/hooks/order/usePostSaleSlip";
 import type { PostSaleSlipDraft } from "@/utils/pos/receipt/post-sale-slip";
+import { isOrderUnpaid } from "@/utils/pos/receipt";
 import { ROUTES } from "@/router/routes";
 
 // Type for fulfillment with extended properties
@@ -95,20 +96,22 @@ export const useOrder = (order: AdminOrder) => {
     navigate(ROUTES.orders);
   };
 
+  const isBill = isOrderUnpaid(order);
+
   const handleReprintReceipt = async () => {
     if (isPrinting) return;
     setIsPrinting(true);
     try {
       await printOrderReceipt(order);
-      toast.success(t("orders.receipt_sent_to_printer"));
+      toast.success(t(isBill ? "orders.bill_sent_to_printer" : "orders.receipt_sent_to_printer"));
     } catch {
       const printer = getDefaultPrinter();
       if (printer) {
-        toast.error(t("orders.receipt_did_not_print"), {
+        toast.error(t(isBill ? "orders.bill_did_not_print" : "orders.receipt_did_not_print"), {
           description: printerIssueStaffHintToast(printer.name),
         });
       } else {
-        toast.error(t("orders.receipt_did_not_print"), {
+        toast.error(t(isBill ? "orders.bill_did_not_print" : "orders.receipt_did_not_print"), {
           description: t("checkout.no_default_printer"),
         });
       }
@@ -142,7 +145,7 @@ export const useOrder = (order: AdminOrder) => {
     try {
       await downloadReceiptAsPDF(order);
     } catch {
-      handleErrorToast(t("orders.failed_to_download_receipt"));
+      handleErrorToast(t(isBill ? "orders.failed_to_download_bill" : "orders.failed_to_download_receipt"));
     } finally {
       setIsDownloadingPDF(false);
     }
@@ -355,6 +358,7 @@ export const useOrder = (order: AdminOrder) => {
 
   return {
     getReceiptPreview,
+    isBill,
     handleBackToOrders,
     handleReprintReceipt,
     handlePrintHandoffTicket,

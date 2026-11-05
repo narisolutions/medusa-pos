@@ -337,8 +337,10 @@
     "mark_picked_up_button": "Marquer comme retirée",
     "download_shipping_label_button": "Télécharger l’étiquette d’expédition",
     "print_receipt_button": "Imprimer le reçu",
+    "print_bill_button": "Imprimer la note",
     "printing": "Impression...",
     "download_pdf_button": "Télécharger le PDF",
+    "download_bill_button": "Télécharger la note",
     "items_one": "{{count}} article",
     "items_other": "{{count}} articles",
     "order_title": "Commande #{{id}}",
@@ -359,8 +361,11 @@
     "event_out": "Sortie : {{items}}",
     "event_back": "Retour : {{items}}",
     "receipt_sent_to_printer": "Reçu envoyé à l’imprimante",
+    "bill_sent_to_printer": "Note envoyée à l'imprimante",
     "receipt_did_not_print": "Le reçu n’a pas été imprimé",
+    "bill_did_not_print": "La note n'a pas été imprimée",
     "failed_to_download_receipt": "Échec du téléchargement du reçu. Veuillez réessayer.",
+    "failed_to_download_bill": "Impossible de télécharger la note",
     "shipping_label_downloaded": "Étiquette d’expédition téléchargée : {{filename}}",
     "failed_to_download_shipping_label": "Échec du téléchargement de l’étiquette d’expédition : {{error}}",
     "no_shipping_label": "Aucune étiquette d’expédition trouvée pour ce traitement",
@@ -569,6 +574,7 @@
   },
   "receipt": {
     "title": "TICKET DE CAISSE",
+    "title_bill": "NOTE",
     "date": "Date",
     "time": "Heure",
     "order": "Commande",
@@ -610,7 +616,9 @@
       "owed": "Ajouté au montant dû"
     },
     "preview_button": "Aperçu du ticket",
+    "preview_button_bill": "Voir la note",
     "preview_title": "Aperçu du ticket",
+    "preview_title_bill": "Aperçu de la note",
     "preview_description": "Ce que l'imprimante par défaut imprime pour cette commande, à sa largeur de papier et avec le logo de la boutique.",
     "preview_sale_note": "Ce que cette vente imprimera une fois payée. Le numéro de commande est attribué à la fin du paiement."
   },
@@ -953,6 +961,7 @@
   },
   "printer_service": {
     "receipt_saved_success": "Reçu enregistré sous {{filename}}",
+    "bill_saved_success": "Note enregistrée sous {{filename}}",
     "saved_to_downloads": "Enregistré dans votre dossier Téléchargements",
     "open_folder_button": "Ouvrir le dossier",
     "save_pdf_error_title": "Impossible d’enregistrer le PDF du reçu",

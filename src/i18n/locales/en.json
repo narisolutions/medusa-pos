@@ -337,8 +337,10 @@
     "mark_picked_up_button": "Mark as Picked Up",
     "download_shipping_label_button": "Download Shipping Label",
     "print_receipt_button": "Print Receipt",
+    "print_bill_button": "Print bill",
     "printing": "Printing...",
     "download_pdf_button": "Download PDF",
+    "download_bill_button": "Download bill",
     "items_one": "{{count}} item",
     "items_other": "{{count}} items",
     "order_title": "Order #{{id}}",
@@ -359,8 +361,11 @@
     "event_out": "Out: {{items}}",
     "event_back": "Back: {{items}}",
     "receipt_sent_to_printer": "Receipt sent to printer",
+    "bill_sent_to_printer": "Bill sent to printer",
     "receipt_did_not_print": "The receipt did not print",
+    "bill_did_not_print": "The bill did not print",
     "failed_to_download_receipt": "Failed to download receipt. Please try again.",
+    "failed_to_download_bill": "Failed to download bill",
     "shipping_label_downloaded": "Shipping label downloaded: {{filename}}",
     "failed_to_download_shipping_label": "Failed to download shipping label: {{error}}",
     "no_shipping_label": "No shipping label found for this fulfillment",
@@ -569,6 +574,7 @@
   },
   "receipt": {
     "title": "SALES RECEIPT",
+    "title_bill": "BILL",
     "date": "Date",
     "time": "Time",
     "order": "Order",
@@ -610,7 +616,9 @@
       "owed": "Added to amount owed"
     },
     "preview_button": "Preview receipt",
+    "preview_button_bill": "Preview bill",
     "preview_title": "Receipt preview",
+    "preview_title_bill": "Bill preview",
     "preview_description": "What the default printer prints for this order, at its paper width and with the store logo.",
     "preview_sale_note": "What this sale will print once paid. The order number is assigned when payment completes."
   },
@@ -953,6 +961,7 @@
   },
   "printer_service": {
     "receipt_saved_success": "Receipt saved as {{filename}}",
+    "bill_saved_success": "Bill saved as {{filename}}",
     "saved_to_downloads": "Saved to your Downloads folder",
     "open_folder_button": "Open Folder",
     "save_pdf_error_title": "Could not save the receipt PDF",

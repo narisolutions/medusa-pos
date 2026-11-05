@@ -337,8 +337,10 @@
     "mark_picked_up_button": "მიღებულად მონიშვნა",
     "download_shipping_label_button": "მიწოდების ეტიკეტის ჩამოტვირთვა",
     "print_receipt_button": "ქვითრის ბეჭდვა",
+    "print_bill_button": "ანგარიშის ბეჭდვა",
     "printing": "იბეჭდება...",
     "download_pdf_button": "PDF-ის ჩამოტვირთვა",
+    "download_bill_button": "ანგარიშის ჩამოტვირთვა",
     "items_one": "{{count}} ნივთი",
     "items_other": "{{count}} ნივთი",
     "order_title": "შეკვეთა #{{id}}",
@@ -359,8 +361,11 @@
     "event_out": "გავიდა: {{items}}",
     "event_back": "დაბრუნდა: {{items}}",
     "receipt_sent_to_printer": "ქვითარი გაგზავნილია პრინტერზე",
+    "bill_sent_to_printer": "ანგარიში გაგზავნილია პრინტერზე",
     "receipt_did_not_print": "ქვითარი ვერ დაიბეჭდა",
+    "bill_did_not_print": "ანგარიში ვერ დაიბეჭდა",
     "failed_to_download_receipt": "ქვითრის ჩამოტვირთვა ვერ მოხერხდა. სცადეთ თავიდან.",
+    "failed_to_download_bill": "ანგარიშის ჩამოტვირთვა ვერ მოხერხდა",
     "shipping_label_downloaded": "მიწოდების ეტიკეტი ჩამოიტვირთა: {{filename}}",
     "failed_to_download_shipping_label": "მიწოდების ეტიკეტის ჩამოტვირთვა ვერ მოხერხდა: {{error}}",
     "no_shipping_label": "ეტიკეტი ვერ მოიძებნა",
@@ -569,6 +574,7 @@
   },
   "receipt": {
     "title": "გაყიდვის ქვითარი",
+    "title_bill": "ანგარიში",
     "date": "თარიღი",
     "time": "დრო",
     "order": "შეკვეთა",
@@ -610,7 +616,9 @@
       "owed": "დაემატა დავალიანებას"
     },
     "preview_button": "ქვითრის ნახვა",
+    "preview_button_bill": "ანგარიშის ნახვა",
     "preview_title": "ქვითრის წინასწარი ნახვა",
+    "preview_title_bill": "ანგარიშის წინასწარი ნახვა",
     "preview_description": "რას დაბეჭდავს ძირითადი პრინტერი ამ შეკვეთისთვის — მისი ქაღალდის სიგანით და ობიექტის  ლოგოთი.",
     "preview_sale_note": "რას დაბეჭდავს ეს შეკვეთა გადახდის შემდეგ. შეკვეთის ნომერი გადახდისას მიენიჭება."
   },
@@ -953,6 +961,7 @@
   },
   "printer_service": {
     "receipt_saved_success": "ქვითარი შენახულია: {{filename}}",
+    "bill_saved_success": "ანგარიში შენახულია: {{filename}}",
     "saved_to_downloads": "შენახულია ჩამოტვირთვების საქაღალდეში",
     "open_folder_button": "საქაღალდის გახსნა",
     "save_pdf_error_title": "ქვითრის PDF ვერ შეინახა",
