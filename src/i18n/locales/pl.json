@@ -337,8 +337,10 @@
     "mark_picked_up_button": "Oznacz jako odebrane",
     "download_shipping_label_button": "Pobierz etykietę wysyłkową",
     "print_receipt_button": "Drukuj paragon",
+    "print_bill_button": "Drukuj rachunek",
     "printing": "Drukowanie...",
     "download_pdf_button": "Pobierz PDF",
+    "download_bill_button": "Pobierz rachunek",
     "items_one": "{{count}} pozycja",
     "items_other": "{{count}} pozycji",
     "order_title": "Zamówienie #{{id}}",
@@ -359,8 +361,11 @@
     "event_out": "Wydano: {{items}}",
     "event_back": "Zwrócono: {{items}}",
     "receipt_sent_to_printer": "Paragon wysłany do drukarki",
+    "bill_sent_to_printer": "Rachunek wysłany do drukarki",
     "receipt_did_not_print": "Paragon nie wydrukował się",
+    "bill_did_not_print": "Rachunek nie został wydrukowany",
     "failed_to_download_receipt": "Nie udało się pobrać paragonu. Spróbuj ponownie.",
+    "failed_to_download_bill": "Nie udało się pobrać rachunku",
     "shipping_label_downloaded": "Etykieta wysyłkowa pobrana: {{filename}}",
     "failed_to_download_shipping_label": "Nie udało się pobrać etykiety wysyłkowej: {{error}}",
     "no_shipping_label": "Nie znaleziono etykiety wysyłkowej dla tej realizacji",
@@ -569,6 +574,7 @@
   },
   "receipt": {
     "title": "PARAGON SPRZEDAŻY",
+    "title_bill": "RACHUNEK",
     "date": "Data",
     "time": "Godzina",
     "order": "Zamówienie",
@@ -610,7 +616,9 @@
       "owed": "Dodano do kwoty należnej"
     },
     "preview_button": "Podgląd paragonu",
+    "preview_button_bill": "Zobacz rachunek",
     "preview_title": "Podgląd paragonu",
+    "preview_title_bill": "Podgląd rachunku",
     "preview_description": "Co drukarka domyślna wydrukuje dla tego zamówienia — w jej szerokości papieru i z logo sklepu.",
     "preview_sale_note": "Co wydrukuje ta sprzedaż po opłaceniu. Numer zamówienia zostanie nadany po zakończeniu płatności."
   },
@@ -953,6 +961,7 @@
   },
   "printer_service": {
     "receipt_saved_success": "Paragon zapisany jako {{filename}}",
+    "bill_saved_success": "Rachunek zapisany jako {{filename}}",
     "saved_to_downloads": "Zapisano w folderze Pobrane",
     "open_folder_button": "Otwórz folder",
     "save_pdf_error_title": "Nie można zapisać paragonu PDF",

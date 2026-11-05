@@ -42,6 +42,7 @@ const Order: React.FC<Props> = ({ order }) => {
   const {
     handleBackToOrders,
     handleReprintReceipt,
+    isBill,
     handlePrintHandoffTicket,
     handleDownloadShippingLabel,
     handleCreateShipment,
@@ -148,15 +149,15 @@ const Order: React.FC<Props> = ({ order }) => {
           <div className="ml-auto flex flex-wrap items-center gap-3">
             <Button variant="outline" size="lg" onClick={() => setReceiptPreview(getReceiptPreview())} className="px-5">
               <Eye className="size-5" />
-              {t("receipt.preview_button")}
+              {t(isBill ? "receipt.preview_button_bill" : "receipt.preview_button")}
             </Button>
             <Button variant="outline" size="lg" onClick={handleReprintReceipt} disabled={isDownloadingPDF} loading={isPrinting} className="px-5">
               {!isPrinting && <Printer className="size-5" />}
-              {isPrinting ? t("orders.printing") : t("orders.print_receipt_button")}
+              {isPrinting ? t("orders.printing") : t(isBill ? "orders.print_bill_button" : "orders.print_receipt_button")}
             </Button>
             <Button variant="outline" size="lg" onClick={handleDownloadReceiptPDF} disabled={isPrinting} loading={isDownloadingPDF} className="px-5">
               {!isDownloadingPDF && <FileDown className="size-5" />}
-              {isDownloadingPDF ? t("common.downloading") : t("orders.download_pdf_button")}
+              {isDownloadingPDF ? t("common.downloading") : t(isBill ? "orders.download_bill_button" : "orders.download_pdf_button")}
             </Button>
             {isTransferOrder && (
               <Button
@@ -212,15 +213,16 @@ const Order: React.FC<Props> = ({ order }) => {
         open={!!receiptPreview}
         onOpenChange={(open) => !open && setReceiptPreview(null)}
         preview={receiptPreview}
+        {...(isBill ? { title: t("receipt.preview_title_bill") } : {})}
         actions={
           <>
             <Button variant="outline" size="lg" onClick={handleDownloadReceiptPDF} disabled={isPrinting} loading={isDownloadingPDF} className="px-6">
               {!isDownloadingPDF && <FileDown className="size-5" />}
-              {t("orders.download_pdf_button")}
+              {t(isBill ? "orders.download_bill_button" : "orders.download_pdf_button")}
             </Button>
             <Button size="lg" onClick={handleReprintReceipt} disabled={isDownloadingPDF} loading={isPrinting} className="px-8">
               {!isPrinting && <Printer className="size-5" />}
-              {t("orders.print_receipt_button")}
+              {t(isBill ? "orders.print_bill_button" : "orders.print_receipt_button")}
             </Button>
           </>
         }

@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { buildReceiptDoc, DEFAULT_RECEIPT_LABELS, type ReceiptData } from "@/utils/pos/receipt";
+import { buildReceiptDoc, DEFAULT_RECEIPT_LABELS, isOrderUnpaid, type ReceiptData } from "@/utils/pos/receipt";
 
 const base: ReceiptData = {
   storeName: "Store",
@@ -51,5 +51,26 @@ describe("receipt payment method", () => {
   it("is left out when the order has none recorded, rather than guessed", () => {
     const labels = rowsOf({ ...base, paymentMethod: "", isUnpaid: true }).map((row) => row.label);
     expect(labels).toEqual(["Amount Due"]);
+  });
+});
+
+describe("receipt title", () => {
+  it("is the receipt's once paid, and a bill while payment is outstanding", () => {
+    expect(buildReceiptDoc(base).title).toBe(DEFAULT_RECEIPT_LABELS.title);
+    expect(buildReceiptDoc({ ...base, isUnpaid: true, amountDue: 60 }).title).toBe(DEFAULT_RECEIPT_LABELS.billTitle);
+  });
+});
+
+describe("isOrderUnpaid", () => {
+  it("is true while payment is outstanding, including a pay-later order", () => {
+    expect(isOrderUnpaid({ payment_status: "not_paid" })).toBe(true);
+    expect(isOrderUnpaid({ payment_status: "awaiting" })).toBe(true);
+    expect(isOrderUnpaid({ payment_status: "authorized", metadata: { pay_later: true } })).toBe(true);
+  });
+
+  it("is false once paid, and on a partly paid order", () => {
+    expect(isOrderUnpaid({ payment_status: "captured" })).toBe(false);
+    expect(isOrderUnpaid({ payment_status: "captured", metadata: { pay_later: true } })).toBe(false);
+    expect(isOrderUnpaid({ payment_status: "partially_captured" })).toBe(false);
   });
 });

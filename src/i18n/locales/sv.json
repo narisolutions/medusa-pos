@@ -337,8 +337,10 @@
     "mark_picked_up_button": "Markera som upphämtad",
     "download_shipping_label_button": "Ladda ner fraktsedel",
     "print_receipt_button": "Skriv ut kvitto",
+    "print_bill_button": "Skriv ut nota",
     "printing": "Skriver ut...",
     "download_pdf_button": "Ladda ner PDF",
+    "download_bill_button": "Ladda ner nota",
     "items_one": "{{count}} artikel",
     "items_other": "{{count}} artiklar",
     "order_title": "Order #{{id}}",
@@ -359,8 +361,11 @@
     "event_out": "Ut: {{items}}",
     "event_back": "Tillbaka: {{items}}",
     "receipt_sent_to_printer": "Kvitto skickat till skrivaren",
+    "bill_sent_to_printer": "Notan skickad till skrivaren",
     "receipt_did_not_print": "Kvittot skrevs inte ut",
+    "bill_did_not_print": "Notan skrevs inte ut",
     "failed_to_download_receipt": "Det gick inte att ladda ner kvittot. Försök igen.",
+    "failed_to_download_bill": "Det gick inte att ladda ner notan",
     "shipping_label_downloaded": "Fraktsedel nerladdad: {{filename}}",
     "failed_to_download_shipping_label": "Det gick inte att ladda ner fraktsedeln: {{error}}",
     "no_shipping_label": "Ingen fraktsedel hittades för denna leverans",
@@ -569,6 +574,7 @@
   },
   "receipt": {
     "title": "FÖRSÄLJNINGSKVITTO",
+    "title_bill": "NOTA",
     "date": "Datum",
     "time": "Tid",
     "order": "Order",
@@ -610,7 +616,9 @@
       "owed": "Lagt till skyldigt belopp"
     },
     "preview_button": "Visa kvitto",
+    "preview_button_bill": "Visa nota",
     "preview_title": "Kvittoförhandsvisning",
+    "preview_title_bill": "Förhandsgranskning av nota",
     "preview_description": "Det standardskrivaren skriver ut för ordern, i dess pappersbredd och med butikens logotyp.",
     "preview_sale_note": "Det den här försäljningen skriver ut när den är betald. Ordernumret tilldelas när betalningen är klar."
   },
@@ -953,6 +961,7 @@
   },
   "printer_service": {
     "receipt_saved_success": "Kvitto sparat som {{filename}}",
+    "bill_saved_success": "Notan sparad som {{filename}}",
     "saved_to_downloads": "Sparat i mappen Hämtade filer",
     "open_folder_button": "Öppna mapp",
     "save_pdf_error_title": "Det gick inte att spara kvitto-PDF:en",
