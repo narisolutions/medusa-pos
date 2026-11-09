@@ -6,7 +6,9 @@ import { formatPrice } from "@/utils/helpers";
 import constants from "@/utils/constants";
 import { useTranslation } from "@/i18n";
 import { useRecordPayment } from "./hooks";
+import { toNumber } from "@/utils/pos/pricing";
 import PaymentMethodPicker from "../payment-method-picker";
+import CashTender from "../cash-tender";
 
 interface Props {
   isOpen: boolean;
@@ -24,14 +26,18 @@ const RecordPaymentDialog: React.FC<Props> = ({ isOpen, onClose, order }) => {
     currency,
     isProcessing,
     handleConfirm,
+    isCashSelected,
+    cashDue,
+    tender,
   } = useRecordPayment(order, onClose);
+  const due = isCashSelected ? cashDue : total;
 
   const displayCurrency = currency || constants.CHECKOUT_CONFIG.CURRENCY;
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && !isProcessing && onClose()}>
       <DialogContent
-        className="max-w-md"
+        className={isCashSelected ? "max-w-3xl max-h-[94vh] overflow-y-auto" : "max-w-md"}
         preventOutsideClose={isProcessing}
         showCloseButton={!isProcessing}
       >
@@ -45,8 +51,13 @@ const RecordPaymentDialog: React.FC<Props> = ({ isOpen, onClose, order }) => {
               {t("checkout.amount_due_label")}
             </div>
             <div className="text-total tabular-nums text-fg">
-              {formatPrice(total, displayCurrency)}
+              {formatPrice(due, displayCurrency)}
             </div>
+            {due !== toNumber(total) && (
+              <div className="text-base text-fg-muted mt-1">
+                {t("checkout.rounded_from")} {formatPrice(total, displayCurrency)}
+              </div>
+            )}
           </div>
 
           <PaymentMethodPicker
@@ -55,6 +66,15 @@ const RecordPaymentDialog: React.FC<Props> = ({ isOpen, onClose, order }) => {
             onSelect={setSelectedMethod}
             disabled={isProcessing}
           />
+
+          {isCashSelected && (
+            <CashTender
+              tender={tender}
+              currency={displayCurrency}
+              disabled={isProcessing}
+              onEnter={tender.canProcessPayment && !isProcessing ? () => void handleConfirm() : undefined}
+            />
+          )}
         </div>
 
         <div className="flex gap-3 pt-2">
@@ -69,14 +89,14 @@ const RecordPaymentDialog: React.FC<Props> = ({ isOpen, onClose, order }) => {
           </Button>
           <Button
             onClick={handleConfirm}
-            disabled={!selectedMethod}
+            disabled={!selectedMethod || (isCashSelected && !tender.canProcessPayment)}
             loading={isProcessing}
             variant="success"
             size="lg"
             className="flex-2 text-lg"
           >
             {isProcessing ? t("common.processing") : t("orders.record_payment")}
-            {!isProcessing && <span className="tabular-nums">· {formatPrice(total, displayCurrency)}</span>}
+            {!isProcessing && <span className="tabular-nums">· {formatPrice(due, displayCurrency)}</span>}
           </Button>
         </div>
       </DialogContent>
