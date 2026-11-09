@@ -105,7 +105,7 @@ interface ReceiptData {
   /** Outstanding balance shown on an unpaid receipt instead of Amount Paid/Change. */
   amountDue?: number;
   /** Where to send the outstanding amount; printed only on an unpaid receipt. */
-  bankDetails?: { beneficiary?: string; bankName?: string; iban: string };
+  bankDetails?: { beneficiary?: string; accounts: { bankName?: string; iban: string; swift?: string }[] };
   footer?: string;
 }
 

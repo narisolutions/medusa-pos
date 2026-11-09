@@ -173,8 +173,15 @@ export default {
       .optional(),
     transferCounterparty: z.string().optional(),
     bankBeneficiary: z.string().optional(),
-    bankName: z.string().optional(),
-    bankIban: z.string().optional(),
+    bankAccounts: z
+      .array(
+        z.object({
+          bankName: z.string().optional(),
+          iban: z.string().optional(),
+          swift: z.string().optional(),
+        })
+      )
+      .optional(),
     paymentMethods: z
       .array(
         z.object({

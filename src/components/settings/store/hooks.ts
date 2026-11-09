@@ -10,7 +10,8 @@ import {
   getStoreMetadata,
   DEFAULT_PAYMENT_METHODS,
   buildStoreMetadataPayload,
-  normalizeIban,
+  bankDetailsPayload,
+  savedBankAccounts,
 } from "@/utils/settings/store/metadata";
 import storage from "@/utils/storage";
 import constants from "@/utils/constants";
@@ -89,9 +90,8 @@ const useStoreSettings = ({ form }: Props): UseStoreSettingsReturn => {
         meta.payment_methods?.length ? meta.payment_methods : DEFAULT_PAYMENT_METHODS,
       guestCustomerEmail: meta.guest_customer_email ?? "",
       transferCounterparty: meta.transfer_counterparty ?? "",
-      bankBeneficiary: meta.bank_details?.beneficiary ?? "",
-      bankName: meta.bank_details?.bank_name ?? "",
-      bankIban: meta.bank_details?.iban ?? "",
+      bankBeneficiary: meta.bank_beneficiary ?? meta.bank_details?.beneficiary ?? "",
+      bankAccounts: savedBankAccounts(meta),
     });
   }, [store, reset]);
 
@@ -111,11 +111,7 @@ const useStoreSettings = ({ form }: Props): UseStoreSettingsReturn => {
         payment_methods: data.paymentMethods ?? undefined,
         guest_customer_email: data.guestCustomerEmail || undefined,
         transfer_counterparty: data.transferCounterparty?.trim() || undefined,
-        bank_details: {
-          beneficiary: data.bankBeneficiary?.trim() || undefined,
-          bank_name: data.bankName?.trim() || undefined,
-          iban: data.bankIban ? normalizeIban(data.bankIban) || undefined : undefined,
-        },
+        ...bankDetailsPayload(data.bankBeneficiary, data.bankAccounts ?? []),
       };
       await updateStore({
         storeId: store.id,

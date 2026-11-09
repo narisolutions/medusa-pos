@@ -16,11 +16,24 @@ export type PaymentMethodConfig = {
   type?: PaymentMethodType;
 };
 
-/** Where a customer sends a bank transfer; printed on unpaid receipts. */
+/** The single account tills before multi-account saved; still written for them, from the main account. */
 export type BankDetails = {
   beneficiary?: string;
   bank_name?: string;
   iban?: string;
+};
+
+/** One account a customer can pay a bank transfer into; the first is the main one. */
+export type BankAccount = {
+  bank_name?: string;
+  iban?: string;
+  swift?: string;
+};
+
+/** Who is paid and into which accounts; printed on bills and read by the backend's invoice. */
+export type StoreBankDetails = {
+  beneficiary?: string;
+  accounts: (BankAccount & { iban: string })[];
 };
 
 /** A product pinned to Checkout: one tap adds it. `label` shortens a long product name. */
@@ -47,6 +60,8 @@ export type PosMetadata = {
   /** Who a transfer settlement is owed to; printed on the hand-off ticket. */
   transfer_counterparty?: string;
   bank_details?: BankDetails;
+  bank_beneficiary?: string;
+  bank_accounts?: BankAccount[];
   quick_keys?: QuickKey[];
 };
 
@@ -102,6 +117,8 @@ export function getStoreMetadata(
     guest_customer_email: pos.guest_customer_email ?? raw.guest_customer_email,
     transfer_counterparty: pos.transfer_counterparty ?? raw.transfer_counterparty,
     bank_details: pos.bank_details,
+    bank_beneficiary: pos.bank_beneficiary,
+    bank_accounts: pos.bank_accounts,
     quick_keys: pos.quick_keys,
   };
 }
@@ -165,12 +182,62 @@ export function normalizeIban(value: string): string {
   return value.replace(/\s+/g, "").toUpperCase();
 }
 
-/** The store's bank details, only when an IBAN is set — without one there is nothing to pay to. */
-export function getBankDetails(
-  store: AdminStore | null | undefined
-): (BankDetails & { iban: string }) | undefined {
-  const details = getStoreMetadata(store).bank_details;
-  return details?.iban ? { ...details, iban: details.iban } : undefined;
+/**
+ * The beneficiary and every account that has an IBAN, main first; undefined when none has one,
+ * since there is nothing to pay to. A store saved before multi-account reads as one account.
+ */
+export function getBankDetails(store: AdminStore | null | undefined): StoreBankDetails | undefined {
+  const meta = getStoreMetadata(store);
+  const saved = Array.isArray(meta.bank_accounts) ? meta.bank_accounts : [meta.bank_details ?? {}];
+  const accounts = saved
+    .filter((account): account is BankAccount & { iban: string } => typeof account?.iban === "string" && account.iban !== "")
+    .map(({ bank_name, iban, swift }) => ({
+      ...(bank_name ? { bank_name } : {}),
+      iban,
+      ...(swift ? { swift } : {}),
+    }));
+  if (accounts.length === 0) return undefined;
+  const beneficiary = meta.bank_beneficiary ?? meta.bank_details?.beneficiary;
+  return { ...(beneficiary ? { beneficiary } : {}), accounts };
+}
+
+/** The saved accounts as the settings form edits them; one empty card when there are none. */
+export function savedBankAccounts(meta: PosMetadata): { bankName: string; iban: string; swift: string }[] {
+  const saved = Array.isArray(meta.bank_accounts)
+    ? meta.bank_accounts
+    : meta.bank_details?.bank_name || meta.bank_details?.iban
+      ? [meta.bank_details]
+      : [];
+  const accounts = saved.map((account) => ({
+    bankName: account?.bank_name ?? "",
+    iban: account?.iban ?? "",
+    swift: (account as BankAccount | undefined)?.swift ?? "",
+  }));
+  return accounts.length > 0 ? accounts : [{ bankName: "", iban: "", swift: "" }];
+}
+
+/**
+ * What a save writes: the list and beneficiary, plus the main account as `bank_details` so a
+ * till that hasn't updated yet still prints it. Accounts with nothing typed are dropped.
+ */
+export function bankDetailsPayload(
+  beneficiary: string | undefined,
+  accounts: { bankName?: string; iban?: string; swift?: string }[]
+): Pick<PosMetadata, "bank_beneficiary" | "bank_accounts" | "bank_details"> {
+  const cleaned = accounts
+    .map((account) => ({
+      bank_name: account.bankName?.trim() || undefined,
+      iban: account.iban ? normalizeIban(account.iban) || undefined : undefined,
+      swift: account.swift?.trim().toUpperCase() || undefined,
+    }))
+    .filter((account) => account.bank_name || account.iban || account.swift);
+  const payee = beneficiary?.trim() || undefined;
+  const main = cleaned[0];
+  return {
+    bank_beneficiary: payee,
+    bank_accounts: cleaned,
+    bank_details: { beneficiary: payee, bank_name: main?.bank_name, iban: main?.iban },
+  };
 }
 
 export function getStoreAddress2(
