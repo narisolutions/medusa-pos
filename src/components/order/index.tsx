@@ -14,6 +14,7 @@ import {
   QrCode,
   ArrowLeftRight,
   Eye,
+  FileText,
 } from "lucide-react";
 import { formatDate } from "@/utils/helpers";
 import OrderStatusChip from "@/components/base/order-status-chip";
@@ -45,6 +46,9 @@ const Order: React.FC<Props> = ({ order }) => {
     isBill,
     handlePrintHandoffTicket,
     handleDownloadShippingLabel,
+    handleDownloadInvoice,
+    canDownloadInvoice,
+    isDownloadingInvoice,
     handleCreateShipment,
     handleOpenPickupConfirmation,
     handleMarkAsPickedUp,
@@ -159,6 +163,12 @@ const Order: React.FC<Props> = ({ order }) => {
               {!isDownloadingPDF && <FileDown className="size-5" />}
               {isDownloadingPDF ? t("common.downloading") : t(isBill ? "orders.download_bill_button" : "orders.download_pdf_button")}
             </Button>
+            {canDownloadInvoice && (
+              <Button variant="outline" size="lg" onClick={handleDownloadInvoice} loading={isDownloadingInvoice} className="px-5">
+                {!isDownloadingInvoice && <FileText className="size-5" />}
+                {isDownloadingInvoice ? t("common.downloading") : t("orders.download_invoice_button")}
+              </Button>
+            )}
             {isTransferOrder && (
               <Button
                 variant="outline"

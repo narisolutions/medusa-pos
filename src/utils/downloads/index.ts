@@ -84,4 +84,22 @@ const openDownloadsFolder = async (
   }
 };
 
-export { triggerFileDownload, openDownloadsFolder };
+/** Saves a file the backend generates (e.g. `/admin/orders/:id/invoice`) to Downloads. */
+const downloadFromBackend = async (relativeUrl: string): Promise<{ filename: string; fullPath: string }> => {
+  const { getSdkBaseUrl, getAuthToken } = await import("@/config/medusa");
+  const headers: Record<string, string> = {};
+  try {
+    const token = await getAuthToken();
+    if (token) headers["Authorization"] = `Bearer ${token}`;
+    else void logger.warn("No auth token found in store, relying on cookies");
+  } catch (error) {
+    void logger.warn(`Could not access auth token storage: ${safeStringify(error)}`);
+  }
+
+  const { fetch: tauriFetch } = await import("@tauri-apps/plugin-http");
+  const response = await tauriFetch(`${getSdkBaseUrl()}${relativeUrl}`, { method: "GET", headers });
+  if (!response.ok) throw new Error(response.statusText || `HTTP ${response.status}`);
+  return triggerFileDownload(response);
+};
+
+export { triggerFileDownload, openDownloadsFolder, downloadFromBackend };

@@ -61,6 +61,8 @@ const SETTINGS_INDEX: SettingEntry[] = [
       "settings.store.bank_beneficiary_label",
       "settings.store.bank_name_label",
       "settings.store.bank_iban_label",
+      "settings.store.bank_swift_label",
+      "settings.store.add_bank_account_button",
     ],
   },
   { id: "font-size", section: "store", labelKeys: ["settings.store.font_size_label"] },

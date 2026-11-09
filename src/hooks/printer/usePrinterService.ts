@@ -259,7 +259,10 @@ const usePrinterService = () => {
       cashRounding,
       isUnpaid,
       amountDue: isUnpaid ? total : undefined,
-      bankDetails: bank && { beneficiary: bank.beneficiary, bankName: bank.bank_name, iban: bank.iban },
+      bankDetails: bank && {
+        beneficiary: bank.beneficiary,
+        accounts: bank.accounts.map((a) => ({ bankName: a.bank_name, iban: a.iban, swift: a.swift })),
+      },
       footer: "Thank you for your business!",
     };
   }, [store]);
@@ -291,6 +294,7 @@ const usePrinterService = () => {
     payTo: t("receipt.pay_to"),
     bank: t("receipt.bank"),
     iban: t("receipt.iban"),
+    swift: t("receipt.swift"),
     reference: t("receipt.reference"),
     thankYou: t("receipt.thank_you"),
   }), [t]);

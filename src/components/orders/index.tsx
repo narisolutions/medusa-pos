@@ -1,4 +1,4 @@
-import React, { Fragment, useEffect, useState } from "react";
+import React, { Fragment, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   flexRender,
@@ -43,6 +43,9 @@ const Orders: React.FC = () => {
     isFetching,
   } = useOrdersWithData();
 
+  const scrollRef = useRef<HTMLDivElement>(null);
+  // A new page starts at the top. Reset before the rows shrink: WebKitGTK leaves a shorter page stuck at the old offset.
+  const scrollToTop = () => scrollRef.current?.scrollTo(0, 0);
   const [globalFilter, setGlobalFilter] = useState("");
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [pagination, setPagination] = useState<PaginationState>({
@@ -109,6 +112,7 @@ const Orders: React.FC = () => {
       return prev;
     });
 
+    scrollToTop();
     setPagination((prev) => {
       if (prev.pageIndex === 0) {
         return prev;
@@ -138,7 +142,7 @@ const Orders: React.FC = () => {
         <div className="bg-surface rounded-lg border border-theme-border overflow-hidden shadow-sm h-full flex flex-col">
           {/* Single dedicated scroll region: only the rows scroll (header stays sticky),
               so each scroll frame repaints just the rows instead of the whole card. */}
-          <div className="@container flex-1 min-h-0 overflow-y-auto">
+          <div ref={scrollRef} className="@container flex-1 min-h-0 overflow-y-auto">
           <Table>
             <TableHeader className="bg-surface-muted sticky top-0 z-10">
               {table.getHeaderGroups().map((headerGroup) => (
@@ -237,8 +241,14 @@ const Orders: React.FC = () => {
           table.getFilteredRowModel().rows.length
         )}
         isLoading={isLoading}
-        handlePageChange={(newPageIndex) => table.setPageIndex(newPageIndex)}
-        handlePageSizeChange={(newPageSize) => table.setPageSize(newPageSize)}
+        handlePageChange={(newPageIndex) => {
+          scrollToTop();
+          table.setPageIndex(newPageIndex);
+        }}
+        handlePageSizeChange={(newPageSize) => {
+          scrollToTop();
+          table.setPageSize(newPageSize);
+        }}
       />
     </div>
   );
