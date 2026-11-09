@@ -1,4 +1,7 @@
-import { realOptions } from "@/utils/pos/catalog";
+import { productBrand, realOptions } from "@/utils/pos/catalog";
+import { useTranslation } from "@/i18n";
+import { useSalesChannel } from "@/context/sales-channel";
+import { useQueryProducts } from "@/hooks/queries/useQueryProducts";
 import { CartItem } from "@/types/utils";
 import { AdminProductVariant, AdminProduct } from "@medusajs/types";
 import { useQueryInventoryKitItems } from "@/hooks/queries/useQueryInventoryKitItems";
@@ -18,7 +21,8 @@ const transformVariantToItem = (
     metadata: {
       product_title: variant.product?.title,
       variant_sku: variant.sku,
-      barcode: variant.ean,
+      barcode: variant.barcode,
+      ean: variant.ean,
       thumbnail: variant.product?.thumbnail,
       available_quantity: getVariantAvailableQuantity(variant),
       original_price:
@@ -47,6 +51,15 @@ const useItemDialog = (
   const currentVariantId = isCartItem
     ? item.variant_id
     : (item as AdminProductVariant).id;
+
+  // A cart line carries no product: the brand comes from the catalogue the checkout already loaded.
+  const { i18n } = useTranslation();
+  const salesChannelId = useSalesChannel((s) => s.salesChannelId);
+  const { data: products = [] } = useQueryProducts(salesChannelId);
+  const product =
+    products.find((p) => p.variants?.some((v) => v.id === currentVariantId)) ??
+    (isCartItem ? undefined : (item as AdminProductVariant & { product: AdminProduct }).product);
+  const brand = product ? productBrand(product, i18n.language) : null;
 
   const {
     product_title,
@@ -91,7 +104,9 @@ const useItemDialog = (
   // Convert to safe values
   const productTitle = String(product_title || "");
   const sku = String(variant_sku || "");
-  const ean = String(barcode || "");
+  const barcodeText = String(barcode || "");
+  // The waybill reads Barcode only, so EAN is shown on its own rather than in its place.
+  const eanText = metadata && "ean" in metadata ? String(metadata.ean || "") : "";
   const originalPrice =
     typeof original_price === "number" ? original_price : null;
   const availableQuantityValue =
@@ -155,8 +170,10 @@ const useItemDialog = (
     title,
     unit_price,
     productTitle,
+    brand,
     sku,
-    ean,
+    barcode: barcodeText,
+    ean: eanText,
     thumbnail,
     originalPrice,
     optionsDisplay,

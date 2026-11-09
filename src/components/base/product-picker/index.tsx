@@ -15,10 +15,10 @@ import { AdminProduct, AdminProductVariant } from "@medusajs/types";
 import { formatPrice } from "@/utils/helpers";
 import { ExtendedAdminProduct } from "@/types/utils";
 import ItemDialog from "./variant-dialog";
-import { getVariantAvailableQuantity, getVariantUnitPrice } from "@/utils/pos/cart";
+import { getVariantAvailableQuantity, getVariantUnitPrice, variantHasPrice } from "@/utils/pos/cart";
 import { useQueryPosPlugin } from "@/hooks/queries/useQueryPosPlugin";
 import { useTranslation } from "@/i18n";
-import { optionValuesText } from "@/utils/pos/catalog";
+import { optionValuesText, variantGtin } from "@/utils/pos/catalog";
 
 interface Props {
   products: AdminProduct[];
@@ -125,7 +125,8 @@ const ProductPicker: React.FC<Props> = ({ products, currency, onSelect, extraAct
               </CommandEmpty>
               <CommandGroup>
                 {filteredVariants.map((variant) => {
-                  const { id, title, sku, ean, product } = variant;
+                  const { id, title, sku, product } = variant;
+                  const gtin = variantGtin(variant);
 
                   const calculatedPrice = getVariantUnitPrice(variant);
                   const originalPrice =
@@ -155,7 +156,7 @@ const ProductPicker: React.FC<Props> = ({ products, currency, onSelect, extraAct
                   return (
                     <CommandItem
                       key={id}
-                      value={`${variant.product?.title} ${title} ${sku || ""} ${ean || ""} ${brandTitle || ""}`}
+                      value={`${variant.product?.title} ${title} ${sku || ""} ${gtin || ""} ${brandTitle || ""}`}
                       onSelect={() => {
                         if (dialogClickedRef.current) {
                           dialogClickedRef.current = false;
@@ -184,9 +185,9 @@ const ProductPicker: React.FC<Props> = ({ products, currency, onSelect, extraAct
                               <span className="ml-2">• {t("checkout.sku_label")}{sku}</span>
                             )}
                           </div>
-                          {ean && (
+                          {gtin && (
                             <div className="text-base text-fg-subtle">
-                              {t("checkout.barcode_label")}{ean}
+                              {t("checkout.barcode_label")}{gtin}
                             </div>
                           )}
                         </div>
@@ -222,7 +223,9 @@ const ProductPicker: React.FC<Props> = ({ products, currency, onSelect, extraAct
                           />
                         </div>
                         <div className="flex flex-col items-end gap-1 min-w-[80px]">
-                          {isSale &&
+                          {!variantHasPrice(variant) ? (
+                            <span className="text-base text-fg-muted">{t("checkout.no_price")}</span>
+                          ) : isSale &&
                             originalPrice &&
                             calculatedPrice &&
                             originalPrice !== calculatedPrice ? (

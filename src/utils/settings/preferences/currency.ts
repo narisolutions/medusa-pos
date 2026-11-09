@@ -38,7 +38,8 @@ const CURRENCY_SYMBOLS: Record<string, string> = {
 export const getCashRounding = (): CashRounding => _prefs.cashRounding;
 
 /**
- * Round a CASH amount to the configured increment (e.g. nearest 0.05), half-up.
+ * Round a CASH amount to the configured increment (e.g. nearest 0.05), half-up on the
+ * absolute value, so a refund rounds like a sale (-0.025 → -0.05, not -0.00).
  * Returns the amount unchanged when rounding is disabled. Computed in integer
  * cents to avoid float drift. Only physical cash should pass through here — card
  * and other tenders stay exact.
@@ -46,9 +47,9 @@ export const getCashRounding = (): CashRounding => _prefs.cashRounding;
 export const roundCashAmount = (amount: number): number => {
   const cr = _prefs.cashRounding;
   if (!cr?.enabled || !cr.increment || cr.increment <= 0) return amount;
-  const cents = Math.round(amount * 100);
+  const cents = Math.round(Math.abs(amount) * 100);
   const step = Math.round(cr.increment * 100);
-  return (Math.round(cents / step) * step) / 100;
+  return (Math.sign(amount) * Math.round(cents / step) * step) / 100;
 };
 
 export const getCurrencySymbol = (currencyCode: string): string => {

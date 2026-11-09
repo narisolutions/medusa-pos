@@ -1,7 +1,7 @@
 import React from "react";
 import { AdminProduct } from "@medusajs/types";
 import { Image } from "lucide-react";
-import { productStock } from "@/utils/pos/catalog";
+import { productBrand, productStock } from "@/utils/pos/catalog";
 import { useTranslation } from "@/i18n";
 import ProductInfo from "../product-info";
 import ProductPrice from "../product-price";
@@ -14,7 +14,7 @@ interface Props {
 }
 
 const ProductTile: React.FC<Props> = ({ product, currency, onPick }) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const stock = productStock(product);
   const image = product.thumbnail || product.images?.[0]?.url;
   const variantCount = product.variants?.length ?? 0;
@@ -41,8 +41,10 @@ const ProductTile: React.FC<Props> = ({ product, currency, onPick }) => {
         </div>
         <div className="flex flex-1 flex-col gap-1 p-4">
           <span className="line-clamp-2 min-h-12 text-base font-medium text-fg">{product.title}</span>
-          <span className="min-h-6 text-base text-fg-muted">
-            {variantCount > 1 && t("checkout.catalog_variants", { count: variantCount })}
+          <span className="min-h-6 truncate text-base text-fg-muted">
+            {[productBrand(product, i18n.language), variantCount > 1 && t("checkout.catalog_variants", { count: variantCount })]
+              .filter(Boolean)
+              .join(" • ")}
           </span>
           <div className="mt-auto pt-2">
             <ProductPrice product={product} currency={currency} />

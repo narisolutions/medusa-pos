@@ -1,29 +1,9 @@
 import { AdminOrder } from "@medusajs/types";
 import { HandoffItem, HandoffPayload } from "@/types/handoff";
-import { toNumber } from "@/utils/pos/pricing";
+import { toMinorUnits, toNumber } from "@/utils/pos/pricing";
 
 /** Matches the `restriction:18+` convention carried in Medusa's product_type. */
 const AGE_RESTRICTION_PATTERN = /restriction:(\d+)\+/;
-
-/** ISO 4217 decimals of a currency (GEL 2, JPY 0, KWD 3); 2 when unknown. */
-export function currencyExponent(currency?: string | null): number {
-  if (!currency) return 2;
-  try {
-    return new Intl.NumberFormat("en", { style: "currency", currency }).resolvedOptions()
-      .maximumFractionDigits ?? 2;
-  } catch {
-    return 2;
-  }
-}
-
-/**
- * Decimal major units → integer minor units of `currency`. The ONLY place this app
- * converts; everything else holds money in display units. Must round, not truncate:
- * 4.5 * 100 is 450.00000000000006 in IEEE-754.
- */
-export function toMinorUnits(amount: number, currency?: string | null): number {
-  return Math.round(toNumber(amount) * 10 ** currencyExponent(currency));
-}
 
 /** Minimum serving age from `product_type`, or undefined when unrestricted. */
 function minimumAge(productType: unknown): number | undefined {

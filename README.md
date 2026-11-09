@@ -10,6 +10,8 @@
 
 Cross-platform POS app for Medusa built with React + Tauri 2.
 
+**Website:** [pos.nari.ge](https://pos.nari.ge) · [Download](https://pos.nari.ge/#downloads) · [Getting started](https://pos.nari.ge/blog/getting-started-with-medusa-pos/)
+
 > This project is under active development. APIs, behavior, and UX may change.
 
 Medusa POS is an independent open-source project and is not officially affiliated with Medusa.

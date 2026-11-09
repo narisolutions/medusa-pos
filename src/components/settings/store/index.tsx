@@ -1,11 +1,12 @@
 import React from "react";
 import { useForm, useFieldArray, useWatch } from "react-hook-form";
-import { ImageIcon, Upload, X, Banknote, CreditCard, ArrowLeftRight, Landmark, Plus, Trash2, Info, AlertTriangle } from "lucide-react";
+import { ImageIcon, Upload, X, Banknote, CreditCard, ArrowLeftRight, Landmark, Plus, Trash2, Info, AlertTriangle, Star } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
+import { StatusChip } from "@/components/ui/status-chip";
 import { SegmentedControl } from "@/components/ui/segmented-control";
 import {
   Form,
@@ -47,8 +48,7 @@ const StoreSettings: React.FC = () => {
       guestCustomerEmail: "",
       transferCounterparty: "",
       bankBeneficiary: "",
-      bankName: "",
-      bankIban: "",
+      bankAccounts: [{ bankName: "", iban: "", swift: "" }],
     },
   });
 
@@ -63,6 +63,12 @@ const StoreSettings: React.FC = () => {
     control,
     name: "paymentMethods",
   });
+  const {
+    fields: bankFields,
+    append: appendBank,
+    remove: removeBank,
+    move: moveBank,
+  } = useFieldArray({ control, name: "bankAccounts" });
   const paymentMethods = useWatch({ control, name: "paymentMethods" });
   const hasTransferMethod = paymentMethods?.some(
     (m) => (m.type ?? m.icon) === "transfer"
@@ -108,7 +114,7 @@ const StoreSettings: React.FC = () => {
               control={control}
               name="storeName"
               render={({ field }) => (
-                <FormItem>
+                <FormItem data-setting="store-name">
                   <FormLabel className="text-lg font-medium">
                     {t("settings.store.store_name_label")}
                   </FormLabel>
@@ -128,7 +134,7 @@ const StoreSettings: React.FC = () => {
               control={control}
               name="brandName"
               render={({ field }) => (
-                <FormItem>
+                <FormItem data-setting="brand-name">
                   <FormLabel className="text-lg font-medium">
                     {t("settings.store.brand_name_label")}
                   </FormLabel>
@@ -144,7 +150,7 @@ const StoreSettings: React.FC = () => {
               )}
             />
 
-            <div className="flex flex-col gap-3">
+            <div data-setting="logo" className="flex flex-col gap-3">
               <Label className="text-lg font-medium">{t("settings.store.logo_label")}</Label>
               <div className="flex items-center gap-4">
                 <div className="w-24 h-24 border-2 border-dashed border-theme-border-strong rounded-lg flex items-center justify-center bg-surface-subtle shrink-0 overflow-hidden">
@@ -189,7 +195,7 @@ const StoreSettings: React.FC = () => {
               control={control}
               name="storeAddress"
               render={({ field }) => (
-                <FormItem>
+                <FormItem data-setting="store-address">
                   <FormLabel className="text-lg font-medium">
                     {t("settings.store.store_address_label")}
                   </FormLabel>
@@ -229,7 +235,7 @@ const StoreSettings: React.FC = () => {
               control={control}
               name="storePhone"
               render={({ field }) => (
-                <FormItem>
+                <FormItem data-setting="store-phone">
                   <FormLabel className="text-lg font-medium">
                     {t("settings.store.store_phone_label")}
                   </FormLabel>
@@ -249,7 +255,7 @@ const StoreSettings: React.FC = () => {
               control={control}
               name="guestCustomerEmail"
               render={({ field }) => (
-                <FormItem id="guest-customer-email">
+                <FormItem data-setting="guest-email">
                   <FormLabel className="text-lg font-medium flex items-center gap-2">
                     {t("settings.store.guest_email_label")}
                     <Tooltip>
@@ -283,7 +289,7 @@ const StoreSettings: React.FC = () => {
               )}
             />
 
-            <div className="space-y-4">
+            <div data-setting="payment-methods" className="space-y-4">
               <Label className="text-lg font-medium">{t("settings.store.payment_methods_label")}</Label>
               <p className="text-base text-fg-muted">
                 {t("settings.store.payment_methods_description")}
@@ -456,7 +462,7 @@ const StoreSettings: React.FC = () => {
                 control={control}
                 name="transferCounterparty"
                 render={({ field }) => (
-                  <FormItem>
+                  <FormItem data-setting="transfer-counterparty">
                     <FormLabel className="text-lg font-medium flex items-center gap-2">
                       {t("settings.store.transfer_counterparty_label")}
                       <Tooltip>
@@ -491,7 +497,7 @@ const StoreSettings: React.FC = () => {
             )}
 
             {hasBankTransferMethod && (
-              <div className="space-y-3">
+              <div data-setting="bank-details" className="space-y-3">
                 <div className="text-lg font-medium flex items-center gap-2">
                   {t("settings.store.bank_details_label")}
                   <Tooltip>
@@ -508,64 +514,124 @@ const StoreSettings: React.FC = () => {
                     </TooltipContent>
                   </Tooltip>
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-start">
-                  <FormField
-                    control={control}
-                    name="bankBeneficiary"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-base">{t("settings.store.bank_beneficiary_label")}</FormLabel>
-                        <FormControl>
-                          <Input
-                            placeholder={t("settings.store.bank_beneficiary_placeholder")}
-                            className="h-12 text-lg px-4"
-                            disabled={isLoading}
-                            {...field}
-                          />
-                        </FormControl>
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={control}
-                    name="bankName"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-base">{t("settings.store.bank_name_label")}</FormLabel>
-                        <FormControl>
-                          <Input
-                            placeholder={t("settings.store.bank_name_placeholder")}
-                            className="h-12 text-lg px-4"
-                            disabled={isLoading}
-                            {...field}
-                          />
-                        </FormControl>
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={control}
-                    name="bankIban"
-                    rules={{
-                      validate: (value) =>
-                        !value || IBAN_PATTERN.test(normalizeIban(value)) || t("settings.store.bank_iban_invalid"),
-                    }}
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-base">{t("settings.store.bank_iban_label")}</FormLabel>
-                        <FormControl>
-                          <Input
-                            placeholder="GE29NB0000000101904917"
-                            className="h-12 text-lg px-4 font-mono uppercase"
-                            disabled={isLoading}
-                            {...field}
-                          />
-                        </FormControl>
-                        <FormMessage className="text-base" />
-                      </FormItem>
-                    )}
-                  />
-                </div>
+                <FormField
+                  control={control}
+                  name="bankBeneficiary"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-base">{t("settings.store.bank_beneficiary_label")}</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder={t("settings.store.bank_beneficiary_placeholder")}
+                          className="h-12 text-lg px-4"
+                          disabled={isLoading}
+                          {...field}
+                        />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+                {bankFields.map((bankField, index) => (
+                  <div key={bankField.id} className="space-y-4 rounded-lg border border-theme-border bg-surface p-4">
+                    <div className="flex flex-wrap items-center gap-3">
+                      {index === 0 ? (
+                        <StatusChip intent="info" icon={<Star className="size-4" />}>
+                          {t("settings.store.bank_account_main")}
+                        </StatusChip>
+                      ) : (
+                        <Button type="button" variant="outline" onClick={() => moveBank(index, 0)} disabled={isLoading}>
+                          <Star className="size-5" />
+                          {t("settings.store.bank_account_make_main")}
+                        </Button>
+                      )}
+                      <Button
+                        type="button"
+                        variant="outline"
+                        className="ml-auto text-danger-text"
+                        onClick={() => removeBank(index)}
+                        disabled={isLoading || bankFields.length <= 1}
+                      >
+                        <Trash2 className="size-5" />
+                        {t("common.remove")}
+                      </Button>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-start">
+                      <FormField
+                        control={control}
+                        name={`bankAccounts.${index}.bankName`}
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="text-base">{t("settings.store.bank_name_label")}</FormLabel>
+                            <FormControl>
+                              <Input
+                                placeholder={t("settings.store.bank_name_placeholder")}
+                                className="h-12 text-lg px-4"
+                                disabled={isLoading}
+                                {...field}
+                              />
+                            </FormControl>
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={control}
+                        name={`bankAccounts.${index}.iban`}
+                        rules={{
+                          validate: (value, values) => {
+                            const account = values.bankAccounts?.[index];
+                            if (!value) {
+                              return !account?.bankName?.trim() && !account?.swift?.trim()
+                                ? true
+                                : t("settings.store.bank_iban_required");
+                            }
+                            return IBAN_PATTERN.test(normalizeIban(value)) || t("settings.store.bank_iban_invalid");
+                          },
+                        }}
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="text-base">{t("settings.store.bank_iban_label")}</FormLabel>
+                            <FormControl>
+                              <Input
+                                placeholder="GE29NB0000000101904917"
+                                className="h-12 text-lg px-4 font-mono uppercase"
+                                disabled={isLoading}
+                                {...field}
+                              />
+                            </FormControl>
+                            <FormMessage className="text-base" />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={control}
+                        name={`bankAccounts.${index}.swift`}
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="text-base">{t("settings.store.bank_swift_label")}</FormLabel>
+                            <FormControl>
+                              <Input
+                                placeholder="BAGAGE22"
+                                className="h-12 text-lg px-4 font-mono uppercase"
+                                disabled={isLoading}
+                                {...field}
+                              />
+                            </FormControl>
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+                  </div>
+                ))}
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="w-full border-dashed"
+                  onClick={() => appendBank({ bankName: "", iban: "", swift: "" })}
+                  disabled={isLoading}
+                >
+                  <Plus className="size-5" />
+                  {t("settings.store.add_bank_account_button")}
+                </Button>
               </div>
             )}
 
@@ -574,7 +640,7 @@ const StoreSettings: React.FC = () => {
                 control={control}
                 name="fontSize"
                 render={({ field }) => (
-                  <FormItem>
+                  <FormItem data-setting="font-size">
                     <FormLabel className="text-lg font-medium">
                       {t("settings.store.font_size_label")}
                     </FormLabel>
@@ -593,7 +659,7 @@ const StoreSettings: React.FC = () => {
               />
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div data-setting="brand-colors" className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <FormField
                 control={control}
                 name="primaryColor"

@@ -2,6 +2,7 @@ import React from "react";
 import { AdminProduct } from "@medusajs/types";
 import { formatPrice } from "@/utils/helpers";
 import { cheapestVariant, productPriceRange, variantPrice } from "@/utils/pos/catalog";
+import { variantHasPrice } from "@/utils/pos/cart";
 import { useTranslation } from "@/i18n";
 
 interface Props {
@@ -13,6 +14,9 @@ const ProductPrice: React.FC<Props> = ({ product, currency }) => {
   const { t } = useTranslation();
   const range = productPriceRange(product);
   if (!range) return null;
+  if (!product.variants?.some(variantHasPrice)) {
+    return <span className="text-base text-fg-muted">{t("checkout.no_price")}</span>;
+  }
 
   const cheapest = cheapestVariant(product);
   const { original } = cheapest ? variantPrice(cheapest) : { original: null };

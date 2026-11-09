@@ -30,6 +30,7 @@ import { formatPrice } from "@/utils/helpers";
 import { getPaymentMethodLabel } from "@/utils/pos/payment";
 import { useQueryStore } from "@/hooks/queries/useQueryStore";
 import { useTranslation } from "@/i18n";
+import { defaultRefundReasonKey } from "@/utils/orders/refund-reasons";
 import { useRefund } from "./hooks";
 
 interface Props {
@@ -67,6 +68,11 @@ const RefundDialog: React.FC<Props> = ({ isOpen, onClose, order, amount: lockedA
   } = useRefund(order, isOpen, onClose, lockedAmount, onRefunded);
 
   const amount = Number(amountText) || 0;
+  const reasonLabel = (reason: (typeof refundReasons)[number] | undefined) => {
+    if (!reason) return undefined;
+    const key = defaultRefundReasonKey(reason);
+    return key ? t(key) : reason.label;
+  };
   const methodLabel = refundMethodLabel;
 
   return (
@@ -221,8 +227,7 @@ const RefundDialog: React.FC<Props> = ({ isOpen, onClose, order, amount: lockedA
                           <SelectTrigger>
                             {/* SelectValue renders the raw value, so show the label. */}
                             <span className="truncate">
-                              {refundReasons.find((r) => r.id === field.value)
-                                ?.label ?? t("orders.refund_reason_none")}
+                              {reasonLabel(refundReasons.find((r) => r.id === field.value)) ?? t("orders.refund_reason_none")}
                             </span>
                           </SelectTrigger>
                           <SelectContent>
@@ -231,7 +236,7 @@ const RefundDialog: React.FC<Props> = ({ isOpen, onClose, order, amount: lockedA
                             </SelectItem>
                             {refundReasons.map((reason) => (
                               <SelectItem key={reason.id} value={reason.id}>
-                                {reason.label}
+                                {reasonLabel(reason)}
                               </SelectItem>
                             ))}
                           </SelectContent>

@@ -11,9 +11,12 @@ import {
   resolveSelectedItemId,
   DEFAULT_CART_METADATA,
   getVariantUnitPrice,
+  variantHasPrice,
   getVariantAvailableQuantity,
 } from "@/utils/pos/cart";
 import { applyDiscountToUnitPrice } from "@/utils/pos/pricing";
+import { t } from "@/i18n";
+import { lineName } from "@/utils/pos/refusal";
 
 export interface AdoptDraftOrderPayload {
   draftOrderId: string;
@@ -98,6 +101,18 @@ export const createCartItemsSlice: StateCreator<
   addItem: (variant: AdminProductVariant): AddItemResult => {
     const { items, itemQuantity, pendingItemDiscount, pendingItemComment } = get();
     const availableQty = getVariantAvailableQuantity(variant);
+
+    // Without a price in the till's currency the line would sell for 0, and Medusa accepts it.
+    if (!variantHasPrice(variant)) {
+      return {
+        success: false,
+        action: 'no_price',
+        quantityAdded: 0,
+        message: t("checkout.refusal.no_price", {
+          names: lineName({ title: variant.title, productTitle: variant.product?.title, quantity: 1 }),
+        }),
+      };
+    }
 
     // Check if product is out of stock only when inventory quantity is explicitly provided.
     if (availableQty === 0) {

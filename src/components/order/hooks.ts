@@ -1,4 +1,3 @@
-import { logger, safeStringify } from "@/utils/logger";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { useTranslation } from "@/i18n";
@@ -8,13 +7,14 @@ import {
   handleErrorToast,
   printerIssueStaffHintToast,
 } from "@/utils/helpers";
-import { triggerFileDownload, openDownloadsFolder } from "@/utils/downloads";
-import { getSdkBaseUrl, getSdk, getAuthToken } from "@/config/medusa";
+import { downloadFromBackend, openDownloadsFolder } from "@/utils/downloads";
+import { getSdk } from "@/config/medusa";
 import { useQueryClient } from "@tanstack/react-query";
 import { queryKeys } from "@/config/query";
 import { usePrinterService } from "@/hooks/printer/usePrinterService";
 import { useQueryStore } from "@/hooks/queries/useQueryStore";
-import { getOrderPaymentMethodType } from "@/utils/pos/payment";
+import { getOrderChosenProviderId, getOrderPaymentMethodType } from "@/utils/pos/payment";
+import { getMethodType } from "@/utils/settings/store/metadata";
 import { classifyFulfillment, classifyOrderShippingMethod } from "@/utils/pos/fulfillment";
 import { getOrderRefundableTotal } from "@/utils/pos/payment";
 import { toNumber } from "@/utils/pos/pricing";
@@ -24,6 +24,7 @@ import { useQueryTerminalStockLocationId } from "@/hooks/queries/useQueryStockLo
 import { useQueryRegion } from "@/hooks/queries/useQueryRegion";
 import { usePostSaleSlip } from "@/hooks/order/usePostSaleSlip";
 import type { PostSaleSlipDraft } from "@/utils/pos/receipt/post-sale-slip";
+import { isOrderUnpaid } from "@/utils/pos/receipt";
 import { ROUTES } from "@/router/routes";
 
 // Type for fulfillment with extended properties
@@ -57,7 +58,12 @@ export const useOrder = (order: AdminOrder) => {
   const { data: store } = useQueryStore();
   // The hand-off ticket only means anything for an internal transfer.
   const isTransferOrder = getOrderPaymentMethodType(order, store) === "transfer";
+  // A company paying by bank transfer pays against the backend's A4 invoice, paid or not;
+  // unpaid, there is no payment yet, so read the method chosen at checkout.
+  const canDownloadInvoice =
+    getMethodType(store, getOrderChosenProviderId(order)) === "bank_transfer" && order.status !== "canceled";
   const [isDownloading, setIsDownloading] = useState(false);
+  const [isDownloadingInvoice, setIsDownloadingInvoice] = useState(false);
   const [isDownloadingPDF, setIsDownloadingPDF] = useState(false);
   const [isCreatingShipment, setIsCreatingShipment] = useState(false);
   const [isMarkingAsPickedUp, setIsMarkingAsPickedUp] = useState(false);
@@ -95,20 +101,22 @@ export const useOrder = (order: AdminOrder) => {
     navigate(ROUTES.orders);
   };
 
+  const isBill = isOrderUnpaid(order);
+
   const handleReprintReceipt = async () => {
     if (isPrinting) return;
     setIsPrinting(true);
     try {
       await printOrderReceipt(order);
-      toast.success(t("orders.receipt_sent_to_printer"));
+      toast.success(t(isBill ? "orders.bill_sent_to_printer" : "orders.receipt_sent_to_printer"));
     } catch {
       const printer = getDefaultPrinter();
       if (printer) {
-        toast.error(t("orders.receipt_did_not_print"), {
+        toast.error(t(isBill ? "orders.bill_did_not_print" : "orders.receipt_did_not_print"), {
           description: printerIssueStaffHintToast(printer.name),
         });
       } else {
-        toast.error(t("orders.receipt_did_not_print"), {
+        toast.error(t(isBill ? "orders.bill_did_not_print" : "orders.receipt_did_not_print"), {
           description: t("checkout.no_default_printer"),
         });
       }
@@ -142,7 +150,7 @@ export const useOrder = (order: AdminOrder) => {
     try {
       await downloadReceiptAsPDF(order);
     } catch {
-      handleErrorToast(t("orders.failed_to_download_receipt"));
+      handleErrorToast(t(isBill ? "orders.failed_to_download_bill" : "orders.failed_to_download_receipt"));
     } finally {
       setIsDownloadingPDF(false);
     }
@@ -153,45 +161,7 @@ export const useOrder = (order: AdminOrder) => {
 
     setIsDownloading(true);
     try {
-      const orderId = order.id;
-      const relativeUrl = `/admin/orders/${orderId}/shipping-label`;
-
-      const baseUrl = getSdkBaseUrl();
-      const fullUrl = `${baseUrl}${relativeUrl}`;
-
-      const authHeaders: Record<string, string> = {};
-
-      try {
-        const token = await getAuthToken();
-
-        if (token) {
-          authHeaders["Authorization"] = `Bearer ${token}`;
-        } else {
-          void logger.warn("No auth token found in store, relying on cookies");
-        }
-      } catch (error) {
-        // If we can't access token storage, continue without token and rely on cookies
-        void logger.warn(`Could not access auth token storage: ${safeStringify(error)}`);
-      }
-
-      const fetchHeaders: HeadersInit = {
-        "Content-Type": "application/json",
-        ...authHeaders,
-      };
-
-      const { fetch: tauriFetch } = await import("@tauri-apps/plugin-http");
-      const response = await tauriFetch(fullUrl, {
-        method: "GET",
-        headers: fetchHeaders,
-      });
-
-      if (!response.ok) {
-        throw new Error(
-          `Failed to download shipping label: ${response.statusText}`
-        );
-      }
-
-      const { filename } = await triggerFileDownload(response);
+      const { filename } = await downloadFromBackend(`/admin/orders/${order.id}/shipping-label`);
       toast.success(t("orders.shipping_label_downloaded", { filename }), {
         description: t("printer_service.saved_to_downloads"),
         action: {
@@ -205,6 +175,27 @@ export const useOrder = (order: AdminOrder) => {
       handleErrorToast(t("orders.failed_to_download_shipping_label", { error: errorMessage }));
     } finally {
       setIsDownloading(false);
+    }
+  };
+
+  const handleDownloadInvoice = async () => {
+    if (isDownloadingInvoice) return;
+
+    setIsDownloadingInvoice(true);
+    try {
+      const { filename } = await downloadFromBackend(`/admin/orders/${order.id}/invoice`);
+      toast.success(t("orders.invoice_downloaded", { filename }), {
+        description: t("printer_service.saved_to_downloads"),
+        action: {
+          label: t("printer_service.open_folder_button"),
+          onClick: () => openDownloadsFolder(filename),
+        },
+      });
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : "Unknown error";
+      handleErrorToast(t("orders.failed_to_download_invoice", { error: errorMessage }));
+    } finally {
+      setIsDownloadingInvoice(false);
     }
   };
 
@@ -355,10 +346,14 @@ export const useOrder = (order: AdminOrder) => {
 
   return {
     getReceiptPreview,
+    isBill,
     handleBackToOrders,
     handleReprintReceipt,
     handlePrintHandoffTicket,
     handleDownloadShippingLabel,
+    handleDownloadInvoice,
+    canDownloadInvoice,
+    isDownloadingInvoice,
     handleCreateShipment,
     handleOpenPickupConfirmation,
     handleMarkAsPickedUp,

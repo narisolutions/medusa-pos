@@ -85,6 +85,12 @@ export const formatDateOnly = (date: Date | string): string => {
   return formatDateStr(toDate(date));
 };
 
+/** Short weekday name ("Thu") in the given language; the system's when none is given. */
+export const formatWeekday = (date: Date | string, locale?: string): string => {
+  if (isInvalidInput(date)) return "";
+  return new Intl.DateTimeFormat(locale, { weekday: "short" }).format(toDate(date));
+};
+
 export const formatTimeOnly = (date: Date | string): string => {
   if (isInvalidInput(date)) return "Invalid Date";
   return formatTimeStr(toDate(date));

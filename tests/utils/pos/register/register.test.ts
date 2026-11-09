@@ -90,6 +90,16 @@ describe("needsOpenRegister", () => {
 });
 
 describe("movementTotals", () => {
+  it("sums pay-ins and drops without float drift", () => {
+    const s = session({
+      movements: [
+        { id: "m1", type: "payin", amount: 0.1 },
+        { id: "m2", type: "payin", amount: 0.2 },
+      ],
+    } as Partial<RegisterSession>);
+    expect(movementTotals(s)).toEqual({ payins: 0.3, drops: 0 });
+  });
+
   it("sums pay-ins and drops separately", () => {
     const s = session({
       movements: [
@@ -205,6 +215,17 @@ describe("computeExpectedCash", () => {
 
   it("is just the float when nothing has happened", () => {
     expect(computeExpectedCash(session({ openingFloat: 75 }), [], store)).toBe(75);
+  });
+
+  it("adds up in tetri, so a balanced drawer balances exactly", () => {
+    // As floats these sum to 132.26999999999998, and counting 132.27 read as SHORT.
+    const orders = [14.99, 5.49, 3, 8.49, 0.1, 0.2].map((total) => ({
+      status: "completed",
+      total,
+      metadata: { cash_collected: total },
+      payment_collections: [],
+    })) as unknown as AdminOrder[];
+    expect(computeExpectedCash(session({ openingFloat: 100 }), orders, store)).toBe(132.27);
   });
 });
 

@@ -77,6 +77,39 @@ adapters/             (per-app — the only files you rewrite)
   printer.ts              printCloseSummary(text)
 ```
 
+The X/Z adds `report.ts` to `core/`: a pure function from the session and its
+normalized sales to a `SessionReport`. `SessionSale` then needs per-tender amounts and a
+refund split, not only `cashAmount`.
+
 Port `core/` verbatim; write fresh `adapters/`. Everything in
 [domain model](./02-domain-model.md) through [edge cases](./08-edge-cases.md) describes
 the `core/` behavior and applies unchanged.
+
+## Phase 2: sessions on the backend
+
+*A later decision, not scheduled.* Phase 1 keeps everything on the till. Moving it to
+the backend gives a store-wide session book, totals that don't depend on downloading
+orders ([KL-2](../known-limitations.md#kl-2-expected-cash-reads-at-most-1000-orders-per-session)),
+and a base for the 2028 universal cash register.
+
+Medusa has **no** built-in register, shift, cash or report feature; its POS guidance
+covers draft orders, sales channels and stock locations and leaves the rest to custom
+modules. The fit is Medusa's own pattern, in the POS plugin:
+
+- **A custom module** with data models `register_session`, `cash_movement` and
+  `z_snapshot`, each storing the ids it is filtered by (till, store, business day).
+- **Module links** from session to order, rather than order metadata.
+- **Workflows** for open, movement and close, each taking a lock (`acquireLockStep`) on
+  the till so two devices cannot close the same session.
+- **Totals by SQL** in the module service. `query.graph` has no SUM or GROUP BY, and
+  raw SQL in a module service is the documented way to aggregate.
+- **Routes** under the plugin's POS routes, plus an Admin widget for the session book.
+
+Not used, and why:
+
+- **Index module** — experimental, and built for filtering across modules, not
+  aggregating.
+- **Analytics module** — event tracking to an external service, not a ledger.
+
+The till keeps the same `core/`: the sales adapter is replaced by one call that returns
+the session's totals.

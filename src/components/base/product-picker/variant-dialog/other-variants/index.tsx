@@ -52,7 +52,7 @@ const OtherVariants: React.FC<Props> = ({ variantId, currency }) => {
               {typeof quantity === "number" && (
                 <span
                   className={`inline-flex items-center gap-1 text-base ${
-                    isOut ? "text-red-600" : isLow ? "text-amber-600" : "text-fg-muted"
+                    isOut ? "text-danger-text" : isLow ? "text-warning-text" : "text-fg-muted"
                   }`}
                 >
                   {isOut && <Ban className="size-4" aria-hidden />}
@@ -72,7 +72,7 @@ const OtherVariants: React.FC<Props> = ({ variantId, currency }) => {
                     {formatPrice(original, currency)}
                   </div>
                 )}
-                <div className={`text-base font-semibold ${original !== null ? "text-red-600" : "text-fg"}`}>
+                <div className={`text-base font-semibold ${original !== null ? "text-danger-text" : "text-fg"}`}>
                   {formatPrice(amount, currency)}
                 </div>
               </div>

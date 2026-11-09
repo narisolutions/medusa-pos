@@ -71,23 +71,7 @@ const useParkedSales = () => {
 
   /** Navigates to the store setting that unblocks draft creation. */
   const goToGuestEmailSetting = useCallback(() => {
-    navigate(ROUTES.settingsSection("store"));
-    setTimeout(() => {
-      const el = document.getElementById("guest-customer-email");
-      if (!el) return;
-      el.scrollIntoView({ behavior: "smooth", block: "center" });
-      el.style.outline = "2px solid var(--color-primary)";
-      el.style.outlineOffset = "4px";
-      el.style.borderRadius = "8px";
-      el.style.transition = "outline-color 0.6s ease, outline-offset 0.3s ease";
-      el.querySelector("input")?.focus();
-      setTimeout(() => {
-        el.style.outline = "";
-        el.style.outlineOffset = "";
-        el.style.borderRadius = "";
-        el.style.transition = "";
-      }, 2500);
-    }, 400);
+    navigate(ROUTES.settingsSection("store"), { state: { setting: "guest-email" } });
   }, [navigate]);
 
   /** True when a draft can be created — it needs an email we can resolve. */

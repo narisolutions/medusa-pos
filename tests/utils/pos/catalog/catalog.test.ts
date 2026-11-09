@@ -6,6 +6,8 @@ import {
   cheapestVariant,
   filterCatalog,
   otherVariants,
+  productBrand,
+  variantGtin,
   productPriceRange,
   productStock,
   variantLabel,
@@ -262,5 +264,33 @@ describe("optionValuesText", () => {
   it("drops Medusa's placeholder for a product made without options", () => {
     expect(optionValuesText([{ value: "Default option value", option: { title: "Default option" } }])).toBe("");
     expect(optionValuesText(undefined)).toBe("");
+  });
+});
+
+describe("productBrand", () => {
+  const linked = { ...product("Kindzmarauli"), brand: { title: { en: "Akhmeteli", ka: "ახმეტელი" } } } as AdminProduct;
+  const legacy = { ...product("Saperavi"), metadata: { brand: { title: "Old Cellar" } } } as AdminProduct;
+
+  it("reads a linked brand in the till's language, else English", () => {
+    expect(productBrand(linked, "ka")).toBe("ახმეტელი");
+    expect(productBrand(linked, "de")).toBe("Akhmeteli");
+  });
+
+  it("falls back to an older metadata brand, and to nothing", () => {
+    expect(productBrand(legacy, "en")).toBe("Old Cellar");
+    expect(productBrand(product("Corkscrew"))).toBeNull();
+  });
+
+  it("lets the catalog search find wines by brand, in any language", () => {
+    expect(filterCatalog([linked, legacy], { query: "akhmet" }).map((p) => p.title)).toEqual(["Kindzmarauli"]);
+    expect(filterCatalog([linked, legacy], { query: "ახმეტ" }).map((p) => p.title)).toEqual(["Kindzmarauli"]);
+  });
+});
+
+describe("variantGtin", () => {
+  it("prefers Medusa's Barcode field, then EAN", () => {
+    expect(variantGtin({ barcode: "4860117330126", ean: "4860000000000" })).toBe("4860117330126");
+    expect(variantGtin({ barcode: null, ean: "4860123590118" })).toBe("4860123590118");
+    expect(variantGtin({ barcode: "", ean: null })).toBeNull();
   });
 });

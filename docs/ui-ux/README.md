@@ -130,6 +130,9 @@ on the real touchscreen.
 - heights under 44px (`h-8/9/10`, `min-h-8/9/10`);
 - raw palette colours.
 
+It also fails outright on a token class with no theme key in `globals.css` (e.g. `text-fg-mutted`) and on
+Tailwind 3's `bg-[--var]` syntax: Tailwind 4 drops both silently, leaving the element unstyled.
+
 The counts in `scripts/ui-rules-baseline.json` may only go down. New code can't add violations. After fixing some, run
 `yarn check:ui --update` to lock the improvement in. A justified exception, such as a decorative 32px switch track
 inside a 48px hit area, is recorded the same way.

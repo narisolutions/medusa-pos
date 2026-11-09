@@ -5,8 +5,8 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
-  /* Neutral fallback when store theme is not configured */
-  --color-primary: oklch(55% 0.02 0);
+  /* Fallback when the store sets no brand colour: a clear action blue, since a grey reads as disabled */
+  --color-primary: #2563eb;
   --color-secondary: oklch(35% 0.02 0);
   /* Text on primary-bg surfaces (buttons): always white — brand primaries are
      dark enough in both themes; without this the token was undefined and
@@ -154,7 +154,7 @@
   --font-sans: "Firago", sans-serif;
 
   /* Brand colors — overridden at runtime from store settings via API */
-  --color-primary: oklch(55% 0.02 0);
+  --color-primary: #2563eb;
   --color-secondary: oklch(35% 0.02 0);
   --color-primary-foreground: #ffffff;
 
@@ -272,6 +272,40 @@
     touch-action: manipulation;
     -webkit-user-select: none;
     user-select: none;
+  }
+
+  /* While the on-screen keyboard is up, every dialog fits and centres in the space above it. */
+  html[data-keyboard="open"] [data-slot="dialog-content"] {
+    top: calc((100dvh - var(--keyboard-inset)) / 2) !important;
+    max-height: calc(100dvh - var(--keyboard-inset) - 2rem) !important;
+    overflow-y: auto;
+  }
+
+  /* WebView2 draws classic scrollbars with arrows; match the thin overlay look of Linux. */
+  html[data-os="windows"] ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  html[data-os="windows"] ::-webkit-scrollbar-track,
+  html[data-os="windows"] ::-webkit-scrollbar-corner {
+    background: transparent;
+  }
+  html[data-os="windows"] ::-webkit-scrollbar-button {
+    display: none;
+  }
+  html[data-os="windows"] ::-webkit-scrollbar-thumb {
+    background-color: var(--color-border-strong);
+    border-radius: 9999px;
+  }
+  html[data-os="windows"] ::-webkit-scrollbar-thumb:hover {
+    background-color: var(--color-fg-subtle);
+  }
+
+  /* The field a settings search opened, for a moment. */
+  [data-setting][data-highlighted] {
+    outline: 3px solid var(--color-primary);
+    outline-offset: 8px;
+    border-radius: 0.5rem;
   }
 
   @media (prefers-reduced-motion: reduce) {

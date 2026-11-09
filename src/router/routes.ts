@@ -7,6 +7,7 @@ const ROUTES = {
   orders: "/orders",
   order: (orderId: string) => `/orders/${orderId}`,
   parked: "/parked",
+  registerHistory: "/register/history",
   settings: "/settings",
   settingsSection: (section: SettingsSection) => `/settings/${section}`,
   /** Development-only UI catalogue (docs/ui-ux). */

@@ -3,9 +3,7 @@ import { AdminOrder } from "@medusajs/types";
 import {
   buildHandoffPayload,
   encodeHandoffUrl,
-  currencyExponent,
   handoffItemName,
-  toMinorUnits,
 } from "@/utils/pos/handoff";
 import schemas from "@/utils/schemas";
 
@@ -28,44 +26,6 @@ const order = {
     },
   ],
 } as unknown as AdminOrder;
-
-describe("toMinorUnits", () => {
-  it("rounds rather than truncating the IEEE-754 remainder", () => {
-    // 4.5 * 100 is 450.00000000000006; truncation would bill 449 tetri.
-    expect(toMinorUnits(4.5)).toBe(450);
-    expect(toMinorUnits(19.99)).toBe(1999);
-    expect(toMinorUnits(0.1 + 0.2)).toBe(30);
-  });
-
-  it("cannot rescue a price that is already below the boundary in binary", () => {
-    // 1.005 is stored as 1.00499999999999989…, so *100 lands at 100.4999…
-    // and rounds down. Rounding cannot recover a digit the literal never had.
-    // Harmless here: Medusa prices are two-decimal, so a third decimal never
-    // reaches this function.
-    expect(toMinorUnits(1.005)).toBe(100);
-  });
-
-  it("handles zero and Medusa's string amounts", () => {
-    expect(toMinorUnits(0)).toBe(0);
-    expect(toMinorUnits("32.50" as unknown as number)).toBe(3250);
-  });
-
-  it("uses the currency's own decimals, as the hand-off contract asks", () => {
-    expect(toMinorUnits(45, "GEL")).toBe(4500);
-    expect(toMinorUnits(1200, "jpy")).toBe(1200);
-    expect(toMinorUnits(1.234, "KWD")).toBe(1234);
-  });
-});
-
-describe("currencyExponent", () => {
-  it("reads ISO 4217 decimals, and assumes two when it cannot tell", () => {
-    expect(currencyExponent("GEL")).toBe(2);
-    expect(currencyExponent("JPY")).toBe(0);
-    expect(currencyExponent("KWD")).toBe(3);
-    expect(currencyExponent(undefined)).toBe(2);
-    expect(currencyExponent("not-a-currency")).toBe(2);
-  });
-});
 
 describe("buildHandoffPayload", () => {
   it("produces a payload the contract schema accepts", () => {

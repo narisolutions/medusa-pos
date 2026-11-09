@@ -1,7 +1,7 @@
 import { logger, safeStringify } from "@/utils/logger";
 import { useState, useEffect, useCallback } from "react";
 import { AdminOrder } from "@medusajs/types";
-import { buildReceipt, buildReceiptPDF, ReceiptData, DEFAULT_RECEIPT_LABELS } from "@/utils/pos/receipt";
+import { buildReceipt, buildReceiptPDF, ReceiptData, DEFAULT_RECEIPT_LABELS, isOrderUnpaid } from "@/utils/pos/receipt";
 import { discountPerUnit } from "@/utils/pos/pricing";
 import { useTranslation } from "@/i18n";
 import { toast } from "sonner";
@@ -206,12 +206,7 @@ const usePrinterService = () => {
 
     // Order is delivered but payment is outstanding (pay later) — render an
     // "amount due" receipt instead of amount-paid/change.
-    const paymentStatus = order.payment_status;
-    const isUnpaid =
-      paymentStatus === "not_paid" ||
-      paymentStatus === "awaiting" ||
-      paymentStatus === "requires_action" ||
-      (order.metadata?.pay_later === true && paymentStatus !== "captured");
+    const isUnpaid = isOrderUnpaid(order);
 
     const bank = isUnpaid ? getBankDetails(store) : undefined;
 
@@ -264,7 +259,10 @@ const usePrinterService = () => {
       cashRounding,
       isUnpaid,
       amountDue: isUnpaid ? total : undefined,
-      bankDetails: bank && { beneficiary: bank.beneficiary, bankName: bank.bank_name, iban: bank.iban },
+      bankDetails: bank && {
+        beneficiary: bank.beneficiary,
+        accounts: bank.accounts.map((a) => ({ bankName: a.bank_name, iban: a.iban, swift: a.swift })),
+      },
       footer: "Thank you for your business!",
     };
   }, [store]);
@@ -272,6 +270,7 @@ const usePrinterService = () => {
   const getReceiptLabels = useCallback(() => ({
     ...DEFAULT_RECEIPT_LABELS,
     title: t("receipt.title"),
+    billTitle: t("receipt.title_bill"),
     date: t("receipt.date"),
     time: t("receipt.time"),
     order: t("receipt.order"),
@@ -295,6 +294,7 @@ const usePrinterService = () => {
     payTo: t("receipt.pay_to"),
     bank: t("receipt.bank"),
     iban: t("receipt.iban"),
+    swift: t("receipt.swift"),
     reference: t("receipt.reference"),
     thankYou: t("receipt.thank_you"),
   }), [t]);
@@ -465,7 +465,8 @@ const usePrinterService = () => {
         // Generate filename
         const orderId = order.display_id?.toString() || "N/A";
         const timestamp = new Date().toISOString().replace(/[-:T]/g, "").slice(0, 15);
-        const filename = `receipt-${orderId}-${timestamp}.pdf`;
+        const isBill = receiptData.isUnpaid === true;
+        const filename = `${isBill ? "bill" : "receipt"}-${orderId}-${timestamp}.pdf`;
 
         // Save PDF to Downloads folder
         const fs = await import("@tauri-apps/plugin-fs");
@@ -473,7 +474,7 @@ const usePrinterService = () => {
           baseDir: fs.BaseDirectory.Download,
         });
 
-        toast.success(t("printer_service.receipt_saved_success", { filename }), {
+        toast.success(t(isBill ? "printer_service.bill_saved_success" : "printer_service.receipt_saved_success", { filename }), {
           description: t("printer_service.saved_to_downloads"),
           action: {
             label: t("printer_service.open_folder_button"),

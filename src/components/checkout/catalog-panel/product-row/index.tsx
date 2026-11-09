@@ -1,6 +1,6 @@
 import React from "react";
 import { AdminProduct } from "@medusajs/types";
-import { productStock, variantLabel } from "@/utils/pos/catalog";
+import { productBrand, productStock, variantLabel } from "@/utils/pos/catalog";
 import { useTranslation } from "@/i18n";
 import ProductInfo from "../product-info";
 import ProductPrice from "../product-price";
@@ -13,15 +13,18 @@ interface Props {
 }
 
 const ProductRow: React.FC<Props> = ({ product, currency, onPick }) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const stock = productStock(product);
   const variants = product.variants ?? [];
   const onlyVariant = variants.length === 1 ? variants[0] : null;
-  const detail = onlyVariant
-    ? [variantLabel(onlyVariant), onlyVariant.sku && `${t("checkout.sku_label")}${onlyVariant.sku}`]
-        .filter(Boolean)
-        .join(" • ")
-    : t("checkout.catalog_variants", { count: variants.length });
+  const detail = [
+    productBrand(product, i18n.language),
+    ...(onlyVariant
+      ? [variantLabel(onlyVariant), onlyVariant.sku && `${t("checkout.sku_label")}${onlyVariant.sku}`]
+      : [t("checkout.catalog_variants", { count: variants.length })]),
+  ]
+    .filter(Boolean)
+    .join(" • ");
 
   return (
     <div className="flex items-center gap-2">

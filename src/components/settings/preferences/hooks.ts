@@ -19,13 +19,9 @@ import { applyDisplaySize } from "@/utils/ui/display-size";
 import { setSoundPreferences } from "@/utils/sounds";
 import { setLocale } from "@/i18n";
 import { REGISTER_CONFIG_CHANGED_EVENT } from "@/context/register";
+import { setWindowFullscreen } from "@/utils/ui/window";
 
 const isTauri = "__TAURI_INTERNALS__" in window;
-
-async function setFullscreen(enabled: boolean): Promise<void> {
-  const { getCurrentWindow } = await import("@tauri-apps/api/window");
-  await getCurrentWindow().setFullscreen(enabled);
-}
 
 const defaults: Forms["PreferencesSettings"] = {
   dateFormat: DEFAULT_PREFERENCES.dateTime.dateFormat,
@@ -39,6 +35,7 @@ const defaults: Forms["PreferencesSettings"] = {
   registerEnabled: DEFAULT_PREFERENCES.register.enabled,
   registerCutoffHour: DEFAULT_PREFERENCES.register.dayCutoffHour,
   registerDiscrepancyThreshold: DEFAULT_PREFERENCES.register.discrepancyThreshold,
+  registerFiscalDevice: DEFAULT_PREFERENCES.register.fiscalDevice,
   cashRoundingEnabled: DEFAULT_PREFERENCES.currency.cashRounding.enabled,
   cashRoundingIncrement: DEFAULT_PREFERENCES.currency.cashRounding.increment,
   soundScan: DEFAULT_PREFERENCES.sounds.scan,
@@ -74,6 +71,7 @@ export const usePreferencesSettings = () => {
         registerEnabled: prefs.register.enabled,
         registerCutoffHour: prefs.register.dayCutoffHour,
         registerDiscrepancyThreshold: prefs.register.discrepancyThreshold,
+        registerFiscalDevice: prefs.register.fiscalDevice,
         cashRoundingEnabled: prefs.currency.cashRounding.enabled,
         cashRoundingIncrement: prefs.currency.cashRounding.increment,
         soundScan: prefs.sounds.scan,
@@ -130,6 +128,7 @@ export const usePreferencesSettings = () => {
           enabled: data.registerEnabled,
           dayCutoffHour: data.registerCutoffHour,
           discrepancyThreshold: data.registerDiscrepancyThreshold,
+          fiscalDevice: data.registerFiscalDevice,
         };
 
         const sounds = {
@@ -150,7 +149,7 @@ export const usePreferencesSettings = () => {
         window.dispatchEvent(new Event(REGISTER_CONFIG_CHANGED_EVENT));
 
         if (isTauri) {
-          await setFullscreen(data.startFullscreen);
+          await setWindowFullscreen(data.startFullscreen);
         }
 
         reset(data);

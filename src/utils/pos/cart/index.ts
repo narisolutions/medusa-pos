@@ -28,7 +28,8 @@ const buildItemMetadata = (variant: AdminProductVariant) => {
   const baseMetadata = {
     product_title: variant.product?.title,
     variant_sku: variant.sku,
-    barcode: variant.ean,
+    barcode: variant.barcode,
+    ean: variant.ean,
     thumbnail: variant.product?.thumbnail,
     available_quantity: availableQuantity,
     original_price: originalPrice,
@@ -53,6 +54,18 @@ const getVariantUnitPrice = (variant: AdminProductVariant): number => {
   return variant.calculated_price?.calculated_amount ?? variant.prices?.[0]?.amount ?? 0;
 };
 
+/**
+ * Whether the till can charge for the variant. The POS catalogue asks Medusa for the price in the
+ * till's currency (`calculated_price`), and none there means none: ₾0 must never stand in for it.
+ * The plain admin catalogue carries no `calculated_price`, so there any listed price counts.
+ */
+const variantHasPrice = (variant: Pick<AdminProductVariant, "calculated_price" | "prices">): boolean => {
+  if (variant.calculated_price !== undefined) {
+    return typeof variant.calculated_price?.calculated_amount === "number";
+  }
+  return (variant.prices?.length ?? 0) > 0;
+};
+
 const getVariantAvailableQuantity = (
   variant: AdminProductVariant
 ): number | undefined => {
@@ -72,5 +85,6 @@ export {
   DEFAULT_CART_METADATA,
   getVariantUnitPrice,
   getVariantAvailableQuantity,
+  variantHasPrice,
 };
 

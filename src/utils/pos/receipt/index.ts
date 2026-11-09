@@ -16,8 +16,22 @@ export type { ReceiptData };
 export type { PrinterEncoding };
 export type { PaperWidth };
 
+/**
+ * Payment is outstanding, so the document is a bill, not proof of payment. A
+ * partly paid order stays a receipt: it says what was paid and what is left.
+ */
+export const isOrderUnpaid = (order: {
+  payment_status?: string | null;
+  metadata?: Record<string, unknown> | null;
+}): boolean =>
+  order.payment_status === "not_paid" ||
+  order.payment_status === "awaiting" ||
+  order.payment_status === "requires_action" ||
+  (order.metadata?.pay_later === true && order.payment_status !== "captured");
+
 export type ReceiptLabels = {
   title: string;
+  billTitle: string;
   date: string;
   time: string;
   order: string;
@@ -41,12 +55,14 @@ export type ReceiptLabels = {
   payTo: string;
   bank: string;
   iban: string;
+  swift: string;
   reference: string;
   thankYou: string;
 };
 
 export const DEFAULT_RECEIPT_LABELS: ReceiptLabels = {
   title: "SALES RECEIPT",
+  billTitle: "BILL",
   date: "Date",
   time: "Time",
   order: "Order",
@@ -70,12 +86,13 @@ export const DEFAULT_RECEIPT_LABELS: ReceiptLabels = {
   payTo: "Pay to",
   bank: "Bank",
   iban: "IBAN",
+  swift: "SWIFT",
   reference: "Reference",
   thankYou: "Thank you for your visit!",
 };
 
 // Text layout widths come from the toolkit; only the PDF sizing is local.
-const PAPER_CONFIG: Record<PaperWidth, { maxItemTitleLen: number; pdfPageWidth: number; pdfMargin: number }> = {
+export const PAPER_CONFIG: Record<PaperWidth, { maxItemTitleLen: number; pdfPageWidth: number; pdfMargin: number }> = {
   "80mm": { maxItemTitleLen: 30, pdfPageWidth: 80, pdfMargin: 5 },
   "57mm": { maxItemTitleLen: 18, pdfPageWidth: 58, pdfMargin: 3 },
 };
@@ -83,11 +100,15 @@ const PAPER_CONFIG: Record<PaperWidth, { maxItemTitleLen: number; pdfPageWidth: 
 /** Bank-transfer rows for an unpaid receipt; the order number is the payment reference. */
 const bankDetailRows = (data: ReceiptData, labels: ReceiptLabels): { label: string; value: string }[] => {
   if (!data.isUnpaid || !data.bankDetails) return [];
-  const { beneficiary, bankName, iban } = data.bankDetails;
+  const { beneficiary, accounts } = data.bankDetails;
+  if (accounts.length === 0) return [];
   return [
     ...(beneficiary ? [{ label: labels.payTo, value: beneficiary }] : []),
-    ...(bankName ? [{ label: labels.bank, value: bankName }] : []),
-    { label: labels.iban, value: iban },
+    ...accounts.flatMap(({ bankName, iban, swift }) => [
+      ...(bankName ? [{ label: labels.bank, value: bankName }] : []),
+      { label: labels.iban, value: iban },
+      ...(swift ? [{ label: labels.swift, value: swift }] : []),
+    ]),
     { label: labels.reference, value: `#${data.orderDisplayId}` },
   ];
 };
@@ -195,7 +216,7 @@ const buildReceiptDoc = (
 
   return {
     headerLines,
-    title: labels.title,
+    title: data.isUnpaid ? labels.billTitle : labels.title,
     metaRows,
     itemsHeading: labels.items,
     items,
@@ -302,7 +323,7 @@ const buildReceiptPDF = async (data: ReceiptData, paperWidth: PaperWidth = "80mm
   addSeparator("thick", 2, 4);
   
   // Receipt Title
-  addText(labels.title, "center", 12, true, 5);
+  addText(data.isUnpaid ? labels.billTitle : labels.title, "center", 12, true, 5);
   addSeparator("thin", 0, 4);
 
   // Order Information

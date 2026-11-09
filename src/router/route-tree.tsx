@@ -12,6 +12,7 @@ import Parked from "@/pages/parked";
 import Checkout from "@/pages/checkout";
 import Settings from "@/pages/settings";
 import Order from "@/pages/order";
+import RegisterHistory from "@/pages/register-history";
 import { ROUTES } from "./routes";
 
 // Pages load eagerly: chunks come from local disk in Tauri, so lazy loading only added a spinner per page.
@@ -51,6 +52,7 @@ const routes = createRoutesFromElements(
             <Route path=":orderId" element={<Order />} />
           </Route>
           <Route path={ROUTES.parked} element={<Parked />} />
+          <Route path={ROUTES.registerHistory} element={<RegisterHistory />} />
           <Route path={`${ROUTES.settings}/:section?`} element={<Settings />} />
           {DevUi && (
             <Route

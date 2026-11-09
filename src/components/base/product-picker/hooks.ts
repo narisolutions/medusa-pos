@@ -13,6 +13,7 @@ import constants from "@/utils/constants";
 import { fetchProductByBarcode } from "@/utils/pos/barcode";
 import { ExtendedAdminProduct } from "@/types/utils";
 import { useSalesChannel } from "@/context/sales-channel";
+import { productBrand } from "@/utils/pos/catalog";
 
 const BARCODE_PATTERN = constants.CHECKOUT_CONFIG.BARCODE_VALIDATION_PATTERN;
 const INITIAL_MODE = "search" as const;
@@ -41,7 +42,7 @@ interface Props {
 }
 
 const useProductPicker = ({ products = [], inputRef, onSelect }: Props) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const salesChannelId = useSalesChannel((s) => s.salesChannelId);
   const setNeedsWarning = useSalesChannel((s) => s.setNeedsWarning);
   const [filterState, setFilterState] = useState<FilterState>({
@@ -90,7 +91,8 @@ const useProductPicker = ({ products = [], inputRef, onSelect }: Props) => {
           variant.product?.title?.toLowerCase().includes(searchText) ||
           variant.title?.toLowerCase().includes(searchText) ||
           variant.sku?.toLowerCase().includes(searchText) ||
-          variant.ean?.toLowerCase().includes(searchText)
+          variant.ean?.toLowerCase().includes(searchText) ||
+          variant.barcode?.toLowerCase().includes(searchText)
         );
       })
       .slice(0, constants.CHECKOUT_CONFIG.SEARCH_RESULTS_LIMIT);
@@ -252,18 +254,8 @@ const useProductPicker = ({ products = [], inputRef, onSelect }: Props) => {
     });
   }, [updateFilterState]);
 
-  const getBrandTitle = (product: ExtendedAdminProduct): string | null => {
-    const brand = product?.metadata?.brand || product?.brand || null;
-    const rawTitle = brand?.title || brand?.name || null;
-
-    if (!rawTitle) return null;
-    if (typeof rawTitle === "string") return rawTitle;
-    if (typeof rawTitle === "object") {
-      const localized = rawTitle as Record<string, string>;
-      return localized.en || Object.values(localized)[0] || null;
-    }
-    return null;
-  };
+  const getBrandTitle = (product: ExtendedAdminProduct): string | null =>
+    productBrand(product, i18n.language);
 
   // Computed values
   const isValidBarcode = BARCODE_PATTERN.test(inputValue.trim());

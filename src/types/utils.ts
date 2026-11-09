@@ -105,7 +105,7 @@ interface ReceiptData {
   /** Outstanding balance shown on an unpaid receipt instead of Amount Paid/Change. */
   amountDue?: number;
   /** Where to send the outstanding amount; printed only on an unpaid receipt. */
-  bankDetails?: { beneficiary?: string; bankName?: string; iban: string };
+  bankDetails?: { beneficiary?: string; accounts: { bankName?: string; iban: string; swift?: string }[] };
   footer?: string;
 }
 
@@ -116,8 +116,9 @@ type OrderDiscount = { type: "amount" | "percent"; value: number } | null;
 type PaymentMethod = string | undefined;
 
 interface ExtendedAdminProduct extends AdminProduct {
+  /** A linked brand (marketplace module); its title may be localized ({ en, ka }). */
   brand?: {
-    title?: string;
+    title?: string | Record<string, string>;
     name?: string;
   };
   metadata?: {
@@ -153,7 +154,7 @@ interface DraftOrderMetadata extends Record<string, unknown> {
 
 type AddItemResult = {
   success: boolean;
-  action: 'added' | 'increased' | 'out_of_stock' | 'insufficient_stock';
+  action: 'added' | 'increased' | 'out_of_stock' | 'insufficient_stock' | 'no_price';
   quantityAdded: number;
   message?: string;
 };
