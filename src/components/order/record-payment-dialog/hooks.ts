@@ -7,12 +7,14 @@ import { getSdk } from "@/config/medusa";
 import { useTranslation } from "@/i18n";
 import { useQueryStore } from "@/hooks/queries/useQueryStore";
 import { useOrderProcessing } from "@/hooks/order/useOrderProcessing";
+import { useCashTender } from "@/hooks/order/useCashTender";
 import { usePostSaleCash } from "@/hooks/order/usePostSaleCash";
 import { settleOutstanding } from "@/utils/pos/order-processing";
 import { toNumber } from "@/utils/pos/pricing";
 import { getMethodType, getPaymentMethods } from "@/utils/settings/store/metadata";
 import { getOrderChosenProviderId } from "@/utils/pos/payment";
-import { handleErrorToast, printerIssueStaffHintToast } from "@/utils/helpers";
+import { formatPrice, handleErrorToast, printerIssueStaffHintToast } from "@/utils/helpers";
+import { getCashRounding, roundCashAmount } from "@/utils/settings/preferences";
 import { logger, safeStringify } from "@/utils/logger";
 import { usePrinterService } from "@/hooks/printer/usePrinterService";
 import { ORDER_DETAIL_FIELDS } from "@/hooks/queries/useQueryOrder";
@@ -44,17 +46,28 @@ export const useRecordPayment = (order: AdminOrder, onClose?: () => void) => {
     : order.summary?.accounting_total ?? order.total ?? 0;
   const currency = order.currency_code;
 
+  // Cash is counted as at checkout: what was handed over, and the change. Cash
+  // rounds to the configured step; the order's own total is left as it is.
+  const isCashSelected = !!selectedMethod && getMethodType(store, selectedMethod) === "cash";
+  const cashRoundingActive = isCashSelected && getCashRounding().enabled;
+  const cashDue = cashRoundingActive ? roundCashAmount(toNumber(total)) : toNumber(total);
+  const tender = useCashTender(cashDue, isCashSelected);
+
   const handleConfirm = useCallback(async () => {
     if (!selectedMethod) {
       handleErrorToast(t("checkout.select_payment_method"));
       return;
     }
 
-    const isCash = getMethodType(store, selectedMethod) === "cash";
+    const isCash = isCashSelected;
     if (isCash && isCashBlocked) {
       handleErrorToast(t("checkout.register_closed"));
       return;
     }
+    if (isCash && !tender.canProcessPayment) return;
+    // Read now: the dialog closes when the payment is through.
+    const tendered = parseFloat(tender.customerPaid) || 0;
+    const changeDue = tender.change;
 
     setIsProcessing(true);
     try {
@@ -65,10 +78,25 @@ export const useRecordPayment = (order: AdminOrder, onClose?: () => void) => {
       else await processPaymentCollection(order, selectedMethod);
 
       if (isCash) {
+        // What was handed over, on the order, so the receipt prints it and the change.
+        // Not on a top-up: the receipt's figures are the first sale's.
+        if (!isTopUp) {
+          try {
+            await sdk.admin.order.update(order.id, {
+              metadata: {
+                ...(order.metadata ?? {}),
+                cash_paid: tendered,
+                ...(cashRoundingActive ? { cash_collected: cashDue } : {}),
+              },
+            });
+          } catch (metadataError) {
+            void logger.warn(`Cash tendered was not saved on the order: ${safeStringify(metadataError)}`);
+          }
+        }
         await recordCash(
           order,
           "payin",
-          toNumber(total),
+          cashDue,
           t("orders.post_sale.movement_payment", { id: order.display_id })
         );
       }
@@ -89,7 +117,11 @@ export const useRecordPayment = (order: AdminOrder, onClose?: () => void) => {
       void queryClient.invalidateQueries({ queryKey: queryKeys.orders.detail(order.id) });
       void queryClient.invalidateQueries({ queryKey: queryKeys.orders.all });
 
-      toast.success(t("orders.record_payment_success"));
+      toast.success(t("orders.record_payment_success"), {
+        ...(isCash && changeDue > 0
+          ? { description: `${t("checkout.change_due")}: ${formatPrice(changeDue, currency || "")}` }
+          : {}),
+      });
       onClose?.();
 
       // The customer has now paid: print the receipt, from the paid order, like checkout does.
@@ -114,7 +146,7 @@ export const useRecordPayment = (order: AdminOrder, onClose?: () => void) => {
     } finally {
       setIsProcessing(false);
     }
-  }, [selectedMethod, order, store, isTopUp, total, isCashBlocked, recordCash, processPaymentCollection, printOrderReceipt, getDefaultPrinter, queryClient, onClose, t]);
+  }, [selectedMethod, order, isTopUp, isCashBlocked, recordCash, processPaymentCollection, printOrderReceipt, getDefaultPrinter, queryClient, onClose, t, isCashSelected, cashDue, cashRoundingActive, currency, tender.canProcessPayment, tender.change, tender.customerPaid]);
 
   return {
     methods,
@@ -124,5 +156,8 @@ export const useRecordPayment = (order: AdminOrder, onClose?: () => void) => {
     currency,
     isProcessing,
     handleConfirm,
+    isCashSelected,
+    cashDue,
+    tender,
   };
 };

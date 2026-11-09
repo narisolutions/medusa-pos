@@ -7,6 +7,7 @@ import { useChange } from "@/hooks/utils/useChange";
 import { toast } from "sonner";
 import { queryClient, queryKeys } from "@/config/query";
 import { getSdk } from "@/config/medusa";
+import { useCashTender } from "@/hooks/order/useCashTender";
 import { playSound } from "@/utils/sounds";
 import { usePrinterService } from "@/hooks/printer/usePrinterService";
 import { AdminOrder, AdminDraftOrder } from "@medusajs/types";
@@ -20,7 +21,6 @@ import { cartLines } from "@/utils/pos/refusal";
 import { explainRefusalError } from "@/utils/pos/refusal/live";
 import { getBankDetails, getPaymentMethods, getMethodType } from "@/utils/settings/store/metadata";
 import { getCashRounding, roundCashAmount } from "@/utils/settings/preferences";
-import constants from "@/utils/constants";
 import { CreditCard, Banknote, ArrowLeftRight, Landmark } from "lucide-react";
 import {
   cashDrawerIssueStaffHintToast,
@@ -144,93 +144,6 @@ const useOrderCalculations = (draftOrder: AdminDraftOrder | null) => {
   return { subtotal, discount, tax, total, itemCount };
 };
 
-const useCashPayment = (total: number, isCashType: boolean) => {
-  const [customerPaid, setCustomerPaid] = useState<string>("");
-  const [billCounts, setBillCounts] = useState<Record<number, number>>({});
-
-  const handleCashValueChange = (value: string) => {
-    setCustomerPaid(value);
-    // Reset bill counts when manually entering a value
-    if (value === "" || value === "0") {
-      setBillCounts({});
-    }
-  };
-
-  const handleQuickAmount = (amount: number, remove: boolean = false) => {
-    if (remove) {
-      // Remove one bill of this amount
-      setCustomerPaid((prev) => {
-        const currentPaid = parseFloat(prev) || 0;
-        return Math.max(0, currentPaid - amount).toString();
-      });
-
-      setBillCounts((prev) => {
-        const currentCount = prev[amount] || 0;
-        if (currentCount > 0) {
-          const newCount = currentCount - 1;
-          if (newCount <= 0) {
-            // eslint-disable-next-line @typescript-eslint/no-unused-vars
-            const { [amount]: _, ...rest } = prev;
-            return rest;
-          }
-          return { ...prev, [amount]: newCount };
-        }
-        return prev;
-      });
-    } else {
-      // Add the amount to the current total
-      setCustomerPaid((prev) => {
-        const currentPaid = parseFloat(prev) || 0;
-        return (currentPaid + amount).toString();
-      });
-
-      // Update bill count
-      setBillCounts((prev) => ({
-        ...prev,
-        [amount]: (prev[amount] || 0) + 1,
-      }));
-    }
-  };
-
-  const handleClearBillCounts = () => {
-    setBillCounts({});
-    setCustomerPaid("");
-  };
-
-  const handleExactAmount = () => {
-    setCustomerPaid(total.toString());
-    setBillCounts({});
-  };
-
-  const change =
-    isCashType && customerPaid
-      ? (parseFloat(customerPaid) || 0) - total
-      : 0;
-
-  const canProcessPayment =
-    isCashType
-      ? (parseFloat(customerPaid) || 0) >= total
-      : true;
-
-  const resetCashState = () => {
-    setCustomerPaid("");
-    setBillCounts({});
-  };
-
-  return {
-    customerPaid,
-    change,
-    canProcessPayment,
-    handleCashValueChange,
-    handleQuickAmount,
-    handleClearBillCounts,
-    handleExactAmount,
-    resetCashState,
-    billCounts,
-    quickAmounts: constants.QUICK_CASH_AMOUNTS,
-  };
-};
-
 type CompletedSale = { order: AdminOrder; change: number; outstanding: boolean; method?: PaymentMethod };
 
 const usePaymentModal = (
@@ -296,7 +209,7 @@ const usePaymentModal = (
     resetCashState,
     billCounts,
     quickAmounts,
-  } = useCashPayment(cashTotal, isCashType);
+  } = useCashTender(cashTotal, isCashType);
   const { processPaymentCollection, processFulfillment } = useOrderProcessing();
 
   // Fire-and-forget: print receipt + open cash drawer after order succeeds.
