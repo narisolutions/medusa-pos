@@ -23,28 +23,29 @@ const CashTender: React.FC<Props> = ({ tender, currency, disabled, onEnter }) =>
   const tendered = parseFloat(customerPaid) || 0;
 
   return (
-    <div className="space-y-4">
-      <div>
-        <div className="text-base font-semibold text-fg-muted mb-2">{t("checkout.cash_tendered_label")}</div>
-        <div className="relative">
+    <div className="space-y-3">
+      <div className="relative">
+        <span className="absolute left-5 top-1/2 -translate-y-1/2 text-base font-semibold text-fg-muted">
+          {t("checkout.cash_tendered_label")}
+        </span>
           <Input
             type="number"
             value={customerPaid}
             onChange={(e) => tender.handleCashValueChange(e.target.value)}
             placeholder="0.00"
-            className="text-4xl h-20 text-right font-bold border-2 pr-14 rounded-lg"
+            aria-label={t("checkout.cash_tendered_label")}
+            className="text-4xl h-16 text-right font-bold border-2 pl-48 pr-14 rounded-lg"
             step="0.01"
             min="0"
             inputMode="decimal"
             disabled={disabled}
           />
-          <span className="absolute right-5 top-1/2 -translate-y-1/2 text-3xl text-fg-subtle">
-            {getCurrencySymbol(currency || constants.CHECKOUT_CONFIG.CURRENCY)}
-          </span>
-        </div>
+        <span className="absolute right-5 top-1/2 -translate-y-1/2 text-3xl text-fg-subtle">
+          {getCurrencySymbol(currency || constants.CHECKOUT_CONFIG.CURRENCY)}
+        </span>
       </div>
 
-      <div className="grid grid-cols-2 gap-6">
+      <div className="grid grid-cols-2 gap-4">
         <div className="grid grid-cols-2 content-start gap-3">
           {quickAmounts.map((amount) => {
             const count = billCounts[amount] || 0;
@@ -58,7 +59,7 @@ const CashTender: React.FC<Props> = ({ tender, currency, disabled, onEnter }) =>
                   e.preventDefault();
                   tender.handleQuickAmount(amount, true);
                 }}
-                className="relative h-14 bg-surface border-2 border-theme-border-strong rounded-lg hover:border-fg-subtle text-xl font-semibold text-fg"
+                className="relative h-12 bg-surface border-2 border-theme-border-strong rounded-lg hover:border-fg-subtle text-xl font-semibold text-fg"
               >
                 {amount}
                 {count > 0 && (
@@ -73,7 +74,7 @@ const CashTender: React.FC<Props> = ({ tender, currency, disabled, onEnter }) =>
             type="button"
             disabled={disabled}
             onClick={tender.handleExactAmount}
-            className="col-span-2 h-14 bg-info-subtle border-2 border-info rounded-lg text-lg font-semibold text-info-text"
+            className="col-span-2 h-12 bg-info-subtle border-2 border-info rounded-lg text-lg font-semibold text-info-text"
           >
             {t("checkout.exact_amount_button")}
           </button>
@@ -86,15 +87,16 @@ const CashTender: React.FC<Props> = ({ tender, currency, disabled, onEnter }) =>
             allowDecimal={true}
             maxDecimals={2}
             hideActions={true}
+            className="[&>button]:h-16"
           />
         </div>
       </div>
 
-      <div className="h-16 flex items-center">
+      <div className="h-14 flex items-center">
         {tendered > 0 && (
           <div
             role="status"
-            className={`w-full px-5 py-3 rounded-lg border-2 flex items-center justify-between ${
+            className={`w-full px-5 py-2 rounded-lg border-2 flex items-center justify-between ${
               change >= 0 ? "bg-success-subtle border-success" : "bg-warning-subtle border-warning"
             }`}
           >
