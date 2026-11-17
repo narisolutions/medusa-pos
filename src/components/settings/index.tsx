@@ -1,12 +1,13 @@
 import React from "react";
 import { Navigate, NavLink, useParams } from "react-router-dom";
-import { Palette, Plug, Printer, Puzzle, ScanBarcode, SlidersHorizontal, Store, Zap } from "lucide-react";
+import { MonitorSmartphone, Palette, Plug, Printer, Puzzle, ScanBarcode, SlidersHorizontal, Store, Zap } from "lucide-react";
 import PrinterSettings from "./printer";
 import ConnectionSettings from "./connection";
 import StoreSettings from "./store";
 import PreferencesSettings from "./preferences";
 import PluginsSettings from "./plugins";
 import ScannerSettings from "./scanner";
+import CustomerDisplaySettings from "./customer-display";
 import QuickKeysSettings from "./quick-keys";
 import SettingsSearch from "./settings-search";
 import { useSettingHighlight } from "./hooks";
@@ -21,6 +22,7 @@ const SECTIONS: Record<
 > = {
   printer: { icon: Printer, Page: PrinterSettings },
   scanner: { icon: ScanBarcode, Page: ScannerSettings },
+  "customer-display": { icon: MonitorSmartphone, Page: CustomerDisplaySettings },
   connection: { icon: Plug, Page: ConnectionSettings },
   store: { icon: Store, Page: StoreSettings },
   "quick-keys": { icon: Zap, Page: QuickKeysSettings },

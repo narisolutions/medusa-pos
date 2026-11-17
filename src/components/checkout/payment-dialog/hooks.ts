@@ -21,6 +21,7 @@ import { cartLines } from "@/utils/pos/refusal";
 import { explainRefusalError } from "@/utils/pos/refusal/live";
 import { getBankDetails, getPaymentMethods, getMethodType } from "@/utils/settings/store/metadata";
 import { getCashRounding, roundCashAmount } from "@/utils/settings/preferences";
+import { setDisplayPayment, showDisplayFailure, showDisplaySuccess } from "@/utils/customer-display/publisher";
 import { CreditCard, Banknote, ArrowLeftRight, Landmark } from "lucide-react";
 import {
   cashDrawerIssueStaffHintToast,
@@ -211,6 +212,22 @@ const usePaymentModal = (
     quickAmounts,
   } = useCashTender(cashTotal, isCashType);
   const { processPaymentCollection, processFulfillment } = useOrderProcessing();
+
+  // The customer display follows the dialog: what is due, and for cash, what was handed over.
+  const tendered = isCashType && customerPaid ? parseFloat(customerPaid) || 0 : undefined;
+  useEffect(() => {
+    if (!isOpen || completed) {
+      setDisplayPayment(null);
+      return;
+    }
+    setDisplayPayment({
+      method: methodType,
+      ...(draftOrder ? { total: calculations.total, amountDue: cashTotal } : {}),
+      ...(draftOrder && calculations.tax > 0 ? { vatIncluded: calculations.tax } : {}),
+      ...(draftOrder && cashTotal !== calculations.total ? { roundedFrom: calculations.total } : {}),
+      ...(tendered !== undefined ? { tendered, change } : {}),
+    });
+  }, [isOpen, completed, methodType, draftOrder, cashTotal, calculations.tax, calculations.total, tendered, change]);
 
   // Fire-and-forget: print receipt + open cash drawer after order succeeds.
   // Runs independently so it never blocks the modal from closing.
@@ -413,6 +430,7 @@ const usePaymentModal = (
             void queryClient.invalidateQueries({ queryKey: queryKeys.orders.all });
             void queryClient.invalidateQueries({ queryKey: queryKeys.draftOrders.all });
             playSound("error");
+            showDisplayFailure(calculations.total);
             toast.warning(
               t("checkout.order_saved_unpaid", { displayId: order.display_id })
             );
@@ -447,6 +465,7 @@ const usePaymentModal = (
 
       } catch (error) {
         playSound("error");
+        showDisplayFailure(calculations.total);
         setFrozenDraft(null);
         handleErrorToast(
           (await explainRefusalError(error, cartLines(items))) ??
@@ -550,6 +569,7 @@ const usePaymentModal = (
         return order;
       } catch (error) {
         playSound("error");
+        showDisplayFailure(calculations.total);
         setFrozenDraft(null);
         handleErrorToast(
           (await explainRefusalError(error, cartLines(items))) ??
@@ -572,6 +592,7 @@ const usePaymentModal = (
       selectedPaymentMethod,
       draftOrder,
       items,
+      calculations.total,
       processFulfillment,
       cleanupAfterOrder,
       setDraftOrderId,
@@ -596,10 +617,18 @@ const usePaymentModal = (
       if (!result) return;
       const success = succeeded.current;
       succeeded.current = null;
-      if (success) setCompleted({ ...success, change: Math.max(0, changeDue) });
-      else handleClose();
+      if (success) {
+        const changeGiven = Math.max(0, changeDue);
+        setCompleted({ ...success, change: changeGiven });
+        const paidInCash = getMethodType(store, success.method) === "cash";
+        showDisplaySuccess({
+          total: paidInCash ? roundCashAmount(success.order.total) : success.order.total,
+          outstanding: success.outstanding,
+          ...(paidInCash && !success.outstanding ? { change: changeGiven } : {}),
+        });
+      } else handleClose();
     },
-    [handleClose]
+    [handleClose, store]
   );
 
   // Open the pay-later confirmation dialog.

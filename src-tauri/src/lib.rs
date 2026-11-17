@@ -7,6 +7,7 @@ use tauri_plugin_pos_hardware::printing::{self, Align, PrintOp, PrinterTarget, Q
 use tauri_plugin_pos_hardware::{keyboard, serial, usb, winprint};
 
 mod backend_probe;
+mod customer_display;
 mod config;
 #[cfg(target_os = "linux")]
 mod appimage_integrate;
@@ -698,7 +699,15 @@ pub fn run() {
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_process::init())
         .plugin(tauri_plugin_updater::Builder::new().build())
-        .invoke_handler(tauri::generate_handler![
+        .on_window_event(|window, event| {
+            // Closing the till closes the customer's screen with it, so the app can exit.
+            if window.label() == customer_display::MAIN_LABEL
+                && matches!(event, tauri::WindowEvent::CloseRequested { .. } | tauri::WindowEvent::Destroyed)
+            {
+                customer_display::close(window.app_handle());
+            }
+        })
+        .invoke_handler(customer_display::till_only(tauri::generate_handler![
             backend_probe::probe_backend,
             check_physical_keyboard,
             toggle_virtual_keyboard,
@@ -723,8 +732,11 @@ pub fn run() {
             debug_config_info,
             debug_logo_path,
             save_logo_file,
-            delete_logo_file
-        ])
+            delete_logo_file,
+            customer_display::list_monitors,
+            customer_display::ensure_customer_display,
+            customer_display::close_customer_display
+        ]))
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

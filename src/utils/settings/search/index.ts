@@ -20,6 +20,7 @@ type SettingsSearchHit = {
 const SETTINGS_SECTION_TITLES: Record<SettingsSection, string> = {
   printer: "settings.printer.title",
   scanner: "settings.scanner.title",
+  "customer-display": "settings.customer_display.title",
   connection: "settings.connection.title",
   store: "settings.store.title",
   "quick-keys": "settings.quick_keys.title",
@@ -82,6 +83,15 @@ const SETTINGS_INDEX: SettingEntry[] = [
   },
   { id: "scanner-idle", section: "scanner", labelKeys: ["settings.scanner.idle_label"] },
   { id: "scanner-test", section: "scanner", labelKeys: ["settings.scanner.test_label"] },
+  { id: "customer-display-enabled", section: "customer-display", labelKeys: ["settings.customer_display.enabled_label"] },
+  { id: "customer-display-monitor", section: "customer-display", labelKeys: ["settings.customer_display.monitor_label"] },
+  {
+    id: "customer-display-language",
+    section: "customer-display",
+    labelKeys: ["settings.customer_display.language_label", "settings.customer_display.language_ka_en"],
+  },
+  { id: "customer-display-images", section: "customer-display", labelKeys: ["settings.customer_display.images_label"] },
+  { id: "customer-display-thanks", section: "customer-display", labelKeys: ["settings.customer_display.thanks_label"] },
   { id: "language", section: "preferences", labelKeys: ["settings.preferences.language"] },
   {
     id: "theme",

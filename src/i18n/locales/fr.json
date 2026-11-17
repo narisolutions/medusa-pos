@@ -927,6 +927,30 @@
       "move_up": "Monter",
       "move_down": "Descendre",
       "saved": "Touches rapides enregistrées"
+    },
+    "customer_display": {
+      "title": "Écran client",
+      "description": "Un second écran tourné vers le client affiche la vente au fil de l’encaissement : chaque article, les économies, le total et la monnaie en espèces.",
+      "enabled_label": "Montrer la vente au client",
+      "enabled_hint": "S’ouvre sur l’écran choisi ci-dessous dès que cette caisse est connectée.",
+      "monitor_label": "Écran du client",
+      "monitor_refresh": "Actualiser",
+      "monitor_none": "Aucun second écran trouvé. Branchez l’écran du client, puis touchez Actualiser.",
+      "monitor_unnamed": "Écran",
+      "monitor_missing": "{{name}} n’est pas branché. L’affichage reviendra dès qu’il le sera.",
+      "monitor_choose": "Choisissez l’écran du client.",
+      "monitors_failed": "Impossible de lister les écrans.",
+      "save_failed": "Impossible d’enregistrer les réglages de l’écran client.",
+      "language_label": "Langue de l’écran",
+      "language_till": "Comme la caisse",
+      "language_ka": "Géorgien",
+      "language_en": "Anglais",
+      "language_ka_en": "Géorgien + anglais",
+      "images_label": "Photos des produits",
+      "images_hint": "À côté de chaque article. Nécessitent une connexion internet.",
+      "thanks_label": "L’écran de remerciement reste",
+      "thanks_seconds": "{{count}} s",
+      "preview_label": "Aperçu"
     }
   },
   "errors": {
@@ -1174,5 +1198,27 @@
       "kind_error": "La vérification a échoué.",
       "kind_no_network": "Cet appareil n'a pas de réseau. Vérifiez le câble ou le Wi-Fi."
     }
+  },
+  "customerDisplay": {
+    "welcome": "Bienvenue",
+    "thank_you": "Merci !",
+    "total": "Total",
+    "subtotal": "Sous-total",
+    "you_save": "Vous économisez",
+    "items": "Articles : {{count}}",
+    "more_items": "Articles précédents : {{count}}",
+    "vat_included": "Prix TVA comprise",
+    "vat_amount": "Dont TVA {{amount}}",
+    "amount_due": "Montant à payer",
+    "rounded_from": "Arrondi depuis {{amount}}",
+    "paid": "Payé",
+    "change": "Monnaie",
+    "still_due": "Reste à payer",
+    "card_hint": "Veuillez suivre le terminal de paiement",
+    "bank_transfer_hint": "Les coordonnées du virement figurent sur votre facture",
+    "transfer_hint": "Réglé par virement",
+    "payment_due_later": "Paiement différé",
+    "payment_failed": "Paiement non abouti",
+    "please_wait": "Veuillez patienter, le caissier arrive"
   }
 }

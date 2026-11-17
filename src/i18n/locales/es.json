@@ -927,6 +927,30 @@
       "move_up": "Subir",
       "move_down": "Bajar",
       "saved": "Teclas rápidas guardadas"
+    },
+    "customer_display": {
+      "title": "Pantalla del cliente",
+      "description": "Un segundo monitor orientado al cliente muestra la venta mientras se registra: cada artículo, el ahorro, el total y el cambio en efectivo.",
+      "enabled_label": "Mostrar la venta al cliente",
+      "enabled_hint": "Se abre en la pantalla elegida abajo cuando esta caja tiene la sesión iniciada.",
+      "monitor_label": "Pantalla del cliente",
+      "monitor_refresh": "Actualizar",
+      "monitor_none": "No se encontró un segundo monitor. Conecte la pantalla del cliente y toque Actualizar.",
+      "monitor_unnamed": "Monitor",
+      "monitor_missing": "{{name}} no está conectado. La pantalla se abrirá de nuevo cuando lo esté.",
+      "monitor_choose": "Elija la pantalla del cliente.",
+      "monitors_failed": "No se pudieron listar los monitores.",
+      "save_failed": "No se pudo guardar la configuración de la pantalla del cliente.",
+      "language_label": "Idioma en la pantalla",
+      "language_till": "Igual que la caja",
+      "language_ka": "Georgiano",
+      "language_en": "Inglés",
+      "language_ka_en": "Georgiano + inglés",
+      "images_label": "Fotos de productos",
+      "images_hint": "Junto a cada artículo. Necesitan conexión a internet.",
+      "thanks_label": "La pantalla de agradecimiento dura",
+      "thanks_seconds": "{{count}} s",
+      "preview_label": "Vista previa"
     }
   },
   "errors": {
@@ -1174,5 +1198,27 @@
       "kind_error": "La comprobación falló.",
       "kind_no_network": "Este dispositivo no tiene red. Revisa el cable o el Wi-Fi."
     }
+  },
+  "customerDisplay": {
+    "welcome": "Bienvenido",
+    "thank_you": "¡Gracias!",
+    "total": "Total",
+    "subtotal": "Subtotal",
+    "you_save": "Ahorra",
+    "items": "Artículos: {{count}}",
+    "more_items": "Artículos anteriores: {{count}}",
+    "vat_included": "Precios con IVA incluido",
+    "vat_amount": "IVA incluido {{amount}}",
+    "amount_due": "Importe a pagar",
+    "rounded_from": "Redondeado desde {{amount}}",
+    "paid": "Pagado",
+    "change": "Cambio",
+    "still_due": "Falta",
+    "card_hint": "Siga las indicaciones del terminal de tarjeta",
+    "bank_transfer_hint": "Los datos de la transferencia están en su factura",
+    "transfer_hint": "Liquidado por transferencia",
+    "payment_due_later": "Pago pendiente",
+    "payment_failed": "Pago no completado",
+    "please_wait": "Espere al cajero, por favor"
   }
 }

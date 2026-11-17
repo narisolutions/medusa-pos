@@ -30,6 +30,7 @@ export const queryClient = new QueryClient({
 export const queryKeys = {
   store: ["store"] as const,
   regions: ["regions"] as const,
+  vatRate: ["vat-rate"] as const,
   salesChannels: ["sales-channels"] as const,
   shippingOptions: ["shipping-options"] as const,
   stockLocations: ["stock-locations"] as const,

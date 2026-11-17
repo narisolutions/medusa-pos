@@ -44,7 +44,8 @@ if (!i18next.isInitialized) {
   i18next.addResourceBundle("en", "translation", en);
 }
 
-async function loadLocale(locale: SupportedLocale): Promise<void> {
+/** Loads a language without switching to it, e.g. for the customer display preview. */
+export async function loadLocale(locale: SupportedLocale): Promise<void> {
   if (locale === "en" || i18next.hasResourceBundle(locale, "translation")) return;
   const { default: translation } = await LOCALE_LOADERS[locale]();
   i18next.addResourceBundle(locale, "translation", translation);

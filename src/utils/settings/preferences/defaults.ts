@@ -39,4 +39,11 @@ export const DEFAULT_PREFERENCES: UserPreferences = {
     sale: true,
     error: true,
   },
+  customerDisplay: {
+    enabled: false,
+    monitor: null,
+    language: "till",
+    showImages: true,
+    thanksSeconds: 8,
+  },
 };

@@ -927,6 +927,30 @@
       "move_up": "Flytta upp",
       "move_down": "Flytta ned",
       "saved": "Snabbknappar sparade"
+    },
+    "customer_display": {
+      "title": "Kundskärm",
+      "description": "En andra skärm vänd mot kunden visar köpet medan det slås in: varje artikel, besparingar, summan och växeln vid kontant.",
+      "enabled_label": "Visa köpet för kunden",
+      "enabled_hint": "Öppnas på skärmen som väljs nedan när den här kassan är inloggad.",
+      "monitor_label": "Kundens skärm",
+      "monitor_refresh": "Uppdatera",
+      "monitor_none": "Ingen andra skärm hittades. Anslut kundens skärm och tryck på Uppdatera.",
+      "monitor_unnamed": "Skärm",
+      "monitor_missing": "{{name}} är inte ansluten. Visningen öppnas igen när den är det.",
+      "monitor_choose": "Välj kundens skärm.",
+      "monitors_failed": "Kunde inte lista skärmarna.",
+      "save_failed": "Kunde inte spara kundskärmens inställningar.",
+      "language_label": "Språk på skärmen",
+      "language_till": "Samma som kassan",
+      "language_ka": "Georgiska",
+      "language_en": "Engelska",
+      "language_ka_en": "Georgiska + engelska",
+      "images_label": "Produktfoton",
+      "images_hint": "Visas bredvid varje artikel. Kräver internetanslutning.",
+      "thanks_label": "Tackskärmen visas i",
+      "thanks_seconds": "{{count}} s",
+      "preview_label": "Förhandsvisning"
     }
   },
   "errors": {
@@ -1174,5 +1198,27 @@
       "kind_error": "Kontrollen misslyckades.",
       "kind_no_network": "Den här enheten har inget nätverk. Kontrollera kabeln eller wifi."
     }
+  },
+  "customerDisplay": {
+    "welcome": "Välkommen",
+    "thank_you": "Tack!",
+    "total": "Totalt",
+    "subtotal": "Delsumma",
+    "you_save": "Du sparar",
+    "items": "Artiklar: {{count}}",
+    "more_items": "Tidigare artiklar: {{count}}",
+    "vat_included": "Priser inkl. moms",
+    "vat_amount": "Varav moms {{amount}}",
+    "amount_due": "Att betala",
+    "rounded_from": "Avrundat från {{amount}}",
+    "paid": "Betalt",
+    "change": "Växel",
+    "still_due": "Kvar att betala",
+    "card_hint": "Följ instruktionerna på kortterminalen",
+    "bank_transfer_hint": "Uppgifterna för överföringen står på din nota",
+    "transfer_hint": "Reglerat via överföring",
+    "payment_due_later": "Betalas senare",
+    "payment_failed": "Betalningen slutfördes inte",
+    "please_wait": "Vänta på kassören"
   }
 }
