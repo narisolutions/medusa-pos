@@ -13,9 +13,9 @@ USB-C) that the operating system sees as a second screen.
 ### Screens
 | Screen | When | Shows |
 |---|---|---|
-| Welcome | Empty cart, after "thank you", or when the till has gone quiet | Logo (or store name) and a welcome line |
+| Welcome | Empty cart, after "thank you", or when the till has gone quiet | The store's logo from Store settings (or its name), a short brand-colour rule, and a welcome line |
 | Cart | Items in the cart | Lines, newest at the bottom and scrolled into view; the changed line flashes. Item count, subtotal and "you save" when there is a saving, and the total. "Prices include VAT" under it only when the store is known to charge VAT |
-| Payment | The payment dialog is open | The cart as it was when payment began, dimmed, with the amount due. Cash: paid and change (or still due) as the cashier types. Card: "follow the terminal". Bank transfer: "details on your bill". The VAT amount once the backend has priced the sale, and no VAT line when it charged none, as on the till's own payment screen |
+| Payment | The payment dialog is open | The cart as it was when payment began, dimmed. One big amount: what is due now (the total it was rounded from only when cash rounding changed it). Cash: paid and change (or still due) as the cashier types. Card: "follow the terminal". Bank transfer: "details on your bill". The VAT amount once the backend has priced the sale, and no VAT line when it charged none, as on the till's own payment screen |
 | Thank you | A sale completed | Total and change for cash; "payment due later" for pay later. Held for the configured time (5–30 s), and ended for good by the next scan |
 | Not completed | Payment failed, or was kept as an unpaid order | Held 6 s, then back to the payment still open, or the cart |
 
@@ -77,6 +77,19 @@ note only where the real screen would show it. Settings save at once.
   priced draft order (`tax_total`). Another backend supplies a rate and an amount; the rule
   (`src/utils/customer-display/vat.ts`) stays.
 
+## A touch-capable customer screen
+The display ignores touch, but the operating system decides which screen a touch panel belongs to. If
+a tap on the customer's screen clicks something on the till, the panel is mapped to the wrong monitor;
+fix it in the system, not the app:
+- **Windows:** Control Panel → Hardware and Sound → Tablet PC Settings → Setup… → Touch input, then
+  tap the customer's screen when asked.
+- **Ubuntu (GNOME):** set the panel's output with
+  `gsettings set org.gnome.desktop.peripherals.touchscreen:/org/gnome/desktop/peripherals/touchscreens/<VID>:<PID>/ output "['<vendor>', '<product>', '<serial>']"`,
+  where VID:PID come from `/proc/bus/input/devices` and the monitor's vendor, product and serial from
+  `org.gnome.Mutter.DisplayConfig.GetCurrentState`.
+
+The store's logo travels with the welcome screen only (up to about 300 KB), never with each scan.
+
 ## Known limitations
 - **Linux on Wayland** lets the compositor place windows, so the display may not open on the chosen
   monitor there. Windows and Linux on X11 place it.
@@ -96,7 +109,7 @@ On the Windows till with the customer monitor connected:
 8. Park the sale → welcome screen. Resume → the cart is back.
 9. Unplug the customer monitor mid-sale → the till screen is not covered. Plug it back → the display returns within 5 s.
 10. Quit and reopen the app → the display opens again after sign-in, with the cart.
-11. Tap the customer monitor (if it's a touchscreen), then scan → the item lands in the till's cart.
+11. Tap the customer monitor (if it's a touchscreen), then scan → nothing happens on the till, and the item lands in the till's cart. If the tap clicks something on the till, map the touch panel to the customer's monitor (see "A touch-capable customer screen").
 12. Language "Georgian + English" → both languages on every label, ₾ formatted as on the till.
 13. Alt+F4 the till while signed in → the display closes too, and no Medusa POS process is left running.
 14. Put the PC to sleep and wake it; switch the customer monitor off and on → the display is back within 5 s, never on the till's screen.

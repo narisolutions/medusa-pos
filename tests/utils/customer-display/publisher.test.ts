@@ -129,6 +129,19 @@ describe("customer display publisher", () => {
     expect(last()).not.toHaveProperty("totals.vatIncluded");
   });
 
+  it("sends the store's saved logo with the welcome screen only, not with every scan", () => {
+    const logoUrl = "data:image/png;base64,iVBORw0KGgo=";
+    const { setItems, last } = setup();
+    configureCustomerDisplayPublisher({ ...config, logoUrl });
+    vi.advanceTimersByTime(PUBLISH_THROTTLE_MS);
+    expect(last()).toMatchObject({ phase: "idle", logoUrl });
+
+    setItems([line(1)]);
+    vi.advanceTimersByTime(PUBLISH_THROTTLE_MS);
+    expect(last()).toMatchObject({ phase: "cart" });
+    expect(JSON.stringify(last())).not.toContain("base64");
+  });
+
   it("does not bring thank-you back when a wrong scan is removed", () => {
     const { setItems, last } = setup();
     showDisplaySuccess({ total: 10, change: 5, outstanding: false });

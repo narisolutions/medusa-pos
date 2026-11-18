@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { changedLineKey, isStale, receiveState, STALE_AFTER_MS } from "@/utils/customer-display/receive";
+import { MAX_LOGO_CHARS } from "@/utils/schemas/customer-display";
 
 const acceptState = (current: Parameters<typeof receiveState>[0], payload: unknown) => {
   const received = receiveState(current, payload);
@@ -55,6 +56,16 @@ describe("acceptState", () => {
     const totals = { itemCount: 0.35, subtotal: 14, discount: 0, total: 14, hiddenLines: 0 };
     const cart = { ...envelope(2), phase: "cart", lines: [line("a", 0.35)], totals };
     expect(acceptState(null, cart)).toMatchObject({ lines: [{ quantity: 0.35 }] });
+  });
+
+  it("takes the logo as an address or as the picture the store settings save, within a size limit", () => {
+    const withLogo = (logoUrl: string) => acceptState(null, { ...envelope(1), logoUrl });
+    expect(withLogo("https://cdn.example.com/logo.png")).toMatchObject({ logoUrl: "https://cdn.example.com/logo.png" });
+    expect(withLogo("data:image/png;base64,iVBORw0KGgo=")).toMatchObject({ phase: "idle" });
+    expect(withLogo("data:image/svg+xml;base64,PHN2Zz4=")).toMatchObject({ phase: "idle" });
+    expect(withLogo("data:text/html;base64,PHNjcmlwdD4=")).toBeNull();
+    expect(withLogo("javascript:alert(1)")).toBeNull();
+    expect(withLogo(`data:image/png;base64,${"A".repeat(MAX_LOGO_CHARS)}`)).toBeNull();
   });
 
   it("drops fields the contract doesn't name", () => {

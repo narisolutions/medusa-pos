@@ -103,9 +103,9 @@ export function useCustomerDisplay(): void {
   const config: PublisherConfig | null =
     prefs && display && currency
       ? {
+          ...(displayLogoUrlSchema.safeParse(logoUrl).success ? { logoUrl } : {}),
           branding: {
             storeName: getBrandName(store),
-            ...(displayLogoUrlSchema.safeParse(logoUrl).success ? { logoUrl } : {}),
             ...(primaryColor ? { primaryColor: primaryColor.slice(0, 40) } : {}),
           },
           format: {

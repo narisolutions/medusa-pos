@@ -9,7 +9,18 @@ const money = z.number().finite();
 
 /** Photos come only over https; the mapper checks with this same schema, so the two can't disagree. */
 export const displayImageUrlSchema = z.url({ protocol: /^https$/ });
-export const displayLogoUrlSchema = z.url({ protocol: /^https?$/ });
+
+/** About 300 KB of picture: the store's logo travels inside the welcome screen. */
+export const MAX_LOGO_CHARS = 400_000;
+
+/** The store's logo: an address, or the picture itself as the store settings save it. */
+export const displayLogoUrlSchema = z.union([
+  z.url({ protocol: /^https?$/ }),
+  z
+    .string()
+    .max(MAX_LOGO_CHARS)
+    .regex(/^data:image\/(png|jpeg|gif|webp|svg\+xml);base64,[A-Za-z0-9+/=]+$/),
+]);
 
 export const displayLineSchema = z.object({
   key: z.string(),
@@ -37,7 +48,6 @@ export const displayTotalsSchema = z.object({
 
 export const displayBrandingSchema = z.object({
   storeName: z.string(),
-  logoUrl: displayLogoUrlSchema.optional(),
   primaryColor: z.string().max(40).optional(),
 });
 
@@ -64,7 +74,8 @@ const base = {
 export const displayPaymentMethodSchema = z.enum(["cash", "card", "transfer", "bank_transfer"]);
 
 export const displayStateSchema = z.discriminatedUnion("phase", [
-  z.object({ ...base, phase: z.literal("idle") }),
+  // The logo rides only on the screen that shows it, not on every scan.
+  z.object({ ...base, phase: z.literal("idle"), logoUrl: displayLogoUrlSchema.optional() }),
   z.object({ ...base, phase: z.literal("cart"), lines: z.array(displayLineSchema), totals: displayTotalsSchema }),
   z.object({
     ...base,

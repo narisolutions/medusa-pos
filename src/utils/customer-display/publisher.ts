@@ -25,7 +25,13 @@ export type CartSource = {
   subscribe(listener: () => void): () => void;
 };
 
-export type PublisherConfig = { branding: DisplayBranding; format: DisplayFormat; thanksMs: number };
+export type PublisherConfig = {
+  branding: DisplayBranding;
+  /** Checked by the caller against `displayLogoUrlSchema`; sent with the welcome screen only. */
+  logoUrl?: string;
+  format: DisplayFormat;
+  thanksMs: number;
+};
 
 type Running = {
   transport: DisplayTransport;
@@ -62,13 +68,16 @@ function send(): void {
   overlay = settleOverlay(overlay, cart.lines.length === 0, now);
   // Checked against the contract before it leaves: only what the schema names is sent,
   // and a screen the display would refuse is reported here, where the cause is.
+  const screen = buildScreen(cart, overlay);
+  const { logoUrl } = running.config;
   const parsed = displayStateSchema.safeParse({
     v: 1,
     seq: seq + 1,
     sentAt: now,
     branding: running.config.branding,
     format: running.config.format,
-    ...buildScreen(cart, overlay),
+    ...screen,
+    ...(screen.phase === "idle" && logoUrl ? { logoUrl } : {}),
   });
   if (!parsed.success) {
     const reason = parsed.error.issues.map((issue) => `${issue.path.join(".")}: ${issue.message}`).join("; ");
