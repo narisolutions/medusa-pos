@@ -8,7 +8,7 @@ Most of these come from the boundary with the backend: a capability the Medusa A
 does not offer, or a query the app runs on the device because no server-side equivalent
 exists yet. Contributions toward any of the resolutions below are welcome.
 
-**Applies to:** Medusa POS against Medusa `2.19.x` (see [Medusa Version Tested](../README.md#medusa-version-tested)).
+**Applies to:** Medusa POS against Medusa `2.22.x` (see [Medusa Version Tested](../README.md#medusa-version-tested)).
 **Last reviewed:** 2026-10-05
 
 ## Reading this page

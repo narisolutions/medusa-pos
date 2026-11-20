@@ -31,8 +31,8 @@ Medusa POS is an independent open-source project and is not officially affiliate
 
 ## Medusa Version Tested
 
-- Frontend SDK/types in this project: `@medusajs/js-sdk@2.19.0`, `@medusajs/types@2.19.0`
-- App behavior targets Medusa Admin API v2.19.x style responses.
+- Frontend SDK/types in this project: `@medusajs/js-sdk@2.22.7`, `@medusajs/types@2.22.7`
+- App behavior targets Medusa Admin API v2.22.x style responses.
 
 If your backend is older/newer, behavior can differ (especially pricing and inventory fields).
 
