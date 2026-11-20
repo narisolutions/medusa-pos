@@ -32,6 +32,7 @@ Each feature lives in its own subdirectory. Within a feature, docs are split int
 | [Draft Orders & Parked Sales](./draft-orders/README.md) | phase 1 (released v0.6.0) | Park an in-progress sale and resume it later; stock re-check on resume, inventory holds spec'd for phase 2 |
 | [Post-Sale](./post-sale/README.md) | built (released v0.7.0) | Returns, exchanges and additional charges from the order page, settled at the till |
 | [Touch UI design system](./ui-ux/README.md) | in use (develop) | Tokens, components and patterns every screen is built from; rules enforced by `yarn check:ui` |
+| [Customer display](./customer-display/README.md) | v1 built (unreleased) | Buyer-facing second monitor showing the sale live: cart, payment, change, thank you |
 | [Role Management](./role-management/README.md) | on hold — waits for Medusa's own roles; no custom system | Operator identity, staff roles, permissions and manager approval — replaces the register-scoped manager PIN |
 
 > More feature subdirectories will be added here over time.

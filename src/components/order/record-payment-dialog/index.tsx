@@ -45,19 +45,19 @@ const RecordPaymentDialog: React.FC<Props> = ({ isOpen, onClose, order }) => {
           {t("orders.record_payment")}
         </DialogTitle>
 
-        <div className="space-y-6 py-4">
-          <div className="bg-surface-muted border border-theme-border rounded-lg p-4 text-center">
-            <div className="text-base font-semibold text-fg-muted mb-1">
+        <div className={isCashSelected ? "space-y-4 py-2" : "space-y-6 py-4"}>
+          <div className="bg-surface-muted border border-theme-border rounded-lg px-5 py-3 flex items-center justify-between gap-4">
+            <div className="text-base font-semibold text-fg-muted">
               {t("checkout.amount_due_label")}
+              {due !== toNumber(total) && (
+                <div className="font-normal">
+                  {t("checkout.rounded_from")} {formatPrice(total, displayCurrency)}
+                </div>
+              )}
             </div>
             <div className="text-total tabular-nums text-fg">
               {formatPrice(due, displayCurrency)}
             </div>
-            {due !== toNumber(total) && (
-              <div className="text-base text-fg-muted mt-1">
-                {t("checkout.rounded_from")} {formatPrice(total, displayCurrency)}
-              </div>
-            )}
           </div>
 
           <PaymentMethodPicker

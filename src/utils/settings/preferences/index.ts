@@ -8,6 +8,7 @@ import type {
   ScannerPreferences,
   SoundPreferences,
   LanguageMode,
+  CustomerDisplayPreferences,
 } from "@/types/preferences";
 import storage from "@/utils/storage";
 import { logger, safeStringify } from "@/utils/logger";
@@ -23,6 +24,7 @@ export type PreferencesPatch = {
   register?: Partial<RegisterPreferences>;
   scanner?: Partial<ScannerPreferences>;
   sounds?: Partial<SoundPreferences>;
+  customerDisplay?: Partial<CustomerDisplayPreferences>;
 };
 
 export { DEFAULT_PREFERENCES } from "./defaults";
@@ -55,6 +57,7 @@ function deepMerge(defaults: UserPreferences, partial: PreferencesPatch): UserPr
     register: { ...defaults.register, ...partial.register },
     scanner: { ...defaults.scanner, ...partial.scanner },
     sounds: { ...defaults.sounds, ...partial.sounds },
+    customerDisplay: { ...defaults.customerDisplay, ...partial.customerDisplay },
   };
 }
 
