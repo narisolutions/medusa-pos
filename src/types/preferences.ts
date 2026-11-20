@@ -85,6 +85,22 @@ export type SoundEvent = "scan" | "scanError" | "sale" | "error";
 
 export type SoundPreferences = Record<SoundEvent, boolean>;
 
+/** "till" follows the till's own language; "ka+en" shows Georgian with English underneath. */
+export type CustomerDisplayLanguage = "till" | "ka" | "en" | "ka+en";
+
+/** A monitor as the OS reports it; name and position together survive a reboot. */
+export type CustomerDisplayMonitor = { name: string | null; x: number; y: number };
+
+/** The buyer-facing screen on a second monitor of this till. Off by default. */
+export type CustomerDisplayPreferences = {
+  enabled: boolean;
+  monitor: CustomerDisplayMonitor | null;
+  language: CustomerDisplayLanguage;
+  showImages: boolean;
+  /** How long "Thank you" stays before the welcome screen returns. */
+  thanksSeconds: number;
+};
+
 export type UserPreferences = {
   dateTime: DateTimePreferences;
   display: DisplayPreferences;
@@ -94,4 +110,5 @@ export type UserPreferences = {
   register: RegisterPreferences;
   scanner: ScannerPreferences;
   sounds: SoundPreferences;
+  customerDisplay: CustomerDisplayPreferences;
 };

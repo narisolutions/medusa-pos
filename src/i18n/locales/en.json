@@ -927,6 +927,30 @@
       "move_up": "Move up",
       "move_down": "Move down",
       "saved": "Quick keys saved"
+    },
+    "customer_display": {
+      "title": "Customer display",
+      "description": "A second monitor facing the customer shows the sale as it is rung up: each item, any savings, the total, and the change for cash.",
+      "enabled_label": "Show the sale to the customer",
+      "enabled_hint": "Opens on the screen chosen below whenever this till is signed in.",
+      "monitor_label": "Customer's screen",
+      "monitor_refresh": "Refresh",
+      "monitor_none": "No second monitor found. Connect the customer's screen, then tap Refresh.",
+      "monitor_unnamed": "Monitor",
+      "monitor_missing": "{{name}} isn't connected. The display opens again when it is.",
+      "monitor_choose": "Choose the customer's screen.",
+      "monitors_failed": "Couldn't list the monitors.",
+      "save_failed": "Couldn't save the customer display settings.",
+      "language_label": "Language on the display",
+      "language_till": "Same as the till",
+      "language_ka": "Georgian",
+      "language_en": "English",
+      "language_ka_en": "Georgian + English",
+      "images_label": "Product photos",
+      "images_hint": "Shown next to each item. They need an internet connection.",
+      "thanks_label": "Thank-you screen stays for",
+      "thanks_seconds": "{{count}} s",
+      "preview_label": "Preview"
     }
   },
   "errors": {
@@ -1174,5 +1198,27 @@
       "kind_error": "The check failed.",
       "kind_no_network": "This device has no network. Check the cable or Wi-Fi."
     }
+  },
+  "customerDisplay": {
+    "welcome": "Welcome",
+    "thank_you": "Thank you!",
+    "total": "Total",
+    "items_label": "Items",
+    "subtotal": "Subtotal",
+    "you_save": "You save",
+    "more_items": "Earlier items: {{count}}",
+    "vat_included": "Prices include VAT",
+    "vat_amount": "Incl. VAT {{amount}}",
+    "amount_due": "Amount due",
+    "rounded_from": "Rounded from {{amount}}",
+    "paid": "Paid",
+    "change": "Change",
+    "still_due": "Still due",
+    "card_hint": "Please follow the card terminal",
+    "bank_transfer_hint": "The transfer details are on your bill",
+    "transfer_hint": "Settled by transfer",
+    "payment_due_later": "Payment due later",
+    "payment_failed": "Payment not completed",
+    "please_wait": "Please wait for the cashier"
   }
 }

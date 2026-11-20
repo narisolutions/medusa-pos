@@ -10,10 +10,12 @@ import SalesChannelWarningDialog from "@/components/base/sales-channel-dialog";
 import { RegisterProvider } from "@/context/register";
 import RegisterDialogs from "@/components/register/register-dialogs";
 import { PluginProviders } from "@/plugins/providers";
+import { useCustomerDisplay } from "@/hooks/customer-display/useCustomerDisplay";
 
 export function Layout() {
   const mainRef = useRef<HTMLElement>(null);
   const { pathname } = useLocation();
+  useCustomerDisplay();
 
   useLayoutEffect(() => {
     mainRef.current?.scrollTo(0, 0);

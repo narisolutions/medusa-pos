@@ -927,6 +927,30 @@
       "move_up": "Nach oben",
       "move_down": "Nach unten",
       "saved": "Schnelltasten gespeichert"
+    },
+    "customer_display": {
+      "title": "Kundendisplay",
+      "description": "Ein zweiter, dem Kunden zugewandter Monitor zeigt den Verkauf beim Erfassen: jeden Artikel, Ersparnisse, die Summe und bei Barzahlung das Rückgeld.",
+      "enabled_label": "Verkauf dem Kunden zeigen",
+      "enabled_hint": "Öffnet sich auf dem unten gewählten Bildschirm, sobald diese Kasse angemeldet ist.",
+      "monitor_label": "Bildschirm des Kunden",
+      "monitor_refresh": "Aktualisieren",
+      "monitor_none": "Kein zweiter Monitor gefunden. Schließen Sie den Kundenbildschirm an und tippen Sie auf Aktualisieren.",
+      "monitor_unnamed": "Monitor",
+      "monitor_missing": "{{name}} ist nicht angeschlossen. Das Display öffnet sich wieder, sobald er es ist.",
+      "monitor_choose": "Wählen Sie den Bildschirm des Kunden.",
+      "monitors_failed": "Die Monitore konnten nicht aufgelistet werden.",
+      "save_failed": "Die Einstellungen des Kundendisplays konnten nicht gespeichert werden.",
+      "language_label": "Sprache auf dem Display",
+      "language_till": "Wie an der Kasse",
+      "language_ka": "Georgisch",
+      "language_en": "Englisch",
+      "language_ka_en": "Georgisch + Englisch",
+      "images_label": "Produktfotos",
+      "images_hint": "Neben jedem Artikel. Benötigen eine Internetverbindung.",
+      "thanks_label": "Dankesbildschirm bleibt",
+      "thanks_seconds": "{{count}} s",
+      "preview_label": "Vorschau"
     }
   },
   "errors": {
@@ -1174,5 +1198,27 @@
       "kind_error": "Die Prüfung ist fehlgeschlagen.",
       "kind_no_network": "Dieses Gerät hat kein Netzwerk. Prüfen Sie Kabel oder WLAN."
     }
+  },
+  "customerDisplay": {
+    "welcome": "Willkommen",
+    "thank_you": "Vielen Dank!",
+    "total": "Gesamt",
+    "items_label": "Artikel",
+    "subtotal": "Zwischensumme",
+    "you_save": "Sie sparen",
+    "more_items": "Frühere Artikel: {{count}}",
+    "vat_included": "Preise inkl. MwSt.",
+    "vat_amount": "Inkl. MwSt. {{amount}}",
+    "amount_due": "Zu zahlen",
+    "rounded_from": "Gerundet von {{amount}}",
+    "paid": "Bezahlt",
+    "change": "Rückgeld",
+    "still_due": "Noch offen",
+    "card_hint": "Bitte folgen Sie dem Kartenterminal",
+    "bank_transfer_hint": "Die Überweisungsdaten stehen auf Ihrer Rechnung",
+    "transfer_hint": "Per Überweisung verrechnet",
+    "payment_due_later": "Zahlung später fällig",
+    "payment_failed": "Zahlung nicht abgeschlossen",
+    "please_wait": "Bitte warten Sie auf den Kassierer"
   }
 }

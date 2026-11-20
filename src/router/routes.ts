@@ -1,4 +1,13 @@
-const SETTINGS_SECTIONS = ["printer", "scanner", "connection", "store", "quick-keys", "preferences", "plugins"] as const;
+const SETTINGS_SECTIONS = [
+  "printer",
+  "scanner",
+  "customer-display",
+  "connection",
+  "store",
+  "quick-keys",
+  "preferences",
+  "plugins",
+] as const;
 type SettingsSection = (typeof SETTINGS_SECTIONS)[number];
 
 const ROUTES = {

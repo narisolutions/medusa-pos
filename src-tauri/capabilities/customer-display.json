@@ -1,0 +1,7 @@
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "description": "The customer display: it only listens for the till's screens and says hello",
+  "identifier": "customer-display",
+  "windows": ["customer-display"],
+  "permissions": ["core:event:default", "log:default"]
+}
